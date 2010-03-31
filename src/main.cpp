@@ -23,7 +23,6 @@ int main(int argc, char **argv)
 
     // wait for camera to finish thread execution
     camera->exit();
-    camera->wait();
     return retval;
 }
 
