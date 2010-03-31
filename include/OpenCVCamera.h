@@ -17,18 +17,15 @@ public:
     /** Possible camera states */
     enum CameraState {
         CAM_UNITIALIZED,
-        CAM_STOPPED,
+        CAM_STARTING,
         CAM_RUNNING,
-        CAM_PAUSED
+        CAM_PAUSED,
+        CAM_STOPPING,
+        CAM_STOPPED
     };
 
     OpenCVCamera( int id = 0 );
     ~OpenCVCamera();
-
-    /** Start thread execution.
-      *
-      */
-    virtual void run();
 
     /** Initalizes the camera. Returns 0 on succes, a negative error code
       * on failure.
@@ -51,18 +48,36 @@ public:
      */
     CameraState getState();
 
-    /** stop, start and pause function not in use atm*/
-//    void stop();
-//    void start();
-//    void pause();
+    /**
+      * Stop capturing and
+      */
+    virtual void stop();
+
+    /** Start the thread and begin capturing
+      * @pre getState() == CAM_STOPPED || CAM_PAUSED
+      * @post getState() == CAM_STARTING. Eventually -> getState() == CAM_STARTED
+      */
+    virtual void start();
+
+    /** Pause (currently implemented as busy loop)
+      * @pre getState() == CAM_RUNNING
+      * @post getState() == CAM_PAUSED
+      */
+    virtual void pause();
+
+    inline int getWidth() const { return m_width; }
+    inline int getHeight() const { return m_height; }
+
+protected:
+    /** The run loop.
+      * Captures camera output and fires signals.
+      */
+    virtual void run();
 
     /** Tries to get a frame from the camera. Returns an IplImage pointer if
       * succesful. Returns 0 when image acquisition failed.
       */
     const IplImage* getFrame();
-
-    inline int getWidth() const { return m_width; }
-    inline int getHeight() const { return m_height; }
 
 private:
     int	m_id;

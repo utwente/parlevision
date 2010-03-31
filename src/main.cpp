@@ -18,10 +18,17 @@ int main(int argc, char **argv)
     mainWin->show();
 
     camera->start();
+    sleep(1000);
+    camera->stop();
+    sleep(1000);
+    camera->start();
+
 
     int retval = app.exec();
 
-    // wait for camera to finish thread execution
+    // Terminate camera thread
+    camera->stop();
+    camera->wait(1000);
     camera->exit();
     return retval;
 }

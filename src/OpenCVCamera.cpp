@@ -36,10 +36,14 @@ int OpenCVCamera::init()
 
 void OpenCVCamera::run()
 {
-    if( m_state == CAM_UNITIALIZED )
+    if( m_state != CAM_STARTING )
+    {
         return;
+    }
 
-    while( true )
+    m_state = CAM_RUNNING;
+
+    while( m_state != CAM_STOPPING )
     {
         // get a frame, blocking call
         const IplImage* frame = getFrame();
@@ -47,37 +51,46 @@ void OpenCVCamera::run()
         // send a signal to subscribers
         emit newFrame( frame );
 
-        QThread::msleep( (unsigned long)( 1000 / 30.0 ) );
+        while(m_state == CAM_PAUSED)
+        {
+            QThread::msleep( (unsigned long)( 1000 / 30.0 ) );
+        }
     }
+
+    m_state = CAM_STOPPED;
 }
 
-//void OpenCVCamera::start()
-//{
-//    if( m_state > CAM_UNITIALIZED )
-//        m_state = CAM_RUNNING;
-//}
+void OpenCVCamera::start()
+{
+    if( m_state > CAM_UNITIALIZED )
+    {
+        m_state = CAM_STARTING;
+    }
+
+    QThread::start();
+}
 
 OpenCVCamera::CameraState OpenCVCamera::getState()
 {
     return m_state;
 }
 
-//void OpenCVCamera::stop()
-//{
-//    if( m_state == CAM_RUNNING ||
-//        m_state == CAM_PAUSED )
-//    {
-//        m_state = CAM_STOPPED;
-//    }
-//}
-//
-//void OpenCVCamera::pause()
-//{
-//    if( m_state == CAM_RUNNING )
-//    {
-//        m_state = CAM_PAUSED;
-//    }
-//}
+void OpenCVCamera::stop()
+{
+    if( m_state == CAM_RUNNING ||
+        m_state == CAM_PAUSED )
+    {
+        m_state = CAM_STOPPING;
+    }
+}
+
+void OpenCVCamera::pause()
+{
+    if( m_state == CAM_RUNNING )
+    {
+        m_state = CAM_PAUSED;
+    }
+}
 
 const IplImage* OpenCVCamera::getFrame()
 {
