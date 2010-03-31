@@ -1,4 +1,8 @@
-INCLUDEPATH  += include
+DEPENDPATH += .
+LIBS += -lcv200 \
+    -lhighgui200
+LIBPATH += c:\opencv2.0\lib
+INCLUDEPATH += include c:\OpenCV2.0\include
 
 SOURCES += src/main.cpp \
  src/CameraProducer.cpp \
@@ -7,7 +11,10 @@ SOURCES += src/main.cpp \
  src/PinConnection.cpp  \
  src/PipelineElement.cpp \
  src/PipelineProcessor.cpp \
- src/PipelineProducer.cpp
+ src/PipelineProducer.cpp \
+ src/QOpenCVWidget.cpp \
+ src/CameraWindow.cpp \
+ src/OpenCVCamera.cpp
 
 HEADERS += include/CameraProducer.h \
  include/DummyProcessor.h \
@@ -15,5 +22,8 @@ HEADERS += include/CameraProducer.h \
  include/PinConnection.h  \
  include/PipelineElement.h \
  include/PipelineProcessor.h \
- include/PipelineProducer.h
+ include/PipelineProducer.h \
+ include/QOpenCVWidget.h \
+ include/CameraWindow.h \
+ include/OpenCVCamera.h
 
