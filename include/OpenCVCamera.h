@@ -3,6 +3,8 @@
 
 #include <QString.h>
 #include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
@@ -35,18 +37,18 @@ public:
     /** Returns the camera ID. This is a number equal to or above 0. The
       * default is 0.
       */
-    int getId();
+    int getId() const;
 
     /** Returns the vendor string as returned by the camera driver */
     //const QString& getName();
 
     /** Returns true if camera is initialized, false if not */
-    bool isInitialized();
+    bool isInitialized() const;
 
     /** Returns the state of the camera. See cameraState enum
      *  for possible camera states.
      */
-    CameraState getState();
+    CameraState getState() const;
 
     /**
       * Stop capturing and
@@ -80,12 +82,15 @@ protected:
     const IplImage* getFrame();
 
 private:
-    int	m_id;
+    int         m_id;
     CameraState m_state;
+
     int	m_width;
     int	m_height;
 
-    CvCapture* m_captureDevice;
+    QMutex          m_mutex;
+    QWaitCondition  m_condition;
+    CvCapture*      m_captureDevice;
 
 signals:
      void newFrame(const IplImage* frame);

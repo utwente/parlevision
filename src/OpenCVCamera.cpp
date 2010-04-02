@@ -36,12 +36,8 @@ int OpenCVCamera::init()
 
 void OpenCVCamera::run()
 {
-    if( m_state != CAM_STARTING )
-    {
-        return;
-    }
-
-    m_state = CAM_RUNNING;
+    assert( m_state != CAM_UNITIALIZED );
+    assert( m_captureDevice != 0 );
 
     while( m_state != CAM_STOPPING )
     {
@@ -49,11 +45,30 @@ void OpenCVCamera::run()
         const IplImage* frame = getFrame();
 
         // send a signal to subscribers
-        emit newFrame( frame );
-
-        while(m_state == CAM_PAUSED)
+        if( frame != 0 )
         {
-            QThread::msleep( (unsigned long)( 1000 / 30.0 ) );
+            emit newFrame( frame );
+        }
+
+        if( m_state == CAM_PAUSED )
+        {
+            m_mutex.lock();
+
+            // this will let this thread wait on the event
+            // and unlocks the mutex so no deadlock is created
+            m_condition.wait(&m_mutex);
+
+            // we have woken up
+            // set cam state back to running again
+            // if there has not been a stop request
+            if( m_state != CAM_STOPPING )
+            {
+                m_state = CAM_RUNNING;
+            }
+
+            // mutex was relocked by the condition
+            // unlock it here
+            m_mutex.unlock();
         }
     }
 
@@ -62,6 +77,8 @@ void OpenCVCamera::run()
 
 void OpenCVCamera::start()
 {
+    QMutexLocker lock( &m_mutex );
+
     if( m_state > CAM_UNITIALIZED )
     {
         m_state = CAM_STARTING;
@@ -70,22 +87,30 @@ void OpenCVCamera::start()
     QThread::start();
 }
 
-OpenCVCamera::CameraState OpenCVCamera::getState()
+OpenCVCamera::CameraState OpenCVCamera::getState() const
 {
     return m_state;
 }
 
 void OpenCVCamera::stop()
 {
-    if( m_state == CAM_RUNNING ||
-        m_state == CAM_PAUSED )
+    QMutexLocker lock( &m_mutex );
+
+    if( m_state == CAM_RUNNING )
     {
         m_state = CAM_STOPPING;
+    }
+    else if( m_state == CAM_PAUSED )
+    {
+        // this will wake the thread after this method has exited
+        m_condition.wakeOne();
     }
 }
 
 void OpenCVCamera::pause()
 {
+    QMutexLocker lock( &m_mutex );
+
     if( m_state == CAM_RUNNING )
     {
         m_state = CAM_PAUSED;
