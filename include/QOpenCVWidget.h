@@ -11,6 +11,8 @@ class QImage;
 
 #include <QWidget>
 
+namespace plvgui {
+
 class QOpenCVWidget : public QWidget {
     private:
         QLabel*         m_imagelabel;
@@ -23,5 +25,7 @@ class QOpenCVWidget : public QWidget {
 
         void putImage( const IplImage* );
 }; 
+
+}
 
 #endif

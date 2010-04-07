@@ -1,9 +1,3 @@
 #include "Pin.h"
 
-Pin::Pin()
-{
-}
-
-Pin::~Pin()
-{
-}
+using namespace plv;

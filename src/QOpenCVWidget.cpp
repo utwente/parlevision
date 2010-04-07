@@ -7,6 +7,8 @@
 #include <QImage>
 #include <iostream>
 
+using namespace plvgui;
+
 // Constructor
 QOpenCVWidget::QOpenCVWidget(QWidget *parent) : QWidget(parent)
 {

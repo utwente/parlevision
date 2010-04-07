@@ -3,11 +3,15 @@
 
 #include "PipelineProcessor.h"
 
+namespace plv {
+
 class DummyProcessor : public PipelineProcessor
 {
 public:
     DummyProcessor();
     ~DummyProcessor();
 };
+
+}
 
 #endif // DUMMYPROCESSOR_H

@@ -9,6 +9,7 @@
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 
+namespace plv {
 
 class OpenCVCamera : public QThread
 {
@@ -19,7 +20,7 @@ public:
     /** Possible camera states */
     enum CameraState {
         CAM_UNITIALIZED,
-        CAM_STARTING,
+        //CAM_STARTING,
         CAM_RUNNING,
         CAM_PAUSED,
         CAM_STOPPING,
@@ -96,6 +97,8 @@ signals:
      void newFrame(const IplImage* frame);
 
 };
+
+}
 
 #endif // OPENCVCAMERA_H
 

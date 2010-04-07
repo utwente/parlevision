@@ -6,13 +6,14 @@
 
 int main(int argc, char **argv)
 {
-    OpenCVCamera* camera = new OpenCVCamera( 0 );
+    plv::OpenCVCamera* camera = new plv::OpenCVCamera( 0 );
     assert(camera);
     if( camera->init() != 0 )
         return -1;
 
     QApplication app(argc, argv);
-    CameraWindow* mainWin = new CameraWindow(camera);
+
+    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
 
     mainWin->setWindowTitle("OpenCV --> QtImage");
     mainWin->show();
@@ -24,6 +25,9 @@ int main(int argc, char **argv)
     // Terminate camera thread
     camera->stop();
     camera->exit();
+
+    delete camera;
+
     return retval;
 }
 

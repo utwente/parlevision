@@ -1,5 +1,7 @@
 #include "PinConnection.h"
 
+using namespace plv;
+
 PinConnection::PinConnection()
 {
 }

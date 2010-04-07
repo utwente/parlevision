@@ -3,6 +3,8 @@
 #include <opencv/highgui.h>
 #include <opencv/cv.h>
 
+using namespace plv;
+
 OpenCVCamera::OpenCVCamera( int id ) :
     m_id( id ),
     m_state( CAM_UNITIALIZED ),
@@ -81,7 +83,7 @@ void OpenCVCamera::start()
 
     if( m_state > CAM_UNITIALIZED )
     {
-        m_state = CAM_STARTING;
+        m_state = CAM_RUNNING;
     }
 
     QThread::start();

@@ -1,7 +1,10 @@
 #include "CameraWindow.h"
 #include "OpenCVCamera.h"
 
-CameraWindow::CameraWindow(OpenCVCamera* cam, QWidget *parent) : QWidget(parent)
+using namespace plvgui;
+
+CameraWindow::CameraWindow( plv::OpenCVCamera* cam, QWidget *parent) :
+    QWidget(parent)
 {
     m_camera = cam;
     m_cvWidget = new QOpenCVWidget(this);
