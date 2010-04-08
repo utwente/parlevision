@@ -36,7 +36,7 @@ void MainWindow::addWidget(QWidget *widget)
 void MainWindow::addCamera(plv::OpenCVCamera* camera)
 {
     connect(ui->actionStop, SIGNAL(triggered()),
-            camera, SLOT(stop()));
+            camera, SLOT(release()));
 
     connect(ui->actionStart, SIGNAL(triggered()),
             camera, SLOT(start()));

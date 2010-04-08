@@ -9,6 +9,8 @@
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 
+#include "OpenCVImage.h"
+
 namespace plv {
 
 class OpenCVCamera : public QThread
@@ -19,12 +21,10 @@ public:
 
     /** Possible camera states */
     enum CameraState {
-        CAM_UNITIALIZED,
-        //CAM_STARTING,
+        CAM_UNINITIALIZED,
+        CAM_INITIALIZED,
         CAM_RUNNING,
-        CAM_PAUSED,
-        CAM_STOPPING,
-        CAM_STOPPED
+        CAM_PAUSED
     };
 
     OpenCVCamera( int id = 0 );
@@ -60,10 +60,10 @@ protected:
       */
     virtual void run();
 
-    /** Tries to get a frame from the camera. Returns an IplImage pointer if
-      * succesful. Returns 0 when image acquisition failed.
+    /** Tries to get an image from OpenCV
+      * and copy it into an OpenCVImage
       */
-    const IplImage* getFrame();
+    OpenCVImage* getFrame();
 
 private:
     int         m_id;
@@ -73,17 +73,27 @@ private:
     int	m_height;
 
     QMutex          m_mutex;
+    QMutex          m_opencv_mutex;
     QWaitCondition  m_condition;
     CvCapture*      m_captureDevice;
 
+    /**
+     * Releases any capture devices that might be used.
+     * Does nothing if nothing in use.
+     */
+    void releaseCapture();
+
+    /**
+     * Fetches an image from OpenCV.
+     * This image might become invalid after it is released by OpenCV
+     * so don't keep references to it for long.
+     */
+    const IplImage* retrieveFrame();
+
 signals:
-     void newFrame(const IplImage* frame);
+    void newFrame(plv::OpenCVImage* frame);
 
 public slots:
-     /**
-       * Stop capturing and
-       */
-     virtual void stop();
 
      /** Start the thread and begin capturing
        * @pre getState() == CAM_STOPPED || CAM_PAUSED
@@ -96,6 +106,11 @@ public slots:
        * @post getState() == CAM_PAUSED
        */
      virtual void pause();
+
+     /**
+       * Release the camera and deinitialize
+       */
+     virtual void release();
 
 };
 

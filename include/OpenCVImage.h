@@ -1,3 +1,6 @@
+#ifndef OPENCVIMAGE_H
+#define OPENCVIMAGE_H
+
 #include <opencv/cv.h>
 
 #include "Types.h"
@@ -10,12 +13,12 @@ protected:
     int m_id;
     IplImage* m_img;
 
-    OpenCVImage( int id, IplImage* img );
-    ~OpenCVImage();
-
 public:
     int getId() const { return m_id; }
     IplImage* getImage() const { return m_img; }
+
+    OpenCVImage( int id, IplImage* img );
+    ~OpenCVImage();
 
     /** implementation of the isCompatible method of the Resource abstract
       * base class
@@ -24,3 +27,5 @@ public:
 };
 
 }
+
+#endif

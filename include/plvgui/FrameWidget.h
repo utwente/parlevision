@@ -11,6 +11,7 @@ class QImage;
 
 #include <QWidget>
 #include "OpenCVCamera.h"
+#include "OpenCVImage.h"
 
 namespace plvgui {
 
@@ -26,7 +27,7 @@ class FrameWidget : public QWidget {
         FrameWidget( QWidget *parent );
         ~FrameWidget();
 
-        void putImage( const IplImage* );
+        void putImage( plv::OpenCVImage* );
 
         /**
          * Connect this viewer to the given source
@@ -34,7 +35,7 @@ class FrameWidget : public QWidget {
         void setSource(plv::OpenCVCamera* cam);
 
     public slots:
-        void setFrame( const IplImage* frame );
+        void setFrame( plv::OpenCVImage* frame );
 }; 
 
 }

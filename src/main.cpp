@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     int retval = app.exec();
 
     // Terminate camera thread
-    camera->stop();
+    camera->release();
     camera->exit();
 
     delete camera;
