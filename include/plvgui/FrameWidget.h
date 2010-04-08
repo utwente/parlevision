@@ -10,6 +10,7 @@ class QVBoxLayout;
 class QImage;
 
 #include <QWidget>
+#include "OpenCVCamera.h"
 
 namespace plvgui {
 
@@ -26,6 +27,11 @@ class FrameWidget : public QWidget {
         ~FrameWidget();
 
         void putImage( const IplImage* );
+
+        /**
+         * Connect this viewer to the given source
+         */
+        void setSource(plv::OpenCVCamera* cam);
 
     public slots:
         void setFrame( const IplImage* frame );

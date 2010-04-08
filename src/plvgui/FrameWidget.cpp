@@ -78,3 +78,10 @@ void FrameWidget::setFrame( const IplImage* frame )
 {
     putImage( frame );
 }
+
+
+void FrameWidget::setSource( plv::OpenCVCamera* cam ) {
+    //TODO disconnect
+    connect( cam, SIGNAL( newFrame( const IplImage* ) ),
+             this, SLOT( setFrame(const IplImage*) ) );
+}

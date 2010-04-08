@@ -1,5 +1,5 @@
 #include "FrameWidget.h"
-#include "CameraWindow.h"
+#include "MainWindow.h"
 #include "OpenCVCamera.h"
 
 #include <QApplication>
@@ -13,9 +13,14 @@ int main(int argc, char **argv)
 
     QApplication app(argc, argv);
 
-    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
+//    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
+    plvgui::MainWindow* mainWin = new plvgui::MainWindow();
 
-    mainWin->setWindowTitle("OpenCV --> QtImage");
+    plvgui::FrameWidget* cvWidget = new plvgui::FrameWidget(mainWin);
+    cvWidget->setSource(camera);
+
+    mainWin->addWidget( cvWidget );
+
     mainWin->show();
 
     camera->start();

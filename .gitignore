@@ -8,3 +8,4 @@ ParleVision.pro.user
 Info.plist
 *.app
 moc_*
+ui_mainwindow.h
