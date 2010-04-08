@@ -3,3 +3,8 @@ debug
 release
 object_script*
 ParleVision.pro.user
+*.o
+*.xcodeproj
+Info.plist
+*.app
+moc_*

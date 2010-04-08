@@ -11,7 +11,8 @@ win32 {
 }
 macx:LIBS += -framework \
     OpenCV
-INCLUDEPATH += include
+INCLUDEPATH += include \
+    include/plvgui
 SOURCES += src/main.cpp \
     src/CameraProducer.cpp \
     src/DummyProcessor.cpp \
@@ -20,8 +21,8 @@ SOURCES += src/main.cpp \
     src/PipelineElement.cpp \
     src/PipelineProcessor.cpp \
     src/PipelineProducer.cpp \
-    src/QOpenCVWidget.cpp \
-    src/CameraWindow.cpp \
+    src/plvgui/QOpenCVWidget.cpp \
+    src/plvgui/CameraWindow.cpp \
     src/OpenCVCamera.cpp \
     src/QtImage.cpp \
     src/OpenCVImage.cpp \
@@ -33,8 +34,8 @@ HEADERS += include/CameraProducer.h \
     include/PipelineElement.h \
     include/PipelineProcessor.h \
     include/PipelineProducer.h \
-    include/QOpenCVWidget.h \
-    include/CameraWindow.h \
+    include/plvgui/QOpenCVWidget.h \
+    include/plvgui/CameraWindow.h \
     include/OpenCVCamera.h \
     include/RefPtr.h \
     include/RefCounted.h \
