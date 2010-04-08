@@ -19,6 +19,7 @@ int main(int argc, char **argv)
     plvgui::FrameWidget* cvWidget = new plvgui::FrameWidget(mainWin);
     cvWidget->setSource(camera);
 
+    mainWin->addCamera(camera);
     mainWin->addWidget( cvWidget );
 
     mainWin->show();

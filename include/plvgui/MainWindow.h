@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "OpenCVCamera.h"
 
 namespace Ui {
     class MainWindow;
@@ -15,6 +16,7 @@ namespace plvgui {
         MainWindow(QWidget *parent = 0);
         ~MainWindow();
         void addWidget(QWidget *widget);
+        void addCamera(plv::OpenCVCamera* camera);
 
     protected:
         void changeEvent(QEvent *e);

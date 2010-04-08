@@ -51,23 +51,6 @@ public:
      */
     CameraState getState() const;
 
-    /**
-      * Stop capturing and
-      */
-    virtual void stop();
-
-    /** Start the thread and begin capturing
-      * @pre getState() == CAM_STOPPED || CAM_PAUSED
-      * @post getState() == CAM_STARTING. Eventually -> getState() == CAM_STARTED
-      */
-    virtual void start();
-
-    /** Pause (currently implemented as busy loop)
-      * @pre getState() == CAM_RUNNING
-      * @post getState() == CAM_PAUSED
-      */
-    virtual void pause();
-
     inline int getWidth() const { return m_width; }
     inline int getHeight() const { return m_height; }
 
@@ -95,6 +78,24 @@ private:
 
 signals:
      void newFrame(const IplImage* frame);
+
+public slots:
+     /**
+       * Stop capturing and
+       */
+     virtual void stop();
+
+     /** Start the thread and begin capturing
+       * @pre getState() == CAM_STOPPED || CAM_PAUSED
+       * @post getState() == CAM_STARTING. Eventually -> getState() == CAM_STARTED
+       */
+     virtual void start();
+
+     /** Pause
+       * @pre getState() == CAM_RUNNING
+       * @post getState() == CAM_PAUSED
+       */
+     virtual void pause();
 
 };
 

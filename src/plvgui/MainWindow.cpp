@@ -27,7 +27,20 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
-void MainWindow::addWidget(QWidget *widget) {
+void MainWindow::addWidget(QWidget *widget)
+{
     ui->layout->addWidget(widget);
 //    ui->resize( m_camera->getWidth(), m_camera->getHeight() );
+}
+
+void MainWindow::addCamera(plv::OpenCVCamera* camera)
+{
+    connect(ui->actionStop, SIGNAL(triggered()),
+            camera, SLOT(stop()));
+
+    connect(ui->actionStart, SIGNAL(triggered()),
+            camera, SLOT(start()));
+
+    connect(ui->actionPause, SIGNAL(triggered()),
+            camera, SLOT(pause()));
 }
