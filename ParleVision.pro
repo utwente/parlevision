@@ -21,7 +21,7 @@ SOURCES += src/main.cpp \
     src/PipelineElement.cpp \
     src/PipelineProcessor.cpp \
     src/PipelineProducer.cpp \
-    src/plvgui/QOpenCVWidget.cpp \
+    src/plvgui/FrameWidget.cpp \
     src/plvgui/CameraWindow.cpp \
     src/OpenCVCamera.cpp \
     src/QtImage.cpp \
@@ -34,7 +34,7 @@ HEADERS += include/CameraProducer.h \
     include/PipelineElement.h \
     include/PipelineProcessor.h \
     include/PipelineProducer.h \
-    include/plvgui/QOpenCVWidget.h \
+    include/plvgui/FrameWidget.h \
     include/plvgui/CameraWindow.h \
     include/OpenCVCamera.h \
     include/RefPtr.h \

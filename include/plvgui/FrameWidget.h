@@ -1,5 +1,5 @@
-#ifndef QOPENCVWIDGET_H
-#define QOPENCVWIDGET_H
+#ifndef FrameWidget_H
+#define FrameWidget_H
 
 #include <opencv/cv.h>
 
@@ -13,15 +13,15 @@ class QImage;
 
 namespace plvgui {
 
-class QOpenCVWidget : public QWidget {
+class FrameWidget : public QWidget {
     private:
         QLabel*         m_imagelabel;
         QVBoxLayout*    m_layout;
         QImage          m_image;
         
     public:
-        QOpenCVWidget( QWidget *parent );
-        ~QOpenCVWidget();
+        FrameWidget( QWidget *parent );
+        ~FrameWidget();
 
         void putImage( const IplImage* );
 }; 

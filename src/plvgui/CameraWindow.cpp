@@ -7,7 +7,7 @@ CameraWindow::CameraWindow( plv::OpenCVCamera* cam, QWidget *parent) :
     QWidget(parent)
 {
     m_camera = cam;
-    m_cvWidget = new QOpenCVWidget(this);
+    m_cvWidget = new FrameWidget(this);
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget( m_cvWidget );

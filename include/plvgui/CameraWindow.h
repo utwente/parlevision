@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QVBoxLayout>
 
-#include "QOpenCVWidget.h"
+#include "FrameWidget.h"
 
 namespace plv {
     class OpenCVCamera;
@@ -18,7 +18,7 @@ class CameraWindow : public QWidget
 {
     Q_OBJECT
     private:
-        QOpenCVWidget* m_cvWidget;
+        FrameWidget* m_cvWidget;
         plv::OpenCVCamera*  m_camera;
         
     public:

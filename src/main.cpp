@@ -1,4 +1,4 @@
-#include "QOpenCVWidget.h"
+#include "FrameWidget.h"
 #include "CameraWindow.h"
 #include "OpenCVCamera.h"
 

@@ -1,4 +1,4 @@
-#include "QOpenCVWidget.h"
+#include "FrameWidget.h"
 
 #include <QPixmap>
 #include <QLabel>
@@ -10,7 +10,7 @@
 using namespace plvgui;
 
 // Constructor
-QOpenCVWidget::QOpenCVWidget(QWidget *parent) : QWidget(parent)
+FrameWidget::FrameWidget(QWidget *parent) : QWidget(parent)
 {
     m_layout      = new QVBoxLayout;
     m_imagelabel  = new QLabel;
@@ -26,11 +26,11 @@ QOpenCVWidget::QOpenCVWidget(QWidget *parent) : QWidget(parent)
     setLayout( m_layout );
 }
 
-QOpenCVWidget::~QOpenCVWidget(void)
+FrameWidget::~FrameWidget(void)
 {
 }
 
-void QOpenCVWidget::putImage( const IplImage *cvimage )
+void FrameWidget::putImage( const IplImage *cvimage )
 {
     // switch between bit depths
     int cvLineStart = 0;
@@ -68,7 +68,7 @@ void QOpenCVWidget::putImage( const IplImage *cvimage )
             }
             break;
         default:
-            std::cout << "This type of IplImage is not implemented in QOpenCVWidget\n";
+            std::cout << "This type of IplImage is not implemented in FrameWidget\n";
             break;
     }
     m_imagelabel->setPixmap( QPixmap::fromImage( m_image ) );
