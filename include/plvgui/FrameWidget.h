@@ -14,6 +14,8 @@ class QImage;
 namespace plvgui {
 
 class FrameWidget : public QWidget {
+    Q_OBJECT
+
     private:
         QLabel*         m_imagelabel;
         QVBoxLayout*    m_layout;
@@ -24,6 +26,9 @@ class FrameWidget : public QWidget {
         ~FrameWidget();
 
         void putImage( const IplImage* );
+
+    public slots:
+        void setFrame( const IplImage* frame );
 }; 
 
 }

@@ -74,3 +74,7 @@ void FrameWidget::putImage( const IplImage *cvimage )
     m_imagelabel->setPixmap( QPixmap::fromImage( m_image ) );
 }
 
+void FrameWidget::setFrame( const IplImage* frame )
+{
+    putImage( frame );
+}

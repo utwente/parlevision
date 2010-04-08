@@ -24,8 +24,6 @@ class CameraWindow : public QWidget
     public:
         CameraWindow( plv::OpenCVCamera* cam, QWidget* parent=0);
 
-    public slots:
-        void setFrame( const IplImage* frame );
 };
 
 }
