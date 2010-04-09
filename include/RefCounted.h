@@ -14,28 +14,18 @@ public:
 
 
     /** increases reference count by one */
-    inline void inc() const
-    {
-        ++m_referenceCount;
-    }
+    void inc() const;
 
     /** decreases reference count by one. Deletes this object if
       * reference count becomes 0
       */
-    inline void dec() const
-    {
-        --m_referenceCount;
-        if( m_referenceCount < 1 )
-        {
-            delete this;
-        }
-    }
+    void dec() const;
 
 protected:
     /** destructor is protected so RefCounted objects kan not be explicitely
       * destructed.
       */
-    ~RefCounted();
+    virtual ~RefCounted();
 
 };
 

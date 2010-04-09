@@ -18,7 +18,7 @@ public:
     IplImage* getImage() const { return m_img; }
 
     OpenCVImage( int id, IplImage* img );
-    ~OpenCVImage();
+    virtual ~OpenCVImage();
 
     /** implementation of the isCompatible method of the Resource abstract
       * base class

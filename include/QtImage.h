@@ -13,7 +13,7 @@ protected:
     int m_id;
     QImage* m_img;
 
-     ~QtImage();
+     virtual ~QtImage();
 
 public:
     QtImage( int id, QImage* img );
