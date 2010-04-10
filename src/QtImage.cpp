@@ -15,7 +15,7 @@ QtImage::~QtImage()
 }
 
 /** Compare two opencv images for type equality */
-bool QtImage::isCompatible( const Resource* other )
+bool QtImage::isCompatible( const ComplexData* other )
 {
     //RefPtr<const PvlQtImage*> img = dynamic_cast<const PvlQtImage*>( other );
     const QtImage* img = dynamic_cast<const QtImage*>( other );

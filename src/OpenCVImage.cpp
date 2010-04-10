@@ -15,9 +15,9 @@ OpenCVImage::~OpenCVImage()
 }
 
 /** Compare two opencv images for type equality */
-bool OpenCVImage::isCompatible( const Resource* other )
+bool OpenCVImage::isCompatibleFormat( const ComplexData* data )
 {
-    RefPtr<const OpenCVImage> img = dynamic_cast<const OpenCVImage*>(other);
+    RefPtr<const OpenCVImage> img = dynamic_cast<const OpenCVImage*>(data);
     if( img.isValid() && m_img != 0 )
     {
         IplImage* other = img->getImage();

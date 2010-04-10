@@ -164,31 +164,47 @@ void OpenCVCamera::release()
     }
 }
 
-OpenCVImage* OpenCVCamera::getFrame()
+bool OpenCVCamera::setDimensions( int width, int height )
 {
-    IplImage* image = cvCloneImage(retrieveFrame());
-    return new OpenCVImage(0, image);
+    assert( width > 0 );
+    assert( height > 0 );
+
+    double dwidth = (double) width;
+
+    // check for 4:3 dimensions
+    if( ((int)(dwidth * (3.0/4.0))) != height )
+        return false;
+    else
+    {
+        cvSetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH, dwidth );
+        return( width = getWidth() && height == getHeight() );
+    }
 }
 
-const IplImage* OpenCVCamera::retrieveFrame()
+OpenCVImage* OpenCVCamera::getFrame()
 {
     QMutexLocker lock( &m_opencv_mutex );
 
     if( m_state == CAM_UNINITIALIZED )
-        throw "uninitialized";
+        return 0;
 
     // first grab a frame, this is a fast function
     int status = cvGrabFrame( m_captureDevice );
 
     if( !status )
     {
-        throw "failed to grab frame";
+        return 0;
     }
 
     // now do post processing such as decompression
     const IplImage* image = cvRetrieveFrame( m_captureDevice );
-    return image;
 
+    // copy the image, since the pointer becomes invalid on another
+    // call to cvGrabFrame() and this pointer is passed to the pipeline
 
+    // TODO buffers reuse here!
+    IplImage* imageCopy = cvCloneImage( image );
+    OpenCVImage* imgContainer = new OpenCVImage( 0, imageCopy );
 
+    return imgContainer;
 }

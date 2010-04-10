@@ -34,8 +34,10 @@ FrameWidget::~FrameWidget(void)
 
 void FrameWidget::putImage( OpenCVImage* cvimage )
 {
-//    RefPtr<OpenCVImage> ocvimg = cvimage;
-    IplImage* image = cvimage->getImage();
+    // necessary for reference counting the container
+    RefPtr<OpenCVImage> refImage = cvimage;
+    IplImage* image = refImage->getImage();
+
     // switch between bit depths
     int cvLineStart = 0;
     int cvIndex = 0;
@@ -76,7 +78,6 @@ void FrameWidget::putImage( OpenCVImage* cvimage )
             break;
     }
     m_imagelabel->setPixmap( QPixmap::fromImage( m_image ) );
-    delete cvimage;
 }
 
 void FrameWidget::setFrame( OpenCVImage* frame )

@@ -7,23 +7,23 @@
 
 namespace plv {
 
-class OpenCVImage : public Resource
+class OpenCVImage : public ComplexData
 {
 protected:
     int m_id;
     IplImage* m_img;
+    virtual ~OpenCVImage();
 
 public:
     int getId() const { return m_id; }
     IplImage* getImage() const { return m_img; }
 
     OpenCVImage( int id, IplImage* img );
-    virtual ~OpenCVImage();
 
     /** implementation of the isCompatible method of the Resource abstract
       * base class
       */
-    virtual bool isCompatible( const Resource* other );
+    virtual bool isCompatibleFormat( const ComplexData* other );
 };
 
 }

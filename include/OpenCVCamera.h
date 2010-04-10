@@ -51,6 +51,15 @@ public:
      */
     CameraState getState() const;
 
+
+    /** Sets the camera dimensions. Only 4:3 resolutions are supported
+      * by the OpenCV highgui library.
+      * \return true on succesful resolution switch, or if resolution is
+      * already as requested. False when resolution switch failed or resolution
+      * is invalid.
+      */
+    bool setDimensions( int width, int height );
+
     inline int getWidth() const { return m_width; }
     inline int getHeight() const { return m_height; }
 
@@ -60,15 +69,11 @@ protected:
       */
     virtual void run();
 
-    /** Tries to get an image from OpenCV
-      * and copy it into an OpenCVImage
-      */
-    OpenCVImage* getFrame();
-
 private:
     int         m_id;
     CameraState m_state;
 
+    /** camera dimensions */
     int	m_width;
     int	m_height;
 
@@ -83,12 +88,10 @@ private:
      */
     void releaseCapture();
 
-    /**
-     * Fetches an image from OpenCV.
-     * This image might become invalid after it is released by OpenCV
-     * so don't keep references to it for long.
-     */
-    const IplImage* retrieveFrame();
+    /** Tries to get an image from OpenCV and copy it into an OpenCVImage.
+      * \return 0 on failure, pointer to an OpenCVImage on success.
+      */
+    OpenCVImage* getFrame();
 
 signals:
     void newFrame(plv::OpenCVImage* frame);

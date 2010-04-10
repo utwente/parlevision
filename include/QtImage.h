@@ -7,21 +7,24 @@
 
 namespace plv {
 
-class QtImage : public Resource
+class QtImage : public ComplexData
 {
 protected:
     int m_id;
     QImage* m_img;
 
-     virtual ~QtImage();
+    virtual ~QtImage();
 
 public:
     QtImage( int id, QImage* img );
 
     int getId() const { return m_id; }
-    QImage* getImage() const { return m_img; }
+    
+    /** get the image from this container */
+    const QImage* getImage() const { return m_img; }
 
-    virtual bool isCompatible( const Resource* other );
+    /** returns if this image is compatible with another QtImage */
+    virtual bool isCompatible( const ComplexData* other );
 };
 
 }

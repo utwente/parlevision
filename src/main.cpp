@@ -3,6 +3,7 @@
 #include "OpenCVCamera.h"
 
 #include <QApplication>
+#include <iostream>
 
 int main(int argc, char **argv)
 {
@@ -11,6 +12,8 @@ int main(int argc, char **argv)
     if( camera->init() != 0 )
         return -1;
 
+    camera->setDimensions( 640, 480 );
+
     QApplication app(argc, argv);
 
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
@@ -18,6 +21,9 @@ int main(int argc, char **argv)
 
     plvgui::FrameWidget* cvWidget = new plvgui::FrameWidget(mainWin);
     cvWidget->setSource(camera);
+
+    std::cout << "test" << std::endl;
+    qDebug("test");
 
     mainWin->addCamera(camera);
     mainWin->addWidget( cvWidget );
