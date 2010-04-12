@@ -10,4 +10,9 @@ CameraProducer::~CameraProducer()
 {
 }
 
+void CameraProducer::produce() throw
+        (std::exception)
+{
+
+}
 

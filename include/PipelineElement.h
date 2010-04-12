@@ -8,8 +8,13 @@
 
 namespace plv {
 
-class RefCounted;
+//class RefCounted;
 class Pin;
+
+typedef enum _PlvPipelineElementState {
+    PROCESSOR_OK,
+    PROCESSOR_FUCKED_UP
+} PlvPipelineElementState;
 
 class PipelineElement : public RefCounted
 {
@@ -22,6 +27,9 @@ protected:
 
 public:
     PipelineElement();
+
+    virtual PlvPipelineElementState checkConfig() = 0;
+
 
 //    inline const InputPinMap& getInputPins() const
 //    {

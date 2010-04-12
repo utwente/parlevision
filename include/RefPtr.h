@@ -187,6 +187,6 @@ private:
 
 };
 
-}
+} // end namespace plv
 
 #endif // REFPTR_H

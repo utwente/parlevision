@@ -21,6 +21,11 @@ public:
       */
     void dec() const;
 
+    inline int getRefCount() const
+    {
+        return m_referenceCount;
+    }
+
 protected:
     /** destructor is protected so RefCounted objects kan not be explicitely
       * destructed.
