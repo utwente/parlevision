@@ -11,16 +11,19 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>ParleVision</string>
+  </property>
+  <property name="documentMode">
+   <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>-1</x>
-      <y>-1</y>
+      <y>29</y>
       <width>801</width>
-      <height>581</height>
+      <height>551</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="layout"/>

@@ -15,11 +15,9 @@ INCLUDEPATH += include \
     include/plvgui
 SOURCES += src/main.cpp \
     src/CameraProducer.cpp \
-    src/DummyProcessor.cpp \
     src/Pin.cpp \
     src/PinConnection.cpp \
     src/PipelineElement.cpp \
-    src/PipelineProcessor.cpp \
     src/PipelineProducer.cpp \
     src/OpenCVCamera.cpp \
     src/QtImage.cpp \
@@ -29,11 +27,9 @@ SOURCES += src/main.cpp \
     src/plvgui/CameraWindow.cpp \
     src/plvgui/MainWindow.cpp
 HEADERS += include/CameraProducer.h \
-    include/DummyProcessor.h \
     include/Pin.h \
     include/PinConnection.h \
     include/PipelineElement.h \
-    include/PipelineProcessor.h \
     include/PipelineProducer.h \
     include/OpenCVCamera.h \
     include/RefPtr.h \
@@ -45,3 +41,4 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/CameraWindow.h \
     include/plvgui/MainWindow.h
 FORMS += resources/mainwindow.ui
+RESOURCES += resources/icons.qrc
