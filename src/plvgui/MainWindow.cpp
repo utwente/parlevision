@@ -26,9 +26,17 @@ void MainWindow::initGUI()
     QPixmap pausepix(":/icons/pause.png");
     QPixmap stoppix(":/icons/stop.png");
 
+
     m_startAction = new QAction(startpix, "&Start", this);
-    m_pauseAction = new QAction(pausepix, "S&top", this);
-    m_stopAction = new QAction(stoppix, "&Pause", this);
+    m_startAction->setStatusTip(tr("Starts the pipeline"));
+
+    m_pauseAction = new QAction(pausepix, "&Pause", this);
+    m_pauseAction->setStatusTip(tr("Pauses the pipeline"));
+
+    m_stopAction = new QAction(stoppix, "S&top", this);
+    m_stopAction->setStatusTip(tr("Stops the pipeline"));
+
+
 
     m_controls_toolbar = this->addToolBar("Controls");
     m_controls_toolbar->addAction(m_startAction);
