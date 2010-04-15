@@ -2,7 +2,8 @@
 
 using namespace plv;
 
-CameraProducer::CameraProducer()
+CameraProducer::CameraProducer( Pipeline* parent ) :
+        PipelineProducer( parent )
 {
 }
 
@@ -10,8 +11,7 @@ CameraProducer::~CameraProducer()
 {
 }
 
-void CameraProducer::produce() throw
-        (std::exception)
+void CameraProducer::produce()
 {
 
 }

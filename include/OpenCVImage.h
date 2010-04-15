@@ -7,7 +7,7 @@
 
 namespace plv {
 
-class OpenCVImage : public ComplexData
+class OpenCVImage : public ReferencedData
 {
 public:
     int getId() const { return m_id; }
@@ -18,7 +18,7 @@ public:
     /** implementation of the isCompatible method of the Resource abstract
       * base class
       */
-    virtual bool isCompatibleFormat( const ComplexData* other );
+    //virtual bool isCompatibleFormat( const ComplexData* other );
 
 protected:
     unsigned int m_id;

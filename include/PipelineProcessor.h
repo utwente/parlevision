@@ -5,15 +5,23 @@
 
 namespace plv {
 
+    class Pipeline;
+
     class PipelineProcessor : public PipelineElement
     {
     public:
-        PipelineProcessor();
+        PipelineProcessor( Pipeline* parent );
 
-        void process() throw (PlvException);
+        /** Process function needs to be implemented for
+          * PipelineProcessor implementations. This method
+          * gets called when inputs on all pins are ready.
+          */
+        virtual void process() = 0;
 
-        virtual PlvPipelineElementState checkConfig();
-
+        // pure virtual methods inherited from PipelineElement
+        // need to be implemented in this class
+        virtual PlvPipelineElementState init() = 0;
+        virtual PlvPipelineElementState checkConfig() = 0;
 
     protected:
         ~PipelineProcessor();

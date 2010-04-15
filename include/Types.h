@@ -7,41 +7,36 @@
 
 namespace plv {
 
-/** Base class for resources */
-class ComplexData : public RefCounted
+/** Base class for data resources which contain pointers and
+  * need to be shared between threads instead of copied.
+  */
+class ReferencedData : public RefCounted
 {
 public:
-    ComplexData() {}
-
-    /** This method compares the type and parameters of this object, with
-      * the type and parameters of the other object. It returns true if the
-      * types are compatible from a resource persepctive. This is not the same
-      * as the typeid C++ operator, and compares additional information such as
-      * private member fields to determine compatibility between two objects.
-      */
-    virtual bool isCompatibleFormat( const ComplexData* other ) = 0;
-
+    ReferencedData() {}
+protected:
+    virtual ~ReferencedData() {};
 private:
-
     /** no implicit copy of object allowed */
-    ComplexData( const ComplexData& other );
+    ReferencedData( const ReferencedData& other );
 };
 
-/** Base class for resources */
-class SimpleData
+/** Base class for data resources which contain only primitve types
+  * and no pointers and can be copied between threads instead of shared.
+  */
+class ValueData
 {
 public:
-    SimpleData() {}
-
-    /** This method compares the type and parameters of this object, with
-      * the type and parameters of the other object. It returns true if the
-      * types are compatible from a resource persepctive. This is not the same
-      * as the typeid C++ operator, and compares additional information such as
-      * private member fields to determine compatibility between two objects.
-      */
-    virtual bool isCompatibleFormat( const SimpleData& other ) = 0;
+    ValueData() {}
 };
 
+/** This method compares the type and parameters of this object, with
+  * the type and parameters of the other object. It returns true if the
+  * types are compatible from a resource persepctive. This is not the same
+  * as the typeid C++ operator, and compares additional information such as
+  * private member fields to determine compatibility between two objects.
+  */
+//virtual bool isCompatibleFormat( const ComplexData* other ) = 0;
 
 
 }

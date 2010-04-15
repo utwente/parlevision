@@ -25,7 +25,10 @@ SOURCES += src/main.cpp \
     src/RefCounted.cpp \
     src/plvgui/FrameWidget.cpp \
     src/plvgui/CameraWindow.cpp \
-    src/plvgui/MainWindow.cpp
+    src/plvgui/MainWindow.cpp \
+    src/DummyProcessor.cpp \
+    src/PipelineProcessor.cpp \
+    src/Pipeline.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \
@@ -39,6 +42,9 @@ HEADERS += include/CameraProducer.h \
     include/OpenCVImage.h \
     include/plvgui/FrameWidget.h \
     include/plvgui/CameraWindow.h \
-    include/plvgui/MainWindow.h
+    include/plvgui/MainWindow.h \
+    include/DummyProcessor.h \
+    include/PipelineProcessor.h \
+    include/Pipeline.h
 FORMS += resources/mainwindow.ui
 RESOURCES += resources/icons.qrc

@@ -1,9 +1,12 @@
+#include <QApplication>
+#include <iostream>
+
 #include "FrameWidget.h"
 #include "MainWindow.h"
 #include "OpenCVCamera.h"
-
-#include <QApplication>
-#include <iostream>
+#include "DummyProcessor.h"
+#include "RefPtr.h"
+#include "Pipeline.h"
 
 int main(int argc, char **argv)
 {
@@ -18,12 +21,12 @@ int main(int argc, char **argv)
 
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
     plvgui::MainWindow* mainWin = new plvgui::MainWindow();
-
     plvgui::FrameWidget* cvWidget = new plvgui::FrameWidget(mainWin);
-    cvWidget->setSource(camera);
 
-    std::cout << "test" << std::endl;
-    qDebug("test");
+    plv::RefPtr<plv::Pipeline> pipeline = new plv::Pipeline();
+    plv::RefPtr<plv::DummyProcessor> dp = new plv::DummyProcessor( pipeline.getPtr() );
+
+    cvWidget->setSource(camera);
 
     mainWin->addCamera(camera);
     mainWin->addWidget( cvWidget );

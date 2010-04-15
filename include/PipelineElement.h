@@ -6,45 +6,40 @@
 
 #include "RefPtr.h"
 
-namespace plv {
-
-//class RefCounted;
-class Pin;
-
-typedef enum _PlvPipelineElementState {
-    PROCESSOR_OK,
-    PROCESSOR_FUCKED_UP
-} PlvPipelineElementState;
-
-class PipelineElement : public RefCounted
+namespace plv
 {
-    typedef std::map< QString, RefPtr< Pin > > InputPinMap;
-    typedef std::map< QString, RefPtr< Pin > > OutputPinMap;
+    class Pin;
+    class Pipeline;
 
-protected:
-    InputPinMap  m_inputPins;
-    OutputPinMap m_outputPins;
+    typedef enum _PlvPipelineElementState
+    {
+        PROCESSOR_OK,
+        PROCESSOR_CONFIG_NEEDED
+    } PlvPipelineElementState;
 
-public:
-    PipelineElement();
+    class PipelineElement : public RefCounted
+    {
+        typedef std::map< QString, RefPtr< Pin > > InputPinMap;
+        typedef std::map< QString, RefPtr< Pin > > OutputPinMap;
 
-    virtual PlvPipelineElementState checkConfig() = 0;
+    protected:
+        InputPinMap  m_inputPins;
+        OutputPinMap m_outputPins;
 
+    public:
+        PipelineElement( Pipeline* parent );
 
-//    inline const InputPinMap& getInputPins() const
-//    {
-//        return m_inputPins;
-//    }
-//
-//    inline const OutputPinMap& getOutputPins() const
-//    {
-//        return m_outputPins;
-//    }
+        virtual PlvPipelineElementState init() = 0;
+        virtual PlvPipelineElementState checkConfig() = 0;
 
-protected:
-    ~PipelineElement();
-};
+        const Pin* getInputPin( const QString& name ) const;
+        const Pin* getOutputPin( const QString& name ) const;
 
+    protected:
+        virtual ~PipelineElement();
+
+        RefPtr<Pipeline> m_parent;
+    };
 }
 
 #endif // PIPELINEELEMENT_H

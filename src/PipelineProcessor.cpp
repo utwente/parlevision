@@ -2,10 +2,13 @@
 
 using namespace plv;
 
-PipelineProcessor::PipelineProcessor()
+PipelineProcessor::PipelineProcessor( Pipeline* parent )
+    :PipelineElement( parent )
 {
 }
 
 PipelineProcessor::~PipelineProcessor()
 {
 }
+
+

@@ -2,18 +2,21 @@
 #define PIPELINEPRODUCER_H
 
 #include <map>
-#include <exception>
 #include "RefPtr.h"
 #include "PipelineElement.h"
 
 namespace plv {
 
+    class Pipeline;
+
     class PipelineProducer : public PipelineElement
     {
     public:
-        PipelineProducer();
+        PipelineProducer( Pipeline* parent );
 
-        virtual void produce() throw (std::exception) = 0;
+        virtual void produce() = 0;
+
+        //Pin<MyType> in = getInputPin( "MyPin" );
 
     protected:
         virtual ~PipelineProducer();

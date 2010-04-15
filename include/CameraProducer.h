@@ -8,9 +8,9 @@ namespace plv {
     class CameraProducer : public PipelineProducer
     {
     public:
-        CameraProducer();
+        CameraProducer( Pipeline* parent );
 
-        virtual void produce() throw (std::exception);
+        virtual void produce();
 
     protected:
         virtual ~CameraProducer();

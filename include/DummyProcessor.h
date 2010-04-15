@@ -5,12 +5,20 @@
 
 namespace plv {
 
-class DummyProcessor : public PipelineProcessor
-{
-public:
-    DummyProcessor();
-    ~DummyProcessor();
-};
+    class Pipeline;
+
+    class DummyProcessor : public PipelineProcessor
+    {
+    public:
+        DummyProcessor( Pipeline* parent );
+
+        virtual PlvPipelineElementState init();
+        virtual PlvPipelineElementState checkConfig();
+        virtual void process();
+
+    protected:
+        ~DummyProcessor();
+    };
 
 }
 

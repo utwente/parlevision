@@ -2,12 +2,11 @@
 
 using namespace plv;
 
-PipelineProducer::PipelineProducer()
+PipelineProducer::PipelineProducer( Pipeline* parent ) :
+        PipelineElement( parent )
 {
-
 }
 
 PipelineProducer::~PipelineProducer()
 {
-
 }

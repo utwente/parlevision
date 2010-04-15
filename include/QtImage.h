@@ -7,7 +7,7 @@
 
 namespace plv {
 
-class QtImage : public ComplexData
+class QtImage : public ReferencedData
 {
 protected:
     int m_id;
@@ -24,7 +24,7 @@ public:
     const QImage* getImage() const { return m_img; }
 
     /** returns if this image is compatible with another QtImage */
-    virtual bool isCompatible( const ComplexData* other );
+    //virtual bool isCompatible( const ComplexData* other );
 };
 
 }

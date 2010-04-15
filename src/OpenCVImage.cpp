@@ -15,16 +15,16 @@ OpenCVImage::~OpenCVImage()
 }
 
 /** Compare two opencv images for type equality */
-bool OpenCVImage::isCompatibleFormat( const ComplexData* data )
-{
-    RefPtr<const OpenCVImage> img = dynamic_cast<const OpenCVImage*>(data);
-    if( img.isValid() && m_img != 0 )
-    {
-        IplImage* other = img->getImage();
-        return( m_img->nChannels == other->nChannels &&
-                m_img->depth     == other->depth &&
-                m_img->width     == other->width &&
-                m_img->height    == other->height );
-    }
-    return false;
-}
+//bool OpenCVImage::isCompatibleFormat( const ComplexData* data )
+//{
+//    RefPtr<const OpenCVImage> img = dynamic_cast<const OpenCVImage*>(data);
+//    if( img.isValid() && m_img != 0 )
+//    {
+//        IplImage* other = img->getImage();
+//        return( m_img->nChannels == other->nChannels &&
+//                m_img->depth     == other->depth &&
+//                m_img->width     == other->width &&
+//                m_img->height    == other->height );
+//    }
+//    return false;
+//}
