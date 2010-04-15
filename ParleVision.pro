@@ -1,8 +1,19 @@
 DEPENDPATH += .
-MOC_DIR = build
-OBJECTS_DIR = build
-RCC_DIR = build
-UI_DIR = build
+
+!debug_and_release|build_pass {
+    CONFIG(debug, debug|release) {
+        BUILD_DIR = build/debug
+    }
+   CONFIG(release, debug|release) {
+        BUILD_DIR = build/release
+    }
+}
+
+MOC_DIR     = $$BUILD_DIR
+OBJECTS_DIR = $$BUILD_DIR
+RCC_DIR     = $$BUILD_DIR
+UI_DIR      = $$BUILD_DIR
+DESTDIR     = $$BUILD_DIR
 
 win32 { 
     LIBS += -lcv200 \
@@ -14,8 +25,7 @@ win32 {
     LIBPATH += c:\opencv2.0\lib
     INCLUDEPATH += c:\OpenCV2.0\include
 }
-macx:LIBS += -framework \
-    OpenCV
+macx:LIBS += -framework OpenCV
 INCLUDEPATH += include \
     include/plvgui
 SOURCES += src/main.cpp \
