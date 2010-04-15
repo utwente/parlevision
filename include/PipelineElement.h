@@ -3,6 +3,7 @@
 
 #include <map>
 #include <QString>
+#include <QObject>
 
 #include "RefPtr.h"
 
@@ -17,8 +18,10 @@ namespace plv
         PROCESSOR_CONFIG_NEEDED
     } PlvPipelineElementState;
 
-    class PipelineElement : public RefCounted
+    class PipelineElement : public QObject, public RefCounted
     {
+        Q_OBJECT
+
         typedef std::map< QString, RefPtr< Pin > > InputPinMap;
         typedef std::map< QString, RefPtr< Pin > > OutputPinMap;
 
@@ -31,6 +34,8 @@ namespace plv
 
         virtual PlvPipelineElementState init() = 0;
         virtual PlvPipelineElementState checkConfig() = 0;
+
+        void addOutputPin ( Pin* pin );
 
         const Pin* getInputPin( const QString& name ) const;
         const Pin* getOutputPin( const QString& name ) const;

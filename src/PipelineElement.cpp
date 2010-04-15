@@ -8,15 +8,20 @@
 
 using namespace plv;
 
-PipelineElement::PipelineElement( Pipeline* parent )
+PipelineElement::PipelineElement( Pipeline* parent ) :
+        m_parent( parent )
 {
-    m_parent = parent;
     m_parent->add( this );
 }
 
 PipelineElement::~PipelineElement()
 {
     m_parent->remove( this );
+}
+
+void PipelineElement::addOutputPin ( Pin* pin )
+{
+    m_outputPins.insert( std::make_pair( pin->getName(), RefPtr<Pin>(pin )));
 }
 
 const Pin* PipelineElement::getInputPin( const QString& name ) const

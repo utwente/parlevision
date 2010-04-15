@@ -10,10 +10,11 @@
 #include <opencv/highgui.h>
 
 #include "OpenCVImage.h"
+#include "RefCounted.h"
 
 namespace plv {
 
-class OpenCVCamera : public QThread
+    class OpenCVCamera : public QThread, public RefCounted
 {
      Q_OBJECT
 
@@ -28,7 +29,6 @@ public:
     };
 
     OpenCVCamera( int id = 0 );
-    ~OpenCVCamera();
 
     /** Initalizes the camera. Returns 0 on succes, a negative error code
       * on failure.
@@ -68,6 +68,7 @@ protected:
       * Captures camera output and fires signals.
       */
     virtual void run();
+    virtual ~OpenCVCamera();
 
 private:
     int         m_id;

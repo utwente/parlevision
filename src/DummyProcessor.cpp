@@ -1,10 +1,10 @@
 #include "DummyProcessor.h"
 #include "Pin.h"
 
-const char* INPUT_PIN_NAME = "input image";
-const char* OUTPUT_PIN_NAME = "output image";
-
 using namespace plv;
+
+#define INPUT_PIN_NAME "input image"
+#define OUTPUT_PIN_NAME "output image"
 
 DummyProcessor::DummyProcessor( Pipeline* parent ) :
         PipelineProcessor( parent )
