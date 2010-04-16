@@ -14,8 +14,9 @@ namespace plv
 
     typedef enum _PlvPipelineElementState
     {
-        PROCESSOR_OK,
-        PROCESSOR_CONFIG_NEEDED
+        PLV_PLE_STATE_UNINITIALIZED,
+        PLV_PLE_STATE_NOT_READY,
+        PLV_PLE_STATE_READY
     } PlvPipelineElementState;
 
     class PipelineElement : public QObject, public RefCounted
@@ -35,12 +36,17 @@ namespace plv
         virtual PlvPipelineElementState init() = 0;
         virtual PlvPipelineElementState checkConfig() = 0;
 
-        void addOutputPin ( Pin* pin );
+        void addInputPin( Pin* pin );
+        void addOutputPin( Pin* pin );
 
         const Pin* getInputPin( const QString& name ) const;
         const Pin* getOutputPin( const QString& name ) const;
 
     protected:
+        /** pipeline elements cannot be copied */
+        PipelineElement( const PipelineElement& other );
+
+        /** RefCounted classes have protected destructors */
         virtual ~PipelineElement();
 
         RefPtr<Pipeline> m_parent;

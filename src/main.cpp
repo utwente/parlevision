@@ -9,6 +9,9 @@
 #include "Pipeline.h"
 #include "CameraProducer.h"
 
+using namespace plv;
+using namespace plvgui;
+
 int main(int argc, char **argv)
 {
     //plv::OpenCVCamera* camera = new plv::OpenCVCamera( 0 );
@@ -21,13 +24,13 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
-    plvgui::MainWindow* mainWin = new plvgui::MainWindow();
-    plvgui::FrameWidget* cvWidget = new plvgui::FrameWidget(mainWin);
+    MainWindow* mainWin = new MainWindow();
+    FrameWidget* cvWidget = new FrameWidget( mainWin );
 
-    plv::RefPtr<plv::Pipeline> pipeline = new plv::Pipeline();
-    plv::RefPtr<plv::DummyProcessor> dp = new plv::DummyProcessor( pipeline.getPtr() );
+    RefPtr<Pipeline> pipeline = new Pipeline();
+    RefPtr<DummyProcessor> dp = new DummyProcessor( pipeline.getPtr() );
 
-    plv::RefPtr<plv::CameraProducer> cp = new plv::CameraProducer( pipeline );
+    RefPtr<CameraProducer> cp = new CameraProducer( pipeline );
 
     cp->produce();
 

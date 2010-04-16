@@ -32,31 +32,24 @@ namespace plv {
          /** the name of this Pin e.g. "BlackAndWhite" */
         QString m_name;
 
-        /** a unique id of this Pin */
-        int m_id;
-
-        /** either PRODUCER or CONSUMER */
-        PinType m_type;
-
-        ///** the pin data type. See Types.h for details */
-        //PinDataType m_dataType;
-
         /** data received from or delivered to this pipeline element */
         RefPtr<PipelineElement> m_owner;
 
         /** null if there is no connection */
         RefPtr<PinConnection>   m_connection;
 
+        /** RefCounted objects have protected destructor */
         ~Pin() {};
 
     public:
-
-        inline int getId() const { return m_id; }
         inline PipelineElement* getOwner() const { return m_owner.getPtr(); }
         inline PinConnection* getPinConnection() const { return m_connection.getPtr(); }
-        //inline PinType getType() const { return m_type; }
 
-        virtual const std::type_info& getType() const =0;
+        /** @returns the std::type_info struct belonging to the type
+          * this pin is initialized with. Is implemented by
+          * the TypedPin sub class.
+          */
+        virtual const std::type_info& getType() const = 0;
     };
 
     template< class T >
@@ -69,6 +62,41 @@ namespace plv {
         virtual const std::type_info& getType() const
         {
             return typeid( T );
+        }
+    };
+
+    template< class T >
+    class TypedConsumerPin : public TypedPin<T>
+    {
+    public:
+        inline T* get()
+        {
+            if( this->m_connection.isValid() )
+            {
+                if( this->m_connection->isConnected() )
+                {
+                    if( this->m_connection->hasData() )
+                    {
+                        return (T*) this->m_connection->get();
+                    }
+                }
+            }
+        }
+    };
+
+    template< class T >
+    class TypedProducerPin : public TypedPin<T>
+    {
+    public:
+        void put( T* obj )
+        {
+            if( this->m_connection.isValid() )
+            {
+                if( this->m_connection->isConnected() )
+                {
+                    this->m_connection->put( obj );
+                }
+            }
         }
     };
 

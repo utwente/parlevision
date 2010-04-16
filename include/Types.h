@@ -7,6 +7,7 @@
 
 namespace plv {
 
+    /** Base class for all data. This is used only for type checking. */
     class Data
     {
     };

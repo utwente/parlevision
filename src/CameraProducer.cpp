@@ -14,14 +14,18 @@ CameraProducer::CameraProducer( Pipeline* parent ) :
         PipelineProducer( parent ),
         m_camera(new OpenCVCamera())
 {
-    //definePin( OUTPUT_PIN_NAME, OpenCVImage::getType() );
+    // we have one output pin
     addOutputPin( new TypedPin<OpenCVImage>(OUTPUT_PIN_NAME, this ) );
+
+    // connect the camera to this camera producer using Qt's signals
+    // and slots mechanism.
+    connect( m_camera.getPtr(), SIGNAL( newFrame( OpenCVImage* ) ),
+             this, SLOT( newFrame( OpenCVImage*) ) );
 }
 
 CameraProducer::~CameraProducer()
 {
-    connect( m_camera.getPtr(), SIGNAL( newFrame( OpenCVImage* ) ),
-             this, SLOT( newFrame( OpenCVImage*) ) );
+
 }
 
 void CameraProducer::produce()
@@ -44,11 +48,22 @@ void CameraProducer::newFrame(OpenCVImage* frame)
 
 PlvPipelineElementState CameraProducer::init()
 {
-    return PROCESSOR_OK;
+    if( !m_camera->init() )
+    {
+        return PLV_PLE_STATE_NOT_READY;
+    }
+
+    m_camera->start();
+
+    return PLV_PLE_STATE_READY;
 }
 
 PlvPipelineElementState CameraProducer::checkConfig()
 {
-    return PROCESSOR_OK;
+    if( m_camera->getState() != OpenCVCamera::CAM_RUNNING )
+    {
+        return PLV_PLE_STATE_NOT_READY;
+    }
+    return PLV_PLE_STATE_READY;
 }
 
