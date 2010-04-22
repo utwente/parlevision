@@ -24,7 +24,10 @@ void Pipeline::remove( PipelineElement* child )
     for( PipelineElementMap::iterator itr = m_children.begin()
         ; itr != m_children.end(); ++itr )
     {
-        if( child == itr->second.getPtr() );
+        if( child == itr->second.getPtr() )
+        {
+            m_children.erase(itr);
+        }
     }
 }
 
