@@ -23,10 +23,19 @@ PipelineElement::~PipelineElement()
 
 void PipelineElement::setPipeline(Pipeline* parent)
 {
-    if(m_parent != 0)
+    if(m_parent.getPtr() == parent)
     {
+        // no effect
+        return;
+    }
+
+    if(m_parent.getPtr() != 0)
+    {
+        // switching pipelines.
+        // remove ourself from the old pipeline first
         m_parent->remove(this);
     }
+
     m_parent = parent;
 }
 

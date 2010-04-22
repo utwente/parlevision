@@ -31,14 +31,14 @@ namespace plv
         OutputPinMap m_outputPins;
 
     public:
+        friend class Pipeline;
+
         /** QMetaType requires a public default constructor,
          *  a public copy constructor and a public destructor.
          */
         PipelineElement();
         PipelineElement( const PipelineElement& other );
         virtual ~PipelineElement();
-
-        virtual void setPipeline(Pipeline* parent);
 
         virtual PlvPipelineElementState init() = 0;
         virtual PlvPipelineElementState checkConfig() = 0;
@@ -51,6 +51,12 @@ namespace plv
 
     protected:
         RefPtr<Pipeline> m_parent;
+        /**
+         * This gets called by Pipeline when we are added to it.
+         * Handles removing ourself from any previous pipeline we were part of
+         * and sets m_parent to the new pipeline
+         */
+        virtual void setPipeline(Pipeline* parent);
     };
 }
 
