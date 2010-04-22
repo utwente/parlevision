@@ -27,13 +27,19 @@ int main(int argc, char **argv)
     MainWindow* mainWin = new MainWindow();
     FrameWidget* cvWidget = new FrameWidget( mainWin );
 
+    // Make a pipeline
     RefPtr<Pipeline> pipeline = new Pipeline();
-    RefPtr<DummyProcessor> dp = new DummyProcessor();
-
-    pipeline->add(dp);
-
+    // Make a CameraProducer
     RefPtr<CameraProducer> cp = new CameraProducer();
+    // Add it to the pipeline
     pipeline->add(cp);
+
+    // Make a DummyProcessor
+//    RefPtr<DummyProcessor> dp = new DummyProcessor();
+    // Add it to the pipeline as well
+//    pipeline->add(dp);
+
+//    cp->getOutputPin("output")->????
 
     cp->produce();
 
@@ -41,6 +47,8 @@ int main(int argc, char **argv)
 
     //mainWin->addCamera(camera);
     //mainWin->addWidget( cvWidget );
+
+    mainWin->setPipeline(pipeline);
 
     mainWin->show();
 
