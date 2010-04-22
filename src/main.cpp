@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <iostream>
+#include <QDebug>
 
 #include "FrameWidget.h"
 #include "MainWindow.h"
@@ -9,6 +10,8 @@
 #include "Pipeline.h"
 #include "CameraProducer.h"
 #include "InspectorFactory.h"
+#include "Pin.h"
+#include "Inspector.h"
 
 using namespace plv;
 using namespace plvgui;
@@ -24,7 +27,7 @@ int main(int argc, char **argv)
 
     QApplication app(argc, argv);
 
-    InspectorFactory::create(typeid(OpenCVImage).name());
+//    InspectorFactory::create(typeid(OpenCVImage).name());
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
     MainWindow* mainWin = new MainWindow();
     FrameWidget* cvWidget = new FrameWidget( mainWin );
@@ -51,6 +54,14 @@ int main(int argc, char **argv)
     //mainWin->addWidget( cvWidget );
 
     mainWin->setPipeline(pipeline);
+
+    //this is temporary
+    qDebug() << "output pin type" << cp->getOutputPin("output")->getType().name();
+
+    Inspector* inspector = InspectorFactory::create(
+                                cp->getOutputPin("output")->getType().name());
+
+    delete inspector;
 
     mainWin->show();
 
