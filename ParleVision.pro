@@ -1,5 +1,4 @@
 DEPENDPATH += .
-
 win32 { 
     LIBS += -lcv200 \
         -lcxcore200 \
@@ -10,26 +9,21 @@ win32 {
     LIBPATH += c:\opencv2.0\lib
     INCLUDEPATH += c:\OpenCV2.0\include
 }
-macx {
-    LIBS += -framework OpenCV
-
+macx { 
+    LIBS += -framework \
+        OpenCV
+    
     # Make sure there is no mess in ./
     # but put all output files in build/(debug|release)
-    !debug_and_release|build_pass {
-        CONFIG(debug, debug|release) {
-            BUILDDIR = build/debug
-        }
-       CONFIG(release, debug|release) {
-            BUILDDIR = build/release
-        }
+    !debug_and_release|build_pass { 
+        CONFIG(debug, debug|release):BUILDDIR = build/debug
+        CONFIG(release, debug|release):BUILDDIR = build/release
     }
-
-    MOC_DIR     = $$BUILDDIR
+    MOC_DIR = $$BUILDDIR
     OBJECTS_DIR = $$BUILDDIR
-    RCC_DIR     = $$BUILDDIR
-    UI_DIR      = $$BUILDDIR
-    DESTDIR     = $$BUILDDIR
-
+    RCC_DIR = $$BUILDDIR
+    UI_DIR = $$BUILDDIR
+    DESTDIR = $$BUILDDIR
 }
 INCLUDEPATH += include \
     include/plvgui
@@ -48,7 +42,9 @@ SOURCES += src/main.cpp \
     src/plvgui/MainWindow.cpp \
     src/DummyProcessor.cpp \
     src/PipelineProcessor.cpp \
-    src/Pipeline.cpp
+    src/Pipeline.cpp \
+    src/plvgui/OpenCVImageInspector.cpp \
+    src/plvgui/InspectorFactory.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \
@@ -65,6 +61,9 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/MainWindow.h \
     include/DummyProcessor.h \
     include/PipelineProcessor.h \
-    include/Pipeline.h
+    include/Pipeline.h \
+    include/plvgui/OpenCVImageInspector.h \
+    include/plvgui/InspectorFactory.h \
+    include/plvgui/Inspector.h
 FORMS += resources/mainwindow.ui
 RESOURCES += resources/icons.qrc
