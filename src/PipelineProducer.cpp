@@ -2,8 +2,7 @@
 
 using namespace plv;
 
-PipelineProducer::PipelineProducer( Pipeline* parent ) :
-        PipelineElement( parent )
+PipelineProducer::PipelineProducer()
 {
 }
 

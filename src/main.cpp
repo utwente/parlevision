@@ -28,9 +28,12 @@ int main(int argc, char **argv)
     FrameWidget* cvWidget = new FrameWidget( mainWin );
 
     RefPtr<Pipeline> pipeline = new Pipeline();
-    RefPtr<DummyProcessor> dp = new DummyProcessor( pipeline.getPtr() );
+    RefPtr<DummyProcessor> dp = new DummyProcessor();
 
-    RefPtr<CameraProducer> cp = new CameraProducer( pipeline );
+    pipeline->add(dp);
+
+    RefPtr<CameraProducer> cp = new CameraProducer();
+    pipeline->add(cp);
 
     cp->produce();
 

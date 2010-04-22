@@ -9,15 +9,25 @@
 
 using namespace plv;
 
-PipelineElement::PipelineElement( Pipeline* parent ) :
-        m_parent( parent )
+PipelineElement::PipelineElement()
 {
-    m_parent->add( this );
 }
 
 PipelineElement::~PipelineElement()
 {
-    m_parent->remove( this );
+    if(m_parent != 0)
+    {
+        m_parent->remove( this );
+    }
+}
+
+void PipelineElement::setPipeline(Pipeline* parent)
+{
+    if(m_parent != 0)
+    {
+        m_parent->remove(this);
+    }
+    m_parent = parent;
 }
 
 void PipelineElement::addInputPin( Pin* pin )

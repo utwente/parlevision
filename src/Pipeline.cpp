@@ -15,6 +15,7 @@ Pipeline::~Pipeline()
 
 int Pipeline::add( PipelineElement* child )
 {
+    child->setPipeline(this);
     m_children.insert( std::make_pair( m_idCounter, child ) );
     return m_idCounter++;
 }

@@ -5,12 +5,11 @@
 
 namespace plv {
 
-    class Pipeline;
-
     class PipelineProcessor : public PipelineElement
     {
     public:
-        PipelineProcessor( Pipeline* parent );
+        PipelineProcessor();
+        ~PipelineProcessor();
 
         /** Process function needs to be implemented for
           * PipelineProcessor implementations. This method
@@ -23,8 +22,6 @@ namespace plv {
         virtual PlvPipelineElementState init() = 0;
         virtual PlvPipelineElementState checkConfig() = 0;
 
-    protected:
-        ~PipelineProcessor();
     };
 
 }

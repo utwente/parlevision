@@ -7,19 +7,13 @@
 
 namespace plv {
 
-    class Pipeline;
-
     class PipelineProducer : public PipelineElement
     {
     public:
-        PipelineProducer( Pipeline* parent );
+        PipelineProducer();
+        virtual ~PipelineProducer();
 
         virtual void produce() = 0;
-
-        //Pin<MyType> in = getInputPin( "MyPin" );
-
-    protected:
-        virtual ~PipelineProducer();
     };
 
 }

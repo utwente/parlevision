@@ -31,7 +31,14 @@ namespace plv
         OutputPinMap m_outputPins;
 
     public:
-        PipelineElement( Pipeline* parent );
+        /** QMetaType requires a public default constructor,
+         *  a public copy constructor and a public destructor.
+         */
+        PipelineElement();
+        PipelineElement( const PipelineElement& other );
+        virtual ~PipelineElement();
+
+        virtual void setPipeline(Pipeline* parent);
 
         virtual PlvPipelineElementState init() = 0;
         virtual PlvPipelineElementState checkConfig() = 0;
@@ -43,12 +50,6 @@ namespace plv
         const Pin* getOutputPin( const QString& name ) const;
 
     protected:
-        /** pipeline elements cannot be copied */
-        PipelineElement( const PipelineElement& other );
-
-        /** RefCounted classes have protected destructors */
-        virtual ~PipelineElement();
-
         RefPtr<Pipeline> m_parent;
     };
 }
