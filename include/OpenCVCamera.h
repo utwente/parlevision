@@ -95,7 +95,7 @@ private:
     OpenCVImage* getFrame();
 
 signals:
-    void newFrame(plv::OpenCVImage* frame);
+    void newFrame(OpenCVImage* frame);
 
 public slots:
 

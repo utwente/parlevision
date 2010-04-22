@@ -4,9 +4,14 @@
 #include <QMainWindow>
 #include <QToolBar>
 #include "OpenCVCamera.h"
+#include "RefPtr.h"
 
 namespace Ui {
     class MainWindow;
+}
+
+namespace plv {
+    class Pipeline;
 }
 
 namespace plvgui {
@@ -17,7 +22,7 @@ namespace plvgui {
         MainWindow(QWidget* parent = 0);
         ~MainWindow();
         void addWidget(QWidget* widget);
-        void addCamera(plv::OpenCVCamera* camera);
+        void setPipeline(plv::Pipeline* pipeline);
 
     protected:
         void changeEvent(QEvent* e);
@@ -25,6 +30,7 @@ namespace plvgui {
         QAction* m_startAction;
         QAction* m_stopAction;
         QAction* m_pauseAction;
+        plv::RefPtr<plv::Pipeline> m_pipeline;
 
     private:
         Ui::MainWindow* ui;

@@ -10,8 +10,7 @@ using namespace plv;
 
 #define OUTPUT_PIN_NAME "output"
 
-CameraProducer::CameraProducer( Pipeline* parent ) :
-        PipelineProducer( parent ),
+CameraProducer::CameraProducer() :
         m_camera(new OpenCVCamera()),
         m_lastProcessedId( 0 )
 {

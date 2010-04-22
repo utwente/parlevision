@@ -16,6 +16,11 @@ namespace plv
     public:
         Pipeline();
 
+        /** Add the PipelineElement to this Pipeline.
+          * This results in the Pipeline calling setPipeline on the element
+          * and m_children containing the element.
+          * @return a unique ID for this element within this pipeline.
+          */
         int add( PipelineElement* child );
         void remove( PipelineElement* child );
         void remove( int id );

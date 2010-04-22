@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 
+#include <Pipeline.h>
+
 using namespace plvgui;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -61,23 +63,31 @@ void MainWindow::addWidget(QWidget *widget)
     ui->layout->addWidget(widget);
 }
 
-void MainWindow::addCamera(plv::OpenCVCamera* camera)
+void MainWindow::setPipeline(plv::Pipeline* pipeline)
 {
-    // note that signals are not yet ever disconnected.
-    // this will probably change anyway as we want the whole pipeline to stop
-    // and not just the cameras.
-    connect(ui->actionStop, SIGNAL(triggered()),
-            camera, SLOT(release()));
-    connect(this->m_stopAction, SIGNAL(triggered()),
-            camera, SLOT(release()));
+    //TODO think about what to do if we already have a pipeline.
+    this->m_pipeline = pipeline;
 
-    connect(ui->actionStart, SIGNAL(triggered()),
-            camera, SLOT(start()));
-    connect(this->m_startAction, SIGNAL(triggered()),
-            camera, SLOT(start()));
-
-    connect(ui->actionPause, SIGNAL(triggered()),
-            camera, SLOT(pause()));
-    connect(this->m_pauseAction, SIGNAL(triggered()),
-            camera, SLOT(pause()));
+    //TODO find a way to connect to widgets here.
 }
+
+//void MainWindow::addCamera(plv::OpenCVCamera* camera)
+//{
+//    // note that signals are not yet ever disconnected.
+//    // this will probably change anyway as we want the whole pipeline to stop
+//    // and not just the cameras.
+//    connect(ui->actionStop, SIGNAL(triggered()),
+//            camera, SLOT(release()));
+//    connect(this->m_stopAction, SIGNAL(triggered()),
+//            camera, SLOT(release()));
+//
+//    connect(ui->actionStart, SIGNAL(triggered()),
+//            camera, SLOT(start()));
+//    connect(this->m_startAction, SIGNAL(triggered()),
+//            camera, SLOT(start()));
+//
+//    connect(ui->actionPause, SIGNAL(triggered()),
+//            camera, SLOT(pause()));
+//    connect(this->m_pauseAction, SIGNAL(triggered()),
+//            camera, SLOT(pause()));
+//}

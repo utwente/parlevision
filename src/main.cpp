@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <iostream>
+#include <QDebug>
 
 #include "FrameWidget.h"
 #include "MainWindow.h"
@@ -8,6 +9,9 @@
 #include "RefPtr.h"
 #include "Pipeline.h"
 #include "CameraProducer.h"
+#include "InspectorFactory.h"
+#include "Pin.h"
+#include "Inspector.h"
 
 using namespace plv;
 using namespace plvgui;
@@ -23,14 +27,24 @@ int main(int argc, char **argv)
 
     QApplication app(argc, argv);
 
+//    InspectorFactory::create(typeid(OpenCVImage).name());
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
     MainWindow* mainWin = new MainWindow();
     FrameWidget* cvWidget = new FrameWidget( mainWin );
 
+    // Make a pipeline
     RefPtr<Pipeline> pipeline = new Pipeline();
-    RefPtr<DummyProcessor> dp = new DummyProcessor( pipeline.getPtr() );
+    // Make a CameraProducer
+    RefPtr<CameraProducer> cp = new CameraProducer();
+    // Add it to the pipeline
+    pipeline->add(cp);
 
-    RefPtr<CameraProducer> cp = new CameraProducer( pipeline );
+    // Make a DummyProcessor
+//    RefPtr<DummyProcessor> dp = new DummyProcessor();
+    // Add it to the pipeline as well
+//    pipeline->add(dp);
+
+//    cp->getOutputPin("output")->????
 
     cp->produce();
 
@@ -38,6 +52,16 @@ int main(int argc, char **argv)
 
     //mainWin->addCamera(camera);
     //mainWin->addWidget( cvWidget );
+
+    mainWin->setPipeline(pipeline);
+
+    //this is temporary
+    qDebug() << "output pin type" << cp->getOutputPin("output")->getTypeInfo().name();
+
+    Inspector* inspector = InspectorFactory::create(
+                                cp->getOutputPin("output")->getTypeInfo().name());
+
+    delete inspector;
 
     mainWin->show();
 

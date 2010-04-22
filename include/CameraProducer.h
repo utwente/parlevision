@@ -15,7 +15,8 @@ namespace plv {
         Q_OBJECT
 
     public:
-        CameraProducer( Pipeline* parent );
+        CameraProducer();
+        virtual ~CameraProducer();
 
         virtual void produce();
 
@@ -23,7 +24,6 @@ namespace plv {
         virtual PlvPipelineElementState checkConfig();
 
     protected:
-        virtual ~CameraProducer();
 
         RefPtr<OpenCVCamera> m_camera;
         RefPtr<OpenCVImage> m_lastFrame;

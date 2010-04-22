@@ -26,9 +26,7 @@ public:
         return m_referenceCount;
     }
 
-protected:
-    /** destructor is protected so RefCounted objects kan not be explicitely
-      * destructed.
+    /** RefCounted objects should not explicitely be destructed!
       */
     virtual ~RefCounted();
 
