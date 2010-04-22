@@ -9,6 +9,12 @@ QtImage::QtImage( int id, QImage* img ) :
 {
 }
 
+QtImage::QtImage( const QtImage& other )
+{
+    m_id = other.m_id;
+    m_img = new QImage( *other.m_img );
+}
+
 QtImage::~QtImage()
 {
     delete m_img;

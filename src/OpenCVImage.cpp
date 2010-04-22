@@ -14,6 +14,14 @@ OpenCVImage::~OpenCVImage()
     cvReleaseImage( &m_img );
 }
 
+OpenCVImage::OpenCVImage( const OpenCVImage& other )
+{
+    m_id = other.m_id;
+    m_img = cvCreateImage( cvSize(other.m_img->width, other.m_img->height),
+                           other.m_img->depth, other.m_img->nChannels );
+    cvCopyImage( other.m_img, m_img );
+}
+
 /** Compare two opencv images for type equality */
 //bool OpenCVImage::isCompatibleFormat( const ComplexData* data )
 //{

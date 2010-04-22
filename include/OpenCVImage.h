@@ -7,13 +7,14 @@
 
 namespace plv {
 
-class OpenCVImage : public ReferencedData
+class OpenCVImage : public Data
 {
 public:
     int getId() const { return m_id; }
     IplImage* getImage() const { return m_img; }
 
     OpenCVImage( int id, IplImage* img );
+    OpenCVImage( const OpenCVImage& other );
 
     static const QString& getType();
 

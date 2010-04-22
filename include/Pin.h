@@ -10,14 +10,11 @@
 #include "PinConnection.h"
 #include "PipelineElement.h"
 
-namespace plv {
+namespace plv
+{
     class Pin : public RefCounted
     {
     public:
-        typedef enum _PinType {
-            CONSUMER,
-            PRODUCER
-        } PinType;
 
         Pin( const QString& name, PipelineElement* owner ) :
             m_name( name ),
@@ -45,11 +42,16 @@ namespace plv {
         inline PipelineElement* getOwner() const { return m_owner.getPtr(); }
         inline PinConnection* getPinConnection() const { return m_connection.getPtr(); }
 
+        inline bool isConnected() const
+        {
+            return m_connection.isValid() && m_connection->isConnected();
+        }
+
         /** @returns the std::type_info struct belonging to the type
           * this pin is initialized with. Is implemented by
           * the TypedPin sub class.
           */
-        virtual const std::type_info& getType() const = 0;
+        virtual const std::type_info& getTypeInfo() const = 0;
     };
 
     template< class T >
@@ -59,45 +61,50 @@ namespace plv {
         TypedPin( const QString& name, PipelineElement* owner ) :
                 Pin( name, owner ) {}
 
-        virtual const std::type_info& getType() const
+        virtual const std::type_info& getTypeInfo() const
         {
             return typeid( T );
         }
     };
 
     template< class T >
-    class TypedConsumerPin : public TypedPin<T>
+    class OutputPin : public TypedPin<T>
     {
     public:
-        inline T* get()
-        {
-            if( this->m_connection.isValid() )
-            {
-                if( this->m_connection->isConnected() )
-                {
-                    if( this->m_connection->hasData() )
-                    {
-                        return (T*) this->m_connection->get();
-                    }
-                }
-            }
-        }
-    };
+        OutputPin( const QString& name, PipelineElement* owner ) :
+                TypedPin<T>( name, owner ) {}
 
-    template< class T >
-    class TypedProducerPin : public TypedPin<T>
-    {
-    public:
         void put( T* obj )
         {
             if( this->m_connection.isValid() )
             {
-                if( this->m_connection->isConnected() )
-                {
-                    this->m_connection->put( obj );
-                }
+                this->m_connection->put( obj );
             }
         }
+
+    protected:
+        ~OutputPin() {}
+    };
+
+    template< class T >
+    class InputPin : public TypedPin<T>
+    {
+    public:
+        InputPin( const QString& name, PipelineElement* owner ) :
+                TypedPin<T>( name, owner ) {}
+
+        inline T* get()
+        {
+            if( this->m_connection.isValid() &&
+                this->m_connection->hasData() )
+            {
+               return static_cast<T*>(this->m_connection->get());
+            }
+            return 0;
+        }
+
+    protected:
+        ~InputPin() {}
     };
 
 }

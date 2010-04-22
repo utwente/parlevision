@@ -12,32 +12,36 @@ using namespace plv;
 
 CameraProducer::CameraProducer( Pipeline* parent ) :
         PipelineProducer( parent ),
-        m_camera(new OpenCVCamera())
+        m_camera(new OpenCVCamera()),
+        m_lastProcessedId( 0 )
 {
     // we have one output pin
-    addOutputPin( new TypedPin<OpenCVImage>(OUTPUT_PIN_NAME, this ) );
+    m_outputPin = new OutputPin<OpenCVImage>(OUTPUT_PIN_NAME, this );
+    addOutputPin( m_outputPin.getPtr() );
 
     // connect the camera to this camera producer using Qt's signals
     // and slots mechanism.
-    connect( m_camera.getPtr(), SIGNAL( newFrame( OpenCVImage* ) ),
-             this, SLOT( newFrame( OpenCVImage*) ) );
+    connect( m_camera.getPtr(),
+             SIGNAL( newFrame( OpenCVImage* ) ),
+             this,
+             SLOT( newFrame( OpenCVImage*) ) );
 }
 
 CameraProducer::~CameraProducer()
 {
-
 }
 
 void CameraProducer::produce()
 {
     QMutexLocker lock(&m_frameMutex);
 
-    RefPtr<const Pin> output = getOutputPin( OUTPUT_PIN_NAME );
-    if( output.isValid() )
+    if( m_lastFrame->getId() != m_lastProcessedId )
     {
-        output->getPinConnection();//...
-        qDebug() << "Pin type: " << output->getType().name();
+        m_outputPin->put( m_lastFrame );
+        m_lastProcessedId = m_lastFrame->getId();
     }
+
+    qDebug() << "Pin type: " << m_outputPin->getTypeInfo().name();
 }
 
 void CameraProducer::newFrame(OpenCVImage* frame)

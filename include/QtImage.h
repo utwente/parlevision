@@ -7,7 +7,7 @@
 
 namespace plv {
 
-class QtImage : public ReferencedData
+class QtImage : public Data
 {
 protected:
     int m_id;
@@ -17,6 +17,7 @@ protected:
 
 public:
     QtImage( int id, QImage* img );
+    QtImage( const QtImage& other );
 
     int getId() const { return m_id; }
     

@@ -4,6 +4,7 @@
 #include <QMutex>
 
 #include "PipelineProducer.h"
+#include "Pin.h"
 
 namespace plv {
     class OpenCVImage;
@@ -26,6 +27,10 @@ namespace plv {
 
         RefPtr<OpenCVCamera> m_camera;
         RefPtr<OpenCVImage> m_lastFrame;
+        RefPtr< OutputPin<OpenCVImage> > m_outputPin;
+
+        int m_lastProcessedId;
+
         QMutex m_frameMutex;
 
     public slots:

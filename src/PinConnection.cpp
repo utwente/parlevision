@@ -1,12 +1,23 @@
 #include "PinConnection.h"
+
 #include "Types.h"
 #include "Pin.h"
 
 using namespace plv;
 
+PinConnection::PinConnection( Pin* in, Pin* out ) :
+        m_in( in ),
+        m_out( out )
+{
+}
+
+PinConnection::~PinConnection()
+{
+}
+
 bool PinConnection::arePinDataTypesEqual()
 {
-    return( m_in->getType() == m_out->getType() );
+    return( m_in->getTypeInfo() == m_out->getTypeInfo() );
 }
 
 bool PinConnection::isConnected()
@@ -16,73 +27,26 @@ bool PinConnection::isConnected()
     return true;
 }
 
-/****************************************************************************
- * PinConnectionValueData
- ****************************************************************************/
-
-PinConnectionValueData::PinConnectionValueData( Pin* in, Pin* out ) :
-       PinConnection( in, out )
-{
-}
-
-PinConnectionValueData::~PinConnectionValueData()
-{
-}
-
-bool PinConnectionValueData::hasData()
+bool PinConnection::hasData()
 {
     QMutexLocker lock( &m_mutex );
     return !m_queue.empty();
 }
 
-ValueData PinConnectionValueData::get()
-{
-    QMutexLocker lock( &m_mutex );
-    ValueData data = m_queue.front();
-    return data;
-}
-
-void PinConnectionValueData::put( ValueData data )
-{
-    QMutexLocker lock( &m_mutex );
-    m_queue.push( data );
-}
-
-/****************************************************************************
- * PinConnectionReferencedData
- ****************************************************************************/
-
-PinConnectionReferencedData::PinConnectionReferencedData( Pin* in, Pin* out ) :
-       PinConnection( in, out )
-{
-}
-
-PinConnectionReferencedData::~PinConnectionReferencedData()
-{
-}
-
-
-bool PinConnectionReferencedData::hasData()
-{
-    QMutexLocker lock( &m_mutex );
-    return !m_queue.empty();
-}
-
-// TODO add exception
-ReferencedData* PinConnectionReferencedData::get()
+Data* PinConnection::get()
 {
     QMutexLocker lock( &m_mutex );
     if( !m_queue.empty() )
     {
-        RefPtr<ReferencedData> data = m_queue.front();
+        RefPtr<Data> data = m_queue.front();
         return data.getPtr();
     }
     return 0;
 }
 
-void PinConnectionReferencedData::put( ReferencedData* data )
+void PinConnection::put( Data* data )
 {
     QMutexLocker lock( &m_mutex );
-    m_queue.push( RefPtr<ReferencedData>(data) );
+    m_queue.push( RefPtr<Data>(data) );
 }
 

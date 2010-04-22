@@ -7,43 +7,32 @@
 
 namespace plv {
 
-    /** Base class for all data. This is used only for type checking. */
-    class Data
-    {
-    };
-
-    /** Base class for data resources which contain pointers and
-      * need to be shared between threads instead of copied.
+    /** Base class for data resources.
+      *
       */
-    class ReferencedData : public Data, public RefCounted
+    class Data : public RefCounted
     {
     public:
-        ReferencedData() {}
+        Data() {}
+
+        /** Copy constructor needs to be implemented by super classes
+          * to allow the copying of a data resources when the Pin
+          * connection type is set to copy which can be faster with
+          * simple types.
+          */
+        Data( const Data& other );
+
     protected:
-        virtual ~ReferencedData() {};
-    private:
-        /** no implicit copy of object allowed */
-        ReferencedData( const ReferencedData& other );
+
+        /** protected destructor, data resources are not allowed to be
+          * deleted by individual processor since they can be in use
+          * by other processors in other thread. Deletion in one processor
+          * could cause a crash. Reference counting is used to let data
+          * resources delete themselves.
+          */
+        virtual ~Data() {};
     };
 
-    /** Base class for data resources which contain only primitve types
-      * and no pointers and can be copied between threads instead of shared.
-      */
-    class ValueData : public Data
-    {
-    public:
-        ValueData() {}
-    };
-
-    /** This method compares the type and parameters of this object, with
-      * the type and parameters of the other object. It returns true if the
-      * types are compatible from a resource persepctive. This is not the same
-      * as the typeid C++ operator, and compares additional information such as
-      * private member fields to determine compatibility between two objects.
-      */
-    //virtual bool isCompatibleFormat( const ComplexData* other ) = 0;
-
-
-    }
+}
 
 #endif // TYPES_H
