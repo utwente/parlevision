@@ -1,6 +1,10 @@
 #include "InspectorFactory.h"
+
+#include <QDebug>
+
 #include "OpenCVImageInspector.h"
 #include "Inspector.h"
+#include "OpenCVImage.h"
 
 using namespace plvgui;
 
@@ -8,7 +12,8 @@ Inspector* InspectorFactory::create(QString dataType)
         throw(InspectorCreationException)
 {
     //TODO make this dynamic
-    if(dataType == "OpenCVImage")
+    qDebug() << "InspectorFactory creating "<<dataType;
+    if(dataType == typeid(plv::OpenCVImage).name())
     {
         return new OpenCVImageInspector();
     }

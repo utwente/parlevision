@@ -8,6 +8,7 @@
 #include "RefPtr.h"
 #include "Pipeline.h"
 #include "CameraProducer.h"
+#include "InspectorFactory.h"
 
 using namespace plv;
 using namespace plvgui;
@@ -23,6 +24,7 @@ int main(int argc, char **argv)
 
     QApplication app(argc, argv);
 
+    InspectorFactory::create(typeid(OpenCVImage).name());
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
     MainWindow* mainWin = new MainWindow();
     FrameWidget* cvWidget = new FrameWidget( mainWin );

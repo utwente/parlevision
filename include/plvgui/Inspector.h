@@ -2,6 +2,11 @@
 #define INSPECTOR_H
 
 namespace plvgui {
+
+    /** Interface for Inspectors that observe or monitor pins of a certain dataType.
+      * Each implementation must register itself with the InspectorFactory
+      * and implement the methods needed to render the datatype.
+      */
     class Inspector {
 
     };
