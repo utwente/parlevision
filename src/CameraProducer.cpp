@@ -34,7 +34,7 @@ void CameraProducer::produce()
 {
     QMutexLocker lock(&m_frameMutex);
 
-    if( m_lastFrame->getId() != m_lastProcessedId )
+    if( m_lastFrame.isValid() && m_lastFrame->getId() != m_lastProcessedId )
     {
         m_outputPin->put( m_lastFrame );
         m_lastProcessedId = m_lastFrame->getId();
