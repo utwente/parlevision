@@ -4,8 +4,9 @@
 using namespace plv;
 
 OpenCVImage::OpenCVImage( int id, IplImage* img ) :
-    m_id( id ),
-    m_img( img )
+        Data(),
+        m_id( id ),
+        m_img( img )
 {
 }
 
@@ -14,9 +15,10 @@ OpenCVImage::~OpenCVImage()
     cvReleaseImage( &m_img );
 }
 
-OpenCVImage::OpenCVImage( const OpenCVImage& other )
+OpenCVImage::OpenCVImage( const OpenCVImage& other ) :
+        Data(),
+        m_id( other.m_id )
 {
-    m_id = other.m_id;
     m_img = cvCreateImage( cvSize(other.m_img->width, other.m_img->height),
                            other.m_img->depth, other.m_img->nChannels );
     cvCopyImage( other.m_img, m_img );
