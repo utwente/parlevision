@@ -11,8 +11,8 @@ using namespace plv;
 
 DummyProcessor::DummyProcessor()
 {
-    addInputPin( new TypedPin<OpenCVImage>( INPUT_PIN_NAME, this ) );
-    addOutputPin( new TypedPin<OpenCVImage>( OUTPUT_PIN_NAME, this ) );
+    addInputPin( new TypedInputPin<OpenCVImage>( INPUT_PIN_NAME, this ) );
+    addOutputPin( new TypedOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this ) );
 }
 
 DummyProcessor::~DummyProcessor()

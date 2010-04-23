@@ -9,7 +9,8 @@
 
 namespace plv
 {
-    class Pin;
+    class InputPin;
+    class OutputPin;
     class Pipeline;
 
     typedef enum _PlvPipelineElementState
@@ -23,8 +24,8 @@ namespace plv
     {
         Q_OBJECT
 
-        typedef std::map< QString, RefPtr< Pin > > InputPinMap;
-        typedef std::map< QString, RefPtr< Pin > > OutputPinMap;
+        typedef std::map< QString, RefPtr< InputPin > > InputPinMap;
+        typedef std::map< QString, RefPtr< OutputPin > > OutputPinMap;
 
     protected:
         InputPinMap  m_inputPins;
@@ -43,11 +44,11 @@ namespace plv
         virtual PlvPipelineElementState init() = 0;
         virtual PlvPipelineElementState checkConfig() = 0;
 
-        void addInputPin( Pin* pin );
-        void addOutputPin( Pin* pin );
+        void addInputPin( InputPin* pin );
+        void addOutputPin( OutputPin* pin );
 
-        const Pin* getInputPin( const QString& name ) const;
-        const Pin* getOutputPin( const QString& name ) const;
+        const InputPin* getInputPin( const QString& name ) const;
+        const OutputPin* getOutputPin( const QString& name ) const;
 
     protected:
         RefPtr<Pipeline> m_parent;
