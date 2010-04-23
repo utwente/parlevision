@@ -61,6 +61,8 @@ int main(int argc, char **argv)
     Inspector* inspector = InspectorFactory::create(
                                 cp->getOutputPin("output")->getTypeInfo().name());
 
+    inspector->setPin(cp->getOutputPin("output"));
+
     delete inspector;
 
     mainWin->show();

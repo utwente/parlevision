@@ -4,10 +4,14 @@
 #include <QObject>
 #include "Inspector.h"
 
+namespace plv {
+    class Data;
+}
+
 namespace plvgui {
-    class OpenCVImageInspector : public QObject, public Inspector
+    class OpenCVImageInspector : public Inspector
     {
-        Q_OBJECT
+        virtual void newData(plv::Data* data);
     };
 }
 #endif // OPENCVIMAGEINSPECTOR_H

@@ -9,11 +9,14 @@
 #include "RefCounted.h"
 #include "PinConnection.h"
 #include "PipelineElement.h"
+#include "Types.h"
 
 namespace plv
 {
-    class Pin : public RefCounted
+    class Pin : public QObject, public RefCounted
     {
+        Q_OBJECT
+
     public:
 
         Pin( const QString& name, PipelineElement* owner ) :
@@ -52,6 +55,10 @@ namespace plv
           * the TypedPin sub class.
           */
         virtual const std::type_info& getTypeInfo() const = 0;
+
+    signals:
+        void newData(Data* data);
+
     };
 
     class OutputPin : public Pin
@@ -64,6 +71,7 @@ namespace plv
         {
             if( this->m_connection.isValid() )
             {
+                emit( newData( obj ) );
                 this->m_connection->put( obj );
             }
         }
@@ -83,7 +91,9 @@ namespace plv
             if( this->m_connection.isValid() &&
                 this->m_connection->hasData() )
             {
-               return this->m_connection->get();
+                Data* obj = this->m_connection->get();
+                emit( newData ( obj ) );
+                return obj;
             }
             return 0;
         }
