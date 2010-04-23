@@ -3,6 +3,8 @@
 #include <opencv/highgui.h>
 #include <opencv/cv.h>
 
+#include <QDebug>
+
 using namespace plv;
 
 OpenCVCamera::OpenCVCamera( int id ) :
@@ -21,6 +23,7 @@ OpenCVCamera::~OpenCVCamera()
 
 int OpenCVCamera::init()
 {
+    qDebug() << "initialising camera";
     QMutexLocker lock( &m_opencv_mutex );
 
     m_captureDevice = cvCreateCameraCapture(0);
@@ -34,6 +37,7 @@ int OpenCVCamera::init()
     m_height = (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_HEIGHT );
 
     m_state = CAM_INITIALIZED;
+    qDebug() << "camera initialised";
     return 0;
 }
 
@@ -43,7 +47,7 @@ void OpenCVCamera::run()
     assert( m_captureDevice != 0 );
 
     while( m_state == CAM_RUNNING || m_state == CAM_PAUSED )
-    {
+    {;
         // get a frame, blocking call
         OpenCVImage* frame = getFrame();
 
@@ -71,6 +75,7 @@ void OpenCVCamera::run()
 
 void OpenCVCamera::start()
 {
+    qDebug() << "starting camera";
     QMutexLocker lock( &m_mutex );
 
     switch(m_state)

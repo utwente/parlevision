@@ -51,7 +51,7 @@ void CameraProducer::newFrame(OpenCVImage* frame)
 
 PlvPipelineElementState CameraProducer::init()
 {
-    if( !m_camera->init() )
+    if( m_camera->init() != 0 )
     {
         return PLV_PLE_STATE_NOT_READY;
     }

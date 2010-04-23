@@ -41,14 +41,6 @@ int main(int argc, char **argv)
 
     cp->init();
 
-    // Make a DummyProcessor
-//    RefPtr<DummyProcessor> dp = new DummyProcessor();
-    // Add it to the pipeline as well
-//    pipeline->add(dp);
-
-//    cp->getOutputPin("output")->????
-
-
     //cvWidget->setSource(camera);
 
     //mainWin->addCamera(camera);
