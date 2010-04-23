@@ -44,7 +44,8 @@ SOURCES += src/main.cpp \
     src/PipelineProcessor.cpp \
     src/Pipeline.cpp \
     src/plvgui/OpenCVImageInspector.cpp \
-    src/plvgui/InspectorFactory.cpp
+    src/plvgui/InspectorFactory.cpp \
+    src/plvgui/Inspector.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \

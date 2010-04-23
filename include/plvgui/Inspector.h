@@ -4,7 +4,10 @@
 #include <QWidget>
 #include <QObject>
 
-#include "Types.h"
+namespace plv {
+    class Data;
+    class Pin;
+}
 
 namespace plvgui {
 
@@ -19,8 +22,13 @@ namespace plvgui {
     public:
         ~Inspector();
 
+        /** Start inspecting this pin
+          * Disconnects all previous connections
+          */
+        virtual void setPin(const plv::Pin* pin);
+
     public slots:
-        void newData(Data* data);
+        virtual void newData(plv::Data* data)=0;
 
     };
 }
