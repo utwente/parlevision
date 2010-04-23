@@ -32,12 +32,14 @@ CameraProducer::~CameraProducer()
 
 void CameraProducer::produce()
 {
+    qDebug() << "produce()";
     QMutexLocker lock(&m_frameMutex);
 
-    if( m_lastFrame.isValid() && m_lastFrame->getId() != m_lastProcessedId )
+    if( m_lastFrame.isValid() )
     {
+        qDebug() << "CP::put";
         m_outputPin->put( m_lastFrame );
-        m_lastProcessedId = m_lastFrame->getId();
+        //m_lastProcessedId = m_lastFrame->getId();
     }
 
 //    qDebug() << "Pin type: " << m_outputPin->getTypeInfo().name();
@@ -45,6 +47,7 @@ void CameraProducer::produce()
 
 void CameraProducer::newFrame(OpenCVImage* frame)
 {
+    qDebug() << "newFrame";
     QMutexLocker lock(&m_frameMutex);
     m_lastFrame = frame;
 }

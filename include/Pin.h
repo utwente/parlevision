@@ -69,9 +69,10 @@ namespace plv
 
         void put( Data* obj )
         {
+            qDebug() << "newData from output pin " << getName();
+            emit( newData( obj ) );
             if( this->m_connection.isValid() )
             {
-                emit( newData( obj ) );
                 this->m_connection->put( obj );
             }
         }
@@ -92,7 +93,6 @@ namespace plv
                 this->m_connection->hasData() )
             {
                 Data* obj = this->m_connection->get();
-                emit( newData ( obj ) );
                 return obj;
             }
             return 0;

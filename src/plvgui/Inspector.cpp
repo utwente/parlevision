@@ -19,6 +19,7 @@ Inspector::~Inspector()
 
 void Inspector::setPin(const plv::Pin* p)
 {
+    qDebug() << "attaching inspector to pin";
     disconnect();
     connect( p, SIGNAL(newData(Data*)),
              this, SLOT(newData(Data*)) );

@@ -80,6 +80,6 @@ void Pipeline::run()
             }
 
         }
-        sleep(1);
+        usleep(1000000/10);
     }
 }
