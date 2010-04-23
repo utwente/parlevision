@@ -2,6 +2,9 @@
 #define INSPECTOR_H
 
 #include <QWidget>
+#include <QObject>
+
+#include "Types.h"
 
 namespace plvgui {
 
@@ -9,8 +12,15 @@ namespace plvgui {
       * Each implementation must register itself with the InspectorFactory
       * and implement the methods needed to render the datatype.
       */
-    class Inspector
+    class Inspector : public QObject
     {
+        Q_OBJECT
+
+    public:
+        ~Inspector();
+
+    public slots:
+        void newData(Data* data);
 
     };
 }
