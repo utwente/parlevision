@@ -61,27 +61,13 @@ namespace plv
 
     };
 
-    template< class T >
-    class TypedPin : public Pin
-    {
-    public:
-        TypedPin( const QString& name, PipelineElement* owner ) :
-                Pin( name, owner ) {}
-
-        virtual const std::type_info& getTypeInfo() const
-        {
-            return typeid( T );
-        }
-    };
-
-    template< class T >
-    class OutputPin : public TypedPin<T>
+    class OutputPin : public Pin
     {
     public:
         OutputPin( const QString& name, PipelineElement* owner ) :
-                TypedPin<T>( name, owner ) {}
+                Pin( name, owner ) {}
 
-        void put( T* obj )
+        void put( Data* obj )
         {
             if( this->m_connection.isValid() )
             {
@@ -94,21 +80,20 @@ namespace plv
         ~OutputPin() {}
     };
 
-    template< class T >
-    class InputPin : public TypedPin<T>
+    class InputPin : public Pin
     {
     public:
         InputPin( const QString& name, PipelineElement* owner ) :
-                TypedPin<T>( name, owner ) {}
+                Pin( name, owner ) {}
 
-        inline T* get()
+        inline Data* get()
         {
             if( this->m_connection.isValid() &&
                 this->m_connection->hasData() )
             {
-               T* obj = static_cast<T*>(this->m_connection->get());
-               emit( newData ( obj ) );
-               return obj;
+                Data* obj = this->m_connection->get();
+                emit( newData ( obj ) );
+                return obj;
             }
             return 0;
         }
@@ -116,6 +101,36 @@ namespace plv
     protected:
         ~InputPin() {}
     };
+
+    template< class T >
+    class TypedInputPin : public InputPin
+    {
+    public:
+        TypedInputPin( const QString& name, PipelineElement* owner ) :
+                InputPin( name, owner ) {}
+
+        virtual const std::type_info& getTypeInfo() const
+        {
+            return typeid( T );
+        }
+    };
+
+    template< class T >
+    class TypedOutputPin : public OutputPin
+    {
+    public:
+        TypedOutputPin( const QString& name, PipelineElement* owner ) :
+                OutputPin( name, owner ) {}
+
+        virtual const std::type_info& getTypeInfo() const
+        {
+            return typeid( T );
+        }
+    };
+
+
+
+
 
 }
 
