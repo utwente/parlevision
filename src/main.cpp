@@ -39,6 +39,8 @@ int main(int argc, char **argv)
     // Add it to the pipeline
     pipeline->add(cp);
 
+    cp->init();
+
     // Make a DummyProcessor
 //    RefPtr<DummyProcessor> dp = new DummyProcessor();
     // Add it to the pipeline as well
