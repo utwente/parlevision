@@ -187,6 +187,24 @@ private:
 
 };
 
+template<class T, class X> inline
+RefPtr<T> ref_ptr_dynamic_cast( const RefPtr<X>& rp )
+{
+    return dynamic_cast<T*>( rp.getPtr() );
+}
+
+template<class T, class X> inline
+RefPtr<T> ref_ptr_static_cast( const RefPtr<X>& rp )
+{
+    return static_cast<T*>( rp.getPtr() );
+}
+
+template<class T, class X> inline
+RefPtr<T> ref_ptr_const_cast(const RefPtr<X>& rp)
+{
+    return const_cast<T*>( rp.getPtr() );
+}
+
 } // end namespace plv
 
 #endif // REFPTR_H
