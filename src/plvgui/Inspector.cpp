@@ -7,6 +7,11 @@
 using namespace plvgui;
 using namespace plv;
 
+Inspector::Inspector(QWidget *parent)
+    : QWidget(parent)
+{
+}
+
 Inspector::~Inspector()
 {
     disconnect();

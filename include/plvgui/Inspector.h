@@ -17,12 +17,13 @@ namespace plvgui {
       * Each implementation must register itself with the InspectorFactory
       * and implement the methods needed to render the datatype.
       */
-    class Inspector : public QObject
+    class Inspector : public QWidget
     {
         Q_OBJECT
 
     public:
-        ~Inspector();
+        Inspector( QWidget* parent );
+        virtual ~Inspector();
 
         /** Start inspecting this pin
           * Disconnects all previous connections
@@ -30,7 +31,7 @@ namespace plvgui {
         virtual void setPin(const plv::Pin* pin);
 
     public slots:
-        virtual void newData(Data* data)=0;
+        virtual void newData(Data* data);
 
     };
 }

@@ -55,11 +55,12 @@ int main(int argc, char **argv)
     qDebug() << "output pin type" << cp->getOutputPin("output")->getTypeInfo().name();
 
     Inspector* inspector = InspectorFactory::create(
-                                cp->getOutputPin("output")->getTypeInfo().name());
+                                cp->getOutputPin("output")->getTypeInfo().name(), mainWin);
 
     inspector->setPin(cp->getOutputPin("output"));
 
-    delete inspector;
+//    delete inspector;
+    mainWin->addWidget(inspector);
 
     mainWin->show();
 

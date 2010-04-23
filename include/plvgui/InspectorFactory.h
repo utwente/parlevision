@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <QString.h>
 
+class QWidget;
+
 namespace plvgui {
     class Inspector;
 
@@ -17,7 +19,7 @@ namespace plvgui {
     class InspectorFactory
     {
     public:
-        static Inspector* create(QString dataType)
+        static Inspector* create(QString dataType, QWidget* parent)
                 throw(InspectorCreationException);
     };
 }
