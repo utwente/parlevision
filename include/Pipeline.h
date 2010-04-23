@@ -2,6 +2,7 @@
 #define PIPELINE_H
 
 #include <map>
+#include <QThread>
 #include "RefPtr.h"
 #include "RefCounted.h"
 
@@ -9,7 +10,7 @@ namespace plv
 {
     class PipelineElement;
 
-    class Pipeline : public RefCounted
+    class Pipeline : public QThread, public RefCounted
     {
         typedef std::map<int , RefPtr<PipelineElement> > PipelineElementMap;
 
@@ -24,13 +25,24 @@ namespace plv
         int add( PipelineElement* child );
         void remove( PipelineElement* child );
         void remove( int id );
+        void init();
 
     protected:
         PipelineElementMap m_children;
 
         ~Pipeline();
+
+        /**
+          * The QThread run loop
+          */
+        virtual void run();
     private:
         int m_idCounter;
+
+    public slots:
+        void start();
+        void stop();
+
     };
 }
 #endif // PIPELINE_H

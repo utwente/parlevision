@@ -54,6 +54,9 @@ int main(int argc, char **argv)
     //mainWin->addCamera(camera);
     //mainWin->addWidget( cvWidget );
 
+    pipeline->init();
+    pipeline->start();
+
     mainWin->setPipeline(pipeline);
 
     //this is temporary
@@ -63,8 +66,6 @@ int main(int argc, char **argv)
                                 cp->getOutputPin("output")->getTypeInfo().name());
 
     inspector->setPin(cp->getOutputPin("output"));
-
-    cp->produce();
 
     delete inspector;
 

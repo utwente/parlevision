@@ -40,7 +40,7 @@ void CameraProducer::produce()
         m_lastProcessedId = m_lastFrame->getId();
     }
 
-    qDebug() << "Pin type: " << m_outputPin->getTypeInfo().name();
+//    qDebug() << "Pin type: " << m_outputPin->getTypeInfo().name();
 }
 
 void CameraProducer::newFrame(OpenCVImage* frame)

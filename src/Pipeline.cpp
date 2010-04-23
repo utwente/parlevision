@@ -1,6 +1,10 @@
 #include "Pipeline.h"
 
+#include <QDebug>
+
 #include "PipelineElement.h"
+#include "PipelineProcessor.h"
+#include "PipelineProducer.h"
 
 using namespace plv;
 
@@ -38,5 +42,44 @@ void Pipeline::remove( int id )
     if( itr != m_children.end() )
     {
         m_children.erase( itr );
+    }
+}
+
+void Pipeline::init()
+{
+
+}
+
+void Pipeline::start()
+{
+    QThread::start();
+}
+
+void Pipeline::stop()
+{
+
+}
+
+void Pipeline::run()
+{
+    while(true)
+    {
+        for( PipelineElementMap::iterator itr = m_children.begin()
+            ; itr != m_children.end(); ++itr )
+        {
+            RefPtr<PipelineElement> element = itr->second;
+
+            //TODO make this not so ugly
+            if(PipelineProducer* prod = dynamic_cast<PipelineProducer*> (element.getPtr()))
+            {
+                prod->produce();
+            }
+            else
+            {
+                qDebug() << "unknown pipeline element";
+            }
+
+        }
+        sleep(1);
     }
 }
