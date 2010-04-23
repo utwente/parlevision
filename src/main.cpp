@@ -46,7 +46,6 @@ int main(int argc, char **argv)
 
 //    cp->getOutputPin("output")->????
 
-    cp->produce();
 
     //cvWidget->setSource(camera);
 
@@ -62,6 +61,8 @@ int main(int argc, char **argv)
                                 cp->getOutputPin("output")->getTypeInfo().name());
 
     inspector->setPin(cp->getOutputPin("output"));
+
+    cp->produce();
 
     delete inspector;
 

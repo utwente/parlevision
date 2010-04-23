@@ -23,6 +23,7 @@ public:
     explicit RefCounted( const RefCounted& other )
         : m_referenceCount( 0 )
     {
+        #pragma unused(other)
     }
 
     /** increases reference count by one */

@@ -6,8 +6,9 @@
 #include "OpenCVImage.h"
 
 using namespace plvgui;
+using namespace plv;
 
-void OpenCVImageInspector::newData(plv::Data* data)
+void OpenCVImageInspector::newData(Data* data)
 {
     qDebug() << "OpenCVImageInspector::newData()";
 }

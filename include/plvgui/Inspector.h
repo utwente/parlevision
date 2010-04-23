@@ -9,6 +9,8 @@ namespace plv {
     class Pin;
 }
 
+using namespace plv;
+
 namespace plvgui {
 
     /** Interface for Inspectors that observe or monitor pins of a certain dataType.
@@ -28,7 +30,7 @@ namespace plvgui {
         virtual void setPin(const plv::Pin* pin);
 
     public slots:
-        virtual void newData(plv::Data* data)=0;
+        virtual void newData(Data* data)=0;
 
     };
 }

@@ -11,7 +11,7 @@ namespace plv {
 namespace plvgui {
     class OpenCVImageInspector : public Inspector
     {
-        virtual void newData(plv::Data* data);
+        virtual void newData(Data* data);
     };
 }
 #endif // OPENCVIMAGEINSPECTOR_H
