@@ -20,10 +20,9 @@ public:
     /** Copy constructor of RefCounted objects initializes
       * the reference count of the copy to 0.
       */
-    explicit RefCounted( const RefCounted& other )
+    explicit RefCounted( const RefCounted& )
         : m_referenceCount( 0 )
     {
-        #pragma unused(other)
     }
 
     /** increases reference count by one */
@@ -38,13 +37,16 @@ public:
       */
     void dec() const
     {
-        QMutexLocker lock( &m_mutex );
+        m_mutex.lock();
         --m_referenceCount;
         if( m_referenceCount < 1 )
         {
-            delete this;
-        }
-    }
+            m_mutex.unlock();
+			delete this;
+			return;
+		}
+		m_mutex.unlock();
+	}
 
     inline int getRefCount() const
     {

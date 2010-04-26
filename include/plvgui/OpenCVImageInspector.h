@@ -30,7 +30,7 @@ namespace plvgui {
         QImage          m_image;
 
     public slots:
-        virtual void newData(Data* data);
+        virtual void newData( RefPtr<Data> data );
 
     };    
 }

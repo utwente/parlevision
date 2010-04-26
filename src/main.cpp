@@ -26,6 +26,9 @@ int main(int argc, char **argv)
     //camera->setDimensions( 640, 480 );
 
     QApplication app(argc, argv);
+	
+	// register classes with Qt so they can be used in signals and slots
+	qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
 
 //    InspectorFactory::create(typeid(OpenCVImage).name());
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);

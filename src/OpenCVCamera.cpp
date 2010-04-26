@@ -49,10 +49,10 @@ void OpenCVCamera::run()
     while( m_state == CAM_RUNNING || m_state == CAM_PAUSED )
     {;
         // get a frame, blocking call
-        OpenCVImage* frame = getFrame();
+        RefPtr<Data> frame = getFrame();
 
         // send a signal to subscribers
-        if( frame != 0 )
+		if( frame.isValid() )
         {
             emit newFrame( frame );
         }

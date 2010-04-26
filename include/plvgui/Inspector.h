@@ -4,8 +4,10 @@
 #include <QWidget>
 #include <QObject>
 
+#include "RefPtr.h"
+#include "Types.h"
+
 namespace plv {
-    class Data;
     class Pin;
 }
 
@@ -31,7 +33,7 @@ namespace plvgui {
         virtual void setPin(const plv::Pin* pin);
 
     public slots:
-        virtual void newData(Data* data);
+        virtual void newData( RefPtr<Data> data );
 
     };
 }

@@ -1,12 +1,12 @@
 DEPENDPATH += .
 win32 { 
-    LIBS += -lcv200 \
-        -lcxcore200 \
-        -lcvaux200 \
-        -lhighgui200 \
-        -lcxts200 \
-        -lml200
-    LIBPATH += c:\opencv2.0\lib
+    LIBS += -lcv200d \
+        -lcxcore200d \
+        -lcvaux200d \
+        -lhighgui200d \
+        -lcxts200d \
+        -lml200d
+    LIBPATH += c:\OpenCV2.0\lib\Debug
     INCLUDEPATH += c:\OpenCV2.0\include
 }
 macx { 

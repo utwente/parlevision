@@ -21,16 +21,15 @@ public:
 
     RefPtr( T* ptr ) : m_ptr( ptr )
     {
-        if( m_ptr )
+		if( m_ptr )
         {
             m_ptr->inc();
         }
     }
 
     /** copy constructor */
-    RefPtr( const RefPtr<T>& rp )
+	RefPtr( const RefPtr<T>& rp ) : m_ptr( rp.m_ptr )
     {
-        m_ptr = rp.getPtr();
         if( m_ptr != 0 )
         {
             m_ptr->inc();
@@ -163,14 +162,6 @@ public:
             }
         }
         return *this;
-    }
-
-    /** compares pointer values of managed RefCounted objects if both pointers
-      * are not equal to 0.
-      */
-    bool operator == ( const RefPtr<T>& rhs ) const
-    {
-        return m_ptr != 0 ? rhs.getObj() == m_ptr : false;
     }
 
     T& operator * () const { return *m_ptr; }

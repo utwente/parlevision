@@ -17,15 +17,15 @@ Inspector::~Inspector()
     disconnect();
 }
 
-void Inspector::setPin(const plv::Pin* p)
+void Inspector::setPin( const plv::Pin* p )
 {
     qDebug() << "attaching inspector to pin";
     disconnect();
-    connect( p, SIGNAL(newData(Data*)),
-             this, SLOT(newData(Data*)) );
+    connect( p, SIGNAL( newData( RefPtr<Data> )),
+             this, SLOT( newData( RefPtr<Data> )) );
 }
 
-void Inspector::newData(Data*)
+void Inspector::newData( RefPtr<Data> )
 {
     qDebug() << "WARNING: Abstract Inspector received newData signal.\n"
                 << "Did you forget to implement newData(Data* data) in a subclass?";

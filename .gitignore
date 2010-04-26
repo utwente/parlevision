@@ -9,3 +9,8 @@ build
 Info.plist
 *.xcodeproj
 ui_mainwindow.h
+ParleVision.sln
+ParleVision.vcproj*
+ParleVision.suo
+vc90.*
+ParleVision.ncb

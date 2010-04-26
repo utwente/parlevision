@@ -33,20 +33,19 @@ bool PinConnection::hasData()
     return !m_queue.empty();
 }
 
-Data* PinConnection::get()
+RefPtr<Data> PinConnection::get()
 {
     QMutexLocker lock( &m_mutex );
     if( !m_queue.empty() )
     {
-        RefPtr<Data> data = m_queue.front();
-        return data.getPtr();
+        return m_queue.front();
     }
-    return 0;
+    return RefPtr<Data>( 0 );
 }
 
-void PinConnection::put( Data* data )
+void PinConnection::put( RefPtr<Data> data )
 {
     QMutexLocker lock( &m_mutex );
-    m_queue.push( RefPtr<Data>(data) );
+    m_queue.push( data );
 }
 

@@ -5,9 +5,9 @@
 
 #include "PipelineProducer.h"
 #include "Pin.h"
+#include "OpenCVImage.h"
 
 namespace plv {
-    class OpenCVImage;
     class OpenCVCamera;
 
     class CameraProducer : public PipelineProducer
@@ -34,7 +34,7 @@ namespace plv {
         QMutex m_frameMutex;
 
     public slots:
-        void newFrame(OpenCVImage* frame);
+        void newFrame( RefPtr<Data> frame );
     };
 
 }

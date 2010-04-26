@@ -30,10 +30,10 @@ OpenCVImageInspector::OpenCVImageInspector(QWidget* parent)
     setLayout( m_layout );
 }
 
-void OpenCVImageInspector::newData(Data* data)
+void OpenCVImageInspector::newData( RefPtr<Data> data )
 {
     qDebug() << "OpenCVImageInspector::newData()";
-    OpenCVImage* img = dynamic_cast<OpenCVImage*> (data);
+    OpenCVImage* img = dynamic_cast<OpenCVImage*> (data.getPtr());
     if(img)
     {
         putImage(img);

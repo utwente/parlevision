@@ -2,8 +2,6 @@
 #define PINCONNECTION_H
 
 #include <queue>
-
-#include <QMutex>
 #include <QMutexLocker>
 
 #include "RefPtr.h"
@@ -24,8 +22,8 @@ namespace plv
 
         virtual bool hasData();
 
-        Data* get();
-        void put( Data* );
+        RefPtr<Data> get();
+        void put( RefPtr<Data> );
 
     protected:
         virtual ~PinConnection();

@@ -57,7 +57,7 @@ namespace plv
         virtual const std::type_info& getTypeInfo() const = 0;
 
     signals:
-        void newData(Data* data);
+        void newData( RefPtr<Data> data );
 
     };
 
@@ -67,13 +67,14 @@ namespace plv
         OutputPin( const QString& name, PipelineElement* owner ) :
                 Pin( name, owner ) {}
 
-        void put( Data* obj )
+        inline void put( RefPtr<Data> data )
         {
-            qDebug() << "newData from output pin " << getName();
-            emit( newData( obj ) );
-            if( this->m_connection.isValid() )
+            qDebug() << "Starting signal 'newData' from output pin " << getName() << ".";
+            emit( newData( data ) );
+            
+			if( this->m_connection.isValid() )
             {
-                this->m_connection->put( obj );
+                this->m_connection->put( data );
             }
         }
 
@@ -87,12 +88,12 @@ namespace plv
         InputPin( const QString& name, PipelineElement* owner ) :
                 Pin( name, owner ) {}
 
-        inline Data* get()
+        inline RefPtr<Data> get()
         {
             if( this->m_connection.isValid() &&
                 this->m_connection->hasData() )
             {
-                Data* obj = this->m_connection->get();
+                RefPtr<Data> obj = this->m_connection->get();
                 return obj;
             }
             return 0;

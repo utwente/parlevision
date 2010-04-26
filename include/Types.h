@@ -2,8 +2,8 @@
 #define TYPES_H
 
 //#include <opencv/cv.h>
-#include <QString>
-#include "RefCounted.h"
+#include <QMetaType>
+#include "RefPtr.h"
 
 namespace plv {
 
@@ -34,5 +34,9 @@ namespace plv {
     };
 
 }
+/** declare the RefPtr template instantiated with the Data class as a Qt Metatype 
+  *  so we can pass RefPtr<Data> along with signals and slots across thread boundaries
+  */
+Q_DECLARE_METATYPE( plv::RefPtr<plv::Data> );
 
 #endif // TYPES_H

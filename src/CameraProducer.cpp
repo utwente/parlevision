@@ -21,9 +21,9 @@ CameraProducer::CameraProducer() :
     // connect the camera to this camera producer using Qt's signals
     // and slots mechanism.
     connect( m_camera.getPtr(),
-             SIGNAL( newFrame( OpenCVImage* ) ),
+             SIGNAL( newFrame( RefPtr<Data> ) ),
              this,
-             SLOT( newFrame( OpenCVImage*) ) );
+             SLOT( newFrame( RefPtr<Data> ) ) );
 }
 
 CameraProducer::~CameraProducer()
@@ -38,18 +38,18 @@ void CameraProducer::produce()
     if( m_lastFrame.isValid() )
     {
         qDebug() << "CP::put";
-        m_outputPin->put( m_lastFrame );
+        m_outputPin->put( m_lastFrame.getPtr() );
         //m_lastProcessedId = m_lastFrame->getId();
     }
 
 //    qDebug() << "Pin type: " << m_outputPin->getTypeInfo().name();
 }
 
-void CameraProducer::newFrame(OpenCVImage* frame)
+void CameraProducer::newFrame( RefPtr<Data> frame )
 {
     qDebug() << "newFrame";
     QMutexLocker lock(&m_frameMutex);
-    m_lastFrame = frame;
+    m_lastFrame = ref_ptr_dynamic_cast<OpenCVImage>( frame );
 }
 
 PlvPipelineElementState CameraProducer::init()
