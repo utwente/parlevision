@@ -26,7 +26,7 @@ public:
     }
 
     /** increases reference count by one */
-    void inc() const
+    inline void inc() const
     {
         QMutexLocker lock( &m_mutex );
         ++m_referenceCount;
@@ -35,7 +35,7 @@ public:
     /** decreases reference count by one. Deletes this object if
       * reference count becomes 0
       */
-    void dec() const
+    inline void dec() const
     {
         m_mutex.lock();
         --m_referenceCount;
