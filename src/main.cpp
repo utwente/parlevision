@@ -12,6 +12,7 @@
 #include "InspectorFactory.h"
 #include "Pin.h"
 #include "Inspector.h"
+#include "QtImage.h"
 
 using namespace plv;
 using namespace plvgui;
@@ -28,12 +29,13 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 	
 	// register classes with Qt so they can be used in signals and slots
-	qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
+    qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
+    qRegisterMetaType< RefPtr<QtImage> >("RefPtr<QtImage>");
 
 //    InspectorFactory::create(typeid(OpenCVImage).name());
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
     MainWindow* mainWin = new MainWindow();
-    FrameWidget* cvWidget = new FrameWidget( mainWin );
+//    FrameWidget* cvWidget = new FrameWidget( mainWin );
 
     // Make a pipeline
     RefPtr<Pipeline> pipeline = new Pipeline();

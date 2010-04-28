@@ -10,24 +10,25 @@ namespace plv {
 class QtImage : public Data
 {
 protected:
-    int m_id;
     QImage* m_img;
 
-    virtual ~QtImage();
-
 public:
-    QtImage( int id, QImage* img );
+    QtImage( QImage* img );
     QtImage( const QtImage& other );
-
-    int getId() const { return m_id; }
     
     /** get the image from this container */
-    const QImage* getImage() const { return m_img; }
+    QImage* getImage() const { return m_img; }
 
     /** returns if this image is compatible with another QtImage */
     //virtual bool isCompatible( const ComplexData* other );
+    virtual ~QtImage();
 };
 
 }
+
+/** declare the RefPtr template instantiated with the QtImage class as a Qt Metatype
+  *  so we can pass RefPtr<QtImage> along with signals and slots across thread boundaries
+  */
+Q_DECLARE_METATYPE( plv::RefPtr<plv::QtImage> );
 
 #endif // QtImage_H

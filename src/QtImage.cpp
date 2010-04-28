@@ -3,16 +3,14 @@
 
 using namespace plv;
 
-QtImage::QtImage( int id, QImage* img ) :
+QtImage::QtImage( QImage* img ) :
         Data(),
-        m_id( id ),
         m_img( img )
 {
 }
 
 QtImage::QtImage( const QtImage& other ) :
         Data(),
-        m_id( other.m_id ),
         m_img( new QImage( *other.m_img ))
 {
 }
