@@ -39,7 +39,9 @@ RefPtr<Data> PinConnection::get()
     QMutexLocker lock( &m_mutex );
     if( !m_queue.empty() )
     {
-        return m_queue.front();
+        RefPtr<Data> data = m_queue.front();
+        m_queue.pop();
+        return data;
     }
     return RefPtr<Data>( 0 );
 }
@@ -47,6 +49,7 @@ RefPtr<Data> PinConnection::get()
 void PinConnection::put( RefPtr<Data> data )
 {
     QMutexLocker lock( &m_mutex );
+    qDebug() << "PinConnection queue length: " << m_queue.size();
     m_queue.push( data );
 }
 

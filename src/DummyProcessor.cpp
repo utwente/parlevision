@@ -31,12 +31,25 @@ PlvPipelineElementState DummyProcessor::checkConfig()
 
 void DummyProcessor::process()
 {
-    RefPtr<const Pin> in  = getInputPin( INPUT_PIN_NAME );
-    RefPtr<const Pin> out = getOutputPin( OUTPUT_PIN_NAME );
+    RefPtr<InputPin> in  = getInputPin( INPUT_PIN_NAME );
+    RefPtr<OutputPin> out = getOutputPin( OUTPUT_PIN_NAME );
 
-    if( in.isValid() && out.isValid() )
+    assert(in.isValid());
+    assert(out.isValid());
+    qDebug() << "DummyProcessor recieved input";
+
+
+    RefPtr<Data> data = in->get();
+    if(data.isValid())
     {
-        qDebug() << "DummyProcessor recieved input";
+        // It's safe to do this, because the pins are guaranteed to provide this type.
+        RefPtr<OpenCVImage> img = ref_ptr_dynamic_cast<OpenCVImage>(data);
+        assert(img.isValid());
+        out->put(data);
+    }
+    else
+    {
+        qDebug() << "no data to process";
     }
 
 }
