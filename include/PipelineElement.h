@@ -28,7 +28,7 @@ namespace plv
         typedef std::map< QString, RefPtr< OutputPin > > OutputPinMap;
 
     protected:
-        InputPinMap  m_inputPins;
+        InputPinMap  m_InputPins;
         OutputPinMap m_outputPins;
 
     public:
@@ -47,8 +47,8 @@ namespace plv
         void addInputPin( InputPin* pin );
         void addOutputPin( OutputPin* pin );
 
-        const InputPin* getInputPin( const QString& name ) const;
-        const OutputPin* getOutputPin( const QString& name ) const;
+        InputPin* getInputPin( const QString& name ) const;
+        OutputPin* getOutputPin( const QString& name ) const;
 
     protected:
         RefPtr<Pipeline> m_parent;

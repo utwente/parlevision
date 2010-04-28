@@ -5,26 +5,27 @@
 
 using namespace plv;
 
-PinConnection::PinConnection( Pin* in, Pin* out ) :
-        m_in( in ),
-        m_out( out )
+PinConnection::PinConnection( OutputPin* producer, InputPin* consumer ) :
+        m_producer( producer ),
+        m_consumer( consumer )
 {
+    m_producer->addConnection(this);
+
+    assert(m_consumer.isValid());
+    assert(m_producer.isValid());
+
+    assert(!m_consumer->isConnected());
+    m_consumer->setConnection(this);
 }
 
 PinConnection::~PinConnection()
 {
+    //TODO remove connections?
 }
 
 bool PinConnection::arePinDataTypesEqual()
 {
-    return( m_in->getTypeInfo() == m_out->getTypeInfo() );
-}
-
-bool PinConnection::isConnected()
-{
-    //TODO what is this function supposed to do?
-    QMutexLocker lock( &m_mutex );
-    return true;
+    return( m_producer->getTypeInfo() == m_consumer->getTypeInfo() );
 }
 
 bool PinConnection::hasData()

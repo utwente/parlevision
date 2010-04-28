@@ -5,6 +5,8 @@
 #include "PipelineElement.h"
 #include "PipelineProcessor.h"
 #include "PipelineProducer.h"
+#include "Pin.h"
+#include "PinConnection.h"
 
 using namespace plv;
 
@@ -43,6 +45,12 @@ void Pipeline::remove( int id )
     {
         m_children.erase( itr );
     }
+}
+
+void Pipeline::connectPins(OutputPin* outputPin, InputPin* inputPin)
+{
+    RefPtr<PinConnection> connection = new PinConnection(outputPin, inputPin);
+    m_connections.push_back(connection);
 }
 
 void Pipeline::init()

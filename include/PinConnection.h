@@ -9,15 +9,15 @@
 
 namespace plv
 {
-    class Pin;
+    class InputPin;
+    class OutputPin;
     class Data;
 
     class PinConnection : public RefCounted
     {
     public:
-        PinConnection( Pin* in, Pin* out );
+        PinConnection(OutputPin* producer, InputPin* consumer );
 
-        bool isConnected();
         bool arePinDataTypesEqual();
 
         virtual bool hasData();
@@ -28,8 +28,8 @@ namespace plv
     protected:
         virtual ~PinConnection();
 
-        RefPtr<Pin> m_in;
-        RefPtr<Pin> m_out;
+        RefPtr<OutputPin> m_producer;
+        RefPtr<InputPin> m_consumer;
 
         std::queue< RefPtr<Data> > m_queue;
 

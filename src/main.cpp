@@ -43,8 +43,15 @@ int main(int argc, char **argv)
     RefPtr<CameraProducer> cp = new CameraProducer();
     // Add it to the pipeline
     pipeline->add(cp);
-
     cp->init();
+
+    RefPtr<DummyProcessor> dp = new DummyProcessor();
+    pipeline->add(dp);
+    dp->init();
+
+    pipeline->connectPins(cp->getOutputPin("output"), dp->getInputPin("input image"));
+
+
 
     //cvWidget->setSource(camera);
 

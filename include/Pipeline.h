@@ -2,13 +2,18 @@
 #define PIPELINE_H
 
 #include <map>
+#include <list>
 #include <QThread>
 #include "RefPtr.h"
 #include "RefCounted.h"
+#include "PinConnection.h"
 
 namespace plv
 {
     class PipelineElement;
+    class Pin;
+    class InputPin;
+    class OutputPin;
 
     class Pipeline : public QThread, public RefCounted
     {
@@ -27,8 +32,13 @@ namespace plv
         void remove( int id );
         void init();
 
+        /** Create a PinConnnection between the given InputPin and outputPin
+          */
+        void connectPins(OutputPin* outputPin, InputPin* inputPin);
+
     protected:
         PipelineElementMap m_children;
+        std::list< RefPtr<PinConnection> > m_connections;
 
         ~Pipeline();
 

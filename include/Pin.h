@@ -35,20 +35,13 @@ namespace plv
         /** data received from or delivered to this pipeline element */
         RefPtr<PipelineElement> m_owner;
 
-        /** null if there is no connection */
-        RefPtr<PinConnection>   m_connection;
-
         /** RefCounted objects have protected destructor */
-        ~Pin() {};
+        ~Pin() {}
 
     public:
         inline PipelineElement* getOwner() const { return m_owner.getPtr(); }
-        inline PinConnection* getPinConnection() const { return m_connection.getPtr(); }
 
-        inline bool isConnected() const
-        {
-            return m_connection.isValid() && m_connection->isConnected();
-        }
+        virtual bool isConnected() const = 0;
 
         /** @returns the std::type_info struct belonging to the type
           * this pin is initialized with. Is implemented by
@@ -71,15 +64,28 @@ namespace plv
         {
             qDebug() << "Starting signal 'newData' from output pin " << getName() << ".";
             emit( newData( data ) );
-            
-			if( this->m_connection.isValid() )
+
+            for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
+                    itr != m_connections.end(); ++itr)
             {
-                this->m_connection->put( data );
+                RefPtr<PinConnection> connection = *itr;
+
+                assert(connection.isValid());
+                connection->put( data );
             }
         }
 
+        virtual bool isConnected() const;
+
+        /** Adds a connection to the set of connections this pin outputs to
+          * @ensure this->isConnected();
+          */
+        void addConnection(PinConnection* connection);
+
     protected:
         ~OutputPin() {}
+        // empty list by default
+        std::list< RefPtr<PinConnection> > m_connections;
     };
 
     class InputPin : public Pin
@@ -99,8 +105,19 @@ namespace plv
             return 0;
         }
 
+        virtual bool isConnected() const;
+
+        /** Connects this pin through the given connection.
+          * @require !this->isConnected()
+          * @ensure this->isConnected();
+          */
+        void setConnection(PinConnection* connection);
+
     protected:
         ~InputPin() {}
+
+        /** null if there is no connection */
+        RefPtr<PinConnection>   m_connection;
     };
 
     template< class T >
