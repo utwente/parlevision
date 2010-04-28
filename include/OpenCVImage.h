@@ -16,6 +16,8 @@ public:
     OpenCVImage( int id, IplImage* img );
     OpenCVImage( const OpenCVImage& other );
 
+    OpenCVImage* deepcopy();
+
     static const QString& getType();
 
     /** implementation of the isCompatible method of the Resource abstract

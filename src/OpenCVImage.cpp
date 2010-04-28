@@ -24,6 +24,14 @@ OpenCVImage::OpenCVImage( const OpenCVImage& other ) :
     cvCopyImage( other.m_img, m_img );
 }
 
+OpenCVImage* OpenCVImage::deepcopy()
+{
+    IplImage* img = cvCreateImage( cvSize(m_img->width, m_img->height),
+                           m_img->depth, m_img->nChannels );
+    cvCopyImage( m_img, img );
+    return new OpenCVImage(this->m_id, img);
+}
+
 /** Compare two opencv images for type equality */
 //bool OpenCVImage::isCompatibleFormat( const ComplexData* data )
 //{
