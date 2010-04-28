@@ -15,14 +15,11 @@ using namespace plv;
 
 namespace plvgui {
 
-    class ImageConverter : public QObject
+    class ImageConverter : public QObject, public RefCounted
     {
         Q_OBJECT
 
     public:
-        /** @return the singleton instance
-          */
-        static ImageConverter* getInstance();
 
         /** Starts converting this image to a QImage.
           * This call will return immediately

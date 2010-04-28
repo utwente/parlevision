@@ -5,7 +5,8 @@
 
 #include "OpenCVImage.h"
 #include "QtImage.h"
-
+#include "RefPtr.h"
+#include "ImageConverter.h"
 #include "Inspector.h"
 
 class QLabel;
@@ -21,6 +22,7 @@ namespace plv {
 using namespace plv;
 
 namespace plvgui {
+
     class OpenCVImageInspector : public Inspector
     {
         Q_OBJECT
@@ -35,6 +37,7 @@ namespace plvgui {
         QVBoxLayout*    m_layout;
         bool            m_busy;
         QMutex          m_busy_mutex;
+        RefPtr<ImageConverter> m_converter;
 
     public slots:
         virtual void newData( RefPtr<Data> data );

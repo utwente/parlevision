@@ -47,7 +47,6 @@ void CameraProducer::produce()
 
 void CameraProducer::newFrame( RefPtr<Data> frame )
 {
-    qDebug() << "newFrame";
     QMutexLocker lock(&m_frameMutex);
     m_lastFrame = ref_ptr_dynamic_cast<OpenCVImage>( frame );
 }

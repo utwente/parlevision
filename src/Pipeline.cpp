@@ -94,6 +94,5 @@ void Pipeline::run()
         }
 //        usleep(100);
         usleep(1000000/40);
-//        sleep(1);
     }
 }

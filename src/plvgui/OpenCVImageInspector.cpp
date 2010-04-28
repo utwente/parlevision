@@ -36,8 +36,9 @@ OpenCVImageInspector::OpenCVImageInspector(QWidget* parent)
     m_imagelabel->setPixmap( QPixmap::fromImage( image ) );
     setLayout( m_layout );
 
-    connect( ImageConverter::getInstance(), SIGNAL( converted(RefPtr<QtImage>) ),
-             this,                          SLOT( updateImage(RefPtr<QtImage>) ) );
+    m_converter = new ImageConverter();
+    connect(m_converter.getPtr(), SIGNAL( converted(RefPtr<QtImage>) ),
+             this,                 SLOT( updateImage(RefPtr<QtImage>) ) );
 
 }
 
@@ -55,11 +56,12 @@ void OpenCVImageInspector::newData( RefPtr<Data> data )
     {
         qDebug() << "Processing frame";
         RefPtr<OpenCVImage> img = ref_ptr_dynamic_cast<OpenCVImage>(data);
+        assert(img.isValid());
         if(img.isValid())
         {
             m_busy = true;
             // dispatch an asynchronous call
-            ImageConverter::getInstance()->convert_OpenCVImage(img);
+            m_converter->convert_OpenCVImage(img);
         }
     }
 }

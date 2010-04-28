@@ -11,15 +11,6 @@ using namespace plv;
 
 ImageConverter* ImageConverter::m_instance = 0;
 
-ImageConverter* ImageConverter::getInstance()
-{
-    if(m_instance == 0)
-    {
-        m_instance = new ImageConverter();
-    }
-    return m_instance;
-}
-
 void ImageConverter::convert_OpenCVImage(RefPtr<OpenCVImage> img)
 {
     QtConcurrent::run(this, &ImageConverter::convert, img);
