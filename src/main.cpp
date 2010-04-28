@@ -74,6 +74,13 @@ int main(int argc, char **argv)
 //    delete inspector;
     mainWin->addWidget(inspector);
 
+    Inspector* dummy_inspector = InspectorFactory::create(
+                                dp->getOutputPin("output image")->getTypeInfo().name(), mainWin);
+
+    dummy_inspector->setPin(dp->getOutputPin("output image"));
+
+    mainWin->addWidget(dummy_inspector);
+
     mainWin->show();
 
     //camera->start();
