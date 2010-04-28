@@ -78,9 +78,13 @@ void Pipeline::run()
             RefPtr<PipelineElement> element = itr->second;
 
             //TODO make this not so ugly
-            if(PipelineProducer* prod = dynamic_cast<PipelineProducer*> (element.getPtr()))
+            if(RefPtr<PipelineProducer> prod = ref_ptr_dynamic_cast<PipelineProducer>(element))
             {
                 prod->produce();
+            }
+            else if(RefPtr<PipelineProcessor> proc = ref_ptr_dynamic_cast<PipelineProcessor>(element))
+            {
+                proc->process();
             }
             else
             {
