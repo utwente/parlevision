@@ -10,14 +10,14 @@ namespace plv {
 class QtImage : public Data
 {
 protected:
-    QImage m_img;
+    QImage* m_img;
 
 public:
-    QtImage( QImage img );
+    QtImage( QImage* img );
     QtImage( const QtImage& other );
     
     /** get the image from this container */
-    QImage getImage() const { return m_img; }
+    QImage* getImage() const { return m_img; }
 
     /** returns if this image is compatible with another QtImage */
     //virtual bool isCompatible( const ComplexData* other );

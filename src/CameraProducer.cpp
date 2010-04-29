@@ -58,6 +58,7 @@ PlvPipelineElementState CameraProducer::init()
         return PLV_PLE_STATE_NOT_READY;
     }
 
+    m_camera->setDimensions( 640, 480 );
     m_camera->start();
 
     return PLV_PLE_STATE_READY;

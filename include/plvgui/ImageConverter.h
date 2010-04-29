@@ -2,6 +2,8 @@
 #define IMAGECONVERTER_H
 
 #include <QObject>
+#include <opencv/cv.h>
+
 #include "RefPtr.h"
 #include "QtImage.h"
 
@@ -26,7 +28,9 @@ namespace plvgui {
           * as converting is done asynchronously.
           * @emits converted(QImage*) when converting has finished;
           */
-        void convert_OpenCVImage(plv::RefPtr<plv::OpenCVImage> img);
+        void convert_OpenCVImage( plv::RefPtr<plv::OpenCVImage> img );
+
+        static QImage* iplImageToQImage( const IplImage* iplImage );
 
     private:
         static ImageConverter* m_instance;
@@ -36,7 +40,7 @@ namespace plvgui {
         /** Emitted when converting is done.
           * The contained image might not be valid if an error occurred
           */
-        void converted(RefPtr<QtImage> img);
+        void converted( RefPtr<QtImage> img );
     };
 }
 
