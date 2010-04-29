@@ -167,8 +167,11 @@ public:
     T& operator * () const { return *m_ptr; }
     T* operator ->() const { return m_ptr; }
 
-    /** returns if the pointer to the managed object is valid (not null) */
-    bool isValid() const { return m_ptr != 0; }
+    /** returns if the pointer to the managed object is valid (not NULL) */
+    bool isNotNull() const { return m_ptr != 0; }
+
+    /** returns if the pointer to the managed object is NULL */
+    bool isNull() const { return m_ptr == 0; }
 
 private:
     /**

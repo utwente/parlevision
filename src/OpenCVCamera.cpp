@@ -52,7 +52,7 @@ void OpenCVCamera::run()
         RefPtr<Data> frame = getFrame();
 
         // send a signal to subscribers
-		if( frame.isValid() )
+		if( frame.isNotNull() )
         {
             emit newFrame( frame );
         }

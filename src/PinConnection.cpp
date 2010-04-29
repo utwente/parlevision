@@ -11,8 +11,8 @@ PinConnection::PinConnection( OutputPin* producer, InputPin* consumer ) :
 {
     m_producer->addConnection(this);
 
-    assert(m_consumer.isValid());
-    assert(m_producer.isValid());
+    assert(m_consumer.isNotNull());
+    assert(m_producer.isNotNull());
 
     assert(!m_consumer->isConnected());
     m_consumer->setConnection(this);

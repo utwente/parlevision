@@ -36,7 +36,7 @@ OpenCVImage* OpenCVImage::deepcopy()
 //bool OpenCVImage::isCompatibleFormat( const ComplexData* data )
 //{
 //    RefPtr<const OpenCVImage> img = dynamic_cast<const OpenCVImage*>(data);
-//    if( img.isValid() && m_img != 0 )
+//    if( img.isNotNull() && m_img != 0 )
 //    {
 //        IplImage* other = img->getImage();
 //        return( m_img->nChannels == other->nChannels &&

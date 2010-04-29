@@ -35,17 +35,17 @@ void DummyProcessor::process()
     RefPtr<InputPin> in  = getInputPin( INPUT_PIN_NAME );
     RefPtr<OutputPin> out = getOutputPin( OUTPUT_PIN_NAME );
 
-    assert(in.isValid());
-    assert(out.isValid());
+    assert(in.isNotNull());
+    assert(out.isNotNull());
     qDebug() << "DummyProcessor recieved input";
 
 
     RefPtr<Data> data = in->get();
-    if(data.isValid())
+    if(data.isNotNull())
     {
         // It's safe to do this, because the pins are guaranteed to provide this type.
         RefPtr<OpenCVImage> img = ref_ptr_dynamic_cast<OpenCVImage>(data);
-        assert(img.isValid());
+        assert(img.isNotNull());
         RefPtr<OpenCVImage> img2 = img->deepcopy();
 
 //        IplImage* img2 = cvCreateImage( CvSize( img->getImage()->width, img->getImage()->height),

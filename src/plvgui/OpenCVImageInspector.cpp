@@ -56,8 +56,8 @@ void OpenCVImageInspector::newData( RefPtr<Data> data )
     {
         qDebug() << "Processing frame";
         RefPtr<OpenCVImage> img = ref_ptr_dynamic_cast<OpenCVImage>(data);
-        assert(img.isValid());
-        if(img.isValid())
+        assert(img.isNotNull());
+        if(img.isNotNull())
         {
             m_busy = true;
             // dispatch an asynchronous call

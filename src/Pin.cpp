@@ -29,5 +29,5 @@ void InputPin::setConnection(PinConnection *connection)
 
 bool InputPin::isConnected() const
 {
-    return this->m_connection.isValid();
+    return this->m_connection.isNotNull();
 }

@@ -23,7 +23,7 @@ namespace plv
             m_name( name ),
             m_owner( owner )
         {
-            assert( m_owner.isValid() );
+            assert( m_owner.isNotNull() );
         }
 
         const QString& getName() { return m_name; }
@@ -70,7 +70,7 @@ namespace plv
             {
                 RefPtr<PinConnection> connection = *itr;
 
-                assert(connection.isValid());
+                assert(connection.isNotNull());
                 connection->put( data );
             }
         }
@@ -96,7 +96,7 @@ namespace plv
 
         inline RefPtr<Data> get()
         {
-            if( this->m_connection.isValid() &&
+            if( this->m_connection.isNotNull() &&
                 this->m_connection->hasData() )
             {
                 RefPtr<Data> obj = this->m_connection->get();
