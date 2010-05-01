@@ -1,14 +1,22 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
-#include <QDebug>
 
-#include <Pipeline.h>
+#include "LibraryWidget.h"
+
+#include "Pipeline.h"
+
+#include <QDebug>
+#include <QSettings>
+#include <QtGui>
+
+
 
 using namespace plvgui;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_settings(new QSettings("UTwente", "ParleVision"))
 {
     initGUI();
 }
@@ -17,10 +25,12 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete m_controls_toolbar;
+    delete m_settings;
 }
 
 void MainWindow::initGUI()
 {
+    // Load design from Form mainwindow.ui
     ui->setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
 
@@ -44,6 +54,11 @@ void MainWindow::initGUI()
     m_controls_toolbar->addAction(m_startAction);
     m_controls_toolbar->addAction(m_pauseAction);
     m_controls_toolbar->addAction(m_stopAction);
+
+    createLibraryWidget();
+
+    // Restore window geometry and state
+    loadSettings();
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -58,9 +73,34 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    qDebug() << "Saving geometry info to " << m_settings->fileName();
+    m_settings->setValue("MainWindow/geometry", saveGeometry());
+    m_settings->setValue("MainWindow/windowState", saveState());
+    QMainWindow::closeEvent(event);
+}
+
+void MainWindow::loadSettings()
+{
+    qDebug() << "Reading settings from " << m_settings->fileName();
+    qDebug() << restoreGeometry(m_settings->value("MainWindow/geometry").toByteArray());
+    qDebug() << restoreState(m_settings->value("MainWindow/windowState").toByteArray());
+}
+
 void MainWindow::addWidget(QWidget *widget)
 {
     ui->layout->addWidget(widget);
+}
+
+void MainWindow::createLibraryWidget()
+{
+    m_libraryWidget = new LibraryWidget(this);
+    this->addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
+    #ifdef Q_OS_MAC
+    // Show LibraryWidget as floating window on Mac OS X
+    m_libraryWidget->setFloating(true);
+    #endif
 }
 
 void MainWindow::setPipeline(plv::Pipeline* pipeline)
