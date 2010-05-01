@@ -1,11 +1,11 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-//#include <opencv/cv.h>
 #include <QMetaType>
 #include "RefPtr.h"
 
-namespace plv {
+namespace plv 
+{
 
     /** Base class for data resources.
       *
