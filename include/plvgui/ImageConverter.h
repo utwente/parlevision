@@ -43,6 +43,9 @@ namespace plvgui
         static ImageConverter* m_instance;
         void convert(plv::RefPtr<plv::OpenCVImage> img);
 
+        /** Converts an OpenCV iplImage to a QImage.
+          * @throw ImageConversionException when conversion fails.
+          */
         static QImage* iplImageToQImage( const IplImage* img )
                 throw( ImageConversionException );
 
