@@ -37,7 +37,8 @@ SOURCES += src/main.cpp \
     src/plvgui/OpenCVImageInspector.cpp \
     src/plvgui/InspectorFactory.cpp \
     src/plvgui/Inspector.cpp \
-    src/plvgui/ImageConverter.cpp
+    src/plvgui/ImageConverter.cpp \
+    src/plvgui/LibraryWidget.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \
@@ -58,6 +59,9 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/OpenCVImageInspector.h \
     include/plvgui/InspectorFactory.h \
     include/plvgui/Inspector.h \
-    include/plvgui/ImageConverter.h
-FORMS += resources/mainwindow.ui
+    include/plvgui/ImageConverter.h \
+    include/plvgui/PipelineScene.h \
+    include/plvgui/LibraryWidget.h
+FORMS += resources/mainwindow.ui \
+    resources/librarywidget.ui
 RESOURCES += resources/icons.qrc

@@ -71,6 +71,8 @@ void OpenCVImageInspector::updateImage( RefPtr<QtImage> image )
     qDebug() << "updateImage()";
     //TODO better make this a separate mutex, but this will do for now
     QMutexLocker lock( &m_busy_mutex );
-    m_imagelabel->setPixmap( QPixmap::fromImage( *( image->getImage() ) ) );
+    QImage* qImg = image->getImage();
+    QPixmap pixmap = QPixmap::fromImage(*qImg);
+    m_imagelabel->setPixmap( pixmap );
     m_busy = false;
 }
