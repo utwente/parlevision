@@ -1,14 +1,5 @@
+include(ParleVision.local)
 DEPENDPATH += .
-win32 { 
-    LIBS += -lcv200d \
-        -lcxcore200d \
-        -lcvaux200d \
-        -lhighgui200d \
-        -lcxts200d \
-        -lml200d
-    LIBPATH += c:\OpenCV2.0\lib\Debug
-    INCLUDEPATH += c:\OpenCV2.0\include
-}
 macx { 
     LIBS += -framework \
         OpenCV
