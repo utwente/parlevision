@@ -4,14 +4,15 @@
 #include "LibraryWidget.h"
 
 #include "Pipeline.h"
+#include "PipelineScene.h"
 
 #include <QDebug>
 #include <QSettings>
 #include <QtGui>
 
 
-
 using namespace plvgui;
+using namespace plv;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -56,6 +57,7 @@ void MainWindow::initGUI()
     m_controls_toolbar->addAction(m_stopAction);
 
     createLibraryWidget();
+    createView();
 
     // Restore window geometry and state
     loadSettings();
@@ -101,6 +103,15 @@ void MainWindow::createLibraryWidget()
     // Show LibraryWidget as floating window on Mac OS X
     m_libraryWidget->setFloating(true);
     #endif
+}
+
+void MainWindow::createView()
+{
+    this->m_view = new QGraphicsView(this);
+    PipelineScene* scene = new PipelineScene(this->m_pipeline.getPtr(), this->m_view);
+    this->m_view->setScene(scene);
+
+    addWidget(this->m_view);
 }
 
 void MainWindow::setPipeline(plv::Pipeline* pipeline)

@@ -7,6 +7,8 @@
 #include "RefPtr.h"
 
 class QToolbar;
+class QGraphicsView;
+
 namespace Ui {
     class MainWindow;
 }
@@ -44,8 +46,10 @@ namespace plvgui {
 
     private:
         Ui::MainWindow* ui;
+        QGraphicsView* m_view;
         QSettings* m_settings;
         void initGUI();
+        void createView();
         void createLibraryWidget();
     };
 

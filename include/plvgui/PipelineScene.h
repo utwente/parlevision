@@ -2,6 +2,7 @@
 #define PIPELINESCENE_H
 
 #include <QGraphicsScene>
+#include "RefPtr.h"
 
 class QObject;
 
@@ -19,8 +20,10 @@ namespace plvgui {
     class PipelineScene : public QGraphicsScene
     {
     public:
-        void PipelineScene(plv::Pipeline* pipeline, QObject* parent);
+        PipelineScene(plv::Pipeline* pipeline, QObject* parent);
 
+    private:
+        plv::RefPtr<plv::Pipeline> m_pipeline;
     };
 }
 
