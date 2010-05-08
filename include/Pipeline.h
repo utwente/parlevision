@@ -7,16 +7,17 @@
 #include "RefPtr.h"
 #include "RefCounted.h"
 #include "PinConnection.h"
+#include "PipelineElement.h"
 
 namespace plv
 {
-    class PipelineElement;
     class Pin;
     class InputPin;
     class OutputPin;
 
     class Pipeline : public QThread, public RefCounted
     {
+        Q_OBJECT
         typedef std::map<int , RefPtr<PipelineElement> > PipelineElementMap;
 
     public:
@@ -48,6 +49,11 @@ namespace plv
         virtual void run();
     private:
         int m_idCounter;
+
+    signals:
+        void elementAdded(plv::RefPtr<PipelineElement> e);
+        void elementRemoved(plv::RefPtr<PipelineElement> e);
+        void elementChanged(plv::RefPtr<PipelineElement> e);
 
     public slots:
         void start();
