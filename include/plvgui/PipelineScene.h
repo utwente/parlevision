@@ -3,11 +3,13 @@
 
 #include <QGraphicsScene>
 #include "RefPtr.h"
+#include "Pipeline.h"
+#include "PipelineElement.h"
+
 
 class QObject;
 
 namespace plv {
-    class Pipeline;
 }
 
 namespace plvgui {
@@ -19,12 +21,22 @@ namespace plvgui {
 
     class PipelineScene : public QGraphicsScene
     {
+        Q_OBJECT
+
     public:
         PipelineScene(plv::Pipeline* pipeline, QObject* parent);
 
+    public slots:
+        void add(plv::PipelineElement* e);
+        void add(plv::RefPtr<plv::PipelineElement> e);
+
     private:
         plv::RefPtr<plv::Pipeline> m_pipeline;
+
+
+
     };
+
 }
 
 #endif // PIPELINESCENE_H
