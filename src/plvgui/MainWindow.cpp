@@ -108,8 +108,6 @@ void MainWindow::createLibraryWidget()
 void MainWindow::createView()
 {
     this->m_view = new QGraphicsView(this);
-    PipelineScene* scene = new PipelineScene(this->m_pipeline.getPtr(), this->m_view);
-    this->m_view->setScene(scene);
 
     addWidget(this->m_view);
 }
@@ -118,6 +116,10 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
 {
     //TODO think about what to do if we already have a pipeline.
     this->m_pipeline = pipeline;
+
+    assert (this->m_view != 0);
+    PipelineScene* scene = new PipelineScene(pipeline, this->m_view);
+    this->m_view->setScene(scene);
 
     //TODO find a way to connect to widgets here.
 }
