@@ -35,5 +35,7 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
 {
     //TODO
     qDebug() << "PipelineScene: adding element " << e;
-    this->addText(e->metaObject()->className());
+    QGraphicsTextItem* item = this->addText(e->metaObject()->className());
+    item->setFlag(QGraphicsItem::ItemIsMovable, true);
+    item->setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
