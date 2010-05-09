@@ -31,6 +31,7 @@ namespace plv
         int add( PipelineElement* child );
         void remove( PipelineElement* child );
         void remove( int id );
+        std::list< RefPtr<PipelineElement> > getChildren();
         void init();
 
         /** Create a PinConnnection between the given InputPin and outputPin

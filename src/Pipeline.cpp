@@ -55,6 +55,20 @@ void Pipeline::remove( int id )
     }
 }
 
+std::list< RefPtr<PipelineElement> > Pipeline::getChildren()
+{
+    //TODO implement this properly when I have access to documentation for std::map and std::list
+    std::list< RefPtr<PipelineElement> > elements;
+
+    for( PipelineElementMap::iterator itr = m_children.begin()
+        ; itr != m_children.end(); ++itr )
+    {
+        elements.push_back(itr->second);
+    }
+
+    return elements;
+}
+
 void Pipeline::connectPins(OutputPin* outputPin, InputPin* inputPin)
 {
     RefPtr<PinConnection> connection = new PinConnection(outputPin, inputPin);
