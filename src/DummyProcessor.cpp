@@ -37,7 +37,6 @@ void DummyProcessor::process()
 
     assert(in.isNotNull());
     assert(out.isNotNull());
-    qDebug() << "DummyProcessor recieved input";
 
 
     RefPtr<Data> data = in->get();
@@ -57,7 +56,7 @@ void DummyProcessor::process()
     }
     else
     {
-        qDebug() << "no data to process";
+//        qDebug() << "no data to process";
     }
 
 }

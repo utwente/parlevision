@@ -25,7 +25,6 @@ void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
 
     if( qImage != 0 )
     {
-        qDebug() << "emitting converted(img)";
         RefPtr<QtImage> qtimg = new QtImage( qImage );
         emit( converted( qtimg ) );
     }

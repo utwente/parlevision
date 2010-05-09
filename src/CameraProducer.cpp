@@ -32,12 +32,10 @@ CameraProducer::~CameraProducer()
 
 void CameraProducer::produce()
 {
-    qDebug() << "produce()";
     QMutexLocker lock(&m_frameMutex);
 
     if( m_lastFrame.isNotNull() )
     {
-        qDebug() << "CP::put";
         m_outputPin->put( m_lastFrame.getPtr() );
         //m_lastProcessedId = m_lastFrame->getId();
     }
