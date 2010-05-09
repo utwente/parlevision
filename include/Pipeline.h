@@ -72,9 +72,9 @@ namespace plv
         int m_idCounter;
 
     signals:
-        void elementAdded(plv::RefPtr<PipelineElement> e);
-        void elementRemoved(plv::RefPtr<PipelineElement> e);
-        void elementChanged(plv::RefPtr<PipelineElement> e);
+        void elementAdded(plv::RefPtr<plv::PipelineElement>);
+        void elementRemoved(plv::RefPtr<plv::PipelineElement>);
+        void elementChanged(plv::RefPtr<plv::PipelineElement>);
 
     public slots:
         void start();
