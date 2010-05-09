@@ -34,5 +34,6 @@ void PipelineScene::add(plv::PipelineElement *e)
 void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
 {
     //TODO
-    qDebug() << "PipelineScene: adding element " << e->metaObject()->className();
+    qDebug() << "PipelineScene: adding element " << e;
+    this->addText(e->metaObject()->className());
 }
