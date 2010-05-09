@@ -57,7 +57,6 @@ void MainWindow::initGUI()
     m_controls_toolbar->addAction(m_stopAction);
 
     createLibraryWidget();
-    createView();
 
     // Restore window geometry and state
     loadSettings();
@@ -92,7 +91,7 @@ void MainWindow::loadSettings()
 
 void MainWindow::addWidget(QWidget *widget)
 {
-    ui->layout->addWidget(widget);
+    ui->utilityContainer->addWidget(widget);
 }
 
 void MainWindow::createLibraryWidget()
@@ -105,21 +104,14 @@ void MainWindow::createLibraryWidget()
     #endif
 }
 
-void MainWindow::createView()
-{
-    this->m_view = new QGraphicsView(this);
-
-    addWidget(this->m_view);
-}
-
 void MainWindow::setPipeline(plv::Pipeline* pipeline)
 {
     //TODO think about what to do if we already have a pipeline.
     this->m_pipeline = pipeline;
 
-    assert (this->m_view != 0);
-    PipelineScene* scene = new PipelineScene(pipeline, this->m_view);
-    this->m_view->setScene(scene);
+    assert (ui->view != 0);
+    PipelineScene* scene = new PipelineScene(pipeline, ui->view);
+    ui->view->setScene(scene);
 
     //TODO find a way to connect to widgets here.
 }
