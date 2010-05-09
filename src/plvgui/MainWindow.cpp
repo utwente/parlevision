@@ -91,6 +91,7 @@ void MainWindow::loadSettings()
 
 void MainWindow::addWidget(QWidget *widget)
 {
+    widget->setMaximumSize(320,240);
     ui->utilityContainer->addWidget(widget);
 }
 

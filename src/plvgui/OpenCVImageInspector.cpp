@@ -25,6 +25,7 @@ OpenCVImageInspector::OpenCVImageInspector(QWidget* parent)
 {
     m_layout      = new QVBoxLayout;
     m_imagelabel  = new QLabel;
+    m_imagelabel->setScaledContents(true);
     QImage image  = QImage(100,100,QImage::Format_RGB32);
 
     m_layout->addWidget( m_imagelabel );
