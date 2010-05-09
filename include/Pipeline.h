@@ -21,18 +21,38 @@ namespace plv
         typedef std::map<int , RefPtr<PipelineElement> > PipelineElementMap;
 
     public:
+
         Pipeline();
+
+        /** Initialise this Pipeline. Not yet used.
+          */
+        void init();
 
         /** Add the PipelineElement to this Pipeline.
           * This results in the Pipeline calling setPipeline on the element
           * and m_children containing the element.
+          * @emits elementAdded(child)
           * @return a unique ID for this element within this pipeline.
           */
         int add( PipelineElement* child );
+
+        /** Remove PipelineElement child from this pipeline.
+          * It will no longer be updated.
+          * Caller should ensure the parent of the child is updated.
+          * @emits elementAdded(child)
+          */
         void remove( PipelineElement* child );
+
+        /** Removes the PipelineElement with the given internal id from this pipeline.
+          * The ID should be the one returned by add( PipelineElement* child );
+          * @see remove( PipelineElement* child );
+          */
         void remove( int id );
+
+        /** Get all the PipelineElements that make up this Pipeline.
+          * This method is slow and uncached.
+          */
         std::list< RefPtr<PipelineElement> > getChildren();
-        void init();
 
         /** Create a PinConnnection between the given InputPin and outputPin
           */
