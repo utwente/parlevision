@@ -21,8 +21,10 @@ Pipeline::~Pipeline()
 
 int Pipeline::add( PipelineElement* child )
 {
-    child->setPipeline(this);
-    m_children.insert( std::make_pair( m_idCounter, RefPtr<PipelineElement>(child)) );
+    RefPtr<PipelineElement> element = child;
+    element->setPipeline(this);
+    m_children.insert( std::make_pair( m_idCounter, element) );
+    emit(elementAdded(element));
     return m_idCounter++;
 }
 
@@ -33,7 +35,10 @@ void Pipeline::remove( PipelineElement* child )
     {
         if( child == itr->second.getPtr() )
         {
+            // preserve the element so we can send it over the signal later
+            RefPtr<PipelineElement> element = itr->second;
             m_children.erase(itr);
+            emit(elementRemoved(element));
         }
     }
 }
@@ -43,8 +48,25 @@ void Pipeline::remove( int id )
     PipelineElementMap::iterator itr = m_children.find( id );
     if( itr != m_children.end() )
     {
-        m_children.erase( itr );
+        // preserve the element so we can send it over the signal later
+        RefPtr<PipelineElement> element = itr->second;
+        m_children.erase(itr);
+        emit(elementRemoved(element));
     }
+}
+
+std::list< RefPtr<PipelineElement> > Pipeline::getChildren()
+{
+    //TODO implement this properly when I have access to documentation for std::map and std::list
+    std::list< RefPtr<PipelineElement> > elements;
+
+    for( PipelineElementMap::iterator itr = m_children.begin()
+        ; itr != m_children.end(); ++itr )
+    {
+        elements.push_back(itr->second);
+    }
+
+    return elements;
 }
 
 void Pipeline::connectPins(OutputPin* outputPin, InputPin* inputPin)

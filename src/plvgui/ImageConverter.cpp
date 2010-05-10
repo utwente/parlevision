@@ -21,10 +21,9 @@ void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
 {
     IplImage* image = imgdata->getImage();
 	
-    QImage* qImage = 0;
     try
     {
-        qImage = iplImageToQImage( image );
+        QImage* qImage = iplImageToQImage( image );
         RefPtr<QtImage> qtimg = new QtImage( qImage );
         emit( converted( qtimg ) );
     }
@@ -61,6 +60,7 @@ QImage* ImageConverter::iplImageToQImage( const IplImage* img )
                 qimg = new QImage( img->width, img->height, QImage::Format_Indexed8 );
                 cvImgData = reinterpret_cast<const uchar*>( img->imageData );
                 qImgData = const_cast<uchar*>( qimg->bits() );
+                int bytesPerLine = qimg->bytesPerLine();
 
                 for( int y = 0; y < img->height; ++y )
                 {
@@ -69,7 +69,7 @@ QImage* ImageConverter::iplImageToQImage( const IplImage* img )
                     memcpy( scanline, qImgData, img->width );
 
                     cvImgData += img->widthStep;
-                    qImgData  += qimg->bytesPerLine();
+                    qImgData  += bytesPerLine;
                 }
                 break;
             case 3:

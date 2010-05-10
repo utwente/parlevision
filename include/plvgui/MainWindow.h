@@ -7,6 +7,8 @@
 #include "RefPtr.h"
 
 class QToolbar;
+class QGraphicsView;
+
 namespace Ui {
     class MainWindow;
 }

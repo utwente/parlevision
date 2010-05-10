@@ -62,7 +62,6 @@ namespace plv
 
         inline void put( RefPtr<Data> data )
         {
-            qDebug() << "Starting signal 'newData' from output pin " << getName() << ".";
             emit( newData( data ) );
 
             for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
