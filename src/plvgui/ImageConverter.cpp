@@ -45,6 +45,7 @@ QImage* ImageConverter::iplImageToQImage( const IplImage* img )
 
     int cvLineStart = 0;
     int cvIndex = 0;
+    int bytesPerLine = 0;
 
     try
     {
@@ -60,7 +61,7 @@ QImage* ImageConverter::iplImageToQImage( const IplImage* img )
                 qimg = new QImage( img->width, img->height, QImage::Format_Indexed8 );
                 cvImgData = reinterpret_cast<const uchar*>( img->imageData );
                 qImgData = const_cast<uchar*>( qimg->bits() );
-                int bytesPerLine = qimg->bytesPerLine();
+                bytesPerLine = qimg->bytesPerLine();
 
                 for( int y = 0; y < img->height; ++y )
                 {
