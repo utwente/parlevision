@@ -7,6 +7,8 @@
 #include "RefPtr.h"
 #include "QtImage.h"
 
+#include <stdexcept>
+
 class QImage;
 
 namespace plv {
@@ -15,7 +17,14 @@ namespace plv {
 
 using namespace plv;
 
-namespace plvgui {
+namespace plvgui
+{
+    class ImageConversionException : public std::runtime_error
+    {
+    public:
+        ImageConversionException( const std::string& why ) :
+                std::runtime_error( why ) {}
+    };
 
     class ImageConverter : public QObject, public RefCounted
     {
@@ -30,14 +39,15 @@ namespace plvgui {
           */
         void convert_OpenCVImage( plv::RefPtr<plv::OpenCVImage> img );
 
-        static QImage* iplImageToQImage( const IplImage* iplImage, uchar** data );
-
     private:
         static ImageConverter* m_instance;
         void convert(plv::RefPtr<plv::OpenCVImage> img);
 
-        static QImage* iplImageToQImageSafe( const IplImage* img );
-        static QImage* iplImageToQImageFast( const IplImage* img );
+        /** Converts an OpenCV iplImage to a QImage.
+          * @throw ImageConversionException when conversion fails.
+          */
+        static QImage* iplImageToQImage( const IplImage* img )
+                throw( ImageConversionException );
 
     signals:
         /** Emitted when converting is done.
