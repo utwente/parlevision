@@ -25,6 +25,7 @@ OpenCVImageInspector::OpenCVImageInspector(QWidget* parent)
 {
     m_layout      = new QVBoxLayout;
     m_imagelabel  = new QLabel;
+    m_imagelabel->setScaledContents(true);
     QImage image  = QImage(100,100,QImage::Format_RGB32);
 
     m_layout->addWidget( m_imagelabel );
@@ -44,17 +45,14 @@ OpenCVImageInspector::OpenCVImageInspector(QWidget* parent)
 
 void OpenCVImageInspector::newData( RefPtr<Data> data )
 {
-    qDebug() << "OpenCVImageInspector::newData()";
     QMutexLocker lock( &m_busy_mutex );
 
     if(m_busy)
     {
-        qDebug() << "Skipping frame";
         return;
     }
     else
     {
-        qDebug() << "Processing frame";
         RefPtr<OpenCVImage> img = ref_ptr_dynamic_cast<OpenCVImage>(data);
         assert(img.isNotNull());
         if(img.isNotNull())
@@ -68,7 +66,6 @@ void OpenCVImageInspector::newData( RefPtr<Data> data )
 
 void OpenCVImageInspector::updateImage( RefPtr<QtImage> image )
 {
-    qDebug() << "updateImage()";
     //TODO better make this a separate mutex, but this will do for now
     QMutexLocker lock( &m_busy_mutex );
     QImage* qImg = image->getImage();

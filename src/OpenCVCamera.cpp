@@ -207,9 +207,11 @@ OpenCVImage* OpenCVCamera::getFrame()
     // copy the image, since the pointer becomes invalid on another
     // call to cvGrabFrame() and this pointer is passed to the pipeline
 
-    // TODO buffers reuse here!
-    IplImage* imageCopy = cvCloneImage( image );
-    OpenCVImage* imgContainer = new OpenCVImage( 0, imageCopy );
-
-    return imgContainer;
+    // get a reused buffer
+    OpenCVImage* ocvimg = OpenCVImageFactory::instance()->get( image->width,
+                                                               image->height,
+                                                               image->depth,
+                                                               image->nChannels );
+    cvCopy( image, ocvimg->getImage() );
+    return ocvimg;
 }

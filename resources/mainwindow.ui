@@ -17,19 +17,26 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="horizontalLayoutWidget">
+   <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>371</width>
-      <height>341</height>
+      <x>0</x>
+      <y>0</y>
+      <width>721</width>
+      <height>511</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="layout" stretch="0,0">
+    <layout class="QVBoxLayout" name="topContainer">
      <property name="sizeConstraint">
       <enum>QLayout::SetMinimumSize</enum>
      </property>
+     <item>
+      <widget class="QGraphicsView" name="view">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -44,17 +51,40 @@
       </spacer>
      </item>
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+      <layout class="QHBoxLayout" name="utilityContainer" stretch="0,0">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Maximum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>240</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>

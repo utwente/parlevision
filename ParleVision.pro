@@ -38,7 +38,8 @@ SOURCES += src/main.cpp \
     src/plvgui/InspectorFactory.cpp \
     src/plvgui/Inspector.cpp \
     src/plvgui/ImageConverter.cpp \
-    src/plvgui/LibraryWidget.cpp
+    src/plvgui/LibraryWidget.cpp \
+    src/plvgui/PipelineScene.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \

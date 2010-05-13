@@ -1,6 +1,7 @@
 #include "ImageConverter.h"
 
 #include <QImage>
+#include <QString>
 #include <QtConcurrentRun>
 
 #include "OpenCVImage.h"
@@ -20,123 +21,153 @@ void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
 {
     IplImage* image = imgdata->getImage();
 	
-    QImage* qImage = iplImageToQImageFast( image );
-    //QImage* qImage = iplImageToQImageSafe( image );
-
-    if( qImage != 0 )
+    try
     {
-        qDebug() << "emitting converted(img)";
+        QImage* qImage = iplImageToQImage( image );
         RefPtr<QtImage> qtimg = new QtImage( qImage );
         emit( converted( qtimg ) );
     }
-    else
+    catch( ImageConversionException& e )
     {
-        qDebug( "Failed to convert image" );
+        qDebug() << "Failed to convert image with error: " << e.what() << "\n";
     }
+
 }
 
-QImage* ImageConverter::iplImageToQImageSafe( const IplImage* img )
+QImage* ImageConverter::iplImageToQImage( const IplImage* img )
+        throw( ImageConversionException )
 {
-    const uchar* imgData = reinterpret_cast<const uchar*>( img->imageData );
+    QImage* qimg = 0;
+    QString errStr;
 
-    QImage* qimg = new QImage( img->width,
-                           img->height,
-                           QImage::Format_RGB32 );
+    const uchar* cvImgData;
+    uchar* qImgData;
 
-    // switch between bit depths
     int cvLineStart = 0;
     int cvIndex = 0;
-    switch( img->depth )
+    int bytesPerLine = 0;
+
+    try
     {
+        switch( img->depth )
+        {
         case IPL_DEPTH_8U:
             switch( img->nChannels )
             {
-                case 3:
-                    for (int y = 0; y < img->height; y++)
+            case 1:
+                // OpenCV image is stored with one byte grey pixel.
+                // Convert it to an 8 bit indexed QImage.
+                // We add the index at the function exit
+                qimg = new QImage( img->width, img->height, QImage::Format_Indexed8 );
+                cvImgData = reinterpret_cast<const uchar*>( img->imageData );
+                qImgData = const_cast<uchar*>( qimg->bits() );
+                bytesPerLine = qimg->bytesPerLine();
+
+                for( int y = 0; y < img->height; ++y )
+                {
+                    // Copy line by line
+                    uchar* scanline = qimg->scanLine( y );
+                    memcpy( scanline, qImgData, img->width );
+
+                    cvImgData += img->widthStep;
+                    qImgData  += bytesPerLine;
+                }
+                break;
+            case 3:
+                // image is stored with 3 channels and one byte per pixel
+                // per channel. Convert to RGB32 which uses 4 bytes per pixel
+                qimg = new QImage( img->width, img->height, QImage::Format_RGB32 );
+                cvImgData = reinterpret_cast<const uchar*>( img->imageData );
+
+                for (int y = 0; y < img->height; ++y )
+                {
+                    cvIndex = cvLineStart;
+                    QRgb* scanline = reinterpret_cast<QRgb*>(
+                            qimg->scanLine( y ) );
+
+                    for (int x = 0; x < img->width; ++x )
                     {
-                        cvIndex = cvLineStart;
-                        QRgb* scanline = reinterpret_cast<QRgb*>( qimg->scanLine( y ) );
+                        // here we convert OpenCV's BGR to Qt's RGB
+                        const unsigned char& blue  = cvImgData[cvIndex+0];
+                        const unsigned char& green = cvImgData[cvIndex+1];
+                        const unsigned char& red   = cvImgData[cvIndex+2];
 
-                        for (int x = 0; x < img->width; x++)
-                        {
-                            // here we convert OpenCV's BGR to Qt's RGB
-                            const unsigned char& blue  = imgData[cvIndex+0];
-                            const unsigned char& green = imgData[cvIndex+1];
-                            const unsigned char& red   = imgData[cvIndex+2];
-
-                            scanline[x] = qRgb( red, green, blue );
-                            cvIndex += 3;
-                        }
-                        cvLineStart += img->widthStep;
+                        scanline[x] = qRgb( red, green, blue );
+                        cvIndex += 3;
                     }
-                    break;
-                default:
-                    qDebug() << "This number of channels is not supported\n";
-                    delete qimg;
-                    return 0;
+                    cvLineStart += img->widthStep;
+                }
+                break;
+            default:
+                errStr = "Conversion not supported: depth IPL_DEPTH_8U and number of channels is ";
+                errStr += img->nChannels + " \n";
+                throw ImageConversionException( errStr.toStdString() );
+
             }
             break;
+
+        case IPL_DEPTH_16U:
+            errStr = "Conversion not supported: depth IPL_DEPTH_16U and number of channels is ";
+            errStr += img->nChannels + " \n";
+            throw ImageConversionException( errStr.toStdString() );
+            break;
+
+        case IPL_DEPTH_32F:
+            errStr = "Conversion not supported: depth IPL_DEPTH_32F and number of channels is ";
+            errStr += img->nChannels + " \n";
+            throw ImageConversionException( errStr.toStdString() );
+            break;
+
+        case IPL_DEPTH_32S:
+            errStr = "Conversion not supported: depth IPL_DEPTH_32S and number of channels is ";
+            errStr += img->nChannels + " \n";
+            throw ImageConversionException( errStr.toStdString() );
+            break;
+
+        case IPL_DEPTH_64F:
+            errStr = "Conversion not supported: depth IPL_DEPTH_64F and number of channels is ";
+            errStr += img->nChannels + " \n";
+            throw ImageConversionException( errStr.toStdString() );
+            break;
+
+        case IPL_DEPTH_1U:
+            errStr = "Conversion not supported: depth IPL_DEPTH_1U and number of channels is ";
+            errStr += img->nChannels + " \n";
+            throw ImageConversionException( errStr.toStdString() );
+            break;
+
+        case IPL_DEPTH_8S:
+            errStr = "Conversion not supported: depth IPL_DEPTH_8S and number of channels is ";
+            errStr += img->nChannels + " \n";
+            throw ImageConversionException( errStr.toStdString() );
+            break;
+
+        case IPL_DEPTH_16S:
+            errStr = "Conversion not supported: depth IPL_DEPTH_16S and number of channels is ";
+            errStr += img->nChannels + " \n";
+            throw ImageConversionException( errStr.toStdString() );
+            break;
+
         default:
-            qDebug() << "This type of IplImage is not implemented\n";
+            throw ImageConversionException( "Conversion not supported: unknown IplImage type. \n" );
+        }
+    }
+    catch( ... )
+    {
+        // clean up and propagate
+        if( qimg != 0 )
             delete qimg;
-            return 0;
+        throw;
     }
 
-    return qimg;
-}
-
-QImage* ImageConverter::iplImageToQImageFast( const IplImage* img )
-{
-    const uchar* imgData = reinterpret_cast<const uchar*>( img->imageData );
-
-    QImage* qimg = new QImage( img->width,
-                               img->height,
-                               QImage::Format_RGB32 );
-
-    uchar* qImageData = qimg->bits();
-
-    // switch between bit depths
-    int cvLineStart = 0;
-    int qtLineStart = 0;
-    int cvIndex = 0;
-    int qtIndex = 0;
-    switch( img->depth )
+    if( img->nChannels == 1 )
     {
-        case IPL_DEPTH_8U:
-            switch( img->nChannels )
-            {
-                case 3:
-                    for (int y = 0; y < img->height; ++y )
-                    {
-                        cvIndex = cvLineStart;
-                        qtIndex = qtLineStart;
-												
-						for (int x = 0; x < img->width; ++x )
-                        {
-							qImageData[qtIndex]   = imgData[cvIndex];
-							qImageData[qtIndex+1] = imgData[cvIndex+1];
-							qImageData[qtIndex+2] = imgData[cvIndex+2];
-							qImageData[qtIndex+3] = 0;
-                            
-                            cvIndex += 3;
-                            qtIndex += 4;
-                        }
-                        
-                        cvLineStart += img->widthStep;
-                        qtLineStart += qimg->bytesPerLine();
-                    }
-
-                    break;
-                default:
-                    qDebug() << "This number of channels is not supported\n";
-                    delete qimg;
-                    return 0;
-            }
-            break;
-        default:
-            qDebug() << "This type of IplImage is not implemented\n";
-            delete qimg;
-            return 0;
+        QVector<QRgb> colorTable;
+        for (int i = 0; i < 256; i++)
+        {
+            colorTable.push_back(qRgb(i, i, i));
+        }
+        qimg->setColorTable(colorTable);
     }
 
     return qimg;

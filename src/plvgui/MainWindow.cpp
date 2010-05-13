@@ -4,14 +4,15 @@
 #include "LibraryWidget.h"
 
 #include "Pipeline.h"
+#include "PipelineScene.h"
 
 #include <QDebug>
 #include <QSettings>
 #include <QtGui>
 
 
-
 using namespace plvgui;
+using namespace plv;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -90,7 +91,8 @@ void MainWindow::loadSettings()
 
 void MainWindow::addWidget(QWidget *widget)
 {
-    ui->layout->addWidget(widget);
+    widget->setMaximumSize(320,240);
+    ui->utilityContainer->addWidget(widget);
 }
 
 void MainWindow::createLibraryWidget()
@@ -107,6 +109,10 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
 {
     //TODO think about what to do if we already have a pipeline.
     this->m_pipeline = pipeline;
+
+    assert (ui->view != 0);
+    PipelineScene* scene = new PipelineScene(pipeline, ui->view);
+    ui->view->setScene(scene);
 
     //TODO find a way to connect to widgets here.
 }
