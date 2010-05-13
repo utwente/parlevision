@@ -3,6 +3,7 @@
 #include <QtGui>
 
 #include "Pipeline.h"
+#include "PipelineElementWidget.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -38,4 +39,10 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
     QGraphicsTextItem* item = this->addText(e->metaObject()->className());
     item->setFlag(QGraphicsItem::ItemIsMovable, true);
     item->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+    PipelineElementWidget* pew = new PipelineElementWidget(e.getPtr());
+    this->addItem(pew);
+    pew->setFlag(QGraphicsItem::ItemIsMovable, true);
+    pew->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
 }
