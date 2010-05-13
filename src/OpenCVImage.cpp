@@ -31,6 +31,48 @@ void OpenCVImageFactory::purge()
     }
 }
 
+void OpenCVImageFactory::purgeAll()
+{
+    for( std::list<OpenCVImage*>::iterator itr = m_objectPool.begin();
+            itr != m_objectPool.end(); ++itr )
+    {
+        OpenCVImage* img = *itr;
+        if( img->getRefCount() > 1 )
+        {
+            qDebug() << "OpenCVImageFactory::purgeAll() called when object " <<
+                    img << " has reference count of " << img->getRefCount();
+            qDebug() << "WARNING. Forcing delete.";
+            delete img;
+        }
+        else
+        {
+            // this will auto delete the image
+            img->dec();
+        }
+        m_objectPool.erase( itr );
+    }
+}
+
+int OpenCVImageFactory::numObjects()
+{
+    return m_objectPool.size();
+}
+
+int OpenCVImageFactory::numObjectsInUse()
+{
+    int count = 0;
+    for( std::list<OpenCVImage*>::iterator itr = m_objectPool.begin();
+            itr != m_objectPool.end(); ++itr )
+    {
+        OpenCVImage* img = *itr;
+        if( img->getRefCount() > 1 )
+        {
+            ++count;
+        }
+    }
+    return count;
+}
+
 OpenCVImage* OpenCVImageFactory::getFromBuffer( IplImage* buffer, bool own )
 {
     assert( buffer != 0 );
@@ -98,16 +140,6 @@ OpenCVImage::~OpenCVImage()
 {
     cvReleaseImage( &m_img );
 }
-
-//OpenCVImage::OpenCVImage( const OpenCVImage& other ) :
-//        Data()
-//{
-////    m_img = cvCreateImage( cvSize(other.m_img->width, other.m_img->height),
-////                           other.m_img->depth, other.m_img->nChannels );
-//
-//    m_img = OpenCVImageFactory::instance()->getFromBuffer( other.m_img, false );
-//    //cvCopyImage( other.m_img, m_img );
-//}
 
 IplImage* OpenCVImage::getImage()
 {
