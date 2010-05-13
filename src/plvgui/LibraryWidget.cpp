@@ -1,4 +1,4 @@
-#include "include/plvgui/LibraryWidget.h"
+#include "LibraryWidget.h"
 #include "ui_librarywidget.h"
 
 using namespace plvgui;
