@@ -125,7 +125,6 @@ OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth, 
             current->isCompatible( width, height, depth, channels ) )
         {
             image = current;
-            m_objectPool.erase( itr );
         }
     }
 
