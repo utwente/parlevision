@@ -29,8 +29,17 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 	
 	// register classes with Qt so they can be used in signals and slots
-    qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
+    int id = qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
+    //RefPtr<Data> test = static_cast< RefPtr<Data> >(QMetaType::construct( id ));
     qRegisterMetaType< RefPtr<QtImage> >("RefPtr<QtImage>");
+
+    for( int i=0; i<500000; ++i )
+    {
+        QString* myClassPtr = static_cast<QString*>( QMetaType::construct(QMetaType::type("QString")) );
+        myClassPtr->append( "DIT IS EEN TEST" );
+        //qDebug() << myClassPtr;
+        delete myClassPtr;
+    }
 
 //    InspectorFactory::create(typeid(OpenCVImage).name());
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
