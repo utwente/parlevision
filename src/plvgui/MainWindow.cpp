@@ -25,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete m_controls_toolbar;
     delete m_settings;
 }
 
@@ -50,11 +49,9 @@ void MainWindow::initGUI()
     m_stopAction->setStatusTip(tr("Stops the pipeline"));
 
 
-
-    m_controls_toolbar = this->addToolBar("Controls");
-    m_controls_toolbar->addAction(m_startAction);
-    m_controls_toolbar->addAction(m_pauseAction);
-    m_controls_toolbar->addAction(m_stopAction);
+    ui->toolBar->addAction(m_startAction);
+    ui->toolBar->addAction(m_pauseAction);
+    ui->toolBar->addAction(m_stopAction);
 
     createLibraryWidget();
 
