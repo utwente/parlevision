@@ -1,5 +1,5 @@
-include(ParleVision.local)
 DEPENDPATH += .
+include(ParleVision.local)
 macx { 
     LIBS += -framework \
         OpenCV
