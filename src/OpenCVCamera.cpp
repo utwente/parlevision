@@ -208,10 +208,12 @@ OpenCVImage* OpenCVCamera::getFrame()
     // call to cvGrabFrame() and this pointer is passed to the pipeline
 
     // get a reused buffer
-    OpenCVImage* ocvimg = OpenCVImageFactory::instance()->get( image->width,
-                                                               image->height,
-                                                               image->depth,
-                                                               image->nChannels );
-    cvCopy( image, ocvimg->getImage() );
+//    OpenCVImage* ocvimg = OpenCVImageFactory::instance()->get( image->width,
+//                                                               image->height,
+//                                                               image->depth,
+//                                                               image->nChannels );
+//  cvCopy( image, ocvimg->getImage() );
+
+    OpenCVImage* ocvimg = OpenCVImageFactory::instance()->getFromBuffer( image );
     return ocvimg;
 }

@@ -19,10 +19,10 @@ void ImageConverter::convert_OpenCVImage( RefPtr<OpenCVImage> img )
 
 void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
 {
-    IplImage* image = imgdata->getImage();
-	
     try
     {
+        OpenCVImageWriter imgw( imgdata );
+        IplImage* image = imgw.get();
         QImage* qImage = iplImageToQImage( image );
         RefPtr<QtImage> qtimg = new QtImage( qImage );
         emit( converted( qtimg ) );

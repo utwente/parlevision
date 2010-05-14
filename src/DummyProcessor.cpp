@@ -45,12 +45,21 @@ void DummyProcessor::process()
         // It's safe to do this, because the pins are guaranteed to provide this type.
         RefPtr<OpenCVImage> img = ref_ptr_dynamic_cast<OpenCVImage>(data);
         assert(img.isNotNull());
-        RefPtr<OpenCVImage> img2 = img->deepcopy();
 
-//        IplImage* img2 = cvCreateImage( CvSize( img->getImage()->width, img->getImage()->height),
-//                       img->getImage()->depth, img->getImage()->nChannels );
-        cvFlip(img->getImage(), img2->getImage(), 1);
-//        RefPtr<OpenCVImage> img2ref = new OpenCVImage( 0, img2 );
+        RefPtr<OpenCVImage> img2 =
+                OpenCVImageFactory::instance()->get( img->getWidth(), img->getHeight(),
+                                                     img->getDepth(), img->getNumChannels() );
+        // open image for writing
+        OpenCVImageWriter writer( img2 );
+        IplImage* iplImg2 = writer.get();
+
+        // open for reading
+        const IplImage* iplImg1 = img->getImage();
+
+        // do a flip of the image
+        cvFlip( iplImg1, iplImg2, 1);
+
+        // publish the new image
         RefPtr<Data> outData = ref_ptr_dynamic_cast<Data>(img2);
         out->put(outData);
     }

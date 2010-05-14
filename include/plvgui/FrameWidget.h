@@ -27,7 +27,7 @@ class FrameWidget : public QWidget {
         FrameWidget( QWidget *parent );
         ~FrameWidget();
 
-        void putImage( plv::OpenCVImage* );
+        //void putImage( plv::OpenCVImage* );
 
         /**
          * Connect this viewer to the given source

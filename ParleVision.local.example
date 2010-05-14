@@ -1,0 +1,10 @@
+win32 { 
+    LIBS += -lcv200 \
+        -lcxcore200 \
+        -lcvaux200 \
+        -lhighgui200 \
+        -lcxts200 \
+        -lml200
+    LIBPATH += c:\OpenCV2.0\lib
+    INCLUDEPATH += c:\OpenCV2.0\include
+}
