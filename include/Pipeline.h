@@ -70,6 +70,7 @@ namespace plv
         virtual void run();
     private:
         int m_idCounter;
+        bool m_stopRequested;
 
     signals:
         void elementAdded(plv::RefPtr<plv::PipelineElement>);

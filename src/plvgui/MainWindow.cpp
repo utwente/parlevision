@@ -111,7 +111,17 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     PipelineScene* scene = new PipelineScene(pipeline, ui->view);
     ui->view->setScene(scene);
 
-    //TODO find a way to connect to widgets here.
+    //TODO disconnect from previous pipeline if needed
+
+    connect(ui->actionStop, SIGNAL(triggered()),
+            pipeline, SLOT(stop()));
+    connect(this->m_stopAction, SIGNAL(triggered()),
+            pipeline, SLOT(stop()));
+
+    connect(ui->actionStart, SIGNAL(triggered()),
+            pipeline, SLOT(start()));
+    connect(this->m_startAction, SIGNAL(triggered()),
+            pipeline, SLOT(start()));
 }
 
 //void MainWindow::addCamera(plv::OpenCVCamera* camera)

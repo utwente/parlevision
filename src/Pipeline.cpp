@@ -82,17 +82,20 @@ void Pipeline::init()
 
 void Pipeline::start()
 {
+    // TODO make thread safe
+    // and ensure that pipeline cannot be started twice
+    m_stopRequested = false;
     QThread::start();
 }
 
 void Pipeline::stop()
 {
-
+    m_stopRequested = true;
 }
 
 void Pipeline::run()
 {
-    while(true)
+    while(!m_stopRequested)
     {
         for( PipelineElementMap::iterator itr = m_children.begin()
             ; itr != m_children.end(); ++itr )
