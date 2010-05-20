@@ -25,6 +25,7 @@ public:
     {
     }
 
+#ifndef DEBUG
     /** increases reference count by one */
     inline void inc() const
     {
@@ -42,11 +43,32 @@ public:
         if( m_referenceCount < 1 )
         {
             m_mutex.unlock();
-			delete this;
-			return;
-		}
-		m_mutex.unlock();
-	}
+            delete this;
+            return;
+        }
+        m_mutex.unlock();
+    }
+
+#else
+    virtual void inc() const
+    {
+        QMutexLocker lock( &m_mutex );
+        ++m_referenceCount;
+    }
+
+    virtual void dec() const
+    {
+        m_mutex.lock();
+        --m_referenceCount;
+        if( m_referenceCount < 1 )
+        {
+            m_mutex.unlock();
+            delete this;
+            return;
+        }
+        m_mutex.unlock();
+    }
+#endif
 
     inline int getRefCount() const
     {
