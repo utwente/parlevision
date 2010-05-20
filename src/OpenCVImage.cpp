@@ -8,13 +8,14 @@ using namespace plv;
 
 OpenCVImageFactory* OpenCVImageFactory::m_instance = 0;
 
-OpenCVImageFactory::OpenCVImageFactory()
+OpenCVImageFactory::OpenCVImageFactory( int maxObjectPoolSize ) :
+    m_maxObjectPoolSize( maxObjectPoolSize ), m_objectPoolSize( 0 )
 {
 }
 
 OpenCVImageFactory::~OpenCVImageFactory()
 {
-    purge();
+    purgeAll();
 }
 
 void OpenCVImageFactory::purge()
@@ -23,6 +24,7 @@ void OpenCVImageFactory::purge()
             itr != m_objectPool.end(); ++itr )
     {
         OpenCVImage* img = *itr;
+        m_objectPoolSize -= img->size();
         if( img->getRefCount() == 1 )
         {
             // this will auto delete the image
@@ -38,6 +40,7 @@ void OpenCVImageFactory::purgeAll()
             itr != m_objectPool.end(); ++itr )
     {
         OpenCVImage* img = *itr;
+        m_objectPoolSize -= img->size();
         if( img->getRefCount() > 1 )
         {
             qDebug() << "OpenCVImageFactory::purgeAll() called when object " <<
@@ -52,6 +55,16 @@ void OpenCVImageFactory::purgeAll()
         }
         m_objectPool.erase( itr );
     }
+}
+
+int OpenCVImageFactory::objectPoolSize()
+{
+    return m_objectPoolSize;
+}
+
+int OpenCVImageFactory::maxObjectPoolSize()
+{
+    return m_maxObjectPoolSize;
 }
 
 int OpenCVImageFactory::numObjects()
@@ -100,18 +113,23 @@ OpenCVImage* OpenCVImageFactory::getFromBuffer( IplImage* buffer, bool own )
         // up the ref count by one and add to pool
         img->inc();
         m_objectPool.push_back( img );
+        m_objectPoolSize += img->size();
     }
     return img;
 }
 
-OpenCVImage* OpenCVImageFactory::get( int width, int height, int depth, int channels )
+OpenCVImage* OpenCVImageFactory::get( int width, int height, int depth,
+                                      int channels )
 {
     QMutexLocker lock( &m_factoryMutex );
     return getOrCreate( width, height, depth, channels );
 }
 
-OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth, int channels )
+OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth,
+                                              int channels )
 {
+    // this function is private and should only be called when the mutex
+    // has already been acquired
     assert( width > 0 );
     assert( height > 0 );
     assert( channels > 0 && channels <= 4 );
@@ -135,6 +153,7 @@ OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth, 
 
         // up the ref count by one
         image->inc();
+        m_objectPoolSize += image->size();
         m_objectPool.push_back( image );
     }
 
@@ -179,6 +198,12 @@ IplImage* OpenCVImage::getImageForWriting()
 void OpenCVImage::releaseImageForWriting()
 {
     m_lock.unlock();
+}
+
+int OpenCVImage::size() const
+{
+    if( !m_img ) return 0;
+    return m_img->imageSize;
 }
 
 bool OpenCVImage::isCompatible( int width, int height, int depth, int channels )

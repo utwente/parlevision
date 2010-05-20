@@ -10,6 +10,8 @@
 
 #include "Types.h"
 
+#define OPENCVIMAGE_MAX_OBJECT_POOL_SIZE (1024 * 1024 * 8)
+
 namespace plv
 {
     class OpenCVImage;
@@ -17,6 +19,7 @@ namespace plv
     class OpenCVImageFactory
     {
     public:
+
         /** constructs an OpenCVImage from an existing buffer. Default operation
           * is that the newly constructed OpenCVImage does not own the buffer,
           * and that a copy is created of the contents of the buffer. When own
@@ -26,6 +29,9 @@ namespace plv
           */
         OpenCVImage* getFromBuffer( IplImage* buffer, bool own = false );
 
+        /** Same as getFromBuffer called with non const buffer and own false. It
+          * will create a copy from the buffer.
+          */
         OpenCVImage* getFromBuffer( const IplImage* buffer );
 
         /** Will return an OpenCVImage with appropropriate format. Uses object
@@ -46,6 +52,17 @@ namespace plv
         /** @returns the number of objects in the object pool which are in use */
         int numObjectsInUse();
 
+        /** @returns the size of the object pool in bytes */
+        int objectPoolSize();
+
+        /** @returns the maximum size of the object pool in bytes */
+        int maxObjectPoolSize();
+
+        /** Sets the maximum size of the object pool in bytes. Default is
+          * OPENCVIMAGE_OBJECT_POOL_SIZE_DEFAULT.
+          */
+        void setObjectPoolSize( int bytes );
+
         inline static OpenCVImageFactory* instance()
         {
             if( m_instance == 0 )
@@ -54,14 +71,16 @@ namespace plv
         }
 
     private:
-        OpenCVImageFactory();
+        OpenCVImageFactory( int maxObjectPoolSize = OPENCVIMAGE_MAX_OBJECT_POOL_SIZE );
         ~OpenCVImageFactory();
 
         OpenCVImage* getOrCreate( int width, int height, int depth, int channels );
 
     private:
-        static OpenCVImageFactory* m_instance;
+        static OpenCVImageFactory* m_instance;  /** singleton class instance */
         std::list<OpenCVImage*> m_objectPool;
+        int m_maxObjectPoolSize;    /** max object pool size in bytes */
+        int m_objectPoolSize;       /** object pool size in bytes */
         QMutex m_factoryMutex;
     };
 
@@ -90,6 +109,9 @@ namespace plv
 
         /** Compare two opencv images for type equality */
         bool isCompatible( int width, int height, int depth, int channels );
+
+        /** @returns the size of the contained IplImage image data in bytes */
+        int size()const;
 
     protected:
         OpenCVImage( IplImage* img );
