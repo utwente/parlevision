@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <typeinfo>
 #include <QImage>
+#include <stack>
 
 #include "RefPtr.h"
 #include "RefCounted.h"
@@ -93,13 +94,47 @@ namespace plv
         InputPin( const QString& name, PipelineElement* owner ) :
                 Pin( name, owner ) {}
 
-        inline RefPtr<Data> get()
+        virtual void scope()
+        {
+            assert( m_scope.empty() );
+            // prepares stack to receive objects
+            // for current scope
+        }
+
+        virtual void unscope()
+        {
+            // release all objects
+            while( !m_scope.empty() )
+            {
+                Data* d = m_scope.top();
+                m_scope.pop();
+                d->dec();
+            }
+
+            assert( m_scope.empty() );
+        }
+
+        virtual void push( Data* d )
+        {
+            assert( d != 0 );
+
+            // increase ref count and store on stack
+            d->inc();
+            m_scope.push( d );
+        }
+
+        virtual Data* get()
         {
             if( this->m_connection.isNotNull() &&
                 this->m_connection->hasData() )
             {
                 RefPtr<Data> obj = this->m_connection->get();
-                return obj;
+                if( obj.isNotNull() )
+                {
+                    Data* d = obj.getPtr();
+                    push( d );
+                    return d;
+                }
             }
             return 0;
         }
@@ -117,6 +152,8 @@ namespace plv
 
         /** null if there is no connection */
         RefPtr<PinConnection>   m_connection;
+
+        std::stack<Data*> m_scope;
     };
 
     template< class T >
@@ -129,6 +166,11 @@ namespace plv
         virtual const std::type_info& getTypeInfo() const
         {
             return typeid( T );
+        }
+
+        virtual T* get()
+        {
+            return dynamic_cast<T*>( InputPin::get() );
         }
     };
 

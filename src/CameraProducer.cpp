@@ -31,7 +31,7 @@ CameraProducer::~CameraProducer()
     m_camera->release();
 }
 
-void CameraProducer::produce()
+void CameraProducer::process()
 {
     QMutexLocker lock(&m_frameMutex);
 

@@ -18,7 +18,7 @@ namespace plv {
         CameraProducer();
         virtual ~CameraProducer();
 
-        virtual void produce();
+        virtual void process();
 
         virtual PlvPipelineElementState init();
         virtual PlvPipelineElementState checkConfig();

@@ -28,7 +28,7 @@ namespace plv
         typedef std::map< QString, RefPtr< OutputPin > > OutputPinMap;
 
     protected:
-        InputPinMap  m_InputPins;
+        InputPinMap  m_inputPins;
         OutputPinMap m_outputPins;
 
     public:
@@ -50,6 +50,12 @@ namespace plv
         InputPin* getInputPin( const QString& name ) const;
         OutputPin* getOutputPin( const QString& name ) const;
 
+        /** This function does the actual work of this PipelineElement and
+          * is called by the PipelineScheduler when inputs of this processor
+          * are ready.
+          */
+        virtual void process() = 0;
+
     protected:
         RefPtr<Pipeline> m_parent;
         /**
@@ -58,6 +64,12 @@ namespace plv
          * and sets m_parent to the new pipeline
          */
         virtual void setPipeline(Pipeline* parent);
+
+        /**
+          * private process function which handles scoping of input and output pins
+          * and class the process() function of the super class.
+          */
+        void __process();
     };
 }
 

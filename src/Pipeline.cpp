@@ -101,21 +101,7 @@ void Pipeline::run()
             ; itr != m_children.end(); ++itr )
         {
             RefPtr<PipelineElement> element = itr->second;
-
-            //TODO make this not so ugly
-            if(RefPtr<PipelineProducer> prod = ref_ptr_dynamic_cast<PipelineProducer>(element))
-            {
-                prod->produce();
-            }
-            else if(RefPtr<PipelineProcessor> proc = ref_ptr_dynamic_cast<PipelineProcessor>(element))
-            {
-                proc->process();
-            }
-            else
-            {
-                qDebug() << "unknown pipeline element";
-            }
-
+            element->__process();
         }
 //        usleep(100);
         usleep(1000000/40);

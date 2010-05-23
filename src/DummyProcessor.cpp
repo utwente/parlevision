@@ -12,12 +12,17 @@ using namespace plv;
 
 DummyProcessor::DummyProcessor()
 {
-    addInputPin( new TypedInputPin<OpenCVImage>( INPUT_PIN_NAME, this ) );
-    addOutputPin( new TypedOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this ) );
+    m_inputPin = new TypedInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
+    addInputPin( m_inputPin );
+
+    m_outputPin = new TypedOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    addOutputPin( m_outputPin );
 }
 
 DummyProcessor::~DummyProcessor()
 {
+    delete m_inputPin;
+    delete m_outputPin;
 }
 
 PlvPipelineElementState DummyProcessor::init()
@@ -32,20 +37,15 @@ PlvPipelineElementState DummyProcessor::checkConfig()
 
 void DummyProcessor::process()
 {
-    RefPtr<InputPin> in  = getInputPin( INPUT_PIN_NAME );
-    RefPtr<OutputPin> out = getOutputPin( OUTPUT_PIN_NAME );
 
-    assert(in.isNotNull());
-    assert(out.isNotNull());
+    assert(m_inputPin != 0);
+    assert(m_outputPin != 0);
 
 
-    RefPtr<Data> data = in->get();
-    if(data.isNotNull())
+    RefPtr<OpenCVImage> img = m_inputPin->get();
+
+    if(img.isNotNull())
     {
-        // It's safe to do this, because the pins are guaranteed to provide this type.
-        RefPtr<OpenCVImage> img = ref_ptr_dynamic_cast<OpenCVImage>(data);
-        assert(img.isNotNull());
-
         RefPtr<OpenCVImage> img2 =
                 OpenCVImageFactory::instance()->get( img->getWidth(), img->getHeight(),
                                                      img->getDepth(), img->getNumChannels() );
@@ -61,7 +61,7 @@ void DummyProcessor::process()
 
         // publish the new image
         RefPtr<Data> outData = ref_ptr_dynamic_cast<Data>(img2);
-        out->put(outData);
+        m_outputPin->put(outData);
     }
     else
     {

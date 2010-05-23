@@ -41,15 +41,15 @@ void PipelineElement::setPipeline(Pipeline* parent)
 
 void PipelineElement::addInputPin( InputPin* pin )
 {
-    InputPinMap::iterator itr = m_InputPins.find( pin->getName() );
-    if( itr != m_InputPins.end() )
+    InputPinMap::iterator itr = m_inputPins.find( pin->getName() );
+    if( itr != m_inputPins.end() )
     {
         qDebug() << "Error: tried to insert pin with duplicate name"
                 << pin->getName() << ".";
         return;
     }
-
-    m_InputPins.insert( std::make_pair( pin->getName(), RefPtr<InputPin>(pin) ));
+    RefPtr<InputPin> rpin( pin );
+    m_inputPins.insert( std::make_pair( pin->getName(), rpin ));
 }
 
 void PipelineElement::addOutputPin( OutputPin* pin )
@@ -61,13 +61,14 @@ void PipelineElement::addOutputPin( OutputPin* pin )
                 << pin->getName() << ".";
         return;
     }
-    m_outputPins.insert( std::make_pair( pin->getName(), RefPtr<OutputPin>(pin) ));
+    RefPtr<OutputPin> rpin( pin );
+    m_outputPins.insert( std::make_pair( pin->getName(), rpin ));
 }
 
 InputPin* PipelineElement::getInputPin( const QString& name ) const
 {
-    InputPinMap::const_iterator itr = m_InputPins.find( name );
-    if( itr != m_InputPins.end() )
+    InputPinMap::const_iterator itr = m_inputPins.find( name );
+    if( itr != m_inputPins.end() )
     {
         return itr->second.getPtr();
     }
@@ -82,4 +83,23 @@ OutputPin* PipelineElement::getOutputPin( const QString& name ) const
         return itr->second.getPtr();
     }
     return 0;
+}
+
+void PipelineElement::__process()
+{
+    for( InputPinMap::iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end(); ++itr )
+    {
+        RefPtr<InputPin> in = itr->second;
+        in->scope();
+    }
+
+    this->process();
+
+    for( InputPinMap::iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end(); ++itr )
+    {
+        RefPtr<InputPin> in = itr->second;
+        in->unscope();
+    }
 }

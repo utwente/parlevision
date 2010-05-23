@@ -15,10 +15,6 @@ bool OutputPin::isConnected() const
     return !m_connections.empty();
 }
 
-
-
-
-
 void InputPin::setConnection(PinConnection *connection)
 {
     assert(!this->isConnected());

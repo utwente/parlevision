@@ -12,8 +12,6 @@ namespace plv {
     public:
         PipelineProducer();
         virtual ~PipelineProducer();
-
-        virtual void produce() = 0;
     };
 
 }
