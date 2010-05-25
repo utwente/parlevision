@@ -50,18 +50,47 @@ namespace plv
           */
         virtual const std::type_info& getTypeInfo() const = 0;
 
-    signals:
-        void newData( RefPtr<Data> data );
 
     };
 
-    class OutputPin : public Pin
+    class IInputPin : public Pin
     {
+    public:
+        virtual void scope() = 0;
+        virtual void unscope() = 0;
+        virtual bool isConnected() const = 0;
+
+    protected:
+        std::stack<Data*> m_scope;
+    };
+
+    class IOutputPin : public Pin
+    {
+
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+    template< typename T >
+    class OutputPin : public IOutputPin
+    {
+        Q_OBJECT
+
     public:
         OutputPin( const QString& name, PipelineElement* owner ) :
                 Pin( name, owner ) {}
 
-        inline void put( RefPtr<Data> data )
+        inline void put( T* data )
         {
             emit( newData( data ) );
 
@@ -75,21 +104,49 @@ namespace plv
             }
         }
 
-        virtual bool isConnected() const;
+        void addConnection( PinConnection<T>* connection )
+        {
+            assert(connection != 0);
+
+            this->m_connections.push_back(connection);
+        }
+
+        virtual bool isConnected() const
+        {
+            return !m_connections.empty();
+        }
 
         /** Adds a connection to the set of connections this pin outputs to
           * @ensure this->isConnected();
           */
-        void addConnection(PinConnection* connection);
+        void addConnection(PinConnection<T>* connection);
 
     protected:
         ~OutputPin() {}
         // empty list by default
-        std::list< RefPtr<PinConnection> > m_connections;
+        std::list< RefPtr<PinConnection<T> > > m_connections;
+
+    signals:
+        void newData( RefPtr<T> data );
+
     };
 
-    class InputPin : public Pin
+
+
+
+
+
+
+
+
+
+
+
+    template< typename T >
+    class InputPin : public IInputPin
     {
+        Q_OBJECT
+
     public:
         InputPin( const QString& name, PipelineElement* owner ) :
                 Pin( name, owner ) {}
@@ -106,15 +163,13 @@ namespace plv
             // release all objects
             while( !m_scope.empty() )
             {
-                Data* d = m_scope.top();
+                T* d = m_scope.top();
                 m_scope.pop();
                 d->dec();
             }
-
-            assert( m_scope.empty() );
         }
 
-        virtual void push( Data* d )
+        void push( T* d )
         {
             assert( d != 0 );
 
@@ -123,15 +178,15 @@ namespace plv
             m_scope.push( d );
         }
 
-        virtual Data* get()
+        T* get()
         {
             if( this->m_connection.isNotNull() &&
                 this->m_connection->hasData() )
             {
-                RefPtr<Data> obj = this->m_connection->get();
+                RefPtr<T> obj = this->m_connection->get();
                 if( obj.isNotNull() )
                 {
-                    Data* d = obj.getPtr();
+                    T* d = obj.getPtr();
                     push( d );
                     return d;
                 }
@@ -139,58 +194,79 @@ namespace plv
             return 0;
         }
 
-        virtual bool isConnected() const;
 
         /** Connects this pin through the given connection.
           * @require !this->isConnected()
           * @ensure this->isConnected();
           */
-        void setConnection(PinConnection* connection);
+        void setConnection(PinConnection<T>* connection)
+        {
+            assert(!this->isConnected());
+            assert(connection != 0);
+
+            this->m_connection = connection;
+        }
+
+        virtual bool isConnected() const
+        {
+            return this->m_connection.isNotNull();
+        }
 
     protected:
         ~InputPin() {}
 
         /** null if there is no connection */
-        RefPtr<PinConnection>   m_connection;
+        RefPtr<PinConnection<T>>   m_connection;
 
-        std::stack<Data*> m_scope;
+
     };
 
-    template< class T >
-    class TypedInputPin : public InputPin
-    {
-    public:
-        TypedInputPin( const QString& name, PipelineElement* owner ) :
-                InputPin( name, owner ) {}
-
-        virtual const std::type_info& getTypeInfo() const
-        {
-            return typeid( T );
-        }
-
-        virtual T* get()
-        {
-            return dynamic_cast<T*>( InputPin::get() );
-        }
-    };
-
-    template< class T >
-    class TypedOutputPin : public OutputPin
-    {
-    public:
-        TypedOutputPin( const QString& name, PipelineElement* owner ) :
-                OutputPin( name, owner ) {}
-
-        virtual const std::type_info& getTypeInfo() const
-        {
-            return typeid( T );
-        }
-    };
-
-
-
-
-
+//    template< class T >
+//    class TypedInputPin : public InputPin
+//    {
+//    public:
+//        TypedInputPin( const QString& name, PipelineElement* owner ) :
+//                InputPin( name, owner ) {}
+//
+//        virtual const std::type_info& getTypeInfo() const
+//        {
+//            return typeid( T );
+//        }
+//
+//        virtual T* get()
+//        {
+//            return dynamic_cast<T*>( InputPin::get() );
+//        }
+//
+//        virtual Data* get()
+//        {
+//            if( this->m_connection.isNotNull() &&
+//                this->m_connection->hasData() )
+//            {
+//                RefPtr<Data> obj = this->m_connection->get();
+//                if( obj.isNotNull() )
+//                {
+//                    Data* d = obj.getPtr();
+//                    push( d );
+//                    return d;
+//                }
+//            }
+//            return 0;
+//        }
+//    };
+//
+//    template< class T >
+//    class TypedOutputPin : public OutputPin
+//    {
+//    public:
+//        TypedOutputPin( const QString& name, PipelineElement* owner ) :
+//                OutputPin( name, owner ) {}
+//
+//        virtual const std::type_info& getTypeInfo() const
+//        {
+//            return typeid( T );
+//        }
+//    };
 }
 
 #endif // PIN_H
