@@ -39,7 +39,7 @@ void PipelineElement::setPipeline(Pipeline* parent)
     m_parent = parent;
 }
 
-void PipelineElement::addInputPin( InputPin* pin )
+void PipelineElement::addInputPin( IInputPin* pin )
 {
     InputPinMap::iterator itr = m_inputPins.find( pin->getName() );
     if( itr != m_inputPins.end() )
@@ -48,11 +48,11 @@ void PipelineElement::addInputPin( InputPin* pin )
                 << pin->getName() << ".";
         return;
     }
-    RefPtr<InputPin> rpin( pin );
+    RefPtr<IInputPin> rpin( pin );
     m_inputPins.insert( std::make_pair( pin->getName(), rpin ));
 }
 
-void PipelineElement::addOutputPin( OutputPin* pin )
+void PipelineElement::addOutputPin( IOutputPin* pin )
 {
     OutputPinMap::iterator itr = m_outputPins.find( pin->getName() );
     if( itr != m_outputPins.end() )
@@ -61,11 +61,11 @@ void PipelineElement::addOutputPin( OutputPin* pin )
                 << pin->getName() << ".";
         return;
     }
-    RefPtr<OutputPin> rpin( pin );
+    RefPtr<IOutputPin> rpin( pin );
     m_outputPins.insert( std::make_pair( pin->getName(), rpin ));
 }
 
-InputPin* PipelineElement::getInputPin( const QString& name ) const
+IInputPin* PipelineElement::getInputPin( const QString& name ) const
 {
     InputPinMap::const_iterator itr = m_inputPins.find( name );
     if( itr != m_inputPins.end() )
@@ -75,7 +75,7 @@ InputPin* PipelineElement::getInputPin( const QString& name ) const
     return 0;
 }
 
-OutputPin* PipelineElement::getOutputPin( const QString& name ) const
+IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
 {
     OutputPinMap::const_iterator itr = m_outputPins.find( name );
     if( itr != m_outputPins.end() )
@@ -90,7 +90,7 @@ void PipelineElement::__process()
     for( InputPinMap::iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
-        RefPtr<InputPin> in = itr->second;
+        RefPtr<IInputPin> in = itr->second;
         in->scope();
     }
 
@@ -99,7 +99,7 @@ void PipelineElement::__process()
     for( InputPinMap::iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
-        RefPtr<InputPin> in = itr->second;
+        RefPtr<IInputPin> in = itr->second;
         in->unscope();
     }
 }

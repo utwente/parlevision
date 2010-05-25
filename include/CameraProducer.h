@@ -27,7 +27,7 @@ namespace plv {
 
         RefPtr<OpenCVCamera> m_camera;
         RefPtr<OpenCVImage> m_lastFrame;
-        RefPtr< TypedOutputPin<OpenCVImage> > m_outputPin;
+        RefPtr< OutputPin<OpenCVImage> > m_outputPin;
 
         int m_lastProcessedId;
 

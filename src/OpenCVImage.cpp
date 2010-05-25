@@ -152,9 +152,9 @@ OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth,
         image = new OpenCVImage( cvimg );
 
         // up the ref count by one
-        image->inc();
-        m_objectPoolSize += image->size();
-        m_objectPool.push_back( image );
+        //image->inc();
+        //m_objectPoolSize += image->size();
+        //m_objectPool.push_back( image );
     }
 
     assert( image != 0 );

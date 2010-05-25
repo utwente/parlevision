@@ -15,7 +15,7 @@ CameraProducer::CameraProducer() :
         m_lastProcessedId( 0 )
 {
     // we have one output pin
-    m_outputPin = new TypedOutputPin<OpenCVImage>(OUTPUT_PIN_NAME, this );
+    m_outputPin = new OutputPin<OpenCVImage>(OUTPUT_PIN_NAME, this );
     addOutputPin( m_outputPin.getPtr() );
 
     // connect the camera to this camera producer using Qt's signals

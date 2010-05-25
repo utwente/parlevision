@@ -20,8 +20,8 @@ namespace plv {
         virtual void process();
 
     private:
-        TypedInputPin<OpenCVImage>* m_inputPin;
-        TypedOutputPin<OpenCVImage>* m_outputPin;
+        InputPin<OpenCVImage>* m_inputPin;
+        OutputPin<OpenCVImage>* m_outputPin;
 
     };
 

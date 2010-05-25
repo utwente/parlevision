@@ -9,8 +9,8 @@
 
 namespace plv
 {
-    class InputPin;
-    class OutputPin;
+    class IInputPin;
+    class IOutputPin;
     class Pipeline;
 
     typedef enum _PlvPipelineElementState
@@ -24,8 +24,8 @@ namespace plv
     {
         Q_OBJECT
 
-        typedef std::map< QString, RefPtr< InputPin > > InputPinMap;
-        typedef std::map< QString, RefPtr< OutputPin > > OutputPinMap;
+        typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
+        typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
 
     protected:
         InputPinMap  m_inputPins;
@@ -44,11 +44,11 @@ namespace plv
         virtual PlvPipelineElementState init() = 0;
         virtual PlvPipelineElementState checkConfig() = 0;
 
-        void addInputPin( InputPin* pin );
-        void addOutputPin( OutputPin* pin );
+        void addInputPin( IInputPin* pin );
+        void addOutputPin( IOutputPin* pin );
 
-        InputPin* getInputPin( const QString& name ) const;
-        OutputPin* getOutputPin( const QString& name ) const;
+        IInputPin* getInputPin( const QString& name ) const;
+        IOutputPin* getOutputPin( const QString& name ) const;
 
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor

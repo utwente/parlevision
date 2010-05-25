@@ -12,10 +12,10 @@ using namespace plv;
 
 DummyProcessor::DummyProcessor()
 {
-    m_inputPin = new TypedInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
+    m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     addInputPin( m_inputPin );
 
-    m_outputPin = new TypedOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_outputPin = new OutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
     addOutputPin( m_outputPin );
 }
 
@@ -41,14 +41,11 @@ void DummyProcessor::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-
     RefPtr<OpenCVImage> img = m_inputPin->get();
-
-    if(img.isNotNull())
+    if( img.isNotNull() )
     {
-        RefPtr<OpenCVImage> img2 =
-                OpenCVImageFactory::instance()->get( img->getWidth(), img->getHeight(),
-                                                     img->getDepth(), img->getNumChannels() );
+        RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get( img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
+
         // open image for writing
         OpenCVImageWriter writer( img2 );
         IplImage* iplImg2 = writer.get();
@@ -60,12 +57,11 @@ void DummyProcessor::process()
         cvFlip( iplImg1, iplImg2, 1);
 
         // publish the new image
-        RefPtr<Data> outData = ref_ptr_dynamic_cast<Data>(img2);
-        m_outputPin->put(outData);
+        m_outputPin->put( img2.getPtr() );
     }
     else
     {
-//        qDebug() << "no data to process";
+        //TODO solve this!!!
+        qDebug( "Error, processor called with no data to process" );
     }
-
 }

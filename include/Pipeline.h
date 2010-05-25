@@ -12,8 +12,8 @@
 namespace plv
 {
     class Pin;
-    class InputPin;
-    class OutputPin;
+    class IInputPin;
+    class IOutputPin;
 
     class Pipeline : public QThread, public RefCounted
     {
@@ -56,7 +56,7 @@ namespace plv
 
         /** Create a PinConnnection between the given InputPin and outputPin
           */
-        void connectPins(OutputPin* outputPin, InputPin* inputPin);
+        void connectPins( IOutputPin* outputPin, IInputPin* inputPin );
 
     protected:
         PipelineElementMap m_children;

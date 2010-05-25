@@ -69,7 +69,7 @@ std::list< RefPtr<PipelineElement> > Pipeline::getChildren()
     return elements;
 }
 
-void Pipeline::connectPins(OutputPin* outputPin, InputPin* inputPin)
+void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
 {
     RefPtr<PinConnection> connection = new PinConnection(outputPin, inputPin);
     m_connections.push_back(connection);
