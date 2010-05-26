@@ -115,7 +115,9 @@ namespace plv
 
         inline void put( N* data )
         {
-            emit( newData( RefPtr<Data>(data) ) );
+            RefPtr<N> theData = data;
+
+            emit( newData( RefPtr<Data>(theData) ) );
 
             for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
                     itr != m_connections.end(); ++itr)
@@ -123,7 +125,7 @@ namespace plv
                 RefPtr<PinConnection> connection = *itr;
 
                 assert(connection.isNotNull());
-                connection->put( data );
+                connection->put( theData );
             }
         }
 
