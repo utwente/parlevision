@@ -52,11 +52,9 @@ int main(int argc, char **argv)
     RefPtr<CameraProducer> cp = new CameraProducer();
     // Add it to the pipeline
     pipeline->add(cp);
-    cp->init();
 
     RefPtr<DummyProcessor> dp = new DummyProcessor();
     pipeline->add(dp);
-    dp->init();
 
     pipeline->connectPins(cp->getOutputPin("output"), dp->getInputPin("input image"));
 
@@ -67,7 +65,9 @@ int main(int argc, char **argv)
     //mainWin->addCamera(camera);
     //mainWin->addWidget( cvWidget );
 
-    pipeline->init();
+    PlvPipelineElementState state = pipeline->init();
+    assert(state == PLV_PLE_STATE_READY);
+
     pipeline->start();
 
     mainWin->setPipeline(pipeline);

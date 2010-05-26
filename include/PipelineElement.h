@@ -41,6 +41,10 @@ namespace plv
         PipelineElement( const PipelineElement& other );
         virtual ~PipelineElement();
 
+        /** Initialise the element so it is ready to receive
+          * process() calls.
+          * Should this be reentrant?
+          */
         virtual PlvPipelineElementState init() = 0;
         virtual PlvPipelineElementState checkConfig() = 0;
 
@@ -55,6 +59,7 @@ namespace plv
           * are ready.
           */
         virtual void process() = 0;
+
 
     protected:
         RefPtr<Pipeline> m_parent;

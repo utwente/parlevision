@@ -75,9 +75,19 @@ void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
     m_connections.push_back(connection);
 }
 
-void Pipeline::init()
+PlvPipelineElementState Pipeline::init()
 {
-
+    for( PipelineElementMap::iterator itr = m_children.begin()
+        ; itr != m_children.end(); ++itr )
+    {
+        RefPtr<PipelineElement> element = itr->second;
+        PlvPipelineElementState state = element->init();
+        if(state != PLV_PLE_STATE_READY)
+        {
+            return PLV_PLE_STATE_UNINITIALIZED;
+        }
+    }
+    return PLV_PLE_STATE_READY;
 }
 
 void Pipeline::start()
