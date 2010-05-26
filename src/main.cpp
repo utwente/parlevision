@@ -74,6 +74,9 @@ int main(int argc, char **argv)
     //mainWin->addCamera(camera);
     //mainWin->addWidget( cvWidget );
 
+    // pipeline initialisation is blocking, but also depends on the Qt run loop
+    // being initialised. This is a cyclic dependency that we solve by
+    // initialising the pipeline in a separate thread.
     QtConcurrent::run(initAndStartPipeline, pipeline);
 
     mainWin->setPipeline(pipeline);
