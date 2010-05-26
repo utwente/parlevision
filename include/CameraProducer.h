@@ -2,6 +2,7 @@
 #define CAMERAPRODUCER_H
 
 #include <QMutex>
+#include <QWaitCondition>
 
 #include "PipelineProducer.h"
 #include "Pin.h"
@@ -32,6 +33,7 @@ namespace plv {
         int m_lastProcessedId;
 
         QMutex m_frameMutex;
+        QWaitCondition m_frameReady;
 
     public slots:
         void newFrame( RefPtr<Data> frame );

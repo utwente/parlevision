@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <iostream>
 #include <QDebug>
+#include <QtConcurrentRun>
 
 #include "FrameWidget.h"
 #include "MainWindow.h"
@@ -16,6 +17,14 @@
 
 using namespace plv;
 using namespace plvgui;
+
+void initAndStartPipeline(Pipeline* pipeline)
+{
+    PlvPipelineElementState state = pipeline->init();
+    assert(state == PLV_PLE_STATE_READY);
+
+    pipeline->start();
+}
 
 int main(int argc, char **argv)
 {
@@ -65,10 +74,7 @@ int main(int argc, char **argv)
     //mainWin->addCamera(camera);
     //mainWin->addWidget( cvWidget );
 
-    PlvPipelineElementState state = pipeline->init();
-    assert(state == PLV_PLE_STATE_READY);
-
-    pipeline->start();
+    QtConcurrent::run(initAndStartPipeline, pipeline);
 
     mainWin->setPipeline(pipeline);
 
