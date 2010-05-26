@@ -9,9 +9,9 @@ namespace plv {
 
 class RefCounted
 {
-protected:
+private:
     mutable int m_referenceCount;
-    mutable QMutex m_mutex;
+    mutable QMutex m_refMutex;
 
 public:
     /** Initializes reference count to 0 */
@@ -25,7 +25,7 @@ public:
     {
     }
 
-#ifndef DEBUG
+#if 0
     /** increases reference count by one */
     inline void inc() const
     {
@@ -52,27 +52,27 @@ public:
 #else
     virtual void inc() const
     {
-        QMutexLocker lock( &m_mutex );
+        QMutexLocker lock( &m_refMutex );
         ++m_referenceCount;
     }
 
     virtual void dec() const
     {
-        m_mutex.lock();
+        m_refMutex.lock();
         --m_referenceCount;
         if( m_referenceCount < 1 )
         {
-            m_mutex.unlock();
+            m_refMutex.unlock();
             delete this;
             return;
         }
-        m_mutex.unlock();
+        m_refMutex.unlock();
     }
 #endif
 
     inline int getRefCount() const
     {
-        QMutexLocker lock( &m_mutex );
+        QMutexLocker lock( &m_refMutex );
         return m_referenceCount;
     }
 
