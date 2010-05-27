@@ -16,6 +16,14 @@ macx {
     UI_DIR = $$BUILDDIR
     DESTDIR = $$BUILDDIR
 }
+
+CONFIG(debug, debug|release) {
+    DEFINES += DEBUG
+ #   QMAKE_CXXFLAGS_DEBUG += -pedantic
+ #       -Wunused-parameter \
+ #       -Wunused-variable
+}
+
 INCLUDEPATH += include \
     include/plvgui
 SOURCES += src/main.cpp \
