@@ -111,9 +111,9 @@ OpenCVImage* OpenCVImageFactory::getFromBuffer( IplImage* buffer, bool own )
         img = new OpenCVImage( buffer );
 
         // up the ref count by one and add to pool
-        img->inc();
-        m_objectPool.push_back( img );
-        m_objectPoolSize += img->size();
+        //img->inc();
+        //m_objectPool.push_back( img );
+        //m_objectPoolSize += img->size();
     }
     return img;
 }
