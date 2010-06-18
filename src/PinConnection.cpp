@@ -38,24 +38,20 @@ int PinConnection::size()
     return static_cast<int>( m_queue.size() );
 }
 
-Data* PinConnection::get()
+RefPtr<Data> PinConnection::get()
 {
     QMutexLocker lock( &m_mutex );
     if( !m_queue.empty() )
     {
         RefPtr<Data> data = m_queue.front();
-        Data* d = data.getPtr();
-        assert( d->getRefCount() >= 2 );
-        d->dec();
         m_queue.pop();
-        return d;
+        return data;
     }
     return 0;
 }
 
-void PinConnection::put( Data* data )
+void PinConnection::put( RefPtr<Data> data )
 {
     QMutexLocker lock( &m_mutex );
-    data->inc();
     m_queue.push( data );
 }

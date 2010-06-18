@@ -21,14 +21,14 @@ namespace plv
 
         bool hasData();
         int size();
-        Data* get();
-        void put( Data* data );
+        RefPtr<Data> get();
+        void put( RefPtr<Data> data );
 
     protected:
         RefPtr<IOutputPin> m_producer;
         RefPtr<IInputPin>  m_consumer;
 
-        std::queue<Data*> m_queue;
+        std::queue< RefPtr<Data> > m_queue;
 
         QMutex m_mutex;
     };
