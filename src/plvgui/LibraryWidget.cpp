@@ -2,6 +2,7 @@
 #include "ui_librarywidget.h"
 #include "PipelineElement.h"
 #include <QDebug>
+#include <QtGui>
 
 using namespace plvgui;
 
@@ -15,7 +16,9 @@ LibraryWidget::LibraryWidget(QWidget *parent) :
     for(std::list<QString>::iterator iter = types.begin();
         iter != types.end(); iter++)
     {
-        qDebug() << *iter;
+        qDebug() << "LibraryWidget: Adding type " << *iter;
+        QWidget* w = new QLabel(QString(*iter), this);
+        ui->container->addWidget(w);
     }
 }
 
