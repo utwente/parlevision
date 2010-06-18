@@ -45,13 +45,13 @@ int main(int argc, char **argv)
     //RefPtr<Data> test = static_cast< RefPtr<Data> >(QMetaType::construct( id ));
     qRegisterMetaType< RefPtr<QtImage> >("RefPtr<QtImage>");
 
-    for( int i=0; i<500000; ++i )
-    {
-        QString* myClassPtr = static_cast<QString*>( QMetaType::construct(QMetaType::type("QString")) );
-        myClassPtr->append( "DIT IS EEN TEST" );
-        //qDebug() << myClassPtr;
-        delete myClassPtr;
-    }
+//    for( int i=0; i<500000; ++i )
+//    {
+//        QString* myClassPtr = static_cast<QString*>( QMetaType::construct(QMetaType::type("QString")) );
+//        myClassPtr->append( "DIT IS EEN TEST" );
+//        //qDebug() << myClassPtr;
+//        delete myClassPtr;
+//    }
 
 //    InspectorFactory::create(typeid(OpenCVImage).name());
 //    plvgui::CameraWindow* mainWin = new plvgui::CameraWindow(camera);
@@ -61,11 +61,11 @@ int main(int argc, char **argv)
     // Make a pipeline
     RefPtr<Pipeline> pipeline = new Pipeline();
     // Make a CameraProducer
-    RefPtr<CameraProducer> cp = new CameraProducer();
+    RefPtr<CameraProducer> cp = static_cast<CameraProducer*>( QMetaType::construct(QMetaType::type("plv::CameraProducer")) );
     // Add it to the pipeline
     pipeline->add(cp);
 
-    RefPtr<DummyProcessor> dp = new DummyProcessor();
+    RefPtr<DummyProcessor> dp = static_cast<DummyProcessor*>( QMetaType::construct(QMetaType::type("plv::DummyProcessor")) );
     pipeline->add(dp);
 
     pipeline->connectPins(cp->getOutputPin("output"), dp->getInputPin("input image"));
