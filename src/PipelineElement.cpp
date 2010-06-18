@@ -9,6 +9,8 @@
 
 using namespace plv;
 
+std::list<QString> PipelineElement::s_types;
+
 PipelineElement::PipelineElement()
 {
 }
@@ -19,6 +21,10 @@ PipelineElement::~PipelineElement()
     {
         m_parent->remove( this );
     }
+}
+
+PipelineElement::PipelineElement(const PipelineElement &other)
+{
 }
 
 void PipelineElement::setPipeline(Pipeline* parent)
@@ -102,4 +108,19 @@ void PipelineElement::__process()
         RefPtr<IInputPin> in = itr->second;
         in->unscope();
     }
+}
+
+
+
+std::list<QString> PipelineElement::types()
+{
+    return PipelineElement::s_types;
+}
+
+int PipelineElement::registerType(QString typeName)
+{
+    qDebug() << "Registering PipelineElement" << typeName;
+    PipelineElement::s_types.push_back( typeName );
+    //return qRegisterMetaType<E>(typeName);
+    return 0;
 }

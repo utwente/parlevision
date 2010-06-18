@@ -9,3 +9,8 @@ PipelineProducer::PipelineProducer()
 PipelineProducer::~PipelineProducer()
 {
 }
+
+PipelineProducer::PipelineProducer(const PipelineProducer& other) :
+        PipelineElement(other)
+{
+}

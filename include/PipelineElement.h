@@ -4,6 +4,7 @@
 #include <map>
 #include <QString>
 #include <QObject>
+#include <QMetaType>
 
 #include "RefPtr.h"
 
@@ -61,8 +62,27 @@ namespace plv
         virtual void process() = 0;
 
 
+
+        /** Get a list of all known PipelineElement Type names
+          */
+        static std::list<QString> types();
+
+        /** Register the given type as a PipelineElement Type.
+          * The type needs to be known to Qt's MetaType system,
+          * so you will likely rarely call this yourself.
+          * Use one of the plvRegisterPipelineElement macros instead.
+          * @require typeName is a registered Qt type,
+          *     e.g. QMetaType::type(typeName) returns a valid ID
+          */
+        static int registerType(QString typeName);
+
+
     protected:
         RefPtr<Pipeline> m_parent;
+
+        // list to keep track of registered types
+        static std::list<QString> s_types;
+
         /**
          * This gets called by Pipeline when we are added to it.
          * Handles removing ourself from any previous pipeline we were part of
