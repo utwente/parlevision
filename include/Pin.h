@@ -110,19 +110,18 @@ namespace plv
         OutputPin( const QString& name, PipelineElement* owner ) :
                 IOutputPin( name, owner ) {}
 
-        inline void put( T* data )
+        inline void put( RefPtr<T> data )
         {
-            RefPtr<T> theData = data;
+            RefPtr<Data> untypedData = data.getPtr();
 
-            emit( newData( RefPtr<Data>(theData) ) );
+            emit( newData( untypedData ) );
 
             for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
                     itr != m_connections.end(); ++itr)
             {
                 RefPtr<PinConnection> connection = *itr;
-
                 assert(connection.isNotNull());
-                connection->put( theData );
+                connection->put( untypedData );
             }
         }
 
