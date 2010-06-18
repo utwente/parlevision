@@ -48,38 +48,15 @@ public:
         m_refMutex.unlock();
     }
 
-#if 0
-    virtual void inc() const
-    {
-        QMutexLocker lock( &m_refMutex );
-        ++m_referenceCount;
-    }
-
-    virtual void dec() const
-    {
-        m_refMutex.lock();
-        --m_referenceCount;
-        if( m_referenceCount < 1 )
-        {
-            m_refMutex.unlock();
-            delete this;
-            return;
-        }
-        m_refMutex.unlock();
-    }
-#endif
-
+    /** @return number of references to this object */
     inline int getRefCount() const
     {
         QMutexLocker lock( &m_refMutex );
         return m_referenceCount;
     }
 
-    /** RefCounted objects should not explicitely be destructed!
-      */
+    /** RefCounted objects should not explicitely be destructed! */
     virtual ~RefCounted();
-
-
 
 };
 

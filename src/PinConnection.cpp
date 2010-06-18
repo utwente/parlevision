@@ -8,14 +8,14 @@ PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer ) :
         m_producer( producer ),
         m_consumer( consumer )
 {
-    m_producer->addConnection(this);
-
     assert(m_consumer.isNotNull());
     assert(m_producer.isNotNull());
 
+    m_producer->addConnection(this);
+
     assert(!m_consumer->isConnected());
     m_consumer->setConnection(this);
-
+    assert( m_consumer->isConnected() );
 
     // TODO should also be done in release mode at runtime.
     assert( producer->getTypeInfo() == consumer->getTypeInfo() );
@@ -23,7 +23,10 @@ PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer ) :
 
 PinConnection::~PinConnection()
 {
-    //TODO remove connections?
+    m_producer->removeConnection(this);
+    m_consumer->removeConnection(this);
+
+    assert( !m_consumer->isConnected() );
 }
 
 bool PinConnection::hasData()

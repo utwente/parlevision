@@ -52,7 +52,7 @@ void CameraProducer::newFrame( RefPtr<Data> frame )
 {
     QMutexLocker lock(&m_frameMutex);
     m_lastFrame = ref_ptr_dynamic_cast<OpenCVImage>( frame );
-    m_frameReady.wakeAll();
+    //m_frameReady.wakeAll();
 }
 
 PlvPipelineElementState CameraProducer::init()
@@ -72,7 +72,7 @@ PlvPipelineElementState CameraProducer::init()
     // indicating it has finished starting up.
     // this will let this thread wait on the event
     // and unlocks the mutex so no deadlock is created
-    m_frameReady.wait(&m_frameMutex);
+    //m_frameReady.wait(&m_frameMutex);
 
     // we have woken up
     // mutex was relocked by the condition
