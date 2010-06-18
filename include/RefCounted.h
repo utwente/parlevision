@@ -25,11 +25,10 @@ public:
     {
     }
 
-#if 0
     /** increases reference count by one */
     inline void inc() const
     {
-        QMutexLocker lock( &m_mutex );
+        QMutexLocker lock( &m_refMutex );
         ++m_referenceCount;
     }
 
@@ -38,18 +37,18 @@ public:
       */
     inline void dec() const
     {
-        m_mutex.lock();
+        m_refMutex.lock();
         --m_referenceCount;
         if( m_referenceCount < 1 )
         {
-            m_mutex.unlock();
+            m_refMutex.unlock();
             delete this;
             return;
         }
-        m_mutex.unlock();
+        m_refMutex.unlock();
     }
 
-#else
+#if 0
     virtual void inc() const
     {
         QMutexLocker lock( &m_refMutex );
