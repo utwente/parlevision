@@ -71,7 +71,8 @@ namespace plv
           * The type needs to be known to Qt's MetaType system,
           * so you will likely rarely call this yourself.
           * Use one of the plvRegisterPipelineElement macros instead.
-          * @require typeName is a registered Qt type,
+          * @require typeName was not registered to PipelineElement before.
+          * @require typeName is a type registered to the Qt MetaType system
           *     e.g. QMetaType::type(typeName) returns a valid ID
           */
         static int registerType(QString typeName);
@@ -97,5 +98,13 @@ namespace plv
         void __process();
     };
 }
+
+template<typename PET>
+int plvRegisterPipelineElement(const char* typeName)
+{
+    plv::PipelineElement::registerType(typeName);
+    return qRegisterMetaType<PET>(typeName);
+}
+
 
 #endif // PIPELINEELEMENT_H

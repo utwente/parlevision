@@ -37,12 +37,8 @@ int main(int argc, char **argv)
 
     QApplication app(argc, argv);
 
-    qRegisterMetaType<plv::CameraProducer>("plv::CameraProducer");
-    PipelineElement::registerType("plv::CameraProducer");
-
-    qRegisterMetaType<plv::DummyProcessor>("plv::DummyProcessor");
-    PipelineElement::registerType("plv::DummyProcessor");
-//    PipelineElement::registerType("plv::DummyProcessor");
+    plvRegisterPipelineElement<plv::CameraProducer>("plv::CameraProducer");
+    plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor");
 	
 	// register classes with Qt so they can be used in signals and slots
     int id = qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
