@@ -45,7 +45,7 @@
        <enum>Qt::ScrollBarAsNeeded</enum>
       </property>
       <property name="widgetResizable">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -55,7 +55,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>213</width>
+         <width>228</width>
          <height>426</height>
         </rect>
        </property>
