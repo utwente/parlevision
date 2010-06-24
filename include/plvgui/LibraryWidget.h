@@ -19,7 +19,10 @@ namespace plvgui {
     private:
         Ui::LibraryWidget *ui;
         void addItem(QString name);
-    };
+
+private slots:
+    void on_pushButton_clicked();
+};
 }
 
 #endif // LIBRARYWIDGET_H

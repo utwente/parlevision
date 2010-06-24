@@ -76,6 +76,13 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Test</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <layout class="QVBoxLayout" name="container" stretch="">
           <property name="sizeConstraint">
            <enum>QLayout::SetNoConstraint</enum>

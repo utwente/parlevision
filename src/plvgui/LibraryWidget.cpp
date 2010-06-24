@@ -38,3 +38,8 @@ void LibraryWidget::addItem(QString name)
     w->resize(100,40);
     ui->container->addWidget(w);
 }
+
+void plvgui::LibraryWidget::on_pushButton_clicked()
+{
+    addItem("test");
+}
