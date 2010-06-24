@@ -30,13 +30,19 @@
        </sizepolicy>
       </property>
       <property name="acceptDrops">
+       <bool>false</bool>
+      </property>
+      <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOn</enum>
+       <enum>Qt::ScrollBarAsNeeded</enum>
       </property>
       <property name="widgetResizable">
-       <bool>true</bool>
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
@@ -51,28 +57,15 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>50</y>
+          <y>370</y>
           <width>160</width>
           <height>80</height>
          </rect>
         </property>
-        <layout class="QVBoxLayout" name="container" stretch="0,0">
+        <layout class="QVBoxLayout" name="container" stretch="0">
          <property name="sizeConstraint">
           <enum>QLayout::SetMinimumSize</enum>
          </property>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
@@ -88,6 +81,8 @@
          </item>
         </layout>
        </widget>
+       <zorder>verticalLayoutWidget</zorder>
+       <zorder>horizontalSpacer</zorder>
       </widget>
      </widget>
     </item>
