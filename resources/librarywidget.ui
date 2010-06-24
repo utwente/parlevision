@@ -23,6 +23,12 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QScrollArea" name="scrollArea">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="acceptDrops">
        <bool>true</bool>
       </property>
@@ -50,7 +56,10 @@
           <height>80</height>
          </rect>
         </property>
-        <layout class="QVBoxLayout" name="container">
+        <layout class="QVBoxLayout" name="container" stretch="0,0">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMinimumSize</enum>
+         </property>
          <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
