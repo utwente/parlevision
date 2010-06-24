@@ -18,6 +18,7 @@ namespace plvgui {
 
     private:
         Ui::LibraryWidget *ui;
+        void addItem(QString name);
     };
 }
 
