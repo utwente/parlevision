@@ -45,8 +45,10 @@ void LibraryWidget::mousePressEvent(QMouseEvent *event)
 
     if (!element) return;
 
+    QPoint hotSpot = event->pos() - element->pos();
+
     QString elementName = element->getName();
-    qDebug() << "dragging " << elementName;
+    qDebug() << "starting drag of " << elementName;
 
     QList<QUrl> urls;
     urls.append(QUrl("plv://elements/"+elementName));
@@ -54,6 +56,13 @@ void LibraryWidget::mousePressEvent(QMouseEvent *event)
     QMimeData* mimeData = new QMimeData();
     mimeData->setUrls(urls);
 
+    QPixmap pixmap(element->size());
+    element->render(&pixmap);
+
     QDrag* drag = new QDrag(this);
     drag->setMimeData(mimeData);
+    drag->setPixmap(pixmap);
+    drag->setHotSpot(hotSpot);
+
+    drag->exec(Qt::CopyAction, Qt::CopyAction);
 }
