@@ -114,6 +114,7 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     assert (ui->view != 0);
     PipelineScene* scene = new PipelineScene(pipeline, ui->view);
     ui->view->setScene(scene);
+    ui->view->setPipeline(pipeline);
 
     //TODO disconnect from previous pipeline if needed
 

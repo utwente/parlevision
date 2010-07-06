@@ -4,6 +4,7 @@
 #include <QMetaType>
 #include "PipelineElement.h"
 #include "PipelineScene.h"
+#include "Pipeline.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -13,10 +14,10 @@ PipelineView::PipelineView(QWidget *parent) : QGraphicsView(parent)
     setAcceptDrops(true);
 }
 
-void PipelineView::setScene(PipelineScene* scene)
+void PipelineView::setPipeline(Pipeline* pipeline)
 {
-    QGraphicsView::setScene(scene);
-    this->m_pipeline = scene->getPipeline();
+    qDebug() << "setting pipeline to " << pipeline;
+    this->m_pipeline = pipeline;
 }
 
 void PipelineView::dragEnterEvent(QDragEnterEvent *event)
@@ -54,6 +55,9 @@ void PipelineView::dropEvent(QDropEvent *event)
 
         RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(QMetaType::construct(typeId));
 
-        m_pipeline->add(pe);
+        if(m_pipeline.isNotNull())
+        {
+            m_pipeline->add(pe);
+        }
     }
 }

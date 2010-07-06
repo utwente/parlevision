@@ -17,7 +17,7 @@ namespace plvgui
     {
     public:
         PipelineView(QWidget *parent = 0);
-        void setScene(PipelineScene* scene);
+        virtual void setPipeline(plv::Pipeline* scene);
 
     protected:
         void dragEnterEvent(QDragEnterEvent *event);
