@@ -11,6 +11,7 @@ namespace plv {
 
     class DummyProcessor : public PipelineProcessor
     {
+        Q_OBJECT
     public:
         DummyProcessor();
         ~DummyProcessor();
