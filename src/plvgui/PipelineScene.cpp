@@ -36,9 +36,9 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
 {
     //TODO
     qDebug() << "PipelineScene: adding element " << e;
-    QGraphicsTextItem* item = this->addText(e->metaObject()->className());
-    item->setFlag(QGraphicsItem::ItemIsMovable, true);
-    item->setFlag(QGraphicsItem::ItemIsSelectable, true);
+//    QGraphicsTextItem* item = this->addText(e->metaObject()->className());
+//    item->setFlag(QGraphicsItem::ItemIsMovable, true);
+//    item->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
     PipelineElementWidget* pew = new PipelineElementWidget(e.getPtr());
     this->addItem(pew);
