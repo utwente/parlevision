@@ -50,11 +50,12 @@ void LibraryWidget::mousePressEvent(QMouseEvent *event)
     QString elementName = element->getName();
     qDebug() << "starting drag of " << elementName;
 
-    QList<QUrl> urls;
-    urls.append(QUrl("plv://elements/"+elementName));
+    QByteArray itemData;
+    itemData.append(elementName);
 
     QMimeData* mimeData = new QMimeData();
-    mimeData->setUrls(urls);
+//    mimeData->setText(elementName);
+    mimeData->setData("x-plv-element-name", itemData);
 
     QPixmap pixmap(element->size());
     element->render(&pixmap);

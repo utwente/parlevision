@@ -7,22 +7,33 @@ using namespace plvgui;
 PipelineView::PipelineView(QWidget *parent) : QGraphicsView(parent)
 {
     setAcceptDrops(true);
-    // Comment the line below, and drop starts working
 }
 
 void PipelineView::dragEnterEvent(QDragEnterEvent *event)
 {
-    event->accept();
-    qDebug() << "Enter";
+    if(event->provides("x-plv-element-name"))
+    {
+        qDebug() << "Enter";
+        event->accept();
+    }
 }
 
 void PipelineView::dragMoveEvent(QDragMoveEvent *event)
 {
-    event->accept();
-    qDebug() << "Move";
+    if(event->provides("x-plv-element-name"))
+    {
+        qDebug() << "Move";
+        event->accept();
+    }
 }
 
 void PipelineView::dropEvent(QDropEvent *event)
 {
     qDebug() << event->mimeData()->formats();
+    if(event->provides("x-plv-element-name"))
+    {
+    //    qDebug() << event->mimeData()->data("x-plv-element-name");
+        QString elementName = QString(event->mimeData()->data("x-plv-element-name"));
+        qDebug() << elementName;
+    }
 }
