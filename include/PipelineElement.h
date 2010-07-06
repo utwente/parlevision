@@ -2,6 +2,7 @@
 #define PIPELINEELEMENT_H
 
 #include <map>
+#include <stdexcept>
 #include <QString>
 #include <QObject>
 #include <QMetaType>
@@ -20,6 +21,13 @@ namespace plv
         PLV_PLE_STATE_NOT_READY,
         PLV_PLE_STATE_READY
     } PlvPipelineElementState;
+
+    class ElementCreationException : public std::runtime_error
+    {
+    public:
+        ElementCreationException(std::string msg)
+            : std::runtime_error(msg) {}
+    };
 
     class PipelineElement : public QObject, public RefCounted
     {

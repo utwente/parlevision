@@ -46,8 +46,13 @@ void PipelineView::dropEvent(QDropEvent *event)
         QString elementName = QString(event->mimeData()->data("x-plv-element-name"));
         qDebug() << elementName;
 
-        RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(
-                QMetaType::construct(QMetaType::type(elementName.toAscii())) );
+        int typeId = QMetaType::type(elementName.toAscii());
+
+        if(typeId == 0)
+            throw new ElementCreationException(
+                    QString("Tried to create unknown element "+elementName).toStdString());
+
+        RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(QMetaType::construct(typeId));
 
         m_pipeline->add(pe);
     }
