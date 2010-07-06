@@ -31,6 +31,23 @@ CameraProducer::~CameraProducer()
     m_camera->release();
 }
 
+CameraProducer::CameraProducer(const CameraProducer& other):
+        PipelineProducer(other),
+        m_camera(other.m_camera),
+        m_lastProcessedId( other.m_lastProcessedId )
+{
+    // we have one output pin
+    m_outputPin = new OutputPin<OpenCVImage>(OUTPUT_PIN_NAME, this );
+    addOutputPin( m_outputPin.getPtr() );
+
+    // connect the camera to this camera producer using Qt's signals
+    // and slots mechanism.
+    connect( m_camera.getPtr(),
+             SIGNAL( newFrame( RefPtr<Data> ) ),
+             this,
+             SLOT( newFrame( RefPtr<Data> ) ) );
+}
+
 void CameraProducer::process()
 {
     QMutexLocker lock(&m_frameMutex);

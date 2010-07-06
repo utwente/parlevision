@@ -18,6 +18,7 @@ namespace plv {
     public:
         CameraProducer();
         virtual ~CameraProducer();
+        CameraProducer(const CameraProducer&);
 
         virtual void process();
 

@@ -12,6 +12,7 @@ namespace plv {
     public:
         PipelineProducer();
         virtual ~PipelineProducer();
+        PipelineProducer(const PipelineProducer&);
     };
 
 }
