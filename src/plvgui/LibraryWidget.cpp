@@ -38,3 +38,22 @@ void plvgui::LibraryWidget::on_pushButton_clicked()
 {
     addItem("test");
 }
+
+void LibraryWidget::mousePressEvent(QMouseEvent *event)
+{
+    LibraryElement* element = static_cast<LibraryElement*>(childAt(event->pos()));
+
+    if (!element) return;
+
+    QString elementName = element->getName();
+    qDebug() << "dragging " << elementName;
+
+    QList<QUrl> urls;
+    urls.append(QUrl("plv://elements/"+elementName));
+
+    QMimeData* mimeData = new QMimeData();
+    mimeData->setUrls(urls);
+
+    QDrag* drag = new QDrag(this);
+    drag->setMimeData(mimeData);
+}

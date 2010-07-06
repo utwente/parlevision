@@ -16,9 +16,15 @@ namespace plvgui {
         explicit LibraryWidget(QWidget *parent = 0);
         ~LibraryWidget();
 
+    protected:
+//         void dragEnterEvent(QDragEnterEvent *event);
+//         void dragMoveEvent(QDragMoveEvent *event);
+         void mousePressEvent(QMouseEvent *event);
+
     private:
         Ui::LibraryWidget *ui;
         void addItem(QString name);
+
 
     private slots:
         void on_pushButton_clicked();

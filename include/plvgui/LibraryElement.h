@@ -12,6 +12,10 @@ namespace plvgui {
     {
     public:
         LibraryElement(QString name, QWidget* parent);
+        QString getName() { return name; }
+
+    private:
+        QString name;
     };
 }
 

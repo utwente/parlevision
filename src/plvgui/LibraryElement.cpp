@@ -4,7 +4,7 @@
 using namespace plvgui;
 
 LibraryElement::LibraryElement(QString name, QWidget* parent)
-    : QLabel(name, parent)
+    : QLabel(name, parent), name(name)
 {
     this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->setStyleSheet("background: red;");
