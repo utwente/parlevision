@@ -72,7 +72,8 @@ namespace plv
           */
         virtual void process() = 0;
 
-
+        std::list<QString>* getInputPinNames() const;
+        std::list<QString>* getOutputPinNames() const;
 
         /** Get a list of all known PipelineElement Type names
           */

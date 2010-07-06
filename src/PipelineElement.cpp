@@ -130,6 +130,29 @@ void PipelineElement::__process()
     }
 }
 
+std::list<QString>* PipelineElement::getInputPinNames() const
+{
+    std::list<QString>* names = new std::list<QString>(m_inputPins.size());
+    for( InputPinMap::const_iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end(); ++itr )
+    {
+        names->push_back(itr->first);
+    }
+    return names;
+}
+
+std::list<QString>* PipelineElement::getOutputPinNames() const
+{
+    std::list<QString>* names = new std::list<QString>(m_outputPins.size());
+    for( OutputPinMap::const_iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
+    {
+        names->push_back(itr->first);
+    }
+    return names;
+}
+
+
 
 
 std::list<QString> PipelineElement::types()
