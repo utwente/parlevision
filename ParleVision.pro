@@ -48,7 +48,8 @@ SOURCES += src/main.cpp \
     src/plvgui/ImageConverter.cpp \
     src/plvgui/LibraryWidget.cpp \
     src/plvgui/PipelineScene.cpp \
-    src/plvgui/PipelineElementWidget.cpp
+    src/plvgui/PipelineElementWidget.cpp \
+    src/plvgui/LibraryElement.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \
@@ -72,7 +73,8 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/ImageConverter.h \
     include/plvgui/PipelineScene.h \
     include/plvgui/LibraryWidget.h \
-    include/plvgui/PipelineElementWidget.h
+    include/plvgui/PipelineElementWidget.h \
+    include/plvgui/LibraryElement.h
 FORMS += resources/mainwindow.ui \
     resources/librarywidget.ui
 RESOURCES += resources/icons.qrc

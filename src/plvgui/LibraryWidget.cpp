@@ -1,6 +1,7 @@
 #include "LibraryWidget.h"
 #include "ui_librarywidget.h"
 #include "PipelineElement.h"
+#include "LibraryElement.h"
 #include <QDebug>
 #include <QtGui>
 
@@ -29,13 +30,7 @@ LibraryWidget::~LibraryWidget()
 
 void LibraryWidget::addItem(QString name)
 {
-    QWidget* w = new QLabel(name, this);
-    w->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    w->setStyleSheet("background: red;");
-    w->setMinimumSize(100,40);
-    w->setMaximumSize(100,40);
-//        w->adjustSize();
-    w->resize(100,40);
+    LibraryElement* w = new LibraryElement(name, this);
     ui->container->addWidget(w);
 }
 
