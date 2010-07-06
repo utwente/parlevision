@@ -53,6 +53,8 @@ void MainWindow::initGUI()
     ui->toolBar->addAction(m_pauseAction);
     ui->toolBar->addAction(m_stopAction);
 
+    ui->view->setAcceptDrops(true);
+
     createLibraryWidget();
 
     // Restore window geometry and state

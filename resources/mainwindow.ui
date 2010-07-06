@@ -24,7 +24,7 @@
        <enum>QLayout::SetNoConstraint</enum>
       </property>
       <item>
-       <widget class="QGraphicsView" name="view">
+       <widget class="plvgui::PipelineView" name="view">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -129,6 +129,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>plvgui::PipelineView</class>
+   <extends>QGraphicsView</extends>
+   <header>plvgui/pipelineview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
