@@ -35,33 +35,29 @@ PlvPipelineElementState DummyProcessor::checkConfig()
     return PLV_PLE_STATE_READY;
 }
 
+bool DummyProcessor::isReadyForProcessing() const
+{
+    return m_inputPin->hasData();
+}
+
 void DummyProcessor::process()
 {
-
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
     RefPtr<OpenCVImage> img = m_inputPin->get();
-    if( img.isNotNull() )
-    {
-        RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get( img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
+    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
+            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
 
-        // open image for writing
-        OpenCVImageWriter writer( img2 );
-        IplImage* iplImg2 = writer.get();
+    // open for reading
+    const IplImage* iplImg1 = img->getImage();
 
-        // open for reading
-        const IplImage* iplImg1 = img->getImage();
+    // open image for writing
+    IplImage* iplImg2 = img2->getImageForWriting();
 
-        // do a flip of the image
-        cvFlip( iplImg1, iplImg2, 1);
+    // do a flip of the image
+    cvFlip( iplImg1, iplImg2, 1);
 
-        // publish the new image
-        m_outputPin->put( img2.getPtr() );
-    }
-    else
-    {
-        //TODO solve this!!!
-        qDebug( "Error, processor called with no data to process" );
-    }
+    // publish the new image
+    m_outputPin->put( img2.getPtr() );
 }

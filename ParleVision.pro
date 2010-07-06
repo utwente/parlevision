@@ -16,14 +16,11 @@ macx {
     UI_DIR = $$BUILDDIR
     DESTDIR = $$BUILDDIR
 }
+CONFIG(debug, debug|release):DEFINES += DEBUG
 
-CONFIG(debug, debug|release) {
-    DEFINES += DEBUG
- #   QMAKE_CXXFLAGS_DEBUG += -pedantic
- #       -Wunused-parameter \
- #       -Wunused-variable
-}
-
+# QMAKE_CXXFLAGS_DEBUG += -pedantic
+# -Wunused-parameter \
+# -Wunused-variable
 INCLUDEPATH += include \
     include/plvgui
 SOURCES += src/main.cpp \
@@ -72,7 +69,8 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/ImageConverter.h \
     include/plvgui/PipelineScene.h \
     include/plvgui/LibraryWidget.h \
-    include/plvgui/PipelineElementWidget.h
+    include/plvgui/PipelineElementWidget.h \
+    include/PlvExceptions.h
 FORMS += resources/mainwindow.ui \
     resources/librarywidget.ui
 RESOURCES += resources/icons.qrc

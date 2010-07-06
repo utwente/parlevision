@@ -41,16 +41,17 @@ int PinConnection::size()
     return static_cast<int>( m_queue.size() );
 }
 
-RefPtr<Data> PinConnection::get()
+RefPtr<Data> PinConnection::get() throw ( PipelineException )
 {
     QMutexLocker lock( &m_mutex );
-    if( !m_queue.empty() )
+    if( m_queue.empty() )
     {
-        RefPtr<Data> data = m_queue.front();
-        m_queue.pop();
-        return data;
+        throw PipelineException( "Illegal: method get() called on PinConnection which has no data available" );
     }
-    return 0;
+
+    RefPtr<Data> data = m_queue.front();
+    m_queue.pop();
+    return data;
 }
 
 void PinConnection::put( RefPtr<Data> data )

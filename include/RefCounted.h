@@ -9,7 +9,7 @@ namespace plv {
 
 class RefCounted
 {
-private:
+protected:
     mutable int m_referenceCount;
     mutable QMutex m_refMutex;
 

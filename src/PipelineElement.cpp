@@ -85,6 +85,12 @@ IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
     return 0;
 }
 
+bool PipelineElement::isReadyForProcessing() const
+{
+    qDebug( "Error, isReadyForProcessing not implemented by PipelineElement" );
+    return false;
+}
+
 void PipelineElement::__process()
 {
     for( InputPinMap::iterator itr = m_inputPins.begin();
@@ -94,7 +100,21 @@ void PipelineElement::__process()
         in->scope();
     }
 
-    this->process();
+    try
+    {
+        this->process();
+    }
+    catch( ... )
+    {
+        // TODO do in method
+        for( InputPinMap::iterator itr = m_inputPins.begin();
+             itr != m_inputPins.end(); ++itr )
+        {
+            RefPtr<IInputPin> in = itr->second;
+            in->unscope();
+        }
+        throw;
+    }
 
     for( InputPinMap::iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )

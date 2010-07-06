@@ -111,7 +111,25 @@ void Pipeline::run()
             ; itr != m_children.end(); ++itr )
         {
             RefPtr<PipelineElement> element = itr->second;
-            element->__process();
+            try
+            {
+                element->__process();
+            }
+            catch( PipelineException& pe )
+            {
+                qDebug() << "Uncaught exception in PipelineElement::process()"
+                         << "of type PipelineException with message: " << pe.what();
+            }
+            catch( IllegalAccessException& iae )
+            {
+                qDebug() << "Uncaught exception in PipelineElement::process()"
+                         << "of type IllegalAccessException with message: " << iae.what();
+            }
+            catch( ... )
+            {
+                qDebug() << "Uncaught exception in PipelineElement::process()"
+                         << "of unknown type.";
+            }
         }
 //        usleep(100);
         usleep(1000000/40);

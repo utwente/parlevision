@@ -10,6 +10,7 @@
 #include "PinConnection.h"
 #include "PipelineElement.h"
 #include "Types.h"
+#include "PlvExceptions.h"
 
 namespace plv
 {
@@ -63,6 +64,7 @@ namespace plv
         virtual void scope() = 0;
         virtual void unscope() = 0;
         virtual bool isConnected() const = 0;
+        virtual bool hasData() const = 0;
 
         /** @returns the std::type_info struct belonging to the type
           * this pin is initialized with. Is implemented by
@@ -73,7 +75,7 @@ namespace plv
         virtual void setConnection(PinConnection* connection) = 0;
 
     protected:
-        std::stack<Data*> m_scope;
+        std::stack< RefPtr<Data> > m_scope;
     };
 
     class IOutputPin : public Pin
@@ -113,6 +115,11 @@ namespace plv
         inline void put( RefPtr<T> data )
         {
             RefPtr<Data> untypedData = data.getPtr();
+
+            // this might be published to multiple processors which might be run in
+            // multiple threads. Make immutable to prevent writes corrupting reads
+            // in other threads.
+            untypedData->makeImmutable();
 
             emit( newData( untypedData ) );
 
@@ -190,43 +197,58 @@ namespace plv
             // release all objects
             while( !m_scope.empty() )
             {
-                Data* d = m_scope.top();
                 m_scope.pop();
-                d->dec();
             }
         }
 
-        inline void push( Data* d )
+        inline void push( RefPtr<Data> d )
         {
-            assert( d != 0 );
+            assert( d.isNotNull() );
 
             // increase ref count and store on stack
-            d->inc();
+            //d->inc();
             m_scope.push( d );
         }
 
-        T* get()
+        /** @returns true if there is a connection and that connection has data
+          * available
+          */
+        virtual bool hasData() const
         {
-            if( this->m_connection.isNotNull() &&
-                this->m_connection->hasData() )
+            if( m_connection.isNotNull() )
             {
-                Data* data = this->m_connection->get();
-                push( data );
-#ifdef DEBUG
-                // we use a dynamic cast in debug mode
-                // so we can check for correct casting
-                // at the cost of speed.
-                T* typedData = dynamic_cast<T*>( data );
-                assert( typedData != 0 );
-#else
-                // We can safely do this because this Pin is
-                // guaranteed to be connected to a Pin of the
-                // same type T.
-                T* typedData = static_cast<T*>( data );
-#endif
-                return typedData;
+                return this->m_connection->hasData();
             }
-            return 0;
+            return false;
+        }
+
+        RefPtr<T> get() throw ( PipelineException )
+        {
+            if( !(this->m_connection.isNotNull() && this->m_connection->hasData() ))
+            {
+                //return 0;
+                throw PipelineException( "Illegal: method get() called on pin which has no data available" );
+            }
+
+            RefPtr<Data> data = this->m_connection->get();
+            push( data );
+#ifdef DEBUG
+            // we use a dynamic cast in debug mode
+            // so we can check for correct casting
+            // at the cost of speed.
+            RefPtr<T> typedData = ref_ptr_dynamic_cast<T>( data );
+            if( typedData.isNull() )
+            {
+               //return 0;
+               throw PipelineException( "Data delivered to pin of incomaptible type " );
+            }
+#else
+            // We can safely do this because this Pin is
+            // guaranteed to be connected to a Pin of the
+            // same type T.
+            RefPtr<T> typedData = ref_ptr_static_cast<T>( data );
+#endif
+            return typedData;
         }
 
         /** Connects this pin through the given connection.

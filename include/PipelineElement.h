@@ -54,9 +54,12 @@ namespace plv
         IInputPin* getInputPin( const QString& name ) const;
         IOutputPin* getOutputPin( const QString& name ) const;
 
+        /** @returns true when this PipelineElement is ready for procesing */
+        virtual bool isReadyForProcessing() const;
+
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor
-          * are ready.
+          * are ready i.e. when isReadyForProcessing returns true.
           */
         virtual void process() = 0;
 

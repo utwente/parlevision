@@ -6,12 +6,14 @@
 
 #include "RefPtr.h"
 #include "RefCounted.h"
+#include "PlvExceptions.h"
 
 namespace plv
 {
     class Data;
     class IOutputPin;
     class IInputPin;
+    class PipelineException;
 
     class PinConnection : public RefCounted
     {
@@ -21,7 +23,7 @@ namespace plv
 
         bool hasData();
         int size();
-        RefPtr<Data> get();
+        RefPtr<Data> get() throw ( PipelineException );
         void put( RefPtr<Data> data );
 
     protected:

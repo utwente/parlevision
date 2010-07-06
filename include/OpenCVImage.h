@@ -9,6 +9,7 @@
 //typedef struct _IplImage IplImage;
 
 #include "Types.h"
+#include "PlvExceptions.h"
 
 #define OPENCVIMAGE_MAX_OBJECT_POOL_SIZE (1024 * 1024 * 8)
 
@@ -96,11 +97,14 @@ namespace plv
         inline int getDepth() { return m_img->depth; }
 
 
-        /** returns a const pointer to the internal IplImage. Use the OpenCVImageWriter
-          * class if you want to have non-const access to the internal IplImage,
-          * for instance for writing to the image.
+        /** returns a const pointer to the internal IplImage.
+          * TODO fix documentation
+          * Use the OpenCVImageWriter class if you want to have non-const access
+          * to the internal IplImage.
           */
         const IplImage* getImage() const { return m_img; }
+
+        IplImage* getImageForWriting() throw ( IllegalAccessException );
 
         /** @returns a deep copy of this OpenCVImage, including a copy of the internal
           * IplImage.
@@ -119,46 +123,46 @@ namespace plv
 
         virtual ~OpenCVImage();
 
-        IplImage* getImageForWriting();
-        void releaseImageForWriting();
+//        IplImage* getImageForWriting();
+//        void releaseImageForWriting();
 
     protected:
         IplImage* m_img;
-        mutable QReadWriteLock m_lock;
+        mutable QMutex m_imgLock;
     };
 
-    class OpenCVImageWriter
-    {
-    public:
-        OpenCVImageWriter( OpenCVImage* img ) :
-            m_img( img ),
-            m_iplImg( 0 )
-        {
-        }
-
-        ~OpenCVImageWriter()
-        {
-            release();
-        }
-
-        inline IplImage* get()
-        {
-            if( m_iplImg == 0 )
-                m_iplImg = m_img->getImageForWriting();
-            return m_iplImg;
-        }
-
-        inline void release()
-        {
-            if( m_iplImg != 0 )
-                m_img->releaseImageForWriting();
-            m_iplImg = 0;
-        }
-
-    protected:
-        OpenCVImage* m_img;
-        IplImage* m_iplImg;
-    };
+//    class OpenCVImageWriter
+//    {
+//    public:
+//        OpenCVImageWriter( OpenCVImage* img ) :
+//            m_img( img ),
+//            m_iplImg( 0 )
+//        {
+//        }
+//
+//        ~OpenCVImageWriter()
+//        {
+//            release();
+//        }
+//
+//        inline IplImage* get()
+//        {
+//            if( m_iplImg == 0 )
+//                m_iplImg = m_img->getImageForWriting();
+//            return m_iplImg;
+//        }
+//
+//        inline void release()
+//        {
+//            if( m_iplImg != 0 )
+//                m_img->releaseImageForWriting();
+//            m_iplImg = 0;
+//        }
+//
+//    protected:
+//        OpenCVImage* m_img;
+//        IplImage* m_iplImg;
+//    };
 }
 
 #endif

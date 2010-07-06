@@ -17,6 +17,9 @@ namespace plv {
 
         virtual PlvPipelineElementState init();
         virtual PlvPipelineElementState checkConfig();
+
+        virtual bool isReadyForProcessing() const;
+
         virtual void process();
 
     private:

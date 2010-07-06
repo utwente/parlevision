@@ -104,7 +104,6 @@ OpenCVImage* OpenCVImageFactory::getFromBuffer( IplImage* buffer, bool own )
         img = getOrCreate( buffer->width, buffer->height,
                            buffer->depth, buffer->nChannels);
         cvCopyImage( buffer, img->getImageForWriting() );
-        img->releaseImageForWriting();
     }
     else
     {
@@ -143,6 +142,9 @@ OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth,
             current->isCompatible( width, height, depth, channels ) )
         {
             image = current;
+
+            // reset mutable state so this image can be freely written to
+            image->makeMutable();
         }
     }
 
@@ -158,6 +160,7 @@ OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth,
     }
 
     assert( image != 0 );
+    assert( image->isMutable() );
 
     return image;
 }
@@ -176,28 +179,24 @@ OpenCVImage::~OpenCVImage()
     m_img = 0;
 }
 
+IplImage* OpenCVImage::getImageForWriting() throw ( IllegalAccessException )
+{
+    if( !isMutable() )
+    {
+        throw IllegalAccessException( "Tried to access image data on an immutable image." );
+    }
+    return m_img;
+}
+
 OpenCVImage* OpenCVImage::deepCopy() const
 {
-    QReadLocker lock( &m_lock );
+    QMutexLocker lock( &m_imgLock );
 
     OpenCVImage* img = OpenCVImageFactory::instance()->get( m_img->width, m_img->height,
                                                             m_img->depth, m_img->nChannels );
     IplImage* iplimg = img->getImageForWriting();
     cvCopyImage( m_img, iplimg );
-    img->releaseImageForWriting();
-
     return img;
-}
-
-IplImage* OpenCVImage::getImageForWriting()
-{
-    m_lock.lockForWrite();
-    return m_img;
-}
-
-void OpenCVImage::releaseImageForWriting()
-{
-    m_lock.unlock();
 }
 
 int OpenCVImage::size() const
@@ -208,7 +207,7 @@ int OpenCVImage::size() const
 
 bool OpenCVImage::isCompatible( int width, int height, int depth, int channels )
 {
-    QReadLocker lock( &m_lock );
+    QMutexLocker lock( &m_imgLock );
 
     if( m_img == 0 )
         return false;
