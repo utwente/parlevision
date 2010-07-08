@@ -18,6 +18,12 @@ namespace plv
         IllegalAccessException( const std::string& str ) : std::runtime_error( str ) {};
     };
 
+    class DataFormatException : public PipelineException
+    {
+    public:
+        DataFormatException( const std::string& msg ) : PipelineException( msg ) {};
+    };
+
 }
 
 
