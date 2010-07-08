@@ -45,27 +45,27 @@ void PipelineElement::setPipeline(Pipeline* parent)
     m_parent = parent;
 }
 
-void PipelineElement::addInputPin( IInputPin* pin )
+void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentException)
 {
     InputPinMap::iterator itr = m_inputPins.find( pin->getName() );
     if( itr != m_inputPins.end() )
     {
-        qDebug() << "Error: tried to insert pin with duplicate name"
-                << pin->getName() << ".";
-        return;
+        QString err = "Tried to add input pin with name which already exists";
+        err += pin->getName();
+        throw IllegalArgumentException( err.toStdString() );
     }
     RefPtr<IInputPin> rpin( pin );
     m_inputPins.insert( std::make_pair( pin->getName(), rpin ));
 }
 
-void PipelineElement::addOutputPin( IOutputPin* pin )
+void PipelineElement::addOutputPin( IOutputPin* pin ) throw (IllegalArgumentException)
 {
     OutputPinMap::iterator itr = m_outputPins.find( pin->getName() );
     if( itr != m_outputPins.end() )
     {
-        qDebug() << "Error: tried to insert pin with duplicate name"
-                << pin->getName() << ".";
-        return;
+        QString err = "Tried to add output pin with name which already exists";
+        err += pin->getName();
+        throw IllegalArgumentException( err.toStdString() );
     }
     RefPtr<IOutputPin> rpin( pin );
     m_outputPins.insert( std::make_pair( pin->getName(), rpin ));

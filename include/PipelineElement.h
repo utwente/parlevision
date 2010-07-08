@@ -8,6 +8,7 @@
 #include <QMetaType>
 
 #include "RefPtr.h"
+#include "PlvExceptions.h"
 
 namespace plv
 {
@@ -22,22 +23,20 @@ namespace plv
         PLV_PLE_STATE_READY
     } PlvPipelineElementState;
 
-    class ElementCreationException : public std::runtime_error
-    {
-    public:
-        ElementCreationException(std::string msg)
-            : std::runtime_error(msg) {}
-    };
-
     class PipelineElement : public QObject, public RefCounted
     {
+        /** inherits from QObject thus Q_OBJECT macro is necessary */
         Q_OBJECT
 
+        /** typedefs to make code more readable */
         typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
         typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
 
     protected:
+        /** map which contains the input pins identified and indexed by their name */
         InputPinMap  m_inputPins;
+
+        /** map which contains the output pins identified and indexed by their name */
         OutputPinMap m_outputPins;
 
     public:
@@ -55,37 +54,55 @@ namespace plv
           * Should this be reentrant?
           */
         virtual PlvPipelineElementState init() = 0;
-        virtual PlvPipelineElementState checkConfig() = 0;
 
-        void addInputPin( IInputPin* pin );
-        void addOutputPin( IOutputPin* pin );
+        /** Adds the input pin to this processing element.
+          * @throws IllegalArgumentException if an input pin with
+          * the same name already exists
+          */
+        void addInputPin( IInputPin* pin ) throw (IllegalArgumentException);
 
+        /** Adds the output pin to this processing element.
+          * @throws IllegalArgumentException if an input pin with
+          * the same name already exists
+          */
+        void addOutputPin( IOutputPin* pin ) throw (IllegalArgumentException);
+
+        /** @returns the input pin with that name, or null if none exists */
         IInputPin* getInputPin( const QString& name ) const;
+
+        /** @returns the ouput pin with that name, or null if none exists */
         IOutputPin* getOutputPin( const QString& name ) const;
 
-        /** @returns true when this PipelineElement is ready for procesing */
+        /** @returns true when this PipelineElement is ready for procesing, which
+          * means that the process method is allowed to be called by the scheduler. This
+          * method is necessary to support processors which do not require input to be
+          * available on all defined pins and hence makes it relatively easy to support
+          * asynchronous events using normal pipeline connections. Also, processors could
+          * be implemented as state machines, using pipeline connections as change of
+          * state signals. For instance, one could design a processor which does A when
+          * the light is on, and B when the light is not on, where the light state is
+          * connected by a normal processor connection.
+          */
         virtual bool isReadyForProcessing() const;
 
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor
           * are ready i.e. when isReadyForProcessing returns true.
           */
-        virtual void process() = 0;
-
-
+       virtual void process() = 0;
 
         /** Get a list of all known PipelineElement Type names
-          */
+        */
         static std::list<QString> types();
 
         /** Register the given type as a PipelineElement Type.
-          * The type needs to be known to Qt's MetaType system,
-          * so you will likely rarely call this yourself.
-          * Use one of the plvRegisterPipelineElement macros instead.
-          * @require typeName was not registered to PipelineElement before.
-          * @require typeName is a type registered to the Qt MetaType system
-          *     e.g. QMetaType::type(typeName) returns a valid ID
-          */
+        * The type needs to be known to Qt's MetaType system,
+        * so you will likely rarely call this yourself.
+        * Use one of the plvRegisterPipelineElement macros instead.
+        * @require typeName was not registered to PipelineElement before.
+        * @require typeName is a type registered to the Qt MetaType system
+        *     e.g. QMetaType::type(typeName) returns a valid ID
+        */
         static int registerType(QString typeName);
 
 

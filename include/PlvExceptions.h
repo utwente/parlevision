@@ -18,6 +18,19 @@ namespace plv
         IllegalAccessException( const std::string& str ) : std::runtime_error( str ) {};
     };
 
+    class IllegalArgumentException : public std::runtime_error
+    {
+    public:
+        IllegalArgumentException( const std::string& str ) : std::runtime_error( str ) {};
+    };
+
+    class ElementCreationException : public std::runtime_error
+    {
+    public:
+        ElementCreationException(std::string msg)
+            : std::runtime_error(msg) {}
+    };
+
 }
 
 
