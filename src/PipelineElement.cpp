@@ -24,6 +24,11 @@ PipelineElement::~PipelineElement()
 }
 
 PipelineElement::PipelineElement(const PipelineElement &other)
+    : QObject(),
+        RefCounted(other),
+        m_inputPins(other.m_inputPins),
+        m_outputPins(other.m_outputPins),
+        m_parent(other.m_parent)
 {
 }
 
