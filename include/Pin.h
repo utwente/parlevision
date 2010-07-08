@@ -27,7 +27,7 @@ namespace plv
             assert( m_owner.isNotNull() );
         }
 
-        const QString& getName() { return m_name; }
+        const QString& getName() const { return m_name; }
 
     protected:
          /** the name of this Pin e.g. "BlackAndWhite" */

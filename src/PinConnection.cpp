@@ -59,3 +59,13 @@ void PinConnection::put( RefPtr<Data> data )
     QMutexLocker lock( &m_mutex );
     m_queue.push( data );
 }
+
+RefPtr<const IOutputPin> PinConnection::fromPin() const
+{
+    return RefPtr<const IOutputPin>(m_producer);
+}
+
+RefPtr<const IInputPin>  PinConnection::toPin() const
+{
+    return RefPtr<const IInputPin>(m_consumer);
+}
