@@ -11,7 +11,7 @@ using namespace plv;
 #define OUTPUT_PIN_NAME "output"
 
 CameraProducer::CameraProducer() :
-        m_camera(new OpenCVCamera()),
+        m_camera( new OpenCVCamera() ),
         m_lastProcessedId( 0 )
 {
     // we have one output pin
@@ -72,11 +72,11 @@ void CameraProducer::newFrame( RefPtr<Data> frame )
     //m_frameReady.wakeAll();
 }
 
-PlvPipelineElementState CameraProducer::init()
+bool CameraProducer::init()
 {
-    if( m_camera->init() != 0 )
+    if( !m_camera->init() )
     {
-        return PLV_PLE_STATE_NOT_READY;
+        return false;
     }
 
     m_camera->setDimensions( 640, 480 );
@@ -96,15 +96,27 @@ PlvPipelineElementState CameraProducer::init()
     // unlock it here
     m_frameMutex.unlock();
 
-    return PLV_PLE_STATE_READY;
+    return true;
 }
 
-PlvPipelineElementState CameraProducer::checkConfig()
+void CameraProducer::start()
 {
-    if( m_camera->getState() != OpenCVCamera::CAM_RUNNING )
-    {
-        return PLV_PLE_STATE_NOT_READY;
-    }
-    return PLV_PLE_STATE_READY;
+    // TODO
 }
 
+void CameraProducer::stop()
+{
+    // TODO
+}
+
+bool CameraProducer::isBootstrapped() const
+{
+    // TODO
+    return true;
+}
+
+bool CameraProducer::isReadyForProcessing() const
+{
+    // TODO
+    return true;
+}

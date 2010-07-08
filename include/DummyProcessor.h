@@ -16,12 +16,11 @@ namespace plv {
         DummyProcessor();
         ~DummyProcessor();
 
-        virtual PlvPipelineElementState init();
-        virtual PlvPipelineElementState checkConfig();
-
+        virtual bool init();
+        virtual bool isBootstrapped() const;
         virtual bool isReadyForProcessing() const;
-
         virtual void process();
+
 
     private:
         InputPin<OpenCVImage>* m_inputPin;

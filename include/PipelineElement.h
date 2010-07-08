@@ -16,12 +16,12 @@ namespace plv
     class IOutputPin;
     class Pipeline;
 
-    typedef enum _PlvPipelineElementState
-    {
-        PLV_PLE_STATE_UNINITIALIZED,
-        PLV_PLE_STATE_NOT_READY,
-        PLV_PLE_STATE_READY
-    } PlvPipelineElementState;
+//    typedef enum _PlvPipelineElementState
+//    {
+//        PLV_PLE_STATE_UNINITIALIZED,
+//        PLV_PLE_STATE_NOT_READY,
+//        PLV_PLE_STATE_READY
+//    } PlvPipelineElementState;
 
     class PipelineElement : public QObject, public RefCounted
     {
@@ -52,8 +52,9 @@ namespace plv
         /** Initialise the element so it is ready to receive
           * process() calls.
           * Should this be reentrant?
+          * @return true when initialization succesful
           */
-        virtual PlvPipelineElementState init() = 0;
+        virtual bool init() = 0;
 
         /** Adds the input pin to this processing element.
           * @throws IllegalArgumentException if an input pin with
@@ -89,7 +90,16 @@ namespace plv
           * the light is on, and B when the light is not on, where the light state is
           * connected by a normal processor connection.
           */
-        virtual bool isReadyForProcessing() const;
+        virtual bool isReadyForProcessing() const = 0;
+
+        /** @returns true when bootstrapping of this processor is complete.
+          * Some pipelines need to be bootstrapped before they generate valid output.
+          * For example, a processor which calculates the history over 5 consecutive
+          * frames needs to have seen at least 5 frames for its output to be valid.
+          * This method should return true when the requirements which are needed
+          * for valid output have been met.
+          */
+        virtual bool isBootstrapped() const = 0;
 
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor
