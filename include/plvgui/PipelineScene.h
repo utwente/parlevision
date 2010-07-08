@@ -2,24 +2,26 @@
 #define PIPELINESCENE_H
 
 #include <QGraphicsScene>
+#include <QHash>
+
 #include "RefPtr.h"
 #include "Pipeline.h"
-#include "PipelineElement.h"
 #include "PinConnection.h"
 
 
 class QObject;
 
 namespace plv {
+    class PipelineElement;
 }
 
 namespace plvgui {
+    class PipelineElementWidget;
 
     /** A QGraphicsScene that wraps a Pipeline
       * to provide a graphical canvas for all the elements to live on.
       * This is only the model, it needs a QGraphicsView to render.
       */
-
     class PipelineScene : public QGraphicsScene
     {
         Q_OBJECT
@@ -37,6 +39,9 @@ namespace plvgui {
 
     private:
         plv::RefPtr<plv::Pipeline> m_pipeline;
+        QHash<plv::PipelineElement*, PipelineElementWidget*> elementWidgets;
+
+        PipelineElementWidget* getWidgetFor(plv::PipelineElement* e);
 
     };
 

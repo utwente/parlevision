@@ -47,7 +47,8 @@ SOURCES += src/main.cpp \
     src/plvgui/PipelineScene.cpp \
     src/plvgui/PipelineElementWidget.cpp \
     src/plvgui/LibraryElement.cpp \
-    src/plvgui/PipelineView.cpp
+    src/plvgui/PipelineView.cpp \
+    src/plvgui/ConnectionLine.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \
@@ -74,7 +75,8 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/PipelineElementWidget.h \
     include/PlvExceptions.h \
     include/plvgui/LibraryElement.h \
-    include/plvgui/PipelineView.h
+    include/plvgui/PipelineView.h \
+    include/plvgui/ConnectionLine.h
 FORMS += resources/mainwindow.ui \
     resources/librarywidget.ui
 RESOURCES += resources/icons.qrc

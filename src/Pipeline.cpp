@@ -140,6 +140,6 @@ void Pipeline::run()
         }
 //        usleep(100);
         usleep(1000000/40);
-        usleep( 1000000 );
+//        usleep( §§1000000 );
     }
 }

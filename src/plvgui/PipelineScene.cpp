@@ -6,6 +6,8 @@
 #include "Pin.h"
 #include "PinConnection.h"
 #include "PipelineElementWidget.h"
+#include "ConnectionLine.h"
+#include "PlvExceptions.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -54,8 +56,13 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
 //    item->setFlag(QGraphicsItem::ItemIsMovable, true);
 //    item->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
+    if(this->elementWidgets.contains(e))
+        throw new PipelineException("Cannot add duplicate pipeline element to the scene.");
+
+
     PipelineElementWidget* pew = new PipelineElementWidget(e.getPtr());
     this->addItem(pew);
+    this->elementWidgets[e] = pew;
     pew->setFlag(QGraphicsItem::ItemIsMovable, true);
     pew->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -72,7 +79,18 @@ void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
     qDebug() << "PipelineScene: adding connection ";
     RefPtr<const Pin> from = c->fromPin().getPtr();
     const QString& desc = from->getName();
-    QGraphicsTextItem* item = this->addText(desc);
+//    QGraphicsTextItem* item = this->addText(desc);
+    ConnectionLine* item = new ConnectionLine(getWidgetFor(c->fromPin()->getOwner()),
+                                              c->fromPin()->getName(),
+                                              getWidgetFor(c->toPin()->getOwner()),
+                                              c->toPin()->getName(),
+                                              getWidgetFor(c->toPin()->getOwner()),
+                                              this);
     item->setFlag(QGraphicsItem::ItemIsMovable, true);
     item->setFlag(QGraphicsItem::ItemIsSelectable, true);
+}
+
+PipelineElementWidget* PipelineScene::getWidgetFor(PipelineElement* e)
+{
+    return elementWidgets[e];
 }
