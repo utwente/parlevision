@@ -96,12 +96,6 @@ IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
     return 0;
 }
 
-bool PipelineElement::isReadyForProcessing() const
-{
-    qDebug( "Error, isReadyForProcessing not implemented by PipelineElement" );
-    return false;
-}
-
 void PipelineElement::__process()
 {
     for( InputPinMap::iterator itr = m_inputPins.begin();

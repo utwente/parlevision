@@ -30,6 +30,13 @@ namespace plv
             : std::runtime_error(msg) {}
     };
 
+    class InstantiationException : public std::runtime_error
+    {
+    public:
+        InstantiationException(std::string msg)
+            : std::runtime_error(msg) {}
+    };
+
 //    class DataFormatException : public PipelineException
 //    {
 //    public:

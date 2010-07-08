@@ -20,10 +20,8 @@ using namespace plvgui;
 
 void initAndStartPipeline(Pipeline* pipeline)
 {
-    PlvPipelineElementState state = pipeline->init();
-    assert(state == PLV_PLE_STATE_READY);
-
-//    pipeline->start();
+    bool state = pipeline->init();
+    assert(state);
 }
 
 int main(int argc, char **argv)

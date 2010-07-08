@@ -13,7 +13,8 @@
 #include "RefCounted.h"
 #include "RefPtr.h"
 
-namespace plv {
+namespace plv
+{
 
     class OpenCVCamera : public QThread, public RefCounted
 	{
@@ -29,14 +30,13 @@ namespace plv {
 			CAM_PAUSED
 		};
 
-		OpenCVCamera( int id = 0 );
+        /** Constructor default to OpenCV camera with id 0. */
+        OpenCVCamera( int id = 0 );
 
-		/** Initalizes the camera. Returns 0 on succes, a negative error code
-		  * on failure.
-		  */
-		int init();
+        /** Initializes camera. Allocates resources. */
+        bool init();
 
-		/** Returns the camera ID. This is a number equal to or above 0. The
+        /** Returns the camera ID. This is a number equal to or above 0. The
 		  * default is 0.
 		  */
 		int getId() const;
@@ -45,17 +45,16 @@ namespace plv {
 		//const QString& getName();
 
 		/** Returns true if camera is initialized, false if not */
-		bool isInitialized() const;
+        //bool isInitialized() const;
 
 		/** Returns the state of the camera. See cameraState enum
 		 *  for possible camera states.
 		 */
 		CameraState getState() const;
 
-
 		/** Sets the camera dimensions. Only 4:3 resolutions are supported
 		  * by the OpenCV highgui library.
-		  * \return true on succesful resolution switch, or if resolution is
+          * @return true on succesful resolution switch, or if resolution is
 		  * already as requested. False when resolution switch failed or resolution
 		  * is invalid.
 		  */

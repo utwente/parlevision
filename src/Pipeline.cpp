@@ -82,19 +82,20 @@ void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
     emit(connectionAdded(connection));
 }
 
-PlvPipelineElementState Pipeline::init()
+// TODO maybe refactor so we can report the processor which fails to initialize
+bool Pipeline::init()
 {
     for( PipelineElementMap::iterator itr = m_children.begin()
         ; itr != m_children.end(); ++itr )
     {
         RefPtr<PipelineElement> element = itr->second;
-        PlvPipelineElementState state = element->init();
-        if(state != PLV_PLE_STATE_READY)
+        bool state = element->init();
+        if( !state )
         {
-            return PLV_PLE_STATE_UNINITIALIZED;
+            return false;
         }
     }
-    return PLV_PLE_STATE_READY;
+    return true;
 }
 
 void Pipeline::start()
@@ -140,6 +141,5 @@ void Pipeline::run()
         }
 //        usleep(100);
         usleep(1000000/40);
-//        usleep( §§1000000 );
     }
 }

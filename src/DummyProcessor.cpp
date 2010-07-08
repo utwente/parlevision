@@ -25,19 +25,19 @@ DummyProcessor::~DummyProcessor()
     delete m_outputPin;
 }
 
-PlvPipelineElementState DummyProcessor::init()
+bool DummyProcessor::init()
 {
-    return PLV_PLE_STATE_READY;
-}
-
-PlvPipelineElementState DummyProcessor::checkConfig()
-{
-    return PLV_PLE_STATE_READY;
+    return true;
 }
 
 bool DummyProcessor::isReadyForProcessing() const
 {
     return m_inputPin->hasData();
+}
+
+bool DummyProcessor::isBootstrapped() const
+{
+    return true;
 }
 
 void DummyProcessor::process()

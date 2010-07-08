@@ -21,15 +21,16 @@ OpenCVCamera::~OpenCVCamera()
     releaseCapture();
 }
 
-int OpenCVCamera::init()
+bool OpenCVCamera::init()
 {
-    qDebug() << "initialising camera";
+    qDebug() << "Initialising OpenCV camera";
+
     QMutexLocker lock( &m_opencv_mutex );
 
-    m_captureDevice = cvCreateCameraCapture(0);
+    m_captureDevice = cvCreateCameraCapture( m_id );
     if( m_captureDevice == 0 )
     {
-        return -1;
+        return false;
     }
 
     // get width and height
@@ -38,7 +39,7 @@ int OpenCVCamera::init()
 
     m_state = CAM_INITIALIZED;
     qDebug() << "camera initialised";
-    return 0;
+    return true;
 }
 
 void OpenCVCamera::run()
@@ -206,14 +207,7 @@ OpenCVImage* OpenCVCamera::getFrame()
 
     // copy the image, since the pointer becomes invalid on another
     // call to cvGrabFrame() and this pointer is passed to the pipeline
-
     // get a reused buffer
-//    OpenCVImage* ocvimg = OpenCVImageFactory::instance()->get( image->width,
-//                                                               image->height,
-//                                                               image->depth,
-//                                                               image->nChannels );
-//  cvCopy( image, ocvimg->getImage() );
-
     OpenCVImage* ocvimg = OpenCVImageFactory::instance()->getFromBuffer( image );
     return ocvimg;
 }

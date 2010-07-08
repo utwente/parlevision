@@ -20,10 +20,15 @@ namespace plv {
         virtual ~CameraProducer();
         CameraProducer(const CameraProducer&);
 
-        virtual void process();
+        /** inherited by PipelineProducer */
+        virtual void start();
+        virtual void stop();
 
-        virtual PlvPipelineElementState init();
-        virtual PlvPipelineElementState checkConfig();
+        /** inherited by PipelineElement */
+        virtual bool init();
+        virtual bool isBootstrapped() const;
+        virtual bool isReadyForProcessing() const;
+        virtual void process();
 
     protected:
 

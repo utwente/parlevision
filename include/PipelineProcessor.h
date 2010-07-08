@@ -12,9 +12,11 @@ namespace plv {
         ~PipelineProcessor();
 
         // pure virtual methods inherited from PipelineElement
-        // need to be implemented in this class
-        virtual PlvPipelineElementState init() = 0;
-        virtual PlvPipelineElementState checkConfig() = 0;
+        // need to be implemented in derivations of this class
+        virtual bool init() = 0;
+        virtual bool isReadyForProcessing() const = 0;
+        virtual bool isBootstrapped() const = 0;
+        virtual void process() = 0;
 
     };
 

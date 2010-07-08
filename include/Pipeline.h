@@ -26,7 +26,7 @@ namespace plv
 
         /** Initialise this Pipeline. Not yet reentrant
           */
-        PlvPipelineElementState init();
+        bool init();
 
         /** Add the PipelineElement to this Pipeline.
           * This results in the Pipeline calling setPipeline on the element
