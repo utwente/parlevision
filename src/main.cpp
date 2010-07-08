@@ -23,7 +23,7 @@ void initAndStartPipeline(Pipeline* pipeline)
     PlvPipelineElementState state = pipeline->init();
     assert(state == PLV_PLE_STATE_READY);
 
-    pipeline->start();
+//    pipeline->start();
 }
 
 int main(int argc, char **argv)
