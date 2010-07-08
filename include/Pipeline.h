@@ -77,6 +77,10 @@ namespace plv
         void elementRemoved(plv::RefPtr<plv::PipelineElement>);
         void elementChanged(plv::RefPtr<plv::PipelineElement>);
 
+        void connectionAdded(plv::RefPtr<plv::PinConnection>);
+        void connectionRemoved(plv::RefPtr<plv::PinConnection>);
+        void connectionChanged(plv::RefPtr<plv::PinConnection>);
+
     public slots:
         void start();
         void stop();

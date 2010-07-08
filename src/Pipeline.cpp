@@ -73,6 +73,7 @@ void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
 {
     RefPtr<PinConnection> connection = new PinConnection(outputPin, inputPin);
     m_connections.push_back(connection);
+    emit(connectionAdded(connection));
 }
 
 PlvPipelineElementState Pipeline::init()
