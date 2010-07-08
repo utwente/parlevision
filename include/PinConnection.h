@@ -26,6 +26,9 @@ namespace plv
         RefPtr<Data> get() throw ( PipelineException );
         void put( RefPtr<Data> data );
 
+        RefPtr<const IOutputPin> fromPin() const;
+        RefPtr<const IInputPin>  toPin() const;
+
     protected:
         RefPtr<IOutputPin> m_producer;
         RefPtr<IInputPin>  m_consumer;

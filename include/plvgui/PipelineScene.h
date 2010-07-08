@@ -5,6 +5,7 @@
 #include "RefPtr.h"
 #include "Pipeline.h"
 #include "PipelineElement.h"
+#include "PinConnection.h"
 
 
 class QObject;
@@ -31,10 +32,11 @@ namespace plvgui {
         void add(plv::PipelineElement* e);
         void add(plv::RefPtr<plv::PipelineElement> e);
 
+        void add(plv::PinConnection* c);
+        void add(plv::RefPtr<plv::PinConnection> c);
+
     private:
         plv::RefPtr<plv::Pipeline> m_pipeline;
-
-
 
     };
 
