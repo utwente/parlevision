@@ -86,6 +86,8 @@ void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
                                               c->toPin()->getName(),
                                               getWidgetFor(c->toPin()->getOwner()),
                                               this);
+    getWidgetFor(c->fromPin()->getOwner())->addLine(item, c->fromPin()->getName());
+    getWidgetFor(c->toPin()->getOwner())->addLine(item, c->fromPin()->getName());
     item->setFlag(QGraphicsItem::ItemIsMovable, true);
     item->setFlag(QGraphicsItem::ItemIsSelectable, true);
 }

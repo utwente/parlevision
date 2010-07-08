@@ -4,6 +4,7 @@
 #include <QtGui>
 
 #include "PipelineElement.h"
+#include "ConnectionLine.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -55,4 +56,23 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
     layout->addItem(proxy);
 
     this->setLayout(layout);
+}
+
+void PipelineElementWidget::addLine(ConnectionLine *line, QString pin)
+{
+    pin;
+    this->lines.append(line);
+}
+
+QVariant PipelineElementWidget::itemChange(GraphicsItemChange change,
+                     const QVariant &value)
+{
+    if (change == QGraphicsItem::ItemPositionChange) {
+        foreach (ConnectionLine* line, lines) {
+            line->updatePosition();
+        }
+        qDebug() << "Element changed";
+    }
+
+    return value;
 }
