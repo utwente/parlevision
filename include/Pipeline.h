@@ -52,7 +52,11 @@ namespace plv
         /** Get all the PipelineElements that make up this Pipeline.
           * This method is slow and uncached.
           */
-        std::list< RefPtr<PipelineElement> > getChildren();
+        std::list< RefPtr<PipelineElement> > getChildren() const;
+
+        /** Get all the PinConnections that make up this Pipeline.
+          */
+        const std::list< RefPtr<PinConnection> >& getConnections() const;
 
         /** Create a PinConnnection between the given InputPin and outputPin
           */
@@ -76,6 +80,10 @@ namespace plv
         void elementAdded(plv::RefPtr<plv::PipelineElement>);
         void elementRemoved(plv::RefPtr<plv::PipelineElement>);
         void elementChanged(plv::RefPtr<plv::PipelineElement>);
+
+        void connectionAdded(plv::RefPtr<plv::PinConnection>);
+        void connectionRemoved(plv::RefPtr<plv::PinConnection>);
+        void connectionChanged(plv::RefPtr<plv::PinConnection>);
 
     public slots:
         void start();

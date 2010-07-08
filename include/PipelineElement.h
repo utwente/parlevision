@@ -73,6 +73,12 @@ namespace plv
         /** @returns the ouput pin with that name, or null if none exists */
         IOutputPin* getOutputPin( const QString& name ) const;
 
+        /** @returns a list of names of input pins added to this PipelineElement */
+        std::list<QString>* getInputPinNames() const;
+
+        /** @returns a list of names of output pins added to this PipelineElement */
+        std::list<QString>* getOutputPinNames() const;
+
         /** @returns true when this PipelineElement is ready for procesing, which
           * means that the process method is allowed to be called by the scheduler. This
           * method is necessary to support processors which do not require input to be
@@ -89,7 +95,7 @@ namespace plv
           * is called by the PipelineScheduler when inputs of this processor
           * are ready i.e. when isReadyForProcessing returns true.
           */
-       virtual void process() = 0;
+        virtual void process() = 0;
 
         /** Get a list of all known PipelineElement Type names
         */

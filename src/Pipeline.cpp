@@ -1,6 +1,7 @@
 #include "Pipeline.h"
 
 #include <QDebug>
+#include <list>
 
 #include "PipelineElement.h"
 #include "PipelineProcessor.h"
@@ -55,12 +56,12 @@ void Pipeline::remove( int id )
     }
 }
 
-std::list< RefPtr<PipelineElement> > Pipeline::getChildren()
+std::list< RefPtr<PipelineElement> > Pipeline::getChildren() const
 {
     //TODO implement this properly when I have access to documentation for std::map and std::list
     std::list< RefPtr<PipelineElement> > elements;
 
-    for( PipelineElementMap::iterator itr = m_children.begin()
+    for( PipelineElementMap::const_iterator itr = m_children.begin()
         ; itr != m_children.end(); ++itr )
     {
         elements.push_back(itr->second);
@@ -69,10 +70,16 @@ std::list< RefPtr<PipelineElement> > Pipeline::getChildren()
     return elements;
 }
 
+const std::list< RefPtr<PinConnection> >& Pipeline::getConnections() const
+{
+    return m_connections;
+}
+
 void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
 {
     RefPtr<PinConnection> connection = new PinConnection(outputPin, inputPin);
     m_connections.push_back(connection);
+    emit(connectionAdded(connection));
 }
 
 PlvPipelineElementState Pipeline::init()
