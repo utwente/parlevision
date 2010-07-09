@@ -1,9 +1,12 @@
 #ifndef PIPELINEELEMENTWIDGET_H
 #define PIPELINEELEMENTWIDGET_H
 
-#include <QGraphicsWidget>
+#include <QGraphicsItemGroup>
 #include <QString>
 
+#include "RefPtr.h"
+
+class QGraphicsSceneDragDropEvent;
 class QVariant;
 
 namespace plv {
@@ -13,7 +16,7 @@ namespace plv {
 namespace plvgui {
     class ConnectionLine;
 
-    class PipelineElementWidget : public QGraphicsWidget
+    class PipelineElementWidget : public QGraphicsItemGroup
     {
     public:
         PipelineElementWidget(plv::PipelineElement* element,
@@ -27,6 +30,9 @@ namespace plvgui {
                              const QVariant &value);
 
         QList<ConnectionLine*> lines;
+        plv::RefPtr<plv::PipelineElement> element;
+
+        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     };
 }
 
