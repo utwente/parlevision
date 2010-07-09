@@ -45,7 +45,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 //    pinsContainer->addItem(outputPinsContainer);
 
 
-/*
+
 //    std::list<QString>* inPinNames = element->getInputPinNames();
     std::list< RefPtr<IInputPin> >* inPins = element->getInputPins();
     qDebug() << "inpins: " << inPins->size();
@@ -57,8 +57,6 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         y+=10;
 //        inputPinsContainer->addWidget(new QLabel(*itr));;
         qDebug() << "Pin " << y << ": " << (int)(*itr).getPtr();
-        IInputPin* p = *itr;
-        assert(p != 0);
         RefPtr<IInputPin> pin = *itr;
         assert(pin.isNotNull());
         PinWidget* label = new PinWidget(this, pin);
@@ -66,19 +64,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         label->translate(0, y);
         this->addToGroup(label);
     }
-*/
 
-    int y = 0;
-    std::list<QString>* inputPinNames = element->getInputPinNames();
-    for(std::list<QString>::iterator itr = inputPinNames->begin();
-        itr != inputPinNames->end();
-        ++itr)
-    {
-        y+=10;
-        QGraphicsTextItem* label = new QGraphicsTextItem(*itr);
-        label->translate(0, y);
-        this->addToGroup(label);
-    }
 
     y = 0;
     std::list<QString>* outPinNames = element->getOutputPinNames();

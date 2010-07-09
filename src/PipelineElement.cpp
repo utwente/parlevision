@@ -83,6 +83,7 @@ IInputPin* PipelineElement::getInputPin( const QString& name ) const
     {
         return itr->second.getPtr();
     }
+    qDebug() << "could not find pin named " << name;
     return 0;
 }
 
@@ -136,18 +137,20 @@ void PipelineElement::__process()
 
 std::list<QString>* PipelineElement::getInputPinNames() const
 {
-    std::list<QString>* names = new std::list<QString>(m_inputPins.size());
+    std::list<QString>* names = new std::list<QString>();
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
-        names->push_back(itr->first);
+        QString name = itr->first;
+        qDebug() << "listing " << name;
+        names->push_back(name);
     }
     return names;
 }
 
 std::list< RefPtr<IInputPin> >* PipelineElement::getInputPins()
 {
-    std::list< RefPtr<IInputPin> >* pins = new std::list< RefPtr<IInputPin> >(m_inputPins.size());
+    std::list< RefPtr<IInputPin> >* pins = new std::list< RefPtr<IInputPin> >();
 
     for( InputPinMap::iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
@@ -161,7 +164,7 @@ std::list< RefPtr<IInputPin> >* PipelineElement::getInputPins()
 
 std::list<QString>* PipelineElement::getOutputPinNames() const
 {
-    std::list<QString>* names = new std::list<QString>(m_outputPins.size());
+    std::list<QString>* names = new std::list<QString>();
     for( OutputPinMap::const_iterator itr = m_outputPins.begin();
          itr != m_outputPins.end(); ++itr )
     {

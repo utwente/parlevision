@@ -11,7 +11,6 @@ PinWidget::PinWidget(PipelineElementWidget *parent, RefPtr<IInputPin> pin)
     m_parent(parent),
     m_pin(pin)
 {
-    m_pin = ref_ptr_static_cast<Pin>(pin);
     assert(m_pin.isNotNull());
     init(true);
 }
