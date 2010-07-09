@@ -21,6 +21,7 @@ ConnectionLine::ConnectionLine(PipelineElementWidget* fromItem,
                                    toItem(toItem)
 {
     setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setFlag(QGraphicsItem::ItemIsMovable, false);
     setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 }
 
@@ -49,9 +50,13 @@ void ConnectionLine::updatePosition()
     setLine(line);
 }
 
-//void ConnectionLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
-//          QWidget *)
-//{
+void ConnectionLine::paint(QPainter *painter,
+                           const QStyleOptionGraphicsItem* style,
+                           QWidget * w)
+{
+    QLineF line(mapFromItem(fromItem, 0, 0), mapFromItem(toItem, 0, 0));
+    setLine(line);
+    QGraphicsLineItem::paint(painter, style, w);
 ////    if (fromItem->collidesWithItem(toItem))
 ////        return;
 
@@ -68,4 +73,4 @@ void ConnectionLine::updatePosition()
 //    setLine(centerLine);
 
 //    painter->drawLine(centerLine);
-//}
+}

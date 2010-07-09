@@ -43,8 +43,8 @@ namespace plvgui
         void updatePosition();
 
     protected:
-//        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-//                   QWidget *widget = 0);
+        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                   QWidget *widget = 0);
 
     private:
         PipelineElementWidget* fromItem;
