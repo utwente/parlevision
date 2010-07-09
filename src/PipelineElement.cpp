@@ -96,6 +96,11 @@ IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
     return 0;
 }
 
+const char* PipelineElement::getName()
+{
+    return this->metaObject()->className();
+}
+
 void PipelineElement::__process()
 {
     for( InputPinMap::iterator itr = m_inputPins.begin();

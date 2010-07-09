@@ -107,6 +107,9 @@ namespace plv
           */
         virtual void process() = 0;
 
+        /** Get the name that describes this element, in human readable form */
+        virtual const char* getName();
+
         /** Get a list of all known PipelineElement Type names
         */
         static std::list<QString> types();
@@ -120,7 +123,6 @@ namespace plv
         *     e.g. QMetaType::type(typeName) returns a valid ID
         */
         static int registerType(QString typeName);
-
 
     protected:
         RefPtr<Pipeline> m_parent;
