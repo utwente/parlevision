@@ -5,6 +5,9 @@
 
 #include "PipelineElement.h"
 #include "ConnectionLine.h"
+#include "PinWidget.h"
+#include "Pin.h"
+#include "RefPtr.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -41,14 +44,37 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 //    pinsContainer->addItem(inputPinsContainer);
 //    pinsContainer->addItem(outputPinsContainer);
 
-    std::list<QString>* inPinNames = element->getInputPinNames();
+
+/*
+//    std::list<QString>* inPinNames = element->getInputPinNames();
+    std::list< RefPtr<IInputPin> >* inPins = element->getInputPins();
+    qDebug() << "inpins: " << inPins->size();
     int y = 0;
-    for(std::list<QString>::iterator itr = inPinNames->begin();
-        itr != inPinNames->end();
+    for(std::list< RefPtr<IInputPin> >::iterator itr = inPins->begin();
+        itr != inPins->end();
         ++itr)
     {
         y+=10;
-//        inputPinsContainer->addWidget(new QLabel(*itr));
+//        inputPinsContainer->addWidget(new QLabel(*itr));;
+        qDebug() << "Pin " << y << ": " << (int)(*itr).getPtr();
+        IInputPin* p = *itr;
+        assert(p != 0);
+        RefPtr<IInputPin> pin = *itr;
+        assert(pin.isNotNull());
+        PinWidget* label = new PinWidget(this, pin);
+//        QGraphicsTextItem* label = new QGraphicsTextItem(*itr);
+        label->translate(0, y);
+        this->addToGroup(label);
+    }
+*/
+
+    int y = 0;
+    std::list<QString>* inputPinNames = element->getInputPinNames();
+    for(std::list<QString>::iterator itr = inputPinNames->begin();
+        itr != inputPinNames->end();
+        ++itr)
+    {
+        y+=10;
         QGraphicsTextItem* label = new QGraphicsTextItem(*itr);
         label->translate(0, y);
         this->addToGroup(label);

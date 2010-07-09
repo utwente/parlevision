@@ -77,6 +77,9 @@ namespace plv
         /** @returns a list of names of input pins added to this PipelineElement */
         std::list<QString>* getInputPinNames() const;
 
+        /** @returns a list of inputpins */
+        std::list< RefPtr<IInputPin> >* getInputPins();
+
         /** @returns a list of names of output pins added to this PipelineElement */
         std::list<QString>* getOutputPinNames() const;
 
