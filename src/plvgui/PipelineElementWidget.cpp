@@ -42,23 +42,30 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 //    pinsContainer->addItem(outputPinsContainer);
 
     std::list<QString>* inPinNames = element->getInputPinNames();
+    int y = 0;
     for(std::list<QString>::iterator itr = inPinNames->begin();
         itr != inPinNames->end();
         ++itr)
     {
+        y+=10;
 //        inputPinsContainer->addWidget(new QLabel(*itr));
-        this->addToGroup(new QGraphicsTextItem(*itr));
-
+        QGraphicsTextItem* label = new QGraphicsTextItem(*itr);
+        label->translate(0, y);
+        this->addToGroup(label);
     }
 
+    y = 0;
     std::list<QString>* outPinNames = element->getOutputPinNames();
     for(std::list<QString>::iterator itr = outPinNames->begin();
         itr != outPinNames->end();
         ++itr)
     {
+        y+=10;
 //        outputPinsContainer->addWidget(new QLabel(*itr));
+        QGraphicsTextItem* label = new QGraphicsTextItem(*itr);
+        label->translate(100, y);
+        this->addToGroup(label);
     }
-
 
 //    proxy->setWidget(rep);
 
@@ -69,7 +76,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 
 void PipelineElementWidget::addLine(ConnectionLine *line, QString pin)
 {
-    pin;
+    Q_UNUSED(pin);
     this->lines.append(line);
 }
 
