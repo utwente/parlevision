@@ -41,9 +41,7 @@ QPainterPath ConnectionLine::shape() const
 //    path.addPolygon(arrowHead);
     return path;
 }
-//! [2]
 
-//! [3]
 void ConnectionLine::updatePosition()
 {
     QLineF line(mapFromItem(fromPin, 0, 0), mapFromItem(toPin, 0, 0));
@@ -54,8 +52,6 @@ void ConnectionLine::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem* style,
                            QWidget * w)
 {
-//    QLineF line(mapFromItem(fromPin, 0, 0), mapFromItem(toPin, 0, 0));
-
     // find the centers of the circles to use as coordinates for the line
     qreal width = fromPin->getCircle()->boundingRect().width();
     QPointF p1 = QPointF(fromPin->getCircle()->scenePos())
@@ -67,20 +63,5 @@ void ConnectionLine::paint(QPainter *painter,
     QLineF line(p1, p2);
     setLine(line);
     QGraphicsLineItem::paint(painter, style, w);
-////    if (fromPin->collidesWithItem(toPin))
-////        return;
 
-//    QPen myPen = pen();
-//    myPen.setColor(Qt::black);
-//    qreal arrowSize = 20;
-//    painter->setPen(myPen);
-//    painter->setBrush(Qt::black);
-
-//    QLineF centerLine(fromPin->scenePos(), toPin->scenePos());
-
-//    qDebug() << centerLine;
-
-//    setLine(centerLine);
-
-//    painter->drawLine(centerLine);
 }
