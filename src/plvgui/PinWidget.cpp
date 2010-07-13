@@ -55,6 +55,7 @@ void PinWidget::init(bool isInput=true)
 
 void PinWidget::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
+    qDebug() << "hovering above " << this->getPin()->getName();
     event->accept();
 }
 
@@ -63,7 +64,7 @@ void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
     // only accept clicks if they are on the circle
     // ignore clicks on the label, as accepting those clicks
     // would make dragging the parent element very hard.
-    if(this->circle->contains(event->pos()))
+    if(this->circle->contains(this->circle->mapFromParent(event->pos())))
     {
         dumpObjectTree();
         event->accept();
@@ -78,6 +79,8 @@ void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
     }
     else
     {
+        qDebug() << "clicked on PinWidget, but not inside circle "
+                << circle->pos() << " != " << event->pos();
         event->ignore();
     }
 }
