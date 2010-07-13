@@ -55,8 +55,16 @@ void ConnectionLine::paint(QPainter *painter,
                            QWidget * w)
 {
 //    QLineF line(mapFromItem(fromPin, 0, 0), mapFromItem(toPin, 0, 0));
-    QLineF line(fromPin->getCircle()->scenePos(), toPin->getCircle()->scenePos());
-    qDebug() << "line from "<< fromPin->scenePos() << " to " << toPin->scenePos();
+
+    // find the centers of the circles to use as coordinates for the line
+    qreal width = fromPin->getCircle()->boundingRect().width();
+    QPointF p1 = QPointF(fromPin->getCircle()->scenePos())
+                    + QPointF(width/2.0,width/2.0);
+
+    QPointF p2 = QPointF(toPin->getCircle()->scenePos())
+                    + QPointF(width/2.0,width/2.0);
+
+    QLineF line(p1, p2);
     setLine(line);
     QGraphicsLineItem::paint(painter, style, w);
 ////    if (fromPin->collidesWithItem(toPin))

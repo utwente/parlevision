@@ -42,8 +42,9 @@ void PinWidget::init(bool isInput=true)
     this->addToGroup(label);
     label->translate(6,0);
 
-    this->circle = new QGraphicsEllipseItem(0,10,7,7,this);
+    this->circle = new QGraphicsEllipseItem(0,0,7,7,this);
     this->addToGroup(circle);
+    this->circle->translate(0, 10);
 
     if(!isInput)
     {
