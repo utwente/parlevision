@@ -21,6 +21,7 @@ namespace plvgui
 {
     class PipelineElementWidget;
     class PinWidget;
+    class InteractiveLine;
 
     /** A QGraphicsScene that wraps a Pipeline
       * to provide a graphical canvas for all the elements to live on.
@@ -42,13 +43,19 @@ namespace plvgui
         void add(plv::PinConnection* c);
         void add(plv::RefPtr<plv::PinConnection> c);
 
+    protected:
+//        virtual void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent);
+        virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent);
+        virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent);
+
     private:
+        void clearLine();
         plv::RefPtr<plv::Pipeline> m_pipeline;
         QHash<plv::PipelineElement*, PipelineElementWidget*> elementWidgets;
 
         PipelineElementWidget* getWidgetFor(plv::PipelineElement* e) const;
         PinWidget* getWidgetFor(const plv::Pin* pw) const;
-
+        InteractiveLine* line;
     };
 
 }

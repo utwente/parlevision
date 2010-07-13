@@ -1,12 +1,14 @@
 #include "PipelineScene.h"
 
 #include <QtGui>
+#include <QDebug>
 
 #include "Pipeline.h"
 #include "Pin.h"
 #include "PinConnection.h"
 #include "PipelineElementWidget.h"
 #include "ConnectionLine.h"
+#include "InteractiveLine.h"
 #include "PlvExceptions.h"
 #include "PinClickedEvent.h"
 #include "PinWidget.h"
@@ -16,7 +18,8 @@ using namespace plv;
 
 PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
         QGraphicsScene(parent),
-        m_pipeline(pipeline)
+        m_pipeline(pipeline),
+        line(0)
 {
     std::list< RefPtr<PipelineElement> > elements = m_pipeline->getChildren();
 
@@ -111,7 +114,40 @@ bool PipelineScene::event(QEvent* event)
         event->accept();
         PinClickedEvent* pce = static_cast<PinClickedEvent*>(event);
         qDebug() << pce->getSource()->getPin()->getName();
+
+        clearLine();
+        this->line = new InteractiveLine(pce->getSource(), 0, this);
     }
 
     return QGraphicsScene::event(event);
+}
+
+//void PipelineScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
+//{
+//    QGraphicsScene::mousePressEvent(mouseEvent);
+//}
+
+void PipelineScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
+{
+    if(this->line != 0)
+    {
+        this->line->updateTarget(mouseEvent->scenePos());
+    }
+    QGraphicsScene::mouseMoveEvent(mouseEvent);
+}
+
+void PipelineScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
+{
+    clearLine();
+    QGraphicsScene::mouseReleaseEvent(mouseEvent);
+}
+
+void PipelineScene::clearLine()
+{
+    if(this->line != 0)
+    {
+        this->removeItem(this->line);
+        delete this->line;
+        this->line = 0;
+    }
 }
