@@ -173,9 +173,6 @@ std::list<QString>* PipelineElement::getOutputPinNames() const
     return names;
 }
 
-
-
-
 std::list<QString> PipelineElement::types()
 {
     return PipelineElement::s_types;

@@ -49,12 +49,11 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 //    std::list<QString>* inPinNames = element->getInputPinNames();
     std::list< RefPtr<IInputPin> >* inPins = element->getInputPins();
     qDebug() << "inpins: " << inPins->size();
-    int y = 0;
+    int y = 20;
     for(std::list< RefPtr<IInputPin> >::iterator itr = inPins->begin();
         itr != inPins->end();
         ++itr)
     {
-        y+=10;
 //        inputPinsContainer->addWidget(new QLabel(*itr));;
         qDebug() << "Pin " << y << ": " << (int)(*itr).getPtr();
         RefPtr<IInputPin> pin = *itr;
@@ -63,20 +62,21 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 //        QGraphicsTextItem* label = new QGraphicsTextItem(*itr);
         label->translate(0, y);
         this->addToGroup(label);
+        y+=10;
     }
 
 
-    y = 0;
+    y = 20;
     std::list<QString>* outPinNames = element->getOutputPinNames();
     for(std::list<QString>::iterator itr = outPinNames->begin();
         itr != outPinNames->end();
         ++itr)
     {
-        y+=10;
 //        outputPinsContainer->addWidget(new QLabel(*itr));
         QGraphicsTextItem* label = new QGraphicsTextItem(*itr);
         label->translate(100, y);
         this->addToGroup(label);
+        y+=10;
     }
 
 //    proxy->setWidget(rep);

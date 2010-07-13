@@ -22,6 +22,7 @@ namespace plvgui
     public:
         PinWidget(PipelineElementWidget* parent, RefPtr<IInputPin> p);
         PinWidget(PipelineElementWidget* parent, RefPtr<IOutputPin> p);
+        virtual QRectF boundingRect() const;
     private:
         PipelineElementWidget* m_parent;
         RefPtr<Pin> m_pin;
