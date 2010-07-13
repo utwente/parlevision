@@ -32,6 +32,8 @@ QRectF PinWidget::boundingRect() const
 
 void PinWidget::init(bool isInput=true)
 {
+    setAcceptHoverEvents(true);
+
     if(isInput)
     {
         //TODO
@@ -43,4 +45,16 @@ void PinWidget::init(bool isInput=true)
 
     QGraphicsEllipseItem* ellipse = new QGraphicsEllipseItem(0,10,7,7,this);
     this->addToGroup(ellipse);
+}
+
+void PinWidget::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
+{
+    qDebug() << "Pin hover " << m_pin->getName();
+    event->accept();
+}
+
+void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    qDebug() << "Pin click " << m_pin->getName();
+    event->accept();
 }

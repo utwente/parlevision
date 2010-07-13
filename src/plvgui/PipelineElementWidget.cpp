@@ -18,35 +18,13 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         QGraphicsItemGroup(parent),
         element(element)
 {
-
+    Q_UNUSED(wFlags);
     this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
-//    QGraphicsLinearLayout* layout = new QGraphicsLinearLayout(Qt::Vertical);
-
-//    QGraphicsProxyWidget* proxy = new QGraphicsProxyWidget(this);
-
-//    QWidget* rep = new QWidget();
-//    QVBoxLayout* outerContainer = new QVBoxLayout(rep);
-//    outerContainer->setAlignment(Qt::AlignHCenter);
-//    rep->setLayout(outerContainer);
     QGraphicsTextItem* titleLabel = new QGraphicsTextItem(element->getName(), this);
-//    layout->addItem(titleLabel);
-//    titleLabel->setParentItem(this);
     this->addToGroup(titleLabel);
 
-//    titleLabel->setFlag(QGraphicsItem::ItemIsMovable, true);
-//    titleLabel->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setFiltersChildEvents(false);
 
-//    QGraphicsLinearLayout* pinsContainer = new QGraphicsLinearLayout(Qt::Horizontal);
-//    layout->addItem(pinsContainer);
-//    QGraphicsLinearLayout* inputPinsContainer = new QGraphicsLinearLayout(Qt::Vertical);
-//    QGraphicsLinearLayout* outputPinsContainer = new QGraphicsLinearLayout(Qt::Vertical);
-//    outputPinsContainer->setAlignment(Qt::AlignRight);
-//    pinsContainer->addItem(inputPinsContainer);
-//    pinsContainer->addItem(outputPinsContainer);
-
-
-
-//    std::list<QString>* inPinNames = element->getInputPinNames();
     std::list< RefPtr<IInputPin> >* inPins = element->getInputPins();
     int y = 20;
     for(std::list< RefPtr<IInputPin> >::iterator itr = inPins->begin();
@@ -93,6 +71,17 @@ QVariant PipelineElementWidget::itemChange(GraphicsItemChange change,
     }
 
     return value;
+}
+
+void PipelineElementWidget::mousePressEvent ( QGraphicsSceneMouseEvent * event )
+{
+    qDebug() << "PipelineElementWidget::mousePressEvent " << event->pos();
+    // manually propagate
+    foreach(QGraphicsItem* item, this->childItems()) {
+        qDebug() << "child " << item;
+    }
+
+    QGraphicsItemGroup::mousePressEvent(event);
 }
 
 void PipelineElementWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

@@ -33,6 +33,7 @@ namespace plvgui {
         plv::RefPtr<plv::PipelineElement> element;
 
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+        virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
     };
 }
 
