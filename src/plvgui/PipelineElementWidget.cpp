@@ -15,7 +15,7 @@ using namespace plv;
 PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
                                              QGraphicsItem* parent,
                                              Qt::WindowFlags wFlags) :
-        QGraphicsItemGroup(parent),
+        QGraphicsObject(parent),
         element(element)
 {
     Q_UNUSED(wFlags);
@@ -60,6 +60,11 @@ void PipelineElementWidget::addLine(ConnectionLine *line, QString pin)
     this->lines.append(line);
 }
 
+QRectF PipelineElementWidget::boundingRect() const
+{
+    return childrenBoundingRect();
+}
+
 QVariant PipelineElementWidget::itemChange(GraphicsItemChange change,
                      const QVariant &value)
 {
@@ -81,7 +86,14 @@ void PipelineElementWidget::mousePressEvent ( QGraphicsSceneMouseEvent * event )
         qDebug() << "child " << item;
     }
 
-    QGraphicsItemGroup::mousePressEvent(event);
+    QGraphicsItem::mousePressEvent(event);
+}
+
+void PipelineElementWidget::addToGroup(QGraphicsItem* item)
+{
+    item->setParentItem(this);
+    prepareGeometryChange();
+    update();
 }
 
 void PipelineElementWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

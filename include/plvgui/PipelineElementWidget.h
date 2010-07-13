@@ -1,7 +1,7 @@
 #ifndef PIPELINEELEMENTWIDGET_H
 #define PIPELINEELEMENTWIDGET_H
 
-#include <QGraphicsItemGroup>
+#include <QGraphicsObject>
 #include <QString>
 
 #include "RefPtr.h"
@@ -16,7 +16,7 @@ namespace plv {
 namespace plvgui {
     class ConnectionLine;
 
-    class PipelineElementWidget : public QGraphicsItemGroup
+    class PipelineElementWidget : public QGraphicsObject
     {
     public:
         PipelineElementWidget(plv::PipelineElement* element,
@@ -24,6 +24,8 @@ namespace plvgui {
                               Qt::WindowFlags wFlags = 0);
 
         void addLine(ConnectionLine* line, QString pin);
+
+        virtual QRectF boundingRect() const;
 
     protected:
         QVariant itemChange(GraphicsItemChange change,
@@ -34,6 +36,7 @@ namespace plvgui {
 
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
         virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
+        void addToGroup(QGraphicsItem* item);
     };
 }
 

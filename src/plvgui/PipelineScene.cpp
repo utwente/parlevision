@@ -78,18 +78,16 @@ void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
     //TODO
     qDebug() << "PipelineScene: adding connection ";
     RefPtr<const Pin> from = c->fromPin().getPtr();
-    const QString& desc = from->getName();
+//    const QString& desc = from->getName();
 //    QGraphicsTextItem* item = this->addText(desc);
     ConnectionLine* item = new ConnectionLine(getWidgetFor(c->fromPin()->getOwner()),
                                               c->fromPin()->getName(),
                                               getWidgetFor(c->toPin()->getOwner()),
                                               c->toPin()->getName(),
-                                              getWidgetFor(c->toPin()->getOwner()),
+                                              0,
                                               this);
     getWidgetFor(c->fromPin()->getOwner())->addLine(item, c->fromPin()->getName());
     getWidgetFor(c->toPin()->getOwner())->addLine(item, c->fromPin()->getName());
-    item->setFlag(QGraphicsItem::ItemIsMovable, true);
-    item->setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 
 PipelineElementWidget* PipelineScene::getWidgetFor(PipelineElement* e)
