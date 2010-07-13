@@ -9,6 +9,7 @@
 #include "ConnectionLine.h"
 #include "PlvExceptions.h"
 #include "PinClickedEvent.h"
+#include "PinWidget.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -104,8 +105,8 @@ bool PipelineScene::event(QEvent* event)
     {
         qDebug() << "Scene got PinClickedEvent";
         event->accept();
-//        PinClickedEvent* pce = static_cast<PinClickedEvent>(event);
-//        qDebug() << pce->getSource();
+        PinClickedEvent* pce = static_cast<PinClickedEvent*>(event);
+        qDebug() << pce->getSource()->getPin()->getName();
     }
 
     return QGraphicsScene::event(event);

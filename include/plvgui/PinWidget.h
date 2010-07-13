@@ -25,6 +25,8 @@ namespace plvgui
         PinWidget(PipelineElementWidget* parent, RefPtr<IInputPin> p);
         PinWidget(PipelineElementWidget* parent, RefPtr<IOutputPin> p);
         virtual QRectF boundingRect() const;
+        RefPtr<Pin> getPin() const {return m_pin;}
+
     protected:
         virtual void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
         virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
