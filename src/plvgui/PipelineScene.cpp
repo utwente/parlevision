@@ -98,7 +98,7 @@ PipelineElementWidget* PipelineScene::getWidgetFor(PipelineElement* e)
 
 bool PipelineScene::event(QEvent* event)
 {
-    qDebug() << "Scene got event " << event << " ut=" << PinClickedEvent::user_type();
+//    qDebug() << "Scene got event " << event << " ut=" << PinClickedEvent::user_type();
 //    return QObject::event(event);
     if(event->type() == PinClickedEvent::user_type())
     {
