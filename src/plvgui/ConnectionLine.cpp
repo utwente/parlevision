@@ -54,7 +54,9 @@ void ConnectionLine::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem* style,
                            QWidget * w)
 {
-    QLineF line(mapFromItem(fromPin, 0, 0), mapFromItem(toPin, 0, 0));
+//    QLineF line(mapFromItem(fromPin, 0, 0), mapFromItem(toPin, 0, 0));
+    QLineF line(fromPin->getCircle()->scenePos(), toPin->getCircle()->scenePos());
+    qDebug() << "line from "<< fromPin->scenePos() << " to " << toPin->scenePos();
     setLine(line);
     QGraphicsLineItem::paint(painter, style, w);
 ////    if (fromPin->collidesWithItem(toPin))

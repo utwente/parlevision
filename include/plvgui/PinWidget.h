@@ -6,6 +6,8 @@
 #include "Pin.h"
 
 
+class QGraphicsItem;
+
 using namespace plv;
 
 //namespace plv {
@@ -21,11 +23,13 @@ namespace plvgui
     class PinWidget : public QObject, public QGraphicsItemGroup
     {
         Q_OBJECT
+
     public:
         PinWidget(PipelineElementWidget* parent, RefPtr<IInputPin> p);
         PinWidget(PipelineElementWidget* parent, RefPtr<IOutputPin> p);
         virtual QRectF boundingRect() const;
         RefPtr<Pin> getPin() const {return m_pin;}
+        const QGraphicsItem* getCircle() const {return circle;}
 
     protected:
         virtual void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
