@@ -34,6 +34,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         RefPtr<IInputPin> pin = *itr;
         assert(pin.isNotNull());
         PinWidget* pw = new PinWidget(this, pin);
+        this->pinWidgets[pin.getPtr()] = pw;
         pw->translate(0, y);
         this->addToGroup(pw);
         y+=10;
@@ -48,6 +49,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         RefPtr<IOutputPin> pin = *itr;
         assert(pin.isNotNull());
         PinWidget* pw = new PinWidget(this, pin);
+        this->pinWidgets[pin.getPtr()] = pw;
         pw->translate(100, y);
         this->addToGroup(pw);
         y+=10;

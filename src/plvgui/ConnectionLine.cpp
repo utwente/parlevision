@@ -3,22 +3,22 @@
 
 #include <QDebug>
 
-#include "PipelineElementWidget.h"
+#include "PinWidget.h"
 
 const qreal Pi = 3.14;
 
 using namespace plv;
 using namespace plvgui;
 
-ConnectionLine::ConnectionLine(PipelineElementWidget* fromItem,
-                               QString fromPin,
-                               PipelineElementWidget* toItem,
-                               QString toPin,
+ConnectionLine::ConnectionLine(PinWidget* fromPin,
+                               PinWidget* toPin,
+                               PinConnection* connection,
                                QGraphicsItem *parent,
                                QGraphicsScene *scene)
                                    : QGraphicsLineItem(parent, scene),
-                                   fromItem(fromItem),
-                                   toItem(toItem)
+                                   fromPin(fromPin),
+                                   toPin(toPin),
+                                   connection(connection)
 {
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemIsMovable, false);
@@ -46,7 +46,7 @@ QPainterPath ConnectionLine::shape() const
 //! [3]
 void ConnectionLine::updatePosition()
 {
-    QLineF line(mapFromItem(fromItem, 0, 0), mapFromItem(toItem, 0, 0));
+    QLineF line(mapFromItem(fromPin, 0, 0), mapFromItem(toPin, 0, 0));
     setLine(line);
 }
 
@@ -54,10 +54,10 @@ void ConnectionLine::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem* style,
                            QWidget * w)
 {
-    QLineF line(mapFromItem(fromItem, 0, 0), mapFromItem(toItem, 0, 0));
+    QLineF line(mapFromItem(fromPin, 0, 0), mapFromItem(toPin, 0, 0));
     setLine(line);
     QGraphicsLineItem::paint(painter, style, w);
-////    if (fromItem->collidesWithItem(toItem))
+////    if (fromPin->collidesWithItem(toPin))
 ////        return;
 
 //    QPen myPen = pen();
@@ -66,7 +66,7 @@ void ConnectionLine::paint(QPainter *painter,
 //    painter->setPen(myPen);
 //    painter->setBrush(Qt::black);
 
-//    QLineF centerLine(fromItem->scenePos(), toItem->scenePos());
+//    QLineF centerLine(fromPin->scenePos(), toPin->scenePos());
 
 //    qDebug() << centerLine;
 

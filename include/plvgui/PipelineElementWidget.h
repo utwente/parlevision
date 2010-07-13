@@ -12,8 +12,15 @@ class QVariant;
 
 using namespace plv;
 
-namespace plvgui {
+namespace plv
+{
+    class Pin;
+}
+
+namespace plvgui
+{
     class ConnectionLine;
+    class PinWidget;
 
     class PipelineElementWidget : public QGraphicsObject
     {
@@ -24,6 +31,7 @@ namespace plvgui {
                               Qt::WindowFlags wFlags = 0);
 
         void addLine(ConnectionLine* line, QString pin);
+        PinWidget* getWidgetFor(const Pin* p) const { return pinWidgets[p]; }
 
         virtual QRectF boundingRect() const;
         virtual bool event(QEvent * event);
@@ -38,6 +46,7 @@ namespace plvgui {
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
         virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
         void addToGroup(QGraphicsItem* item);
+        QHash<const plv::Pin*, PinWidget*> pinWidgets;
     };
 }
 

@@ -18,9 +18,15 @@ class QPainterPath;
 class QStyleOptionGraphicsItem;
 //QT_END_NAMESPACE
 
+namespace plv
+{
+    class PinConnection;
+}
+
 namespace plvgui
 {
-    class PipelineElementWidget;
+//    class PipelineElementWidget;
+    class PinWidget;
 
     /** A line that represents the connection between two pins.
       */
@@ -29,10 +35,9 @@ namespace plvgui
 //        Q_OBJECT
 
     public:
-        ConnectionLine(PipelineElementWidget* fromItem,
-                              QString fromPin,
-                              PipelineElementWidget* toItem,
-                              QString toPin,
+        ConnectionLine(PinWidget* fromPin,
+                              PinWidget* toPin,
+                              PinConnection* connection,
                               QGraphicsItem *parent,
                               QGraphicsScene *scene);
 
@@ -47,8 +52,9 @@ namespace plvgui
                    QWidget *widget = 0);
 
     private:
-        PipelineElementWidget* fromItem;
-        PipelineElementWidget* toItem;
+        PinWidget* fromPin;
+        PinWidget* toPin;
+        RefPtr<PinConnection> connection;
     };
 }
 #endif // CONNECTIONLINE_H

@@ -11,12 +11,16 @@
 
 class QObject;
 
-namespace plv {
+namespace plv
+{
     class PipelineElement;
+    class Pin;
 }
 
-namespace plvgui {
+namespace plvgui
+{
     class PipelineElementWidget;
+    class PinWidget;
 
     /** A QGraphicsScene that wraps a Pipeline
       * to provide a graphical canvas for all the elements to live on.
@@ -42,7 +46,8 @@ namespace plvgui {
         plv::RefPtr<plv::Pipeline> m_pipeline;
         QHash<plv::PipelineElement*, PipelineElementWidget*> elementWidgets;
 
-        PipelineElementWidget* getWidgetFor(plv::PipelineElement* e);
+        PipelineElementWidget* getWidgetFor(plv::PipelineElement* e) const;
+        PinWidget* getWidgetFor(const plv::Pin* pw) const;
 
     };
 
