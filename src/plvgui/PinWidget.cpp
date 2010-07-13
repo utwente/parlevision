@@ -43,18 +43,22 @@ void PinWidget::init(bool isInput=true)
     this->addToGroup(label);
     label->translate(6,0);
 
-    QGraphicsEllipseItem* ellipse = new QGraphicsEllipseItem(0,10,7,7,this);
-    this->addToGroup(ellipse);
+    this->circle = new QGraphicsEllipseItem(0,10,7,7,this);
+    this->addToGroup(circle);
 }
 
 void PinWidget::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    qDebug() << "Pin hover " << m_pin->getName();
     event->accept();
 }
 
 void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-    qDebug() << "Pin click " << m_pin->getName();
-    event->accept();
+    // only accept clicks if they are on the circle
+    // ignore clicks on the label, as accepting those clicks
+    // would make dragging the parent element very hard.
+    if(this->circle->contains(event->pos()))
+        event->accept();
+    else
+        event->ignore();
 }

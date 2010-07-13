@@ -30,6 +30,7 @@ namespace plvgui
         PipelineElementWidget* m_parent;
         RefPtr<Pin> m_pin;
         void init(bool isInput);
+        QGraphicsEllipseItem* circle;
     };
 }
 
