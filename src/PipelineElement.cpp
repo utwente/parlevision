@@ -173,6 +173,21 @@ std::list<QString>* PipelineElement::getOutputPinNames() const
     return names;
 }
 
+std::list< RefPtr<IOutputPin> >* PipelineElement::getOutputPins()
+{
+    std::list< RefPtr<IOutputPin> >* pins = new std::list< RefPtr<IOutputPin> >();
+
+    for( OutputPinMap::iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
+    {
+        RefPtr<IOutputPin> pin = itr->second;
+        assert(pin.isNotNull());
+        pins->push_back(pin);
+    }
+    return pins;
+}
+
+
 std::list<QString> PipelineElement::types()
 {
     return PipelineElement::s_types;

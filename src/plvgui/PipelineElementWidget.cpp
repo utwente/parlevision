@@ -48,42 +48,32 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 
 //    std::list<QString>* inPinNames = element->getInputPinNames();
     std::list< RefPtr<IInputPin> >* inPins = element->getInputPins();
-    qDebug() << "inpins: " << inPins->size();
     int y = 20;
     for(std::list< RefPtr<IInputPin> >::iterator itr = inPins->begin();
         itr != inPins->end();
         ++itr)
     {
-//        inputPinsContainer->addWidget(new QLabel(*itr));;
-        qDebug() << "Pin " << y << ": " << (int)(*itr).getPtr();
         RefPtr<IInputPin> pin = *itr;
         assert(pin.isNotNull());
-        PinWidget* label = new PinWidget(this, pin);
-//        QGraphicsTextItem* label = new QGraphicsTextItem(*itr);
-        label->translate(0, y);
-        this->addToGroup(label);
+        PinWidget* pw = new PinWidget(this, pin);
+        pw->translate(0, y);
+        this->addToGroup(pw);
         y+=10;
     }
 
-
+    std::list< RefPtr<IOutputPin> >* outPins = element->getOutputPins();
     y = 20;
-    std::list<QString>* outPinNames = element->getOutputPinNames();
-    for(std::list<QString>::iterator itr = outPinNames->begin();
-        itr != outPinNames->end();
+    for(std::list< RefPtr<IOutputPin> >::iterator itr = outPins->begin();
+        itr != outPins->end();
         ++itr)
     {
-//        outputPinsContainer->addWidget(new QLabel(*itr));
-        QGraphicsTextItem* label = new QGraphicsTextItem(*itr);
-        label->translate(100, y);
-        this->addToGroup(label);
+        RefPtr<IOutputPin> pin = *itr;
+        assert(pin.isNotNull());
+        PinWidget* pw = new PinWidget(this, pin);
+        pw->translate(100, y);
+        this->addToGroup(pw);
         y+=10;
     }
-
-//    proxy->setWidget(rep);
-
-//    layout->addItem(proxy);
-
-//    this->setLayout(layout);
 }
 
 void PipelineElementWidget::addLine(ConnectionLine *line, QString pin)
