@@ -5,19 +5,19 @@
 #include <QString>
 
 #include "RefPtr.h"
+#include "PipelineElement.h"
 
 class QGraphicsSceneDragDropEvent;
 class QVariant;
 
-namespace plv {
-    class PipelineElement;
-}
+using namespace plv;
 
 namespace plvgui {
     class ConnectionLine;
 
     class PipelineElementWidget : public QGraphicsObject
     {
+        Q_OBJECT
     public:
         PipelineElementWidget(plv::PipelineElement* element,
                               QGraphicsItem* parent = 0,
@@ -26,6 +26,7 @@ namespace plvgui {
         void addLine(ConnectionLine* line, QString pin);
 
         virtual QRectF boundingRect() const;
+        virtual bool event(QEvent * event);
 
     protected:
         QVariant itemChange(GraphicsItemChange change,

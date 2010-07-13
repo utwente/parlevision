@@ -83,6 +83,13 @@ void PipelineElementWidget::mousePressEvent ( QGraphicsSceneMouseEvent * event )
     QGraphicsItem::mousePressEvent(event);
 }
 
+
+bool PipelineElementWidget::event(QEvent * event)
+{
+//    qDebug() << "PEW got event " << event;
+    return QGraphicsObject::event(event);
+}
+
 void PipelineElementWidget::addToGroup(QGraphicsItem* item)
 {
     item->setParentItem(this);

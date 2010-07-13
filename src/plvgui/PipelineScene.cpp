@@ -8,6 +8,7 @@
 #include "PipelineElementWidget.h"
 #include "ConnectionLine.h"
 #include "PlvExceptions.h"
+#include "PinClickedEvent.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -93,4 +94,19 @@ void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
 PipelineElementWidget* PipelineScene::getWidgetFor(PipelineElement* e)
 {
     return elementWidgets[e];
+}
+
+bool PipelineScene::event(QEvent* event)
+{
+    qDebug() << "Scene got event " << event << " ut=" << PinClickedEvent::user_type();
+//    return QObject::event(event);
+    if(event->type() == PinClickedEvent::user_type())
+    {
+        qDebug() << "Scene got PinClickedEvent";
+        event->accept();
+//        PinClickedEvent* pce = static_cast<PinClickedEvent>(event);
+//        qDebug() << pce->getSource();
+    }
+
+    return QGraphicsScene::event(event);
 }

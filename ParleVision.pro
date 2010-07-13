@@ -78,7 +78,8 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/LibraryElement.h \
     include/plvgui/PipelineView.h \
     include/plvgui/ConnectionLine.h \
-    include/plvgui/PinWidget.h
+    include/plvgui/PinWidget.h \
+    include/plvgui/PinClickedEvent.h
 FORMS += resources/mainwindow.ui \
     resources/librarywidget.ui
 RESOURCES += resources/icons.qrc

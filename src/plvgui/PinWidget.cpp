@@ -2,12 +2,14 @@
 #include <QtGui>
 #include "PipelineElementWidget.h"
 #include "Pin.h"
+#include "PinClickedEvent.h"
 
 using namespace plvgui;
 using namespace plv;
 
 PinWidget::PinWidget(PipelineElementWidget *parent, RefPtr<IInputPin> pin)
-    : QGraphicsItemGroup(parent),
+    : QObject(parent),
+    QGraphicsItemGroup(parent),
     m_parent(parent),
     m_pin(pin)
 {
@@ -16,7 +18,8 @@ PinWidget::PinWidget(PipelineElementWidget *parent, RefPtr<IInputPin> pin)
 }
 
 PinWidget::PinWidget(PipelineElementWidget *parent, RefPtr<IOutputPin> pin)
-    : QGraphicsItemGroup(parent),
+    : QObject(parent),
+    QGraphicsItemGroup(parent),
     m_parent(parent),
     m_pin(pin)
 {
@@ -58,7 +61,20 @@ void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
     // ignore clicks on the label, as accepting those clicks
     // would make dragging the parent element very hard.
     if(this->circle->contains(event->pos()))
+    {
+        dumpObjectTree();
         event->accept();
+        qDebug() << PinClickedEvent::user_type();
+
+        assert(this->scene() != 0);
+        if(this->scene() != 0)
+        {
+            qDebug() << "posting event";
+            QCoreApplication::postEvent(this->scene(), new PinClickedEvent(this));
+        }
+    }
     else
+    {
         event->ignore();
+    }
 }

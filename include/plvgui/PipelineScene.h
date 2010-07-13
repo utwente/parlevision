@@ -29,6 +29,7 @@ namespace plvgui {
     public:
         PipelineScene(plv::Pipeline* pipeline, QObject* parent);
         plv::RefPtr<plv::Pipeline> getPipeline() { return m_pipeline; }
+        virtual bool event(QEvent * event);
 
     public slots:
         void add(plv::PipelineElement* e);
