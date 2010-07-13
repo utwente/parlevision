@@ -80,12 +80,6 @@ QVariant PipelineElementWidget::itemChange(GraphicsItemChange change,
 
 void PipelineElementWidget::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 {
-    qDebug() << "PipelineElementWidget::mousePressEvent " << event->pos();
-    // manually propagate
-    foreach(QGraphicsItem* item, this->childItems()) {
-        qDebug() << "child " << item;
-    }
-
     QGraphicsItem::mousePressEvent(event);
 }
 
