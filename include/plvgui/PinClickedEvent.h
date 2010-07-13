@@ -3,15 +3,10 @@
 
 #include <QEvent>
 
-static QEvent::Type pinClickedEventType()
+static inline int getPinClickedEventType()
 {
-    static int sPinClickedEventType = 0;
-    if(sPinClickedEventType == 0)
-    {
-        sPinClickedEventType = QEvent::registerEventType();
-        qDebug() << "Registering custom event as " << sPinClickedEventType;
-    }
-    return QEvent::Type(sPinClickedEventType);
+    static int sPinClickedEventType= QEvent::registerEventType();
+    return sPinClickedEventType;
 }
 
 namespace plvgui
@@ -22,7 +17,7 @@ namespace plvgui
     {
     public:
         PinClickedEvent(PinWidget* pw) :
-                QEvent(pinClickedEventType()), source(pw)
+                QEvent(PinClickedEvent::user_type()), source(pw)
         {
             qDebug() << "Constructing PinClickedEvent " << type();
         }
@@ -30,7 +25,7 @@ namespace plvgui
         PinWidget* getSource() { return source; }
 
         /** returns the type of this event, for use in handilng switches */
-        static QEvent::Type user_type() {return pinClickedEventType();}
+        static QEvent::Type user_type() {return QEvent::Type(getPinClickedEventType());}
 
     private:
         PinWidget* source;
