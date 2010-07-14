@@ -10,6 +10,7 @@
 using namespace plv;
 
 std::list<QString> PipelineElement::s_types;
+std::map<QString,QString> PipelineElement::s_names;
 
 PipelineElement::PipelineElement()
 {
@@ -97,9 +98,9 @@ IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
     return 0;
 }
 
-const char* PipelineElement::getName()
+QString PipelineElement::getName() const
 {
-    return this->metaObject()->className();
+    return PipelineElement::nameForType(this->metaObject()->className());
 }
 
 void PipelineElement::__process()
@@ -193,10 +194,18 @@ std::list<QString> PipelineElement::types()
     return PipelineElement::s_types;
 }
 
-int PipelineElement::registerType(QString typeName)
+int PipelineElement::registerType(QString typeName, QString humanName)
 {
-    qDebug() << "Registering PipelineElement" << typeName;
+    qDebug() << "Registering PipelineElement " << typeName
+                    << " as " << "'" << humanName << "'";
+
     PipelineElement::s_types.push_back( typeName );
+    PipelineElement::s_names[typeName] = humanName;
     //return qRegisterMetaType<E>(typeName);
     return 0;
+}
+
+QString PipelineElement::nameForType(QString typeName)
+{
+    return PipelineElement::s_names[typeName];
 }
