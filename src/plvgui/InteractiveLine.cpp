@@ -57,7 +57,6 @@ void InteractiveLine::paint(QPainter *painter,
 
 void InteractiveLine::updateTarget(QPointF pos)
 {
-    qDebug() << "IL: "<< pos;
     this->targetPos = pos;
     update();
 }
