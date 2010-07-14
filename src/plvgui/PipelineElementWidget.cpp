@@ -1,6 +1,7 @@
 #include "PipelineElementWidget.h"
 
 #include <list>
+#include <algorithm>
 #include <QtGui>
 
 #include "PipelineElement.h"
@@ -11,6 +12,7 @@
 
 using namespace plvgui;
 using namespace plv;
+using namespace std;
 
 PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
                                              QGraphicsItem* parent,
@@ -28,8 +30,10 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 
     setFiltersChildEvents(false);
 
+    // draw all inputpins
     std::list< RefPtr<IInputPin> >* inPins = element->getInputPins();
     int y = 20;
+    qreal leftColumnWidth = 0;
     for(std::list< RefPtr<IInputPin> >::iterator itr = inPins->begin();
         itr != inPins->end();
         ++itr)
@@ -40,11 +44,19 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         this->pinWidgets[pin.getPtr()] = pw;
         pw->translate(0, y);
         this->addToGroup(pw);
+        leftColumnWidth = max(pw->boundingRect().width(), leftColumnWidth);
         y+=10;
     }
 
+    leftColumnWidth = (titleLabel->boundingRect().width()/2.0 > leftColumnWidth
+                       ? titleLabel->boundingRect().width()/2.0 : leftColumnWidth);
+
+    // outputpins should be aligned right.
+    // in order to do this, we first make all the widgets,
+    // then add them with proper translation.
     std::list< RefPtr<IOutputPin> >* outPins = element->getOutputPins();
-    y = 20;
+    QList<PinWidget*> outWidgets = QList<PinWidget*>();
+    qreal maxWidth = 0;
     for(std::list< RefPtr<IOutputPin> >::iterator itr = outPins->begin();
         itr != outPins->end();
         ++itr)
@@ -53,10 +65,24 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         assert(pin.isNotNull());
         PinWidget* pw = new PinWidget(this, pin);
         this->pinWidgets[pin.getPtr()] = pw;
-        pw->translate(100, y);
+        outWidgets.append(pw);
+        maxWidth = (pw->boundingRect().width()>maxWidth ? pw->boundingRect().width() : maxWidth);
+    }
+
+    y = 20;
+    foreach(PinWidget* pw, outWidgets)
+    {
+        qreal offset = leftColumnWidth + 20 + maxWidth - pw->boundingRect().width();
+        pw->translate(offset, y);
         this->addToGroup(pw);
         y+=10;
     }
+
+    // center the title
+    qreal offset = (this->boundingRect().width()-titleLabel->boundingRect().width())/2.0;
+    if(offset > 0)
+        titleLabel->translate(offset,0);
+
 }
 
 void PipelineElementWidget::addLine(ConnectionLine *line, QString pin)

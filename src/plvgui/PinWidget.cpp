@@ -52,7 +52,7 @@ void PinWidget::init(bool isInput=true)
     else
     {
         label->translate(-12,0);
-        this->circle->translate(100, 0);
+        this->circle->translate(label->boundingRect().width(), 0);
     }
 
     this->addToGroup(circle);
