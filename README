@@ -3,3 +3,33 @@ This will contain the source for the main Parlevision project
 
 Icons: Symbolize Icon Set, version 1.0
 http://dryicons.com/free-icons/preview/symbolize-icons-set/
+
+
+DEPENDENCIES
+
+ParleVision depends on:
+* Qt      >= 4.6    # parlevision-core depends on Qt-core for signals&slots, 
+                    # parlevision-gui depends on the Qt-GUI bindings as well
+* OpenCV  >= 2.0
+
+INSTALLING DEPENDENCIES
+1. Download and install Qt from http://qt.nokia.com/downloads
+2. Install OpenCV. This depends on your OS:
+    * Mac OS X - the easiest way is to install through MacPorts
+    * Windows - You can get GCC or Visual Studio binaries from http://opencv.willowgarage.com/
+                If you want to build using Qt Creator, use the GCC ones.
+
+FIXING BUILD ENVIRONMENT
+If your libraries are in different locations, you might have to tell the build system where to find them. You can make a personal ParleVision.pro.local (see ParleVision.local.example).
+                
+BUILDING PARLEVISION
+To build ParleVision from source, you need the Qt SDK, which can be obtained from http://qt.nokia.com/. Depending on your platform, there are different options for building:
+
+A. Using Qt Creator (all platforms)
+Open ParleVision.pro in the Qt Creator IDE. Choose whether you want to build in Debug or Release mode using the "Build/Run Target Selector" and then select "Build Project 'ParleVision'".
+
+B. Using Make (unix)
+...
+
+C. Using XCode
+...
