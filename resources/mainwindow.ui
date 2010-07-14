@@ -83,7 +83,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionTOD"/>
     <addaction name="actionSave"/>
     <addaction name="actionLoad"/>
    </widget>
@@ -123,10 +122,13 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Start the pipeline</string>
+    <string>Start</string>
    </property>
    <property name="iconText">
     <string>Start</string>
+   </property>
+   <property name="toolTip">
+    <string>Start the pipeline</string>
    </property>
   </action>
   <action name="actionStop">
@@ -136,10 +138,13 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Stop the pipeline</string>
+    <string>Stop</string>
    </property>
    <property name="iconText">
     <string>Stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop the pipeline</string>
    </property>
   </action>
   <action name="actionPause">
@@ -150,11 +155,6 @@
    </property>
    <property name="text">
     <string>Pause</string>
-   </property>
-  </action>
-  <action name="actionTOD">
-   <property name="text">
-    <string>TODO</string>
    </property>
   </action>
   <action name="actionSave">
@@ -180,10 +180,13 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Load a pipeline from a file</string>
+    <string>Load</string>
    </property>
    <property name="iconText">
     <string>Load</string>
+   </property>
+   <property name="toolTip">
+    <string>Load a pipeline from a file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
