@@ -20,6 +20,9 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 {
     Q_UNUSED(wFlags);
     this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+    this->setFlag(QGraphicsItem::ItemIsMovable, true);
+    this->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
     QGraphicsTextItem* titleLabel = new QGraphicsTextItem(element->getName(), this);
     this->addToGroup(titleLabel);
 

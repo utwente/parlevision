@@ -68,9 +68,6 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
     PipelineElementWidget* pew = new PipelineElementWidget(e.getPtr());
     this->addItem(pew);
     this->elementWidgets[e] = pew;
-    pew->setFlag(QGraphicsItem::ItemIsMovable, true);
-    pew->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
 }
 
 void PipelineScene::add(plv::PinConnection* c)
