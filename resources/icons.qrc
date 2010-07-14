@@ -6,5 +6,6 @@
         <file>icons/folder.png</file>
         <file>icons/save.png</file>
         <file>icons/library.png</file>
+        <file>icons/inspector.png</file>
     </qresource>
 </RCC>

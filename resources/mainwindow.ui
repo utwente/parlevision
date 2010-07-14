@@ -124,6 +124,8 @@
    <addaction name="actionStart"/>
    <addaction name="actionPause"/>
    <addaction name="actionStop"/>
+   <addaction name="separator"/>
+   <addaction name="actionShow_Inspector"/>
   </widget>
   <action name="actionStart">
    <property name="icon">
@@ -219,6 +221,11 @@
    </property>
   </action>
   <action name="actionShow_Inspector">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/inspector.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Show Inspector</string>
    </property>
