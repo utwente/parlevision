@@ -29,7 +29,7 @@ PinWidget::PinWidget(PipelineElementWidget *parent, RefPtr<IOutputPin> pin)
 QRectF PinWidget::boundingRect() const
 {
     QRectF rect = QGraphicsItemGroup::boundingRect();
-    rect.adjust(-7,7,0,0);
+//    rect.adjust(-7,7,0,0);
     return rect;
 }
 
@@ -81,27 +81,14 @@ void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
     }
 }
 
-void PinWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+void PinWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    // Mouse releases are a bit more liberal,
-    // they don't have to be above the circle;
-    // anywhere on the widget is OK
-    if(!this->contains(event->pos()))
-    {
-        qDebug() << "PinWidget["<< this->getPin()->getName() << "]: "
-                <<"mouse released elsewhere: " << this->pos() << "+"<< this->boundingRect()
-                << " <> " << event->pos();
+    Q_UNUSED(widget);
+    Q_UNUSED(option);
 
-        event->ignore();
-        return;
-    }
 
-    event->accept();
+    painter->setPen(Qt::blue);
 
-    assert(this->scene() != 0);
-    if(this->scene() != 0)
-    {
-        qDebug() << "posting event";
-        QCoreApplication::postEvent(this->scene(), new PinReleasedEvent(this));
-    }
+    painter->setBrush(Qt::red);
+    painter->drawRect(this->boundingRect());
 }

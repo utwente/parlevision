@@ -118,34 +118,6 @@ bool PipelineScene::event(QEvent* event)
         clearLine();
         this->line = new InteractiveLine(pce->getSource(), 0, this);
     }
-    else if(event->type() == PinReleasedEvent::user_type())
-    {
-        qDebug() << "Scene got PinReleasedEvent";
-        event->accept();
-        PinReleasedEvent* pre = static_cast<PinReleasedEvent*>(event);
-        qDebug() << pre->getSource()->getPin()->getName();
-
-        assert(line != 0);
-        if(line != 0)
-        {
-            PinWidget* fromWidget = line->getFromPin();
-            PinWidget* toWidget = pre->getSource();
-
-            RefPtr<IOutputPin> fromPin = ref_ptr_dynamic_cast<IOutputPin>(fromWidget->getPin());
-            assert(fromPin.isNotNull());
-
-            RefPtr<IInputPin> toPin = ref_ptr_dynamic_cast<IInputPin>(toWidget->getPin());
-            assert(toPin.isNotNull());
-
-            qDebug() << "Making connection "
-                    << fromPin->getOwner()->getName() << "/" << fromPin->getName()
-                    << " -> "
-                    << toPin->getOwner()->getName() << "/" << toPin->getName();
-
-            clearLine();
-            this->m_pipeline->connectPins(fromPin,toPin);
-        }
-    }
 
     return QGraphicsScene::event(event);
 }
@@ -166,7 +138,40 @@ void PipelineScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
 void PipelineScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
+    if(this->line != 0)
+    {
+        // find any items below the mouse
+        // and see if one of them is a PinWidget
+        foreach(QGraphicsItem* item, this->items(mouseEvent->scenePos()))
+        {
+            qDebug() << "under mouse: " << item;
+            PinWidget* pw = dynamic_cast<PinWidget*>(item);
+            if(pw != 0)
+            {
+                qDebug() << "It's a PinWidget! " << pw->getPin()->getName();
+                mouseEvent->accept();
+
+                PinWidget* fromWidget = line->getFromPin();
+                PinWidget* toWidget = pw;
+
+                RefPtr<IOutputPin> fromPin = ref_ptr_dynamic_cast<IOutputPin>(fromWidget->getPin());
+                assert(fromPin.isNotNull());
+
+                RefPtr<IInputPin> toPin = ref_ptr_dynamic_cast<IInputPin>(toWidget->getPin());
+                assert(toPin.isNotNull());
+
+                qDebug() << "Making connection "
+                        << fromPin->getOwner()->getName() << "/" << fromPin->getName()
+                        << " -> "
+                        << toPin->getOwner()->getName() << "/" << toPin->getName();
+
+                this->m_pipeline->connectPins(fromPin,toPin);
+            }
+        }
+    }
+
     clearLine();
+
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }
 
