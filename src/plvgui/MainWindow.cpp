@@ -39,25 +39,6 @@ void MainWindow::initGUI()
     ui->setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
 
-    QPixmap startpix = QPixmap(":/icons/play.png");
-    QPixmap pausepix(":/icons/pause.png");
-    QPixmap stoppix(":/icons/stop.png");
-
-
-    m_startAction = new QAction(startpix, "&Start", this);
-    m_startAction->setStatusTip(tr("Starts the pipeline"));
-
-    m_pauseAction = new QAction(pausepix, "&Pause", this);
-    m_pauseAction->setStatusTip(tr("Pauses the pipeline"));
-
-    m_stopAction = new QAction(stoppix, "S&top", this);
-    m_stopAction->setStatusTip(tr("Stops the pipeline"));
-
-
-    ui->toolBar->addAction(m_startAction);
-    ui->toolBar->addAction(m_pauseAction);
-    ui->toolBar->addAction(m_stopAction);
-
     ui->view->setAcceptDrops(true);
 
     createLibraryWidget();
@@ -122,15 +103,10 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     ui->view->setPipeline(pipeline);
 
     //TODO disconnect from previous pipeline if needed
-
     connect(ui->actionStop, SIGNAL(triggered()),
-            pipeline, SLOT(stop()));
-    connect(this->m_stopAction, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
 
     connect(ui->actionStart, SIGNAL(triggered()),
-            pipeline, SLOT(start()));
-    connect(this->m_startAction, SIGNAL(triggered()),
             pipeline, SLOT(start()));
 
     connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),

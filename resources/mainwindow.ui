@@ -107,18 +107,36 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionStart"/>
+   <addaction name="actionPause"/>
+   <addaction name="actionStop"/>
   </widget>
   <action name="actionStart">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/play.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Start</string>
    </property>
   </action>
   <action name="actionStop">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/stop.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Stop</string>
    </property>
   </action>
   <action name="actionPause">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/pause.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Pause</string>
    </property>

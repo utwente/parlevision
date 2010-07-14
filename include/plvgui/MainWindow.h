@@ -39,10 +39,6 @@ namespace plvgui {
           * And restores it.
           */
         void loadSettings();
-        QToolBar* m_controls_toolbar;
-        QAction* m_startAction;
-        QAction* m_stopAction;
-        QAction* m_pauseAction;
         LibraryWidget* m_libraryWidget;
         plv::RefPtr<plv::Pipeline> m_pipeline;
 
