@@ -11,10 +11,12 @@ namespace plvgui {
     class LibraryElement : public QLabel
     {
     public:
-        LibraryElement(QString name, QWidget* parent);
+        LibraryElement(QString typeName, QWidget* parent);
+        QString getType() { return typeName; }
         QString getName() { return name; }
 
     private:
+        QString typeName;
         QString name;
     };
 }

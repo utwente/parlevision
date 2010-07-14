@@ -19,7 +19,7 @@ LibraryWidget::LibraryWidget(QWidget *parent) :
         iter != types.end(); iter++)
     {
         qDebug() << "LibraryWidget: Adding type " << *iter;
-        addItem(QString(*iter));
+        addItem(*iter);
     }
 }
 
@@ -28,9 +28,9 @@ LibraryWidget::~LibraryWidget()
     delete ui;
 }
 
-void LibraryWidget::addItem(QString name)
+void LibraryWidget::addItem(QString typeName)
 {
-    LibraryElement* w = new LibraryElement(name, this);
+    LibraryElement* w = new LibraryElement(typeName, this);
     ui->container->addWidget(w);
 }
 
@@ -47,7 +47,7 @@ void LibraryWidget::mousePressEvent(QMouseEvent *event)
 
     QPoint hotSpot = event->pos() - element->pos();
 
-    QString elementName = element->getName();
+    QString elementName = element->getType();
     qDebug() << "starting drag of " << elementName;
 
     QByteArray itemData;
