@@ -55,7 +55,7 @@ void PinWidget::init(bool isInput=true)
 
 void PinWidget::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    qDebug() << "hovering above " << this->getPin()->getName();
+//    qDebug() << "hovering above " << this->getPin()->getName();
     event->accept();
 }
 
@@ -66,8 +66,8 @@ void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
     // would make dragging the parent element very hard.
     if(!this->circle->contains(this->circle->mapFromParent(event->pos())))
     {
-        qDebug() << "clicked on PinWidget, but not inside circle "
-                << circle->pos() << " != " << event->pos();
+//        qDebug() << "clicked on PinWidget, but not inside circle "
+//                << circle->pos() << " != " << event->pos();
         event->ignore();
         return;
     }
