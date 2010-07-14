@@ -107,13 +107,16 @@ bool PipelineScene::event(QEvent* event)
 //    return QObject::event(event);
     if(event->type() == PinClickedEvent::user_type())
     {
-        qDebug() << "Scene got PinClickedEvent";
-        event->accept();
         PinClickedEvent* pce = static_cast<PinClickedEvent*>(event);
         qDebug() << pce->getSource()->getPin()->getName();
 
-        clearLine();
-        this->line = new InteractiveLine(pce->getSource(), 0, this);
+        // if the event originated from an outputpin, start dragging a line
+        if(ref_ptr_dynamic_cast<IOutputPin>(pce->getSource()->getPin()).isNotNull())
+        {
+            event->accept();
+            clearLine();
+            this->line = new InteractiveLine(pce->getSource(), 0, this);
+        }
     }
 
     return QGraphicsScene::event(event);
@@ -135,34 +138,19 @@ void PipelineScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
 void PipelineScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
+    // Detect if the mouse was released while dragging a line
     if(this->line != 0)
     {
         // find any items below the mouse
         // and see if one of them is a PinWidget
         foreach(QGraphicsItem* item, this->items(mouseEvent->scenePos()))
         {
-            qDebug() << "under mouse: " << item;
             PinWidget* pw = dynamic_cast<PinWidget*>(item);
             if(pw != 0)
             {
-                qDebug() << "It's a PinWidget! " << pw->getPin()->getName();
                 mouseEvent->accept();
 
-                PinWidget* fromWidget = line->getFromPin();
-                PinWidget* toWidget = pw;
-
-                RefPtr<IOutputPin> fromPin = ref_ptr_dynamic_cast<IOutputPin>(fromWidget->getPin());
-                assert(fromPin.isNotNull());
-
-                RefPtr<IInputPin> toPin = ref_ptr_dynamic_cast<IInputPin>(toWidget->getPin());
-                assert(toPin.isNotNull());
-
-                qDebug() << "Making connection "
-                        << fromPin->getOwner()->getName() << "/" << fromPin->getName()
-                        << " -> "
-                        << toPin->getOwner()->getName() << "/" << toPin->getName();
-
-                this->m_pipeline->connectPins(fromPin,toPin);
+                handleConnectionCreation(line->getFromPin(), pw);
             }
         }
     }
@@ -180,4 +168,25 @@ void PipelineScene::clearLine()
         delete this->line;
         this->line = 0;
     }
+}
+
+void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* target)
+{
+    RefPtr<IOutputPin> fromPin = ref_ptr_dynamic_cast<IOutputPin>(source->getPin());
+    assert(fromPin.isNotNull());
+
+    RefPtr<IInputPin> toPin = ref_ptr_dynamic_cast<IInputPin>(target->getPin());
+    if(toPin.isNull())
+    {
+        qWarning() << "Cannot make connection: Target is not an input pin";
+        return;
+    }
+    assert(toPin.isNotNull());
+
+    qDebug() << "Making connection "
+            << fromPin->getOwner()->getName() << "/" << fromPin->getName()
+            << " -> "
+            << toPin->getOwner()->getName() << "/" << toPin->getName();
+
+    this->m_pipeline->connectPins(fromPin,toPin);
 }

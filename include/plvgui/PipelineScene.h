@@ -50,6 +50,8 @@ namespace plvgui
 
     private:
         void clearLine();
+        void handleConnectionCreation(PinWidget* source, PinWidget* target);
+
         plv::RefPtr<plv::Pipeline> m_pipeline;
         QHash<plv::PipelineElement*, PipelineElementWidget*> elementWidgets;
 
