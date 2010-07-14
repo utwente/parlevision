@@ -29,7 +29,7 @@ PinWidget::PinWidget(PipelineElementWidget *parent, RefPtr<IOutputPin> pin)
 QRectF PinWidget::boundingRect() const
 {
     QRectF rect = QGraphicsItemGroup::boundingRect();
-//    rect.adjust(-7,7,0,0);
+    rect.adjust(-6,0,6,0);
     return rect;
 }
 
@@ -39,18 +39,24 @@ void PinWidget::init(bool isInput=true)
 
     assert(m_pin.isNotNull());
     QGraphicsTextItem* label = new QGraphicsTextItem(m_pin->getName());
-    this->addToGroup(label);
-    label->translate(6,0);
 
     this->circle = new QGraphicsEllipseItem(0,0,7,7,this);
-    this->addToGroup(circle);
+
     this->circle->translate(0, 10);
 
-    if(!isInput)
+    if(isInput)
     {
-        qDebug() << label->textWidth();
+//        this->circle->translate(6,0);
+        label->translate(12,0);
+    }
+    else
+    {
+        label->translate(-12,0);
         this->circle->translate(100, 0);
     }
+
+    this->addToGroup(circle);
+    this->addToGroup(label);
 }
 
 void PinWidget::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
@@ -81,6 +87,7 @@ void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
     }
 }
 
+/*
 void PinWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(widget);
@@ -92,3 +99,4 @@ void PinWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->setBrush(Qt::red);
     painter->drawRect(this->boundingRect());
 }
+*/
