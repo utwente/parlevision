@@ -51,7 +51,8 @@ namespace plvgui {
         void createLibraryWidget();
 
 private slots:
-    void on_actionShow_Library_toggled(bool );
+    void on_actionLoad_triggered();
+    void on_actionShow_Library_toggled(bool);
 };
 
 } // namespace plvgui

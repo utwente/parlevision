@@ -187,3 +187,13 @@ void MainWindow::updateLibraryVisibility(bool visible)
     ui->actionShow_Library->setChecked(visible);
 }
 
+
+void plvgui::MainWindow::on_actionLoad_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+                            tr("Open Pipeline"),
+                            "",
+                            tr("ParleVision Pipeline (*.plv *.pipeline)"));
+
+    qDebug() << "User selected "<<fileName;
+}
