@@ -84,6 +84,8 @@
      <string>File</string>
     </property>
     <addaction name="actionTOD"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionLoad"/>
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
@@ -107,6 +109,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionSave"/>
+   <addaction name="actionLoad"/>
+   <addaction name="separator"/>
    <addaction name="actionStart"/>
    <addaction name="actionPause"/>
    <addaction name="actionStop"/>
@@ -118,6 +123,9 @@
     </iconset>
    </property>
    <property name="text">
+    <string>Start the pipeline</string>
+   </property>
+   <property name="iconText">
     <string>Start</string>
    </property>
   </action>
@@ -128,6 +136,9 @@
     </iconset>
    </property>
    <property name="text">
+    <string>Stop the pipeline</string>
+   </property>
+   <property name="iconText">
     <string>Stop</string>
    </property>
   </action>
@@ -144,6 +155,41 @@
   <action name="actionTOD">
    <property name="text">
     <string>TODO</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/save.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the active pipeline to a file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionLoad">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/folder.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Load a pipeline from a file</string>
+   </property>
+   <property name="iconText">
+    <string>Load</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
  </widget>

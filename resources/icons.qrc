@@ -3,5 +3,7 @@
         <file>icons/pause.png</file>
         <file>icons/play.png</file>
         <file>icons/stop.png</file>
+        <file>icons/folder.png</file>
+        <file>icons/save.png</file>
     </qresource>
 </RCC>
