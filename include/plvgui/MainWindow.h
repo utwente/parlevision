@@ -30,6 +30,7 @@ namespace plvgui {
 
     public slots:
         void addRenderersForPins(plv::RefPtr<plv::PipelineElement>);
+        void updateLibraryVisibility(bool);
 
     protected:
         void changeEvent(QEvent* e);
@@ -48,7 +49,10 @@ namespace plvgui {
         QSettings* m_settings;
         void initGUI();
         void createLibraryWidget();
-    };
+
+private slots:
+    void on_actionShow_Library_toggled(bool );
+};
 
 } // namespace plvgui
 

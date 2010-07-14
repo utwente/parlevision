@@ -90,6 +90,10 @@ void MainWindow::createLibraryWidget()
     // Show LibraryWidget as floating window on Mac OS X
     m_libraryWidget->setFloating(true);
     #endif
+
+    ui->actionShow_Library->setChecked(m_libraryWidget->isVisible());
+    connect(m_libraryWidget, SIGNAL(visibilityChanged(bool)),
+                                    this, SLOT(updateLibraryVisibility(bool)));
 }
 
 void MainWindow::setPipeline(plv::Pipeline* pipeline)
@@ -165,3 +169,21 @@ void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
 //    connect(this->m_pauseAction, SIGNAL(triggered()),
 //            camera, SLOT(pause()));
 //}
+
+void plvgui::MainWindow::on_actionShow_Library_toggled(bool on)
+{
+    if(on)
+    {
+        this->m_libraryWidget->show();
+    }
+    else
+    {
+        this->m_libraryWidget->hide();
+    }
+}
+
+void MainWindow::updateLibraryVisibility(bool visible)
+{
+    ui->actionShow_Library->setChecked(visible);
+}
+
