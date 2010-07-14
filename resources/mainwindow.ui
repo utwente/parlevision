@@ -88,7 +88,7 @@
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
-     <string>Actions</string>
+     <string>Pipeline</string>
     </property>
     <addaction name="actionStart"/>
     <addaction name="actionPause"/>
@@ -101,7 +101,14 @@
     <addaction name="actionShow_Library"/>
     <addaction name="actionShow_Inspector"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionDelete"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuActions"/>
    <addaction name="menuView"/>
   </widget>
@@ -124,6 +131,8 @@
    <addaction name="actionStart"/>
    <addaction name="actionPause"/>
    <addaction name="actionStop"/>
+   <addaction name="separator"/>
+   <addaction name="actionDelete"/>
    <addaction name="separator"/>
    <addaction name="actionShow_Inspector"/>
   </widget>
@@ -192,7 +201,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Load</string>
+    <string>Open</string>
    </property>
    <property name="iconText">
     <string>Load</string>
@@ -239,6 +248,24 @@
     <string>Ctrl+I</string>
    </property>
   </action>
+  <action name="actionDelete">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove the currentlly selected element from the pipeline</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Backspace</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -247,6 +274,8 @@
    <header>plvgui/pipelineview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

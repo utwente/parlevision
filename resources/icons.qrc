@@ -7,5 +7,6 @@
         <file>icons/save.png</file>
         <file>icons/library.png</file>
         <file>icons/inspector.png</file>
+        <file>icons/delete.png</file>
     </qresource>
 </RCC>
