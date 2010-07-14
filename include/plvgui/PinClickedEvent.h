@@ -9,13 +9,6 @@ static inline int getPinClickedEventType()
     return sPinClickedEventType;
 }
 
-static inline int getPinReleasedEventType()
-{
-    static int sPinReleasedEventType= QEvent::registerEventType();
-    return sPinReleasedEventType;
-}
-
-
 namespace plvgui
 {
     class PinWidget;
@@ -30,24 +23,6 @@ namespace plvgui
 
         /** returns the type of this event, for use in handilng switches */
         static QEvent::Type user_type() {return QEvent::Type(getPinClickedEventType());}
-
-    private:
-        PinWidget* source;
-    };
-
-    class PinReleasedEvent: public QEvent
-    {
-    public:
-        PinReleasedEvent(PinWidget* pw) :
-                QEvent(PinReleasedEvent::user_type()), source(pw)
-        {
-            qDebug() << "Constructing PinReleasedEvent " << type();
-        }
-
-        PinWidget* getSource() { return source; }
-
-        /** returns the type of this event, for use in handilng switches */
-        static QEvent::Type user_type() {return QEvent::Type(getPinReleasedEventType());}
 
     private:
         PinWidget* source;
