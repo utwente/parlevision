@@ -2,14 +2,19 @@
 #include "ui_mainwindow.h"
 
 #include "LibraryWidget.h"
+#include "Inspector.h"
+#include "InspectorFactory.h"
 
 #include "Pipeline.h"
 #include "PipelineScene.h"
+#include "PipelineElement.h"
+#include "Pin.h"
 
 #include <QDebug>
 #include <QSettings>
 #include <QtGui>
 
+#include <list>
 
 using namespace plvgui;
 using namespace plv;
@@ -127,6 +132,41 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
             pipeline, SLOT(start()));
     connect(this->m_startAction, SIGNAL(triggered()),
             pipeline, SLOT(start()));
+
+    connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(addRenderersForPins(plv::RefPtr<plv::PipelineElement>)));
+
+    // add renderers for all elements in the pipeline
+    std::list< RefPtr<PipelineElement> > elements = pipeline->getChildren();
+    for( std::list< RefPtr<PipelineElement> >::iterator itr = elements.begin()
+        ; itr != elements.end(); ++itr )
+    {
+        this->addRenderersForPins(*itr);
+    }
+
+}
+
+void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
+{
+    qDebug() << "Adding renderers for " << element->getName();
+    //this is temporary
+    std::list< RefPtr<IOutputPin> >* outPins = element->getOutputPins();
+
+    for(std::list< RefPtr<IOutputPin> >::iterator itr = outPins->begin();
+        itr != outPins->end();
+        ++itr)
+    {
+        RefPtr<IOutputPin> pin = *itr;
+
+        assert(pin.isNotNull());
+        qDebug() << "Adding renderer for Pin " << pin->getName();
+
+        Inspector* inspector = InspectorFactory::create(pin->getTypeInfo().name(), this);
+        inspector->setPin(pin);
+
+        this->addWidget(inspector);
+    }
+
 }
 
 //void MainWindow::addCamera(plv::OpenCVCamera* camera)

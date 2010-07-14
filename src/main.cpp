@@ -40,6 +40,7 @@ int main(int argc, char **argv)
 	
 	// register classes with Qt so they can be used in signals and slots
     int id = qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
+    Q_UNUSED(id);
     //RefPtr<Data> test = static_cast< RefPtr<Data> >(QMetaType::construct( id ));
     qRegisterMetaType< RefPtr<QtImage> >("RefPtr<QtImage>");
 
@@ -83,6 +84,7 @@ int main(int argc, char **argv)
 
     mainWin->setPipeline(pipeline);
 
+    /*
     //this is temporary
     qDebug() << "output pin type" << cp->getOutputPin("output")->getTypeInfo().name();
 
@@ -100,6 +102,7 @@ int main(int argc, char **argv)
     dummy_inspector->setPin(dp->getOutputPin("output image"));
 
     mainWin->addWidget(dummy_inspector);
+    */
 
     mainWin->show();
 

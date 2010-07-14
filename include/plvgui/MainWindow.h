@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QSettings>
-#include "OpenCVCamera.h"
+#include "PipelineElement.h"
 #include "RefPtr.h"
 
 class QToolbar;
@@ -27,6 +27,9 @@ namespace plvgui {
         ~MainWindow();
         void addWidget(QWidget* widget);
         void setPipeline(plv::Pipeline* pipeline);
+
+    public slots:
+        void addRenderersForPins(plv::RefPtr<plv::PipelineElement>);
 
     protected:
         void changeEvent(QEvent* e);
