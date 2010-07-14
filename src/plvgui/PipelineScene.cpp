@@ -118,6 +118,34 @@ bool PipelineScene::event(QEvent* event)
         clearLine();
         this->line = new InteractiveLine(pce->getSource(), 0, this);
     }
+    else if(event->type() == PinReleasedEvent::user_type())
+    {
+        qDebug() << "Scene got PinReleasedEvent";
+        event->accept();
+        PinReleasedEvent* pre = static_cast<PinReleasedEvent*>(event);
+        qDebug() << pre->getSource()->getPin()->getName();
+
+        assert(line != 0);
+        if(line != 0)
+        {
+            PinWidget* fromWidget = line->getFromPin();
+            PinWidget* toWidget = pre->getSource();
+
+            RefPtr<IOutputPin> fromPin = ref_ptr_dynamic_cast<IOutputPin>(fromWidget->getPin());
+            assert(fromPin.isNotNull());
+
+            RefPtr<IInputPin> toPin = ref_ptr_dynamic_cast<IInputPin>(toWidget->getPin());
+            assert(toPin.isNotNull());
+
+            qDebug() << "Making connection "
+                    << fromPin->getOwner()->getName() << "/" << fromPin->getName()
+                    << " -> "
+                    << toPin->getOwner()->getName() << "/" << toPin->getName();
+
+            clearLine();
+            this->m_pipeline->connectPins(fromPin,toPin);
+        }
+    }
 
     return QGraphicsScene::event(event);
 }

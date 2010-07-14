@@ -64,23 +64,44 @@ void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
     // only accept clicks if they are on the circle
     // ignore clicks on the label, as accepting those clicks
     // would make dragging the parent element very hard.
-    if(this->circle->contains(this->circle->mapFromParent(event->pos())))
-    {
-        dumpObjectTree();
-        event->accept();
-        qDebug() << PinClickedEvent::user_type();
-
-        assert(this->scene() != 0);
-        if(this->scene() != 0)
-        {
-            qDebug() << "posting event";
-            QCoreApplication::postEvent(this->scene(), new PinClickedEvent(this));
-        }
-    }
-    else
+    if(!this->circle->contains(this->circle->mapFromParent(event->pos())))
     {
         qDebug() << "clicked on PinWidget, but not inside circle "
                 << circle->pos() << " != " << event->pos();
         event->ignore();
+        return;
+    }
+
+    event->accept();
+
+    assert(this->scene() != 0);
+    if(this->scene() != 0)
+    {
+        QCoreApplication::postEvent(this->scene(), new PinClickedEvent(this));
+    }
+}
+
+void PinWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+    // Mouse releases are a bit more liberal,
+    // they don't have to be above the circle;
+    // anywhere on the widget is OK
+    if(!this->contains(event->pos()))
+    {
+        qDebug() << "PinWidget["<< this->getPin()->getName() << "]: "
+                <<"mouse released elsewhere: " << this->pos() << "+"<< this->boundingRect()
+                << " <> " << event->pos();
+
+        event->ignore();
+        return;
+    }
+
+    event->accept();
+
+    assert(this->scene() != 0);
+    if(this->scene() != 0)
+    {
+        qDebug() << "posting event";
+        QCoreApplication::postEvent(this->scene(), new PinReleasedEvent(this));
     }
 }

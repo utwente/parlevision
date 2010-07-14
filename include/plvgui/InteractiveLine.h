@@ -36,6 +36,7 @@ namespace plvgui
 
         QRectF boundingRect() const;
         QPainterPath shape() const;
+        PinWidget* getFromPin() const {return this->fromPin;}
 
     public slots:
         void updateTarget(QPointF pos);

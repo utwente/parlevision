@@ -34,6 +34,7 @@ namespace plvgui
     protected:
         virtual void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
         virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
+        virtual void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event );
 
     private:
         PipelineElementWidget* m_parent;
