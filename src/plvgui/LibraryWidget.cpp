@@ -41,7 +41,7 @@ void plvgui::LibraryWidget::on_pushButton_clicked()
 
 void LibraryWidget::mousePressEvent(QMouseEvent *event)
 {
-    LibraryElement* element = static_cast<LibraryElement*>(childAt(event->pos()));
+    LibraryElement* element = dynamic_cast<LibraryElement*>(childAt(event->pos()));
 
     if (!element) return;
 
