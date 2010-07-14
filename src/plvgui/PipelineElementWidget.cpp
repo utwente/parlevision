@@ -48,8 +48,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         y+=10;
     }
 
-    leftColumnWidth = (titleLabel->boundingRect().width()/2.0 > leftColumnWidth
-                       ? titleLabel->boundingRect().width()/2.0 : leftColumnWidth);
+    leftColumnWidth = max(titleLabel->boundingRect().width()/2.0, leftColumnWidth);
 
     // outputpins should be aligned right.
     // in order to do this, we first make all the widgets,
@@ -66,7 +65,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         PinWidget* pw = new PinWidget(this, pin);
         this->pinWidgets[pin.getPtr()] = pw;
         outWidgets.append(pw);
-        maxWidth = (pw->boundingRect().width()>maxWidth ? pw->boundingRect().width() : maxWidth);
+        maxWidth = max(pw->boundingRect().width(), maxWidth);
     }
 
     y = 20;
