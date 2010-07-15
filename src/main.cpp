@@ -14,6 +14,8 @@
 #include "Pin.h"
 #include "Inspector.h"
 #include "QtImage.h"
+#include "XmlMapper.h"
+#include "PipelineLoader.h"
 
 using namespace plv;
 using namespace plvgui;
@@ -22,6 +24,26 @@ void initAndStartPipeline(Pipeline* pipeline)
 {
     bool state = pipeline->init();
     assert(state);
+}
+
+/* Use Introspection */
+static Pipeline* loadTestPipeline(void)
+{
+    Pipeline* pl = 0;
+
+    try
+    {
+        pl = PipelineLoader::parsePipeline( "../test/test_pipeline.xml" );
+    }
+    catch( std::runtime_error& e )
+    {
+        qDebug() << "Pipeline loading failed with: " << e.what();
+    }
+    catch( ... )
+    {
+        qDebug() << "Caught unknown exception.";
+    }
+    return pl;
 }
 
 int main(int argc, char **argv)
@@ -57,18 +79,18 @@ int main(int argc, char **argv)
 //    FrameWidget* cvWidget = new FrameWidget( mainWin );
 
     // Make a pipeline
-    RefPtr<Pipeline> pipeline = new Pipeline();
-    // Make a CameraProducer
-    RefPtr<CameraProducer> cp = static_cast<CameraProducer*>( QMetaType::construct(QMetaType::type("plv::CameraProducer")) );
-    // Add it to the pipeline
-    pipeline->add(cp);
+//    RefPtr<Pipeline> pipeline = new Pipeline();
+//    // Make a CameraProducer
+//    RefPtr<CameraProducer> cp = static_cast<CameraProducer*>( QMetaType::construct(QMetaType::type("plv::CameraProducer")) );
+//    // Add it to the pipeline
+//    pipeline->add(cp);
+//
+//    RefPtr<DummyProcessor> dp = static_cast<DummyProcessor*>( QMetaType::construct(QMetaType::type("plv::DummyProcessor")) );
+//    pipeline->add(dp);
+//
+//    pipeline->connectPins(cp->getOutputPin("output"), dp->getInputPin("input image"));
 
-    RefPtr<DummyProcessor> dp = static_cast<DummyProcessor*>( QMetaType::construct(QMetaType::type("plv::DummyProcessor")) );
-    pipeline->add(dp);
-
-    pipeline->connectPins(cp->getOutputPin("output"), dp->getInputPin("input image"));
-
-
+    RefPtr<Pipeline> pipeline = loadTestPipeline();
 
     //cvWidget->setSource(camera);
 
@@ -81,7 +103,7 @@ int main(int argc, char **argv)
     //QtConcurrent::run(initAndStartPipeline, pipeline);
     initAndStartPipeline( pipeline );
 
-    mainWin->setPipeline(pipeline);
+    mainWin->setPipeline( pipeline);
 
     //this is temporary
     qDebug() << "output pin type" << cp->getOutputPin("output")->getTypeInfo().name();

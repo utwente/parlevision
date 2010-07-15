@@ -61,3 +61,23 @@ void DummyProcessor::process()
     // publish the new image
     m_outputPin->put( img2.getPtr() );
 }
+
+int DummyProcessor::getSomeInt()
+{
+    return m_someInt;
+}
+
+void DummyProcessor::setSomeInt( int i )
+{
+    m_someInt = i;
+}
+
+void DummyProcessor::setSomeString( QString s )
+{
+    m_someString = s;
+}
+
+QString DummyProcessor::getSomeString()
+{
+    return m_someString;
+}

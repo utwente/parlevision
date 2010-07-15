@@ -44,6 +44,17 @@ void Pipeline::remove( PipelineElement* child )
     }
 }
 
+PipelineElement* Pipeline::getElement( int id )
+{
+    PipelineElementMap::iterator itr = m_children.find( id );
+    if( itr != m_children.end() )
+    {
+        // preserve the element so we can send it over the signal later
+        return itr->second.getPtr();
+    }
+    return 0;
+}
+
 void Pipeline::remove( int id )
 {
     PipelineElementMap::iterator itr = m_children.find( id );

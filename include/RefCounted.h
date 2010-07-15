@@ -25,6 +25,9 @@ public:
     {
     }
 
+    /** RefCounted objects should generally not explicitely be destructed */
+    virtual ~RefCounted();
+
     /** increases reference count by one */
     inline void inc() const
     {
@@ -54,10 +57,6 @@ public:
         QMutexLocker lock( &m_refMutex );
         return m_referenceCount;
     }
-
-    /** RefCounted objects should not explicitely be destructed! */
-    virtual ~RefCounted();
-
 };
 
 }

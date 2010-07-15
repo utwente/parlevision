@@ -21,8 +21,12 @@ namespace plv
         typedef std::map<int , RefPtr<PipelineElement> > PipelineElementMap;
 
     public:
-
         Pipeline();
+
+        /** Refcounted so only call this directly if you know what you are
+          * doing
+          */
+        ~Pipeline();
 
         /** Initialise this Pipeline. Not yet reentrant
           */
@@ -49,6 +53,8 @@ namespace plv
           */
         void remove( int id );
 
+        PipelineElement* getElement( int id );
+
         /** Get all the PipelineElements that make up this Pipeline.
           * This method is slow and uncached.
           */
@@ -66,7 +72,7 @@ namespace plv
         PipelineElementMap m_children;
         std::list< RefPtr<PinConnection> > m_connections;
 
-        ~Pipeline();
+
 
         /**
           * The QThread run loop

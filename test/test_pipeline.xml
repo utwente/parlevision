@@ -1,0 +1,24 @@
+<pipeline>
+	<element name='plv::DummyProcessor' id='2'>
+		<properties>
+			<someString>someStringValue</someString>
+			<someInt>20</someInt>
+		</properties>
+	</element>
+	<element name='plv::CameraProducer' id='1'/>
+	
+	<connections>
+		<connection type="lossy">
+			<source>
+				<processorId>1</processorId>
+				<processorName>plv::CameraProducer</processorName>
+				<pinName>CameraOutput</pinName>
+			</source>
+			<sink>
+				<processorId>2</processorId>
+				<processorName>plv::DummyProcessor</processorName>
+				<pinName>CameraInput</pinName>
+			</sink>
+		</connnection>
+	</connections>
+ </pipeline>

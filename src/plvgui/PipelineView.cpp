@@ -50,7 +50,7 @@ void PipelineView::dropEvent(QDropEvent *event)
         int typeId = QMetaType::type(elementName.toAscii());
 
         if(typeId == 0)
-            throw new ElementCreationException(
+            throw ElementCreationException(
                     QString("Tried to create unknown element "+elementName).toStdString());
 
         RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(QMetaType::construct(typeId));
