@@ -60,11 +60,11 @@ void MainWindow::changeEvent(QEvent *e)
     case QEvent::ActivationChange:
         if(this->isActiveWindow() || this->m_libraryWidget->isActiveWindow())
         {
-            qDebug() << this << " activated";
+//            qDebug() << this << " activated";
         }
         else
         {
-            qDebug() << this << " went to background";
+//            qDebug() << this << " went to background";
         }
     default:
         break;
