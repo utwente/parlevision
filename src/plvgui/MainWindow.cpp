@@ -9,6 +9,7 @@
 #include "PipelineScene.h"
 #include "PipelineElement.h"
 #include "Pin.h"
+#include "PinConnection.h"
 #include "PipelineLoader.h"
 
 #include <QDebug>
@@ -140,11 +141,11 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
             this, SLOT(documentChanged()));
     connect(pipeline, SIGNAL(elementRemoved(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(documentChanged()));
-    connect(pipeline, SIGNAL(connectionAdded(plv::RefPtr<plv::PipelineElement>)),
+    connect(pipeline, SIGNAL(connectionAdded(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(documentChanged()));
-    connect(pipeline, SIGNAL(connectionChanged(plv::RefPtr<plv::PipelineElement>)),
+    connect(pipeline, SIGNAL(connectionChanged(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(documentChanged()));
-    connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PipelineElement>)),
+    connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(documentChanged()));
 
     connect(scene, SIGNAL(changed(QList<QRectF>)),

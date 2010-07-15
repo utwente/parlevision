@@ -1,5 +1,10 @@
 <pipeline>
-	<element name='plv::CameraProducer' id='1'/>
+	<element name='plv::CameraProducer' id='1'>
+        <properties>
+            <sceneCoordX>-100.0</sceneCoordX>
+            <sceneCoordY>-100.0</sceneCoordY>
+        </properties>
+    </element>
 	<element name='plv::DummyProcessor' id='2'>
 		<properties>
 			<someString>someStringValue</someString>

@@ -32,7 +32,7 @@ static Pipeline* loadTestPipeline(void)
 
     try
     {
-        pl = PipelineLoader::parsePipeline( "../test/test_pipeline.xml" );
+        pl = PipelineLoader::parsePipeline( "/Users/dawuss/Projects/parlevision/test/test_pipeline.plv" );
     }
     catch( std::runtime_error& e )
     {
