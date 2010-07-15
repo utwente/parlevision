@@ -19,32 +19,6 @@
 using namespace plv;
 using namespace plvgui;
 
-void initAndStartPipeline(Pipeline* pipeline)
-{
-    bool state = pipeline->init();
-    assert(state);
-}
-
-/* Use Introspection */
-static Pipeline* loadTestPipeline(void)
-{
-    Pipeline* pl = 0;
-
-    try
-    {
-        pl = PipelineLoader::parsePipeline( "/Users/dawuss/Projects/parlevision/test/test_pipeline.plv" );
-    }
-    catch( std::runtime_error& e )
-    {
-        qDebug() << "Pipeline loading failed with: " << e.what();
-    }
-    catch( ... )
-    {
-        qDebug() << "Caught unknown exception.";
-    }
-    return pl;
-}
-
 int main(int argc, char **argv)
 {
     Q_INIT_RESOURCE(icons);
@@ -60,13 +34,7 @@ int main(int argc, char **argv)
 	
     MainWindow* mainWin = new MainWindow();
 
-    // Make a pipeline
-    {
-        RefPtr<Pipeline> pipeline = loadTestPipeline();
-        initAndStartPipeline( pipeline.getPtr() );
-        mainWin->setPipeline( pipeline.getPtr() );
-        mainWin->show();
-    }
+    mainWin->show();
 
     int retval = app.exec();
 

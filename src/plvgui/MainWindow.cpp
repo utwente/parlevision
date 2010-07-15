@@ -175,7 +175,9 @@ void MainWindow::loadFile(QString fileName)
     try
     {
         // this window did not yet have a pipeline loaded yet
-        RefPtr<Pipeline> pl = PipelineLoader::parsePipeline( "/Users/dawuss/Projects/parlevision/test/test_pipeline.xml" );
+        RefPtr<Pipeline> pl = PipelineLoader::parsePipeline(fileName);
+        bool state = pl->init();
+        assert(state);
         this->setPipeline(pl);
 
     }
