@@ -33,7 +33,6 @@ SOURCES += src/main.cpp \
     src/QtImage.cpp \
     src/OpenCVImage.cpp \
     src/RefCounted.cpp \
-    src/plvgui/FrameWidget.cpp \
     src/plvgui/CameraWindow.cpp \
     src/plvgui/MainWindow.cpp \
     src/DummyProcessor.cpp \
@@ -61,7 +60,6 @@ HEADERS += include/CameraProducer.h \
     include/Types.h \
     include/QtImage.h \
     include/OpenCVImage.h \
-    include/plvgui/FrameWidget.h \
     include/plvgui/CameraWindow.h \
     include/plvgui/MainWindow.h \
     include/DummyProcessor.h \
