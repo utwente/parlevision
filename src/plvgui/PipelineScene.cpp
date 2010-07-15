@@ -62,7 +62,7 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
 //    item->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
     if(this->elementWidgets.contains(e))
-        throw new PipelineException("Cannot add duplicate pipeline element to the scene.");
+        throw PipelineException("Cannot add duplicate pipeline element to the scene.");
 
 
     PipelineElementWidget* pew = new PipelineElementWidget(e.getPtr());
