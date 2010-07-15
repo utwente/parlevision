@@ -33,8 +33,6 @@ SOURCES += src/main.cpp \
     src/QtImage.cpp \
     src/OpenCVImage.cpp \
     src/RefCounted.cpp \
-    src/plvgui/FrameWidget.cpp \
-    src/plvgui/CameraWindow.cpp \
     src/plvgui/MainWindow.cpp \
     src/DummyProcessor.cpp \
     src/PipelineProcessor.cpp \
@@ -47,7 +45,6 @@ SOURCES += src/main.cpp \
     src/plvgui/PipelineScene.cpp \
     src/plvgui/PipelineElementWidget.cpp \
     src/plvgui/LibraryElement.cpp \
-    src/plvgui/PipelineView.cpp \
     src/XmlMapper.cpp \
     src/PipelineLoader.cpp \
     src/plvgui/ConnectionLine.cpp \
@@ -64,8 +61,6 @@ HEADERS += include/CameraProducer.h \
     include/Types.h \
     include/QtImage.h \
     include/OpenCVImage.h \
-    include/plvgui/FrameWidget.h \
-    include/plvgui/CameraWindow.h \
     include/plvgui/MainWindow.h \
     include/DummyProcessor.h \
     include/PipelineProcessor.h \
@@ -79,7 +74,6 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/PipelineElementWidget.h \
     include/PlvExceptions.h \
     include/plvgui/LibraryElement.h \
-    include/plvgui/PipelineView.h \
     include/XmlMapper.h \
     include/PipelineLoader.h \
     include/plvgui/ConnectionLine.h \

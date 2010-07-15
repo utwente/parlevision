@@ -67,6 +67,13 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
 
     PipelineElementWidget* pew = new PipelineElementWidget(e.getPtr());
     this->addItem(pew);
+    QVariant xVal = e->property("x");
+    if(xVal.isValid())
+    {
+        qreal x = xVal.toReal();
+        pew->translate(x,0);
+    }
+
     this->elementWidgets[e] = pew;
 }
 
@@ -190,3 +197,48 @@ void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* targe
 
     this->m_pipeline->connectPins(fromPin,toPin);
 }
+
+void PipelineScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    qDebug() << "Scene Enter";
+    if(event->mimeData()->hasFormat("x-plv-element-name"))
+    {
+        event->accept();
+    }
+}
+
+void PipelineScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if(event->mimeData()->hasFormat("x-plv-element-name"))
+    {
+        event->accept();
+    }
+}
+
+void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
+{
+    qDebug() << "PipelineScene::dropEvent" << event->mimeData()->formats();
+
+    if(event->mimeData()->hasFormat("x-plv-element-name"))
+    {
+    //    qDebug() << event->mimeData()->data("x-plv-element-name");
+        QString elementName = QString(event->mimeData()->data("x-plv-element-name"));
+        qDebug() << elementName;
+
+        int typeId = QMetaType::type(elementName.toAscii());
+
+        if(typeId == 0)
+            throw new ElementCreationException(
+                    QString("Tried to create unknown element "+elementName).toStdString());
+
+        RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(QMetaType::construct(typeId));
+        pe->setProperty("x", QVariant(qreal(100.0)));
+        pe->setProperty("y", -100.0);
+
+        if(m_pipeline.isNotNull())
+        {
+            m_pipeline->add(pe);
+        }
+    }
+}
+

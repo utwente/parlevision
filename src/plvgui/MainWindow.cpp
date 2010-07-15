@@ -22,8 +22,11 @@ using namespace plv;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_settings(new QSettings("UTwente", "ParleVision"))
+    m_settings(new QSettings("UTwente", "ParleVision")),
+    m_documentChanged(false)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
+    setCurrentFile("");
     initGUI();
 }
 
@@ -54,6 +57,15 @@ void MainWindow::changeEvent(QEvent *e)
     case QEvent::LanguageChange:
         ui->retranslateUi(this);
         break;
+    case QEvent::ActivationChange:
+        if(this->isActiveWindow() || this->m_libraryWidget->isActiveWindow())
+        {
+//            qDebug() << this << " activated";
+        }
+        else
+        {
+//            qDebug() << this << " went to background";
+        }
     default:
         break;
     }
@@ -61,9 +73,12 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    qDebug() << "Stopping pipeline...";
-    m_pipeline->stop();
-    m_pipeline->clear();
+    if( m_pipeline.isNotNull() )
+    {
+        qDebug() << "Stopping pipeline...";
+        m_pipeline->stop();
+        m_pipeline->clear();
+    }
     qDebug() << "Saving geometry info to " << m_settings->fileName();
     m_settings->setValue("MainWindow/geometry", saveGeometry());
     m_settings->setValue("MainWindow/windowState", saveState());
@@ -99,15 +114,16 @@ void MainWindow::createLibraryWidget()
 
 void MainWindow::setPipeline(plv::Pipeline* pipeline)
 {
-    //TODO think about what to do if we already have a pipeline.
+    //TODO throw exception as well
+    assert(this->m_pipeline.isNull());
+
     this->m_pipeline = pipeline;
+    m_documentChanged = true;
 
     assert (ui->view != 0);
     PipelineScene* scene = new PipelineScene(pipeline, ui->view);
     ui->view->setScene(scene);
-    ui->view->setPipeline(pipeline);
 
-    //TODO disconnect from previous pipeline if needed
     connect(ui->actionStop, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
 
@@ -117,6 +133,22 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(addRenderersForPins(plv::RefPtr<plv::PipelineElement>)));
 
+    connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(elementChanged(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(elementRemoved(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(connectionAdded(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(connectionChanged(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+
+    connect(scene, SIGNAL(changed(QList<QRectF>)),
+            this, SLOT(documentChanged()));
+
     // add renderers for all elements in the pipeline
     std::list< RefPtr<PipelineElement> > elements = pipeline->getChildren();
     for( std::list< RefPtr<PipelineElement> >::iterator itr = elements.begin()
@@ -125,6 +157,29 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
         this->addRenderersForPins(*itr);
     }
 
+}
+
+void MainWindow::loadFile(QString fileName)
+{
+    if(this->m_pipeline)
+    {
+        // already had an open pipeline, open new window
+        MainWindow* other = newWindow();
+        other->loadFile(fileName);
+        return;
+    }
+
+    // this window did not yet have a pipeline loaded yet
+    // this->setPipeline(pipeline);
+
+}
+
+MainWindow* MainWindow::newWindow()
+{
+    MainWindow *other = new MainWindow();
+    other->move(x() + 40, y() + 40);
+    other->show();
+    return other;
 }
 
 void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
@@ -196,5 +251,17 @@ void plvgui::MainWindow::on_actionLoad_triggered()
                             "",
                             tr("ParleVision Pipeline (*.plv *.pipeline)"));
 
-    qDebug() << "User selected "<<fileName;
+    qDebug() << "User selected " << fileName;
+    loadFile(fileName);
+}
+
+void plvgui::MainWindow::on_actionNew_triggered()
+{
+    newWindow();
+}
+
+void MainWindow::documentChanged()
+{
+    m_documentChanged = true;
+    ui->actionSave->setEnabled(true);
 }

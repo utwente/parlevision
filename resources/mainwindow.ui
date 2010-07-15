@@ -24,9 +24,12 @@
        <enum>QLayout::SetNoConstraint</enum>
       </property>
       <item>
-       <widget class="plvgui::PipelineView" name="view">
+       <widget class="QGraphicsView" name="view">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="renderHints">
+         <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
         </property>
        </widget>
       </item>
@@ -300,13 +303,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>plvgui::PipelineView</class>
-   <extends>QGraphicsView</extends>
-   <header>plvgui/pipelineview.h</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="icons.qrc"/>
  </resources>
