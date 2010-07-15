@@ -74,6 +74,15 @@ namespace plv
         /** @returns the ouput pin with that name, or null if none exists */
         IOutputPin* getOutputPin( const QString& name ) const;
 
+        /** @returns the summed total of all connections in all input pins */
+        int inputPinsConnectionCount() const;
+
+        /** @returns the summed total of all connections in all output pins */
+        int outputPinsConnectionCount() const;
+
+        /** @returns the summed total of all connections in all input and output pins */
+        int pinsConnectionCount() const;
+
         /** @returns a list of names of input pins added to this PipelineElement */
         std::list<QString>* getInputPinNames() const;
 
@@ -85,6 +94,9 @@ namespace plv
 
         /** @returns a list of names of output pins added to this PipelineElement */
         std::list<QString>* getOutputPinNames() const;
+
+        /** returns true if there is at least one Pin with a connection */
+        bool hasPinConnections() const;
 
         /** @returns true when this PipelineElement is ready for procesing, which
           * means that the process method is allowed to be called by the scheduler. This

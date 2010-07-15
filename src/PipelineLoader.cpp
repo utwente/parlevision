@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QFile>
 #include <QMetaProperty>
+#include <QStringBuilder>
 
 using namespace plv;
 
@@ -41,7 +42,7 @@ Pipeline* PipelineLoader::parsePipeline( const QString& filename )
 Pipeline* PipelineLoader::parsePipeline( QXmlStreamReader* xmlReader )
         throw(std::runtime_error) /*TODO checked exceptions*/
 {
-    Pipeline* pipeline = new Pipeline();
+    RefPtr<Pipeline> pipeline = new Pipeline();
 
     try
     {
@@ -74,7 +75,7 @@ Pipeline* PipelineLoader::parsePipeline( QXmlStreamReader* xmlReader )
     catch( ... )
     {
         // do cleanup
-        delete pipeline;
+        pipeline->clear();
         throw;
     }
     return pipeline;
@@ -266,12 +267,14 @@ void PipelineLoader::parseConnection( QXmlStreamReader* xmlReader, Pipeline* pip
 
     if( iop == 0 )
     {
-        throw std::runtime_error( QString("No pin with name" + sourcePinName).toStdString() );
+        QString msg = "No pin with name " % sourcePinName;
+        throw std::runtime_error( msg.toStdString() );
     }
 
     if( iip == 0 )
     {
-        throw std::runtime_error( QString("No pin with name" + sinkPinName).toStdString() );
+        QString msg = "No pin with name " % sinkPinName;
+        throw std::runtime_error( msg.toStdString() );
     }
 
     pipeline->connectPins( iop, iip );

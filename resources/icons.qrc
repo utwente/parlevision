@@ -8,5 +8,6 @@
         <file>icons/library.png</file>
         <file>icons/inspector.png</file>
         <file>icons/delete.png</file>
+        <file>icons/new.png</file>
     </qresource>
 </RCC>

@@ -19,6 +19,7 @@ namespace plv
     {
         Q_OBJECT
         typedef std::map<int , RefPtr<PipelineElement> > PipelineElementMap;
+        typedef std::list< RefPtr<PinConnection> > PipelineConnectionsList;
 
     public:
         Pipeline();
@@ -31,6 +32,9 @@ namespace plv
         /** Initialise this Pipeline. Not yet reentrant
           */
         bool init();
+
+        /** Removes all PipelineElements and Connections from this pipeline */
+        void clear();
 
         /** Add the PipelineElement to this Pipeline.
           * This results in the Pipeline calling setPipeline on the element
@@ -53,6 +57,8 @@ namespace plv
           */
         void remove( int id );
 
+        void removeAllElements();
+
         PipelineElement* getElement( int id );
 
         /** Get all the PipelineElements that make up this Pipeline.
@@ -62,17 +68,27 @@ namespace plv
 
         /** Get all the PinConnections that make up this Pipeline.
           */
-        const std::list< RefPtr<PinConnection> >& getConnections() const;
+        const PipelineConnectionsList& getConnections() const;
 
         /** Create a PinConnnection between the given InputPin and outputPin
           */
         void connectPins( IOutputPin* outputPin, IInputPin* inputPin );
 
+        /** Removes a single connection. Quite slow O(N) since it traverses a linked list.
+          * TODO make faster?
+          */
+        void removeConnection( PinConnection* connection );
+
+        void removeConnectionsForElement( PipelineElement* element );
+
+        /** Removes all connections. First signals there removal to any signal listeners using
+          * the connectionRemoved signal. Then removes the connections from the pipeline
+          */
+        void removeAllConnections();
+
     protected:
         PipelineElementMap m_children;
-        std::list< RefPtr<PinConnection> > m_connections;
-
-
+        PipelineConnectionsList m_connections;
 
         /**
           * The QThread run loop
@@ -81,6 +97,7 @@ namespace plv
     private:
         int m_idCounter;
         bool m_stopRequested;
+        bool m_running;
 
     signals:
         void elementAdded(plv::RefPtr<plv::PipelineElement>);

@@ -7,8 +7,8 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME "input image"
-#define OUTPUT_PIN_NAME "output image"
+#define INPUT_PIN_NAME "input"
+#define OUTPUT_PIN_NAME "output"
 
 DummyProcessor::DummyProcessor()
 {
