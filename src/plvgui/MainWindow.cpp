@@ -9,6 +9,7 @@
 #include "PipelineScene.h"
 #include "PipelineElement.h"
 #include "Pin.h"
+#include "PipelineLoader.h"
 
 #include <QDebug>
 #include <QSettings>
@@ -161,6 +162,7 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
 
 void MainWindow::loadFile(QString fileName)
 {
+
     if(this->m_pipeline)
     {
         // already had an open pipeline, open new window
@@ -169,9 +171,23 @@ void MainWindow::loadFile(QString fileName)
         return;
     }
 
-    // this window did not yet have a pipeline loaded yet
-    // this->setPipeline(pipeline);
+    try
+    {
+        // this window did not yet have a pipeline loaded yet
+        RefPtr<Pipeline> pl = PipelineLoader::parsePipeline( "/Users/dawuss/Projects/parlevision/test/test_pipeline.xml" );
+        this->setPipeline(pl);
 
+    }
+    catch( std::runtime_error& e )
+    {
+        qDebug() << "Pipeline loading failed with: " << e.what();
+        return;
+    }
+    catch( ... )
+    {
+        qDebug() << "Caught unknown exception.";
+        return;
+    }
 }
 
 MainWindow* MainWindow::newWindow()
