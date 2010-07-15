@@ -265,13 +265,29 @@ void MainWindow::updateLibraryVisibility(bool visible)
 
 void plvgui::MainWindow::on_actionLoad_triggered()
 {
+    /*
     QString fileName = QFileDialog::getOpenFileName(this,
                             tr("Open Pipeline"),
                             "",
                             tr("ParleVision Pipeline (*.plv *.pipeline)"));
+    if(filenName != "")
+    {
+        qDebug() << "User selected " << fileName;
+        loadFile(fileName);
+    }
+    */
 
-    qDebug() << "User selected " << fileName;
-    loadFile(fileName);
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setNameFilter(tr("ParleVision Pipeline (*.plv *.pipeline)"));
+
+    if (dialog.exec())
+    {
+        QString fileName = dialog.selectedFiles().first();
+
+        qDebug() << "User selected " << fileName;
+        loadFile(fileName);
+    }
 }
 
 void plvgui::MainWindow::on_actionNew_triggered()
