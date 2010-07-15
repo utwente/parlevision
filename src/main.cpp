@@ -3,7 +3,6 @@
 #include <QDebug>
 #include <QtConcurrentRun>
 
-#include "FrameWidget.h"
 #include "MainWindow.h"
 #include "OpenCVCamera.h"
 #include "DummyProcessor.h"
