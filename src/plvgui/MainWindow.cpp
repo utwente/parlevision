@@ -118,7 +118,9 @@ void MainWindow::createLibraryWidget()
 
 void MainWindow::setPipeline(plv::Pipeline* pipeline)
 {
-    //TODO think about what to do if we already have a pipeline.
+    //TODO throw exception as well
+    assert(this->m_pipeline.isNull());
+
     this->m_pipeline = pipeline;
     m_documentChanged = true;
 
@@ -127,7 +129,6 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     ui->view->setScene(scene);
     ui->view->setPipeline(pipeline);
 
-    //TODO disconnect from previous pipeline if needed
     connect(ui->actionStop, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
 
@@ -161,6 +162,29 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
         this->addRenderersForPins(*itr);
     }
 
+}
+
+void MainWindow::loadFile(QString fileName)
+{
+    if(this->m_pipeline)
+    {
+        // already had an open pipeline, open new window
+        MainWindow* other = newWindow();
+        other->loadFile(fileName);
+        return;
+    }
+
+    // this window did not yet have a pipeline loaded yet
+    // this->setPipeline(pipeline);
+
+}
+
+MainWindow* MainWindow::newWindow()
+{
+    MainWindow *other = new MainWindow();
+    other->move(x() + 40, y() + 40);
+    other->show();
+    return other;
 }
 
 void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
@@ -232,14 +256,13 @@ void plvgui::MainWindow::on_actionLoad_triggered()
                             "",
                             tr("ParleVision Pipeline (*.plv *.pipeline)"));
 
-    qDebug() << "User selected "<<fileName;
+    qDebug() << "User selected " << fileName;
+    loadFile(fileName);
 }
 
 void plvgui::MainWindow::on_actionNew_triggered()
 {
-    MainWindow *other = new MainWindow;
-    other->move(x() + 40, y() + 40);
-    other->show();
+    newWindow();
 }
 
 void MainWindow::storeViewState()

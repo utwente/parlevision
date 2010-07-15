@@ -26,7 +26,15 @@ namespace plvgui {
         MainWindow(QWidget* parent = 0);
         ~MainWindow();
         void addWidget(QWidget* widget);
+        /** Set the pipeline for this window
+          * This can only be done once for every MainWindow.
+          * If you need to load another pipeline, make a new MainWindow.
+          */
         void setPipeline(plv::Pipeline* pipeline);
+        /** Loads pipeline from fileName and opens it in this window
+          * or a new window if this window already had a pipeline
+          */
+        void loadFile(QString fileName);
 
     public slots:
         void addRenderersForPins(plv::RefPtr<plv::PipelineElement>);
@@ -44,6 +52,7 @@ namespace plvgui {
         plv::RefPtr<plv::Pipeline> m_pipeline;
 
     private slots:
+        // indicate the active document has changed
         void documentChanged();
 
     private:
@@ -56,7 +65,8 @@ namespace plvgui {
         // set the file belonging to the active pipeline;
         // empty string means no file
         void setCurrentFile(QString fileName) { m_fileName = fileName; }
-        // indicate the document has changed
+        // create a new window
+        MainWindow* newWindow();
 
         Ui::MainWindow* ui;
         QSettings* m_settings;
