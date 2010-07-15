@@ -73,10 +73,11 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if(m_pipeline)
+    if( m_pipeline.isNotNull() )
     {
         qDebug() << "Stopping pipeline...";
         m_pipeline->stop();
+        m_pipeline->clear();
     }
     qDebug() << "Saving geometry info to " << m_settings->fileName();
     m_settings->setValue("MainWindow/geometry", saveGeometry());

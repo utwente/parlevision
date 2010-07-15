@@ -12,6 +12,9 @@ namespace plv {
     class DummyProcessor : public PipelineProcessor
     {
         Q_OBJECT
+        Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt )
+        Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString )
+
     public:
         DummyProcessor();
         ~DummyProcessor();
@@ -21,10 +24,18 @@ namespace plv {
         virtual bool isReadyForProcessing() const;
         virtual void process();
 
+        /** propery methods */
+        int getSomeInt();
+        void setSomeInt( int i );
+        void setSomeString( QString s );
+        QString getSomeString();
 
     private:
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
+
+        QString m_someString;
+        int m_someInt;
 
     };
 

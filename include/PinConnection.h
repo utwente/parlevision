@@ -13,13 +13,15 @@ namespace plv
     class Data;
     class IOutputPin;
     class IInputPin;
-    class PipelineException;
 
     class PinConnection : public RefCounted
     {
     public:
-        PinConnection( IOutputPin* producer, IInputPin* consumer );
+        PinConnection( IOutputPin* producer, IInputPin* consumer ) throw ( IncompatibleTypeException );
         ~PinConnection();
+
+        void connect() throw ( IncompatibleTypeException );
+        void disconnect();
 
         bool hasData();
         int size();

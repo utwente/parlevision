@@ -37,6 +37,13 @@ namespace plv
             : std::runtime_error(msg) {}
     };
 
+    class IncompatibleTypeException : public std::runtime_error
+    {
+    public:
+        IncompatibleTypeException(std::string msg)
+            : std::runtime_error(msg) {}
+    };
+
 //    class DataFormatException : public PipelineException
 //    {
 //    public:

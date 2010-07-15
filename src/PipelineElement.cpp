@@ -188,6 +188,40 @@ std::list< RefPtr<IOutputPin> >* PipelineElement::getOutputPins()
     return pins;
 }
 
+int PipelineElement::outputPinsConnectionCount() const
+{
+    int connectionCount = 0;
+
+    for( OutputPinMap::const_iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
+    {
+        RefPtr<IOutputPin> pin = itr->second;
+        assert(pin.isNotNull());
+        connectionCount += pin->connectionCount();
+    }
+
+    return connectionCount;
+}
+
+int PipelineElement::inputPinsConnectionCount() const
+{
+    int connectionCount = 0;
+
+    for( InputPinMap::const_iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end(); ++itr )
+    {
+        RefPtr<IInputPin> pin = itr->second;
+        assert(pin.isNotNull());
+        if( pin->isConnected() ) ++connectionCount;
+    }
+
+    return connectionCount;
+}
+
+int PipelineElement::pinsConnectionCount() const
+{
+    return inputPinsConnectionCount() + outputPinsConnectionCount();
+}
 
 std::list<QString> PipelineElement::types()
 {

@@ -2,12 +2,33 @@
 #include "Types.h"
 #include "Pin.h"
 
+#include <QStringBuilder>
+
 using namespace plv;
 
-PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer ) :
+PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer )
+    throw ( IncompatibleTypeException ) :
         m_producer( producer ),
         m_consumer( consumer )
 {
+    assert(m_consumer.isNotNull());
+    assert(m_producer.isNotNull());
+
+    connect();
+}
+
+PinConnection::~PinConnection()
+{
+    // on deletion there should not be a connection left
+    // disconnection should be called before deletion
+    assert( m_consumer.isNull() );
+    assert( m_producer.isNull() );
+}
+
+void PinConnection::connect() throw (IncompatibleTypeException)
+{
+    QMutexLocker lock( &m_mutex );
+
     assert(m_consumer.isNotNull());
     assert(m_producer.isNotNull());
 
@@ -17,16 +38,36 @@ PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer ) :
     m_consumer->setConnection(this);
     assert( m_consumer->isConnected() );
 
-    // TODO should also be done in release mode at runtime.
-    assert( producer->getTypeInfo() == consumer->getTypeInfo() );
+    const std::type_info& producerTypeInfo = m_producer->getTypeInfo();
+    const std::type_info& consumerTypeInfo = m_consumer->getTypeInfo();
+
+    if( producerTypeInfo != consumerTypeInfo )
+    {
+        QString producerName = m_producer->getName();
+        QString consumerName = m_consumer->getName();
+
+        QString producerTypeName = producerTypeInfo.name();
+        QString consumerTypeName = consumerTypeInfo.name();
+
+        QString errStr = "Cannot connect pins of incompatible type: producer "
+                         % producerName % " and consumer " % consumerName %
+                         " with types " % producerTypeName %
+                         " and " % consumerTypeName;
+
+        throw IncompatibleTypeException( errStr.toStdString() );
+    }
 }
 
-PinConnection::~PinConnection()
+void PinConnection::disconnect()
 {
-    m_producer->removeConnection(this);
-    m_consumer->removeConnection(this);
+    QMutexLocker lock( &m_mutex );
+    m_producer->removeConnection( this );
+    //m_consumer->removeConnection( this );
+    m_consumer->removeConnection();
 
-    assert( !m_consumer->isConnected() );
+    // clear and free producer and consumer
+    m_producer.set( 0 );
+    m_consumer.set( 0 );
 }
 
 bool PinConnection::hasData()

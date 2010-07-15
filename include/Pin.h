@@ -50,7 +50,7 @@ namespace plv
           */
         virtual const std::type_info& getTypeInfo() const = 0;
 
-        virtual void removeConnection( PinConnection* connection ) = 0;
+        //virtual void removeConnection( PinConnection* connection ) = 0;
     };
 
     class IInputPin : public Pin
@@ -73,6 +73,8 @@ namespace plv
         virtual const std::type_info& getTypeInfo() const = 0;
 
         virtual void setConnection(PinConnection* connection) = 0;
+        virtual void removeConnection() = 0;
+        virtual PinConnection* getConnection() const = 0;
 
     protected:
         std::stack< RefPtr<Data> > m_scope;
@@ -89,6 +91,7 @@ namespace plv
         }
 
         virtual bool isConnected() const = 0;
+        virtual int connectionCount() const = 0;
 
         /** @returns the std::type_info struct belonging to the type
           * this pin is initialized with. Is implemented by
@@ -100,6 +103,13 @@ namespace plv
           * @ensure this->isConnected();
           */
         virtual void addConnection(PinConnection* connection) = 0;
+
+        virtual void removeConnection( PinConnection* connection ) = 0;
+
+        // TODO ugly hack to make things work ...
+        // TODO should all PinConnection stuff be moved to IOutputPin
+        // and should IOutputPin be called an interface then?
+        virtual const std::list< RefPtr<PinConnection> >& getConnections() = 0;
 
     signals:
         void newData( RefPtr<Data> data );
@@ -152,6 +162,7 @@ namespace plv
                 RefPtr<PinConnection> current = *itr;
                 if( current.getPtr() == connection )
                 {
+                    current->disconnect();
                     m_connections.erase( itr );
                     return;
                 }
@@ -160,9 +171,30 @@ namespace plv
             assert( false );
         }
 
+        virtual void removeConnections()
+        {
+            for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
+                    itr != m_connections.end(); ++itr)
+            {
+                RefPtr<PinConnection> current = *itr;
+                current->disconnect();
+                m_connections.erase( itr );
+            }
+        }
+
         virtual bool isConnected() const
         {
             return !m_connections.empty();
+        }
+
+        virtual const std::list< RefPtr<PinConnection > >& getConnections()
+        {
+            return m_connections;
+        }
+
+        virtual int connectionCount() const
+        {
+            return m_connections.size();
         }
 
         virtual const std::type_info& getTypeInfo() const
@@ -270,6 +302,16 @@ namespace plv
 
             // clear connection
             m_connection.set( 0 );
+        }
+
+        virtual void removeConnection()
+        {
+            m_connection.set( 0 );
+        }
+
+        virtual PinConnection* getConnection() const
+        {
+            return m_connection.getPtr();
         }
 
         virtual bool isConnected() const
