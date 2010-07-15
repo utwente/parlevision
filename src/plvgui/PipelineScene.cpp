@@ -67,24 +67,15 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
 
     PipelineElementWidget* pew = new PipelineElementWidget(e.getPtr());
     this->addItem(pew);
-
-    qreal x = 0;
-    qreal y = 0;
+    this->elementWidgets[e] = pew;
 
     QVariant xVal = e->property("sceneCoordX");
-    if(xVal.isValid())
-    {
-        x = xVal.toReal();
-    }
-
     QVariant yVal = e->property("sceneCoordY");
-    if(yVal.isValid())
-    {
-        y = yVal.toReal();
-    }
+    qreal x = xVal.isValid() ? xVal.toReal() : 0;
+    qreal y = yVal.isValid() ? yVal.toReal() : 0;
+
     pew->translate(x,y);
 
-    this->elementWidgets[e] = pew;
 }
 
 void PipelineScene::add(plv::PinConnection* c)
@@ -242,8 +233,8 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
                     QString("Tried to create unknown element "+elementName).toStdString());
 
         RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(QMetaType::construct(typeId));
-        pe->setProperty("sceneCoordX", 100.0);
-        pe->setProperty("sceneCoordY", -100.0);
+        pe->setProperty("sceneCoordX", event->scenePos().x());
+        pe->setProperty("sceneCoordY", event->scenePos().y());
 
         if(m_pipeline.isNotNull())
         {
