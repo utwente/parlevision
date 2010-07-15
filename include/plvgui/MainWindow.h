@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QSettings>
-#include "OpenCVCamera.h"
+#include "PipelineElement.h"
 #include "RefPtr.h"
 
 class QToolbar;
@@ -28,6 +28,10 @@ namespace plvgui {
         void addWidget(QWidget* widget);
         void setPipeline(plv::Pipeline* pipeline);
 
+    public slots:
+        void addRenderersForPins(plv::RefPtr<plv::PipelineElement>);
+        void updateLibraryVisibility(bool);
+
     protected:
         void changeEvent(QEvent* e);
         void closeEvent(QCloseEvent *event);
@@ -36,10 +40,6 @@ namespace plvgui {
           * And restores it.
           */
         void loadSettings();
-        QToolBar* m_controls_toolbar;
-        QAction* m_startAction;
-        QAction* m_stopAction;
-        QAction* m_pauseAction;
         LibraryWidget* m_libraryWidget;
         plv::RefPtr<plv::Pipeline> m_pipeline;
 
@@ -49,7 +49,11 @@ namespace plvgui {
         QSettings* m_settings;
         void initGUI();
         void createLibraryWidget();
-    };
+
+private slots:
+    void on_actionLoad_triggered();
+    void on_actionShow_Library_toggled(bool);
+};
 
 } // namespace plvgui
 

@@ -10,6 +10,7 @@
 using namespace plv;
 
 std::list<QString> PipelineElement::s_types;
+std::map<QString,QString> PipelineElement::s_names;
 
 PipelineElement::PipelineElement()
 {
@@ -83,6 +84,7 @@ IInputPin* PipelineElement::getInputPin( const QString& name ) const
     {
         return itr->second.getPtr();
     }
+    qDebug() << "could not find pin named " << name;
     return 0;
 }
 
@@ -94,6 +96,11 @@ IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
         return itr->second.getPtr();
     }
     return 0;
+}
+
+QString PipelineElement::getName() const
+{
+    return PipelineElement::nameForType(this->metaObject()->className());
 }
 
 void PipelineElement::__process()
@@ -131,18 +138,34 @@ void PipelineElement::__process()
 
 std::list<QString>* PipelineElement::getInputPinNames() const
 {
-    std::list<QString>* names = new std::list<QString>(m_inputPins.size());
+    std::list<QString>* names = new std::list<QString>();
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
-        names->push_back(itr->first);
+        QString name = itr->first;
+        qDebug() << "listing " << name;
+        names->push_back(name);
     }
     return names;
 }
 
+std::list< RefPtr<IInputPin> >* PipelineElement::getInputPins()
+{
+    std::list< RefPtr<IInputPin> >* pins = new std::list< RefPtr<IInputPin> >();
+
+    for( InputPinMap::iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end(); ++itr )
+    {
+        RefPtr<IInputPin> pin = itr->second;
+        assert(pin.isNotNull());
+        pins->push_back(pin);
+    }
+    return pins;
+}
+
 std::list<QString>* PipelineElement::getOutputPinNames() const
 {
-    std::list<QString>* names = new std::list<QString>(m_outputPins.size());
+    std::list<QString>* names = new std::list<QString>();
     for( OutputPinMap::const_iterator itr = m_outputPins.begin();
          itr != m_outputPins.end(); ++itr )
     {
@@ -151,7 +174,19 @@ std::list<QString>* PipelineElement::getOutputPinNames() const
     return names;
 }
 
+std::list< RefPtr<IOutputPin> >* PipelineElement::getOutputPins()
+{
+    std::list< RefPtr<IOutputPin> >* pins = new std::list< RefPtr<IOutputPin> >();
 
+    for( OutputPinMap::iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
+    {
+        RefPtr<IOutputPin> pin = itr->second;
+        assert(pin.isNotNull());
+        pins->push_back(pin);
+    }
+    return pins;
+}
 
 
 std::list<QString> PipelineElement::types()
@@ -159,10 +194,18 @@ std::list<QString> PipelineElement::types()
     return PipelineElement::s_types;
 }
 
-int PipelineElement::registerType(QString typeName)
+int PipelineElement::registerType(QString typeName, QString humanName)
 {
-    qDebug() << "Registering PipelineElement" << typeName;
+    qDebug() << "Registering PipelineElement " << typeName
+                    << " as " << "'" << humanName << "'";
+
     PipelineElement::s_types.push_back( typeName );
+    PipelineElement::s_names[typeName] = humanName;
     //return qRegisterMetaType<E>(typeName);
     return 0;
+}
+
+QString PipelineElement::nameForType(QString typeName)
+{
+    return PipelineElement::s_names[typeName];
 }

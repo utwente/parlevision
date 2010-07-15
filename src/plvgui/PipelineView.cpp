@@ -12,6 +12,7 @@ using namespace plv;
 PipelineView::PipelineView(QWidget *parent) : QGraphicsView(parent)
 {
     setAcceptDrops(true);
+    setRenderHint(QPainter::Antialiasing,true);
 }
 
 void PipelineView::setPipeline(Pipeline* pipeline)

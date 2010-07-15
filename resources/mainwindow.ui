@@ -83,18 +83,34 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionTOD"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionLoad"/>
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
-     <string>Actions</string>
+     <string>Pipeline</string>
     </property>
     <addaction name="actionStart"/>
     <addaction name="actionPause"/>
     <addaction name="actionStop"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionShow_Library"/>
+    <addaction name="actionShow_Inspector"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionDelete"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuActions"/>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -107,25 +123,147 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionShow_Library"/>
+   <addaction name="separator"/>
+   <addaction name="actionSave"/>
+   <addaction name="actionLoad"/>
+   <addaction name="separator"/>
+   <addaction name="actionStart"/>
+   <addaction name="actionPause"/>
+   <addaction name="actionStop"/>
+   <addaction name="separator"/>
+   <addaction name="actionDelete"/>
+   <addaction name="separator"/>
+   <addaction name="actionShow_Inspector"/>
   </widget>
   <action name="actionStart">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/play.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Start</string>
    </property>
+   <property name="iconText">
+    <string>Start</string>
+   </property>
+   <property name="toolTip">
+    <string>Start the pipeline</string>
+   </property>
   </action>
   <action name="actionStop">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/stop.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Stop</string>
    </property>
+   <property name="iconText">
+    <string>Stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop the pipeline</string>
+   </property>
   </action>
   <action name="actionPause">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/pause.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Pause</string>
    </property>
   </action>
-  <action name="actionTOD">
+  <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/save.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
-    <string>TODO</string>
+    <string>Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the active pipeline to a file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionLoad">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/folder.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="iconText">
+    <string>Load</string>
+   </property>
+   <property name="toolTip">
+    <string>Load a pipeline from a file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionShow_Library">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/library.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Show Library</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionShow_Inspector">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/inspector.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Show Inspector</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove the currentlly selected element from the pipeline</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Backspace</string>
    </property>
   </action>
  </widget>
@@ -136,6 +274,8 @@
    <header>plvgui/pipelineview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -37,7 +37,7 @@ namespace plv
         RefPtr<PipelineElement> m_owner;
 
         /** RefCounted objects have protected destructor */
-        ~Pin() {}
+        ~Pin() {qDebug() << "Destroying Pin " << m_name;}
 
     public:
         inline PipelineElement* getOwner() const { return m_owner.getPtr(); }

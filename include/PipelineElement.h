@@ -77,6 +77,12 @@ namespace plv
         /** @returns a list of names of input pins added to this PipelineElement */
         std::list<QString>* getInputPinNames() const;
 
+        /** @returns a list of inputpins */
+        std::list< RefPtr<IInputPin> >* getInputPins();
+
+        /** @returns a list of outputpins */
+        std::list< RefPtr<IOutputPin> >* getOutputPins();
+
         /** @returns a list of names of output pins added to this PipelineElement */
         std::list<QString>* getOutputPinNames() const;
 
@@ -107,26 +113,35 @@ namespace plv
           */
         virtual void process() = 0;
 
+        /** Get the name that describes this element, in human readable form */
+        QString getName() const;
+
         /** Get a list of all known PipelineElement Type names
         */
         static std::list<QString> types();
 
         /** Register the given type as a PipelineElement Type.
-        * The type needs to be known to Qt's MetaType system,
-        * so you will likely rarely call this yourself.
-        * Use one of the plvRegisterPipelineElement macros instead.
-        * @require typeName was not registered to PipelineElement before.
-        * @require typeName is a type registered to the Qt MetaType system
-        *     e.g. QMetaType::type(typeName) returns a valid ID
-        */
-        static int registerType(QString typeName);
+          * The type needs to be known to Qt's MetaType system,
+          * so you will likely rarely call this yourself.
+          * Use one of the plvRegisterPipelineElement macros instead.
+          * @require typeName was not registered to PipelineElement before.
+          * @require typeName is a type registered to the Qt MetaType system
+          *     e.g. QMetaType::type(typeName) returns a valid ID
+          */
+        static int registerType(QString typeName, QString humanName);
 
+        /** Get a human readable name for the given type
+          * @require typeName is a registered type
+          * @return a human readable name for the type
+          */
+        static QString nameForType(QString typeName);
 
     protected:
         RefPtr<Pipeline> m_parent;
 
         // list to keep track of registered types
         static std::list<QString> s_types;
+        static std::map<QString,QString> s_names;
 
         /**
          * This gets called by Pipeline when we are added to it.
@@ -144,9 +159,9 @@ namespace plv
 }
 
 template<typename PET>
-int plvRegisterPipelineElement(const char* typeName)
+int plvRegisterPipelineElement(const char* typeName, const char* humanName)
 {
-    plv::PipelineElement::registerType(typeName);
+    plv::PipelineElement::registerType(typeName, humanName);
     return qRegisterMetaType<PET>(typeName);
 }
 
