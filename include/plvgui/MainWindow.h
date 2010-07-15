@@ -45,12 +45,23 @@ namespace plvgui {
 
 
     private:
-        Ui::MainWindow* ui;
-        QSettings* m_settings;
         void initGUI();
         void createLibraryWidget();
+        // saves state of library and inspector views (e.g. whether they are shown etc.)
+        void storeViewState();
+        // restores state of views saved during storeViewState()
+        void restoreViewState();
+
+        Ui::MainWindow* ui;
+        QSettings* m_settings;
+        struct ViewState
+        {
+            bool libraryVisible;
+            bool inspectorVisible;
+        } viewState ;
 
 private slots:
+    void on_actionNew_triggered();
     void on_actionLoad_triggered();
     void on_actionShow_Library_toggled(bool);
 };

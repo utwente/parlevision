@@ -45,6 +45,8 @@ void MainWindow::initGUI()
 
     // Restore window geometry and state
     loadSettings();
+
+    storeViewState();
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -54,6 +56,18 @@ void MainWindow::changeEvent(QEvent *e)
     case QEvent::LanguageChange:
         ui->retranslateUi(this);
         break;
+    case QEvent::ActivationChange:
+        if(this->isActiveWindow() || this->m_libraryWidget->isActiveWindow())
+        {
+            qDebug() << this << " activated";
+            restoreViewState();
+        }
+        else
+        {
+            qDebug() << this << " went to background";
+            storeViewState();
+            m_libraryWidget->hide();
+        }
     default:
         break;
     }
@@ -61,8 +75,11 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    qDebug() << "Stopping pipeline...";
-    m_pipeline->stop();
+    if(m_pipeline)
+    {
+        qDebug() << "Stopping pipeline...";
+        m_pipeline->stop();
+    }
     qDebug() << "Saving geometry info to " << m_settings->fileName();
     m_settings->setValue("MainWindow/geometry", saveGeometry());
     m_settings->setValue("MainWindow/windowState", saveState());
@@ -196,4 +213,21 @@ void plvgui::MainWindow::on_actionLoad_triggered()
                             tr("ParleVision Pipeline (*.plv *.pipeline)"));
 
     qDebug() << "User selected "<<fileName;
+}
+
+void plvgui::MainWindow::on_actionNew_triggered()
+{
+    MainWindow *other = new MainWindow;
+    other->move(x() + 40, y() + 40);
+    other->show();
+}
+
+void MainWindow::storeViewState()
+{
+    this->viewState.libraryVisible = m_libraryWidget->isVisible();
+}
+
+void MainWindow::restoreViewState()
+{
+    m_libraryWidget->setVisible(this->viewState.libraryVisible);
 }
