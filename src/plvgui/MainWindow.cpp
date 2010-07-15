@@ -22,8 +22,11 @@ using namespace plv;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_settings(new QSettings("UTwente", "ParleVision"))
+    m_settings(new QSettings("UTwente", "ParleVision")),
+    m_documentChanged(false)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
+    setCurrentFile("");
     initGUI();
 }
 
@@ -117,6 +120,7 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
 {
     //TODO think about what to do if we already have a pipeline.
     this->m_pipeline = pipeline;
+    m_documentChanged = true;
 
     assert (ui->view != 0);
     PipelineScene* scene = new PipelineScene(pipeline, ui->view);
@@ -132,6 +136,22 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
 
     connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(addRenderersForPins(plv::RefPtr<plv::PipelineElement>)));
+
+    connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(elementChanged(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(elementRemoved(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(connectionAdded(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(connectionChanged(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+    connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(documentChanged()));
+
+    connect(scene, SIGNAL(changed(QList<QRectF>)),
+            this, SLOT(documentChanged()));
 
     // add renderers for all elements in the pipeline
     std::list< RefPtr<PipelineElement> > elements = pipeline->getChildren();
@@ -230,4 +250,10 @@ void MainWindow::storeViewState()
 void MainWindow::restoreViewState()
 {
     m_libraryWidget->setVisible(this->viewState.libraryVisible);
+}
+
+void MainWindow::documentChanged()
+{
+    m_documentChanged = true;
+    ui->actionSave->setEnabled(true);
 }

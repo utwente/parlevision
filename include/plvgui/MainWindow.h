@@ -43,6 +43,8 @@ namespace plvgui {
         LibraryWidget* m_libraryWidget;
         plv::RefPtr<plv::Pipeline> m_pipeline;
 
+    private slots:
+        void documentChanged();
 
     private:
         void initGUI();
@@ -51,14 +53,21 @@ namespace plvgui {
         void storeViewState();
         // restores state of views saved during storeViewState()
         void restoreViewState();
+        // set the file belonging to the active pipeline;
+        // empty string means no file
+        void setCurrentFile(QString fileName) { m_fileName = fileName; }
+        // indicate the document has changed
 
         Ui::MainWindow* ui;
         QSettings* m_settings;
+        bool m_documentChanged;
+        QString m_fileName;
         struct ViewState
         {
             bool libraryVisible;
             bool inspectorVisible;
         } viewState ;
+
 
 private slots:
     void on_actionNew_triggered();
