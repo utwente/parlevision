@@ -58,10 +58,6 @@ namespace plvgui {
     private:
         void initGUI();
         void createLibraryWidget();
-        // saves state of library and inspector views (e.g. whether they are shown etc.)
-        void storeViewState();
-        // restores state of views saved during storeViewState()
-        void restoreViewState();
         // set the file belonging to the active pipeline;
         // empty string means no file
         void setCurrentFile(QString fileName) { m_fileName = fileName; }
@@ -72,12 +68,6 @@ namespace plvgui {
         QSettings* m_settings;
         bool m_documentChanged;
         QString m_fileName;
-        struct ViewState
-        {
-            bool libraryVisible;
-            bool inspectorVisible;
-        } viewState ;
-
 
 private slots:
     void on_actionNew_triggered();

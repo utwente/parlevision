@@ -48,8 +48,6 @@ void MainWindow::initGUI()
 
     // Restore window geometry and state
     loadSettings();
-
-    storeViewState();
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -63,13 +61,10 @@ void MainWindow::changeEvent(QEvent *e)
         if(this->isActiveWindow() || this->m_libraryWidget->isActiveWindow())
         {
             qDebug() << this << " activated";
-            restoreViewState();
         }
         else
         {
             qDebug() << this << " went to background";
-            storeViewState();
-            m_libraryWidget->hide();
         }
     default:
         break;
@@ -263,16 +258,6 @@ void plvgui::MainWindow::on_actionLoad_triggered()
 void plvgui::MainWindow::on_actionNew_triggered()
 {
     newWindow();
-}
-
-void MainWindow::storeViewState()
-{
-    this->viewState.libraryVisible = m_libraryWidget->isVisible();
-}
-
-void MainWindow::restoreViewState()
-{
-    m_libraryWidget->setVisible(this->viewState.libraryVisible);
 }
 
 void MainWindow::documentChanged()
