@@ -190,3 +190,46 @@ void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* targe
 
     this->m_pipeline->connectPins(fromPin,toPin);
 }
+
+void PipelineScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    qDebug() << "Scene Enter";
+    if(event->mimeData()->hasFormat("x-plv-element-name"))
+    {
+        event->accept();
+    }
+}
+
+void PipelineScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if(event->mimeData()->hasFormat("x-plv-element-name"))
+    {
+        event->accept();
+    }
+}
+
+void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
+{
+    qDebug() << "PipelineScene::dropEvent" << event->mimeData()->formats();
+
+    if(event->mimeData()->hasFormat("x-plv-element-name"))
+    {
+    //    qDebug() << event->mimeData()->data("x-plv-element-name");
+        QString elementName = QString(event->mimeData()->data("x-plv-element-name"));
+        qDebug() << elementName;
+
+        int typeId = QMetaType::type(elementName.toAscii());
+
+        if(typeId == 0)
+            throw new ElementCreationException(
+                    QString("Tried to create unknown element "+elementName).toStdString());
+
+        RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(QMetaType::construct(typeId));
+
+        if(m_pipeline.isNotNull())
+        {
+            m_pipeline->add(pe);
+        }
+    }
+}
+

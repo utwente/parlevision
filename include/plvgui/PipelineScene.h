@@ -47,6 +47,9 @@ namespace plvgui
 //        virtual void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent);
         virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent);
         virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent);
+        virtual void dragEnterEvent ( QGraphicsSceneDragDropEvent * event );
+        virtual void dragMoveEvent ( QGraphicsSceneDragDropEvent * event );
+        virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
 
     private:
         void clearLine();
