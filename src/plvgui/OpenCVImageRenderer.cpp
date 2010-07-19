@@ -38,9 +38,6 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
     m_imagelabel->setWordWrap(true);
     setLayout( m_layout );
 
-    this->setMinimumSize(0,0);
-    m_layout->setSizeConstraint(QLayout::SetNoConstraint);
-    m_imagelabel->setMinimumSize(0,0);
     m_imagelabel->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
 
     m_converter = new ImageConverter();
@@ -77,6 +74,17 @@ void OpenCVImageRenderer::updateImage( RefPtr<QtImage> image )
     QImage* qImg = image->getImage();
     QPixmap pixmap = QPixmap::fromImage(*qImg);
     m_imagelabel->setPixmap( pixmap );
-    m_imagelabel->setScaledContents(true);
+
+    if(m_imagelabel->sizeHint() != this->sizeHint())
+    {
+        this->sizeHint() = m_imagelabel->sizeHint();
+        updateGeometry();
+    }
+
     m_busy = false;
+}
+
+QSize OpenCVImageRenderer::sizeHint()
+{
+    return m_imagelabel->sizeHint();
 }

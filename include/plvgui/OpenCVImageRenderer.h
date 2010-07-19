@@ -30,6 +30,7 @@ namespace plvgui {
     public:
         OpenCVImageRenderer(QWidget* parent);
         virtual ~OpenCVImageRenderer() {}
+        QSize sizeHint();
 
     private:
         void putImage();
