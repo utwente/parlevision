@@ -3,6 +3,7 @@
 
 #include "LibraryWidget.h"
 #include "InspectorWidget.h"
+#include "ViewerWidget.h"
 #include "DataRenderer.h"
 #include "RendererFactory.h"
 
@@ -323,10 +324,11 @@ void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
         assert(pin.isNotNull());
         qDebug() << "Adding renderer for Pin " << pin->getName();
 
-        DataRenderer* renderer = RendererFactory::create(pin->getTypeInfo().name(), this);
+        ViewerWidget* viewer = new ViewerWidget(this);
+        DataRenderer* renderer = RendererFactory::create(pin->getTypeInfo().name(), viewer);
         renderer->setPin(pin);
-
-        this->addWidget(renderer);
+        viewer->setWidget(renderer);
+        viewer->show();
     }
 
 }
