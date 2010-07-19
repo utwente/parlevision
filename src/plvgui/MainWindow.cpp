@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "LibraryWidget.h"
+#include "InspectorWidget.h"
 #include "DataRenderer.h"
 #include "RendererFactory.h"
 
@@ -45,6 +46,7 @@ void MainWindow::initGUI()
     ui->view->setAcceptDrops(true);
 
     createLibraryWidget();
+    createInspectorWidget();
 
     // Restore window geometry and state
     loadSettings();
@@ -178,6 +180,16 @@ void MainWindow::createLibraryWidget()
     ui->actionShow_Library->setChecked(m_libraryWidget->isVisible());
     connect(m_libraryWidget, SIGNAL(visibilityChanged(bool)),
                                     this, SLOT(updateLibraryVisibility(bool)));
+}
+
+void MainWindow::createInspectorWidget()
+{
+    m_inspectorWidget = new InspectorWidget(this);
+    this->addDockWidget(Qt::RightDockWidgetArea, m_inspectorWidget);
+    #ifdef Q_OS_MAC
+    // Show LibraryWidget as floating window on Mac OS X
+    m_inspectorWidget->setFloating(true);
+    #endif
 }
 
 void MainWindow::createRecentFileActs()

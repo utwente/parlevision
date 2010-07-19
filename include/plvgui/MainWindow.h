@@ -19,6 +19,7 @@ namespace plv {
 
 namespace plvgui {
     class LibraryWidget;
+    class InspectorWidget;
     class PipelineScene;
 
     class MainWindow : public QMainWindow {
@@ -51,11 +52,13 @@ namespace plvgui {
         void loadSettings();
         void updateRecentFileActions();
         LibraryWidget* m_libraryWidget;
+        InspectorWidget* m_inspectorWidget;
         plv::RefPtr<plv::Pipeline> m_pipeline;
 
     private:
         void initGUI();
         void createLibraryWidget();
+        void createInspectorWidget();
         void createRecentFileActs();
         // set the file belonging to the active pipeline;
         // empty string means no file
