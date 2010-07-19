@@ -49,10 +49,24 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
     this->setSizePolicy(sizePolicy);
 
     m_converter = new ImageConverter();
+}
+
+void OpenCVImageRenderer::showEvent(QShowEvent* event)
+{
     connect(m_converter.getPtr(), SIGNAL( converted(RefPtr<QtImage>) ),
              this,                 SLOT( updateImage(RefPtr<QtImage>) ) );
 
+    QWidget::showEvent(event);
 }
+
+void OpenCVImageRenderer::hideEvent(QHideEvent* event)
+{
+    disconnect(m_converter.getPtr(), SIGNAL( converted(RefPtr<QtImage>) ),
+             this,                 SLOT( updateImage(RefPtr<QtImage>) ) );
+
+    QWidget::hideEvent(event);
+}
+
 
 void OpenCVImageRenderer::newData( RefPtr<Data> data )
 {

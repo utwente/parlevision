@@ -36,6 +36,10 @@ namespace plvgui {
 //        int heightForWidth(int w) const;
         void resizeEvent(QResizeEvent * /*resizeEvent*/);
 
+    protected:
+        void showEvent(QShowEvent* event);
+        void hideEvent(QHideEvent* event);
+
     private:
         void putImage();
         void fixAspectRatio();
