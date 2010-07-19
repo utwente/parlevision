@@ -157,7 +157,7 @@ void MainWindow::updateRecentFileActions()
         recentFileActs[j]->setVisible(false);
     }
 
-//    separatorAct->setVisible(numRecentFiles > 0);
+    m_recentFilesSeparator->setVisible(numRecentFiles > 0);
 }
 
 void MainWindow::addWidget(QWidget *widget)
@@ -182,6 +182,8 @@ void MainWindow::createLibraryWidget()
 
 void MainWindow::createRecentFileActs()
 {
+    m_recentFilesSeparator = ui->menuFile->addSeparator();
+
     for (int i = 0; i < MaxRecentFiles; ++i)
     {
         recentFileActs[i] = new QAction(this);
@@ -190,6 +192,7 @@ void MainWindow::createRecentFileActs()
         connect(recentFileActs[i], SIGNAL(triggered()),
                 this, SLOT(openRecentFile()));
     }
+
     updateRecentFileActions();
 }
 

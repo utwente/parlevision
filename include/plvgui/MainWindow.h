@@ -70,6 +70,7 @@ namespace plvgui {
         Ui::MainWindow* ui;
         bool m_documentChanged;
         QString m_fileName;
+        QAction* m_recentFilesSeparator;
         enum { MaxRecentFiles = 5 };
         QAction* recentFileActs[MaxRecentFiles];
 
