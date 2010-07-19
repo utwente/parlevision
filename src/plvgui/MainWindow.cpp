@@ -116,6 +116,7 @@ void MainWindow::setCurrentFile(QString fileName)
         return;
     }
 
+    setWindowTitle(QFileInfo(fileName).baseName());
     setWindowFilePath(fileName);
 
     // Load, update and save the list of recent files
