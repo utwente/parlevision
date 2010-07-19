@@ -128,8 +128,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionShow_Library"/>
-   <addaction name="separator"/>
    <addaction name="actionNew"/>
    <addaction name="actionSave"/>
    <addaction name="actionLoad"/>
@@ -140,7 +138,6 @@
    <addaction name="separator"/>
    <addaction name="actionDelete"/>
    <addaction name="separator"/>
-   <addaction name="actionShow_Inspector"/>
   </widget>
   <action name="actionStart">
    <property name="icon">

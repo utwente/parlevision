@@ -172,20 +172,21 @@ void MainWindow::createLibraryWidget()
 {
     m_libraryWidget = new LibraryWidget(this);
     this->addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
+    m_libraryWidget->toggleViewAction()->setIcon(QIcon(":/icons/library.png"));
+    ui->toolBar->addAction(m_libraryWidget->toggleViewAction());
     #ifdef Q_OS_MAC
     // Show LibraryWidget as floating window on Mac OS X
     m_libraryWidget->setFloating(true);
     #endif
-
-    ui->actionShow_Library->setChecked(m_libraryWidget->isVisible());
-    connect(m_libraryWidget, SIGNAL(visibilityChanged(bool)),
-                                    this, SLOT(updateLibraryVisibility(bool)));
 }
 
 void MainWindow::createInspectorWidget()
 {
     m_inspectorWidget = new InspectorWidget(this);
     this->addDockWidget(Qt::RightDockWidgetArea, m_inspectorWidget);
+    m_inspectorWidget->toggleViewAction()->setIcon(QIcon(":/icons/inspector.png"));
+    ui->toolBar->addAction(m_inspectorWidget->toggleViewAction());
+
     #ifdef Q_OS_MAC
     // Show LibraryWidget as floating window on Mac OS X
     m_inspectorWidget->setFloating(true);
@@ -362,12 +363,6 @@ void plvgui::MainWindow::on_actionShow_Library_toggled(bool on)
         this->m_libraryWidget->hide();
     }
 }
-
-void MainWindow::updateLibraryVisibility(bool visible)
-{
-    ui->actionShow_Library->setChecked(visible);
-}
-
 
 void plvgui::MainWindow::on_actionLoad_triggered()
 {

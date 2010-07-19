@@ -40,7 +40,6 @@ namespace plvgui {
 
     public slots:
         void addRenderersForPins(plv::RefPtr<plv::PipelineElement>);
-        void updateLibraryVisibility(bool);
 
     protected:
         void changeEvent(QEvent* e);
