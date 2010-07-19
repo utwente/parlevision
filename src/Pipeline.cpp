@@ -40,7 +40,7 @@ void Pipeline::remove( PipelineElement* child )
             // preserve the element so we can send it over the signal later
             RefPtr<PipelineElement> element = itr->second;
             removeConnectionsForElement( element.getPtr() );
-            m_children.erase(itr);
+            itr = m_children.erase(itr);
             emit( elementRemoved(element) );
         }
     }
@@ -64,7 +64,7 @@ void Pipeline::remove( int id )
     {
         // preserve the element so we can send it over the signal later
         RefPtr<PipelineElement> element = itr->second;
-        m_children.erase(itr);
+        itr = m_children.erase(itr);
         emit(elementRemoved(element));
     }
 }
