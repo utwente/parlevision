@@ -104,6 +104,9 @@ namespace plv
           */
         virtual void addConnection(PinConnection* connection) = 0;
 
+        /** Removes the connection from this pin.
+          * Assumes it has been disconnect()'ed
+          */
         virtual void removeConnection( PinConnection* connection ) = 0;
 
         // TODO ugly hack to make things work ...
@@ -162,7 +165,6 @@ namespace plv
                 RefPtr<PinConnection> current = *itr;
                 if( current.getPtr() == connection )
                 {
-                    current->disconnect();
                     m_connections.erase( itr );
                     return;
                 }
@@ -177,7 +179,7 @@ namespace plv
                     itr != m_connections.end(); ++itr)
             {
                 RefPtr<PinConnection> current = *itr;
-                current->disconnect();
+//                current->disconnect();
                 m_connections.erase( itr );
             }
         }

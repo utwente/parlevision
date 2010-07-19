@@ -32,16 +32,18 @@ int Pipeline::add( PipelineElement* child )
 
 void Pipeline::remove( PipelineElement* child )
 {
+    bool done = false;
     for( PipelineElementMap::iterator itr = m_children.begin()
-        ; itr != m_children.end(); ++itr )
+        ; !done && itr != m_children.end(); ++itr )
     {
         if( child == itr->second.getPtr() )
         {
             // preserve the element so we can send it over the signal later
             RefPtr<PipelineElement> element = itr->second;
             removeConnectionsForElement( element.getPtr() );
-            itr = m_children.erase(itr);
+            m_children.erase(itr);
             emit( elementRemoved(element) );
+            break;
         }
     }
 }
@@ -64,7 +66,7 @@ void Pipeline::remove( int id )
     {
         // preserve the element so we can send it over the signal later
         RefPtr<PipelineElement> element = itr->second;
-        itr = m_children.erase(itr);
+        m_children.erase(itr);
         emit(elementRemoved(element));
     }
 }
@@ -93,10 +95,8 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
         RefPtr<IInputPin> ipp = *itr;
         if( ipp->isConnected() )
         {
-            ipp->removeConnection();
             RefPtr<PinConnection> connection = ipp->getConnection();
-            connection->disconnect();
-            removeConnection( connection );
+            disconnect( connection );
         }
     }
 
@@ -111,7 +111,7 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
             for( std::list< RefPtr<PinConnection> >::const_iterator itr = connections.begin();
                  itr!= connections.end(); ++itr )
             {
-                removeConnection( *itr );
+                disconnect( *itr );
             }
         }
     }
@@ -158,6 +158,13 @@ void Pipeline::removeAllConnections()
         RefPtr<PinConnection> connection = *itr;
         removeConnection(connection);
     }
+}
+
+void Pipeline::disconnect( PinConnection* connection )
+{
+    RefPtr<PinConnection> conn( connection );
+    conn->disconnect();
+    removeConnection(connection);
 }
 
 void Pipeline::removeConnection( PinConnection* connection )

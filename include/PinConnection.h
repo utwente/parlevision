@@ -21,6 +21,13 @@ namespace plv
         ~PinConnection();
 
         void connect() throw ( IncompatibleTypeException );
+
+        /** Disconnect this connection from its pins
+          * this makes it a "floating" connection that can safely be removed.
+          * this does not notify the pipeline or remove itself from it.
+          * you probably won't call this directly,
+          * use Pipeline::disconnect(connection) instead
+          */
         void disconnect();
 
         bool hasData();
@@ -38,6 +45,7 @@ namespace plv
         std::queue< RefPtr<Data> > m_queue;
 
         QMutex m_mutex;
+
     };
 }
 

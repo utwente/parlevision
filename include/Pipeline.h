@@ -75,18 +75,25 @@ namespace plv
           */
         void connectPins( IOutputPin* outputPin, IInputPin* inputPin );
 
-        /** Removes a single connection. Quite slow O(N) since it traverses a linked list.
+        /** Disconnects and removes a single connection.
+          * Quite slow O(N) since it traverses a linked list.
           * TODO make faster?
           * @emits connectionRemoved(connection)
           */
-        void removeConnection( PinConnection* connection );
+        void disconnect( PinConnection* connection );
 
+        /** Disconnects and removes all connections for this element
+          */
         void removeConnectionsForElement( PipelineElement* element );
 
-        /** Removes all connections. First signals there removal to any signal listeners using
-          * the connectionRemoved signal. Then removes the connections from the pipeline
+        /** Disconnects and removes all connections.
           */
         void removeAllConnections();
+
+        /** Removes the connection from the pipeline
+          * @requires connection is disconnected from any pins
+          */
+        void removeConnection(PinConnection* connection);
 
     protected:
         PipelineElementMap m_children;
@@ -96,6 +103,7 @@ namespace plv
           * The QThread run loop
           */
         virtual void run();
+
     private:
         int m_idCounter;
         bool m_stopRequested;
