@@ -22,7 +22,10 @@ ViewerWidget::ViewerWidget(IOutputPin* pin, QWidget *parent) :
 
     DataRenderer* renderer = RendererFactory::create(pin->getTypeInfo().name(), this);
     renderer->setPin(pin);
+    renderer->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+//    QVBoxLayout*
     this->setWidget(renderer);
+    this->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     this->setWindowTitle(pin->getOwner()->getName() + "-" + pin->getName());
 }
 

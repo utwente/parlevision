@@ -1,8 +1,7 @@
 DEPENDPATH += .
 include(ParleVision.local)
 macx { 
-    LIBS += -framework \
-        OpenCV
+    LIBS += -framework OpenCV
     
     # Make sure there is no mess in ./
     # but put all output files in build/(debug|release)

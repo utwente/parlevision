@@ -35,7 +35,13 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
             image.setPixel( x, y, qRgb(x, y, y) );
 
     m_imagelabel->setPixmap( QPixmap::fromImage( image ) );
+    m_imagelabel->setWordWrap(true);
     setLayout( m_layout );
+
+    this->setMinimumSize(0,0);
+    m_layout->setSizeConstraint(QLayout::SetNoConstraint);
+    m_imagelabel->setMinimumSize(0,0);
+    m_imagelabel->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
 
     m_converter = new ImageConverter();
     connect(m_converter.getPtr(), SIGNAL( converted(RefPtr<QtImage>) ),
@@ -53,7 +59,7 @@ void OpenCVImageRenderer::newData( RefPtr<Data> data )
     }
     else
     {
-        RefPtr<OpenCVImage> img = ref_ptr_dynamic_cast<OpenCVImage>(data);
+        RefPtr<OpenCVImage> img = ref_ptr_static_cast<OpenCVImage>(data);
         assert(img.isNotNull());
         if(img.isNotNull())
         {
@@ -71,5 +77,6 @@ void OpenCVImageRenderer::updateImage( RefPtr<QtImage> image )
     QImage* qImg = image->getImage();
     QPixmap pixmap = QPixmap::fromImage(*qImg);
     m_imagelabel->setPixmap( pixmap );
+    m_imagelabel->setScaledContents(true);
     m_busy = false;
 }
