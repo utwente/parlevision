@@ -1,7 +1,12 @@
 #include "InspectorWidget.h"
 #include "ui_inspectorwidget.h"
 
+#include <QtGui>
+
+#include "PipelineElement.h"
+
 using namespace plvgui;
+using namespace plv;
 
 InspectorWidget::InspectorWidget(QWidget *parent) :
     QDockWidget(parent),
@@ -25,4 +30,9 @@ void InspectorWidget::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void InspectorWidget::selectionChanged()
+{
+
 }

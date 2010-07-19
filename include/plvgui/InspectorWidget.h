@@ -2,9 +2,16 @@
 #define INSPECTORWIDGET_H
 
 #include <QDockWidget>
+#include "RefPtr.h"
 
-namespace Ui {
+namespace Ui
+{
     class InspectorWidget;
+}
+
+namespace plv
+{
+//    class PipelineElement;
 }
 
 namespace plvgui
@@ -16,6 +23,9 @@ namespace plvgui
     public:
         explicit InspectorWidget(QWidget *parent = 0);
         ~InspectorWidget();
+
+    public slots:
+        void selectionChanged();
 
     protected:
         void changeEvent(QEvent *e);

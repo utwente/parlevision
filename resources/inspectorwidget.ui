@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>InspectorWidget</class>
  <widget class="QDockWidget" name="InspectorWidget">
@@ -10,9 +10,17 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="toolTip">
+   <string>Inspector panel</string>
+  </property>
+  <property name="whatsThis">
+   <string>Element or Connection Inspector panel</string>
+  </property>
   <property name="windowTitle">
-   <string>DockWidget</string>
+   <string>Inspector</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents"/>
  </widget>
+ <resources/>
+ <connections/>
 </ui>
