@@ -159,6 +159,7 @@ void Pipeline::removeAllConnections()
             itr != m_connections.end(); ++itr )
     {
         RefPtr<PinConnection> connection = *itr;
+        assert(connection.isNotNull());
         removeConnection(connection);
     }
 }

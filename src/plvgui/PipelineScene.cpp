@@ -146,7 +146,7 @@ void PipelineScene::remove(plv::PinConnection* c)
 
 void PipelineScene::remove(plv::RefPtr<plv::PinConnection> c)
 {
-    this->m_pipeline->removeConnection(c);
+    this->m_pipeline->disconnect(c);
 }
 
 void PipelineScene::handleRemove(plv::PipelineElement* e)
