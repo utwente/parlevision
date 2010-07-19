@@ -324,13 +324,15 @@ void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
         assert(pin.isNotNull());
         qDebug() << "Adding renderer for Pin " << pin->getName();
 
-        ViewerWidget* viewer = new ViewerWidget(this);
-        DataRenderer* renderer = RendererFactory::create(pin->getTypeInfo().name(), viewer);
-        renderer->setPin(pin);
-        viewer->setWidget(renderer);
+        ViewerWidget* viewer = new ViewerWidget(pin, this);
         viewer->show();
+        #ifdef Q_OS_MAC
+        // Show as floating window on Mac OS X
+        viewer->setFloating(true);
+        #else
+        this->addDockWidget(Qt::BottomDockWidgetArea, viewer);
+        #endif
     }
-
 }
 
 //void MainWindow::addCamera(plv::OpenCVCamera* camera)

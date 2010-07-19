@@ -1,11 +1,29 @@
-#include "include/plvgui/ViewerWidget.h"
+#include "ViewerWidget.h"
 #include "ui_viewerwidget.h"
 
-ViewerWidget::ViewerWidget(QWidget *parent) :
+#include <QtGui>
+
+#include "assert.h"
+
+#include "Pin.h"
+#include "DataRenderer.h"
+#include "RendererFactory.h"
+
+using namespace plvgui;
+using namespace plv;
+
+ViewerWidget::ViewerWidget(IOutputPin* pin, QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::ViewerWidget)
+    ui(new Ui::ViewerWidget),
+    pin(pin)
 {
     ui->setupUi(this);
+    assert(this->pin.isNotNull());
+
+    DataRenderer* renderer = RendererFactory::create(pin->getTypeInfo().name(), this);
+    renderer->setPin(pin);
+    this->setWidget(renderer);
+    this->setWindowTitle(pin->getOwner()->getName() + "-" + pin->getName());
 }
 
 ViewerWidget::~ViewerWidget()
