@@ -24,8 +24,7 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
 
 {
     m_layout      = new QVBoxLayout;
-    m_imagelabel  = new QLabel;
-    m_imagelabel->setScaledContents(true);
+    m_imagelabel  = new ImageLabel(this);
     QImage image  = QImage(100,100,QImage::Format_RGB32);
 
     m_layout->addWidget( m_imagelabel );
@@ -35,10 +34,14 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
             image.setPixel( x, y, qRgb(x, y, y) );
 
     m_imagelabel->setPixmap( QPixmap::fromImage( image ) );
-    m_imagelabel->setWordWrap(true);
     setLayout( m_layout );
+    m_layout->setAlignment(Qt::AlignCenter);
 
-    m_imagelabel->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    sizePolicy.setHeightForWidth(true);
+    m_imagelabel->setSizePolicy(sizePolicy);
+
+    this->setSizePolicy(sizePolicy);
 
     m_converter = new ImageConverter();
     connect(m_converter.getPtr(), SIGNAL( converted(RefPtr<QtImage>) ),
@@ -84,7 +87,36 @@ void OpenCVImageRenderer::updateImage( RefPtr<QtImage> image )
     m_busy = false;
 }
 
-QSize OpenCVImageRenderer::sizeHint()
+QSize OpenCVImageRenderer::sizeHint() const
 {
     return m_imagelabel->sizeHint();
+}
+
+int OpenCVImageRenderer::heightForWidth(int w) const
+{
+    return ((double)m_imagelabel->sizeHint().height()/(double)m_imagelabel->sizeHint().width()) * w;
+}
+
+
+ImageLabel::ImageLabel(QWidget *parent) :
+        QLabel(parent)
+{
+    setScaledContents(true);
+}
+
+int ImageLabel::heightForWidth(int w) const
+{
+//    int h = ((double)sizeHint().height()/(double)sizeHint().width()) * w;
+//    return h;
+    return 100;
+}
+
+QSize ImageLabel::sizeHint() const
+{
+    return QSize(0,0);
+}
+
+QSize ImageLabel::minimumSizeHint() const
+{
+    return QSize(0,0);
 }

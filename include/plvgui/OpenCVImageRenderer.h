@@ -2,6 +2,7 @@
 #define OpenCVImageRenderer_H
 
 #include <QMutex>
+#include <QLabel>
 
 #include "OpenCVImage.h"
 #include "QtImage.h"
@@ -9,7 +10,7 @@
 #include "ImageConverter.h"
 #include "DataRenderer.h"
 
-class QLabel;
+
 class QPixmap;
 class QLabel;
 class QVBoxLayout;
@@ -30,7 +31,8 @@ namespace plvgui {
     public:
         OpenCVImageRenderer(QWidget* parent);
         virtual ~OpenCVImageRenderer() {}
-        QSize sizeHint();
+        QSize sizeHint() const;
+        int heightForWidth(int w) const;
 
     private:
         void putImage();
@@ -44,6 +46,15 @@ namespace plvgui {
         virtual void newData( RefPtr<Data> data );
         void updateImage( RefPtr<QtImage> img );
 
-    };    
+    };
+
+    class ImageLabel : public QLabel
+    {
+    public:
+        ImageLabel(QWidget* parent);
+        QSize sizeHint() const;
+        QSize minimumSizeHint() const;
+        int heightForWidth(int w) const;
+    };
 }
 #endif // OpenCVImageRenderer_H
