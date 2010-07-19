@@ -14,6 +14,7 @@
 class QPixmap;
 class QLabel;
 class QVBoxLayout;
+class QHBoxLayout;
 class QImage;
 
 namespace plv {
