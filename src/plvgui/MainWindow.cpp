@@ -393,7 +393,16 @@ void plvgui::MainWindow::on_actionLoad_triggered()
 
 void plvgui::MainWindow::on_actionNew_triggered()
 {
-    newWindow();
+    MainWindow* win = this;
+    if(this->m_pipeline.isNotNull())
+    {
+        win = newWindow();
+    }
+
+    RefPtr<Pipeline> pipeline = new Pipeline();
+    pipeline->init();
+    win->setPipeline(pipeline);
+
 }
 
 void MainWindow::documentChanged()
