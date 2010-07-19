@@ -32,11 +32,13 @@ namespace plvgui {
     public:
         OpenCVImageRenderer(QWidget* parent);
         virtual ~OpenCVImageRenderer() {}
-        QSize sizeHint() const;
-        int heightForWidth(int w) const;
+//        QSize sizeHint() const;
+//        int heightForWidth(int w) const;
+        void resizeEvent(QResizeEvent * /*resizeEvent*/);
 
     private:
         void putImage();
+        void fixAspectRatio();
         QLabel*         m_imagelabel;
         QVBoxLayout*    m_layout;
         bool            m_busy;
@@ -46,7 +48,6 @@ namespace plvgui {
     public slots:
         virtual void newData( RefPtr<Data> data );
         void updateImage( RefPtr<QtImage> img );
-
     };
 
     class ImageLabel : public QLabel

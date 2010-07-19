@@ -23,6 +23,7 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
 
     m_layout->addStretch(0);
     m_layout->addWidget( m_imagelabel);
+    m_layout->setSizeConstraint(QLayout::SetDefaultConstraint);
     m_layout->addStretch(0);
 
     for (int x = 0; x < 100; x ++)
@@ -32,11 +33,11 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
     m_imagelabel->setPixmap( QPixmap::fromImage( image ) );
     setLayout( m_layout );
 
-    QSizePolicy labelPolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QSizePolicy labelPolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     labelPolicy.setHeightForWidth(true);
     m_imagelabel->setSizePolicy(labelPolicy);
 
-    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QSizePolicy sizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     sizePolicy.setHeightForWidth(true);
     this->setSizePolicy(sizePolicy);
 
@@ -74,27 +75,31 @@ void OpenCVImageRenderer::updateImage( RefPtr<QtImage> image )
     QImage* qImg = image->getImage();
     QPixmap pixmap = QPixmap::fromImage(*qImg);
     m_imagelabel->setPixmap( pixmap );
-
-    if(m_imagelabel->sizeHint() != this->sizeHint())
-    {
-        this->sizeHint() = m_imagelabel->sizeHint();
-        updateGeometry();
-    }
-
     m_busy = false;
 }
 
-QSize OpenCVImageRenderer::sizeHint() const
+void OpenCVImageRenderer::resizeEvent(QResizeEvent * /*resizeEvent*/)
 {
-//    return m_imagelabel->sizeHint();
-    return QSize(66,666);
+    fixAspectRatio();
 }
 
-int OpenCVImageRenderer::heightForWidth(int w) const
+void OpenCVImageRenderer::fixAspectRatio()
 {
-//    return ((double)m_imagelabel->sizeHint().height()/(double)m_imagelabel->sizeHint().width()) * w;
-    return 20;
+    int containerWidth =  m_imagelabel->width();
+    int containerHeight = m_imagelabel->height();
+    double _aspectRatio = (double)m_imagelabel->sizeHint().width()
+                                    / (double)m_imagelabel->sizeHint().height();
+
+    int contentsHeight = containerHeight ;
+    int contentsWidth = containerHeight * _aspectRatio;
+    if (contentsWidth > containerWidth ) {
+            contentsWidth = containerWidth ;
+            contentsHeight = containerWidth / _aspectRatio;
+    }
+
+    m_layout->setGeometry(QRect(0,0,contentsWidth, contentsHeight));
 }
+
 
 
 ImageLabel::ImageLabel(QWidget *parent) :
