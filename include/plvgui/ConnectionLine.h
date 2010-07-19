@@ -43,6 +43,7 @@ namespace plvgui
 
         QRectF boundingRect() const;
         QPainterPath shape() const;
+        RefPtr<PinConnection> getPinConnection() const { return connection; }
 
     public slots:
         void updatePosition();

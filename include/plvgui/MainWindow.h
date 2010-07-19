@@ -19,6 +19,7 @@ namespace plv {
 
 namespace plvgui {
     class LibraryWidget;
+    class PipelineScene;
 
     class MainWindow : public QMainWindow {
         Q_OBJECT
@@ -52,11 +53,6 @@ namespace plvgui {
         LibraryWidget* m_libraryWidget;
         plv::RefPtr<plv::Pipeline> m_pipeline;
 
-    private slots:
-        // indicate the active document has changed
-        void documentChanged();
-        void openRecentFile();
-
     private:
         void initGUI();
         void createLibraryWidget();
@@ -68,16 +64,22 @@ namespace plvgui {
         MainWindow* newWindow();
 
         Ui::MainWindow* ui;
+        PipelineScene* m_scene;
         bool m_documentChanged;
         QString m_fileName;
         QAction* m_recentFilesSeparator;
         enum { MaxRecentFiles = 5 };
         QAction* recentFileActs[MaxRecentFiles];
 
-private slots:
-    void on_actionNew_triggered();
-    void on_actionLoad_triggered();
-    void on_actionShow_Library_toggled(bool);
+    private slots:
+        // indicate the active document has changed
+        void documentChanged();
+        void openRecentFile();
+        void on_actionDelete_triggered();
+        void on_actionNew_triggered();
+        void on_actionLoad_triggered();
+        void on_actionShow_Library_toggled(bool);
+        void on_sceneSelection_changed();
 };
 
 } // namespace plvgui

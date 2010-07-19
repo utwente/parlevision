@@ -212,8 +212,12 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     m_documentChanged = true;
 
     assert (ui->view != 0);
-    PipelineScene* scene = new PipelineScene(pipeline, ui->view);
-    ui->view->setScene(scene);
+    this->m_scene = new PipelineScene(pipeline, ui->view);
+
+    connect(m_scene, SIGNAL(selectionChanged()),
+            this, SLOT(on_sceneSelection_changed()));
+
+    ui->view->setScene(m_scene);
 
     connect(ui->actionStop, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
@@ -237,7 +241,7 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(documentChanged()));
 
-    connect(scene, SIGNAL(changed(QList<QRectF>)),
+    connect(m_scene, SIGNAL(changed(QList<QRectF>)),
             this, SLOT(documentChanged()));
 
     // add renderers for all elements in the pipeline
@@ -389,4 +393,17 @@ void MainWindow::documentChanged()
 {
     m_documentChanged = true;
     ui->actionSave->setEnabled(true);
+}
+
+void plvgui::MainWindow::on_actionDelete_triggered()
+{
+    if(this->m_scene)
+    {
+        this->m_scene->deleteSelected();
+    }
+}
+
+void plvgui::MainWindow::on_sceneSelection_changed()
+{
+    ui->actionDelete->setEnabled(this->m_scene->selectedItems().size() > 0);
 }
