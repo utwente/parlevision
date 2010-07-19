@@ -155,8 +155,16 @@ void Pipeline::removeAllConnections()
 {
     assert( !m_running );
 
+    PipelineConnectionsList toRemove;
     for( PipelineConnectionsList::iterator itr = m_connections.begin();
             itr != m_connections.end(); ++itr )
+    {
+        RefPtr<PinConnection> connection = *itr;
+        toRemove.push_back(connection);
+    }
+
+    for( PipelineConnectionsList::iterator itr = toRemove.begin();
+            itr != toRemove.end(); ++itr )
     {
         RefPtr<PinConnection> connection = *itr;
         assert(connection.isNotNull());
