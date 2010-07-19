@@ -40,6 +40,7 @@ namespace plvgui {
         void putImage();
         void fixAspectRatio();
         QLabel*         m_imagelabel;
+        QWidget*        m_constraintWidget;
         QVBoxLayout*    m_layout;
         bool            m_busy;
         QMutex          m_busy_mutex;

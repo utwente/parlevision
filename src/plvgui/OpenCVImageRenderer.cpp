@@ -14,15 +14,22 @@ using namespace plv;
 
 OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
     : DataRenderer(parent),
+        m_constraintWidget(new QWidget(this)),
         m_busy(false)
 
 {
+    QVBoxLayout* innerLayout = new QVBoxLayout(m_constraintWidget);
+    m_constraintWidget->setLayout(innerLayout);
+
     m_layout      = new QVBoxLayout(this);
     m_imagelabel  = new ImageLabel(this);
+
     QImage image  = QImage(100,100,QImage::Format_RGB32);
+    innerLayout->addWidget(m_imagelabel);
+    innerLayout->setSizeConstraint(QLayout::SetFixedSize);
 
     m_layout->addStretch(0);
-    m_layout->addWidget( m_imagelabel);
+    m_layout->addWidget( m_constraintWidget );
     m_layout->setSizeConstraint(QLayout::SetDefaultConstraint);
     m_layout->addStretch(0);
 
@@ -97,7 +104,7 @@ void OpenCVImageRenderer::fixAspectRatio()
             contentsHeight = containerWidth / _aspectRatio;
     }
 
-    m_layout->setGeometry(QRect(0,0,contentsWidth, contentsHeight));
+    m_constraintWidget->resize(contentsWidth, contentsHeight);
 }
 
 
