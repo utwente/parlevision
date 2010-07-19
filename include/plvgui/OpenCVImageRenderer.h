@@ -1,5 +1,5 @@
-#ifndef OPENCVIMAGEINSPECTOR_H
-#define OPENCVIMAGEINSPECTOR_H
+#ifndef OpenCVImageRenderer_H
+#define OpenCVImageRenderer_H
 
 #include <QMutex>
 
@@ -7,7 +7,7 @@
 #include "QtImage.h"
 #include "RefPtr.h"
 #include "ImageConverter.h"
-#include "Inspector.h"
+#include "DataRenderer.h"
 
 class QLabel;
 class QPixmap;
@@ -23,13 +23,13 @@ using namespace plv;
 
 namespace plvgui {
 
-    class OpenCVImageInspector : public Inspector
+    class OpenCVImageRenderer : public DataRenderer
     {
         Q_OBJECT
 
     public:
-        OpenCVImageInspector(QWidget* parent);
-        virtual ~OpenCVImageInspector() {}
+        OpenCVImageRenderer(QWidget* parent);
+        virtual ~OpenCVImageRenderer() {}
 
     private:
         void putImage();
@@ -45,4 +45,4 @@ namespace plvgui {
 
     };    
 }
-#endif // OPENCVIMAGEINSPECTOR_H
+#endif // OpenCVImageRenderer_H

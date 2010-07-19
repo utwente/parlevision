@@ -2,8 +2,8 @@
 #include "ui_mainwindow.h"
 
 #include "LibraryWidget.h"
-#include "Inspector.h"
-#include "InspectorFactory.h"
+#include "DataRenderer.h"
+#include "RendererFactory.h"
 
 #include "Pipeline.h"
 #include "PipelineScene.h"
@@ -310,10 +310,10 @@ void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
         assert(pin.isNotNull());
         qDebug() << "Adding renderer for Pin " << pin->getName();
 
-        Inspector* inspector = InspectorFactory::create(pin->getTypeInfo().name(), this);
-        inspector->setPin(pin);
+        DataRenderer* renderer = RendererFactory::create(pin->getTypeInfo().name(), this);
+        renderer->setPin(pin);
 
-        this->addWidget(inspector);
+        this->addWidget(renderer);
     }
 
 }

@@ -1,4 +1,4 @@
-#include "OpenCVImageInspector.h"
+#include "OpenCVImageRenderer.h"
 
 #include <QDebug>
 #include <QPixmap>
@@ -18,8 +18,8 @@
 using namespace plvgui;
 using namespace plv;
 
-OpenCVImageInspector::OpenCVImageInspector(QWidget* parent)
-    : Inspector(parent),
+OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
+    : DataRenderer(parent),
         m_busy(false)
 
 {
@@ -43,7 +43,7 @@ OpenCVImageInspector::OpenCVImageInspector(QWidget* parent)
 
 }
 
-void OpenCVImageInspector::newData( RefPtr<Data> data )
+void OpenCVImageRenderer::newData( RefPtr<Data> data )
 {
     QMutexLocker lock( &m_busy_mutex );
 
@@ -64,7 +64,7 @@ void OpenCVImageInspector::newData( RefPtr<Data> data )
     }
 }
 
-void OpenCVImageInspector::updateImage( RefPtr<QtImage> image )
+void OpenCVImageRenderer::updateImage( RefPtr<QtImage> image )
 {
     //TODO better make this a separate mutex, but this will do for now
     QMutexLocker lock( &m_busy_mutex );

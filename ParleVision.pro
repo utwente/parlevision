@@ -37,9 +37,9 @@ SOURCES += src/main.cpp \
     src/DummyProcessor.cpp \
     src/PipelineProcessor.cpp \
     src/Pipeline.cpp \
-    src/plvgui/OpenCVImageInspector.cpp \
-    src/plvgui/InspectorFactory.cpp \
-    src/plvgui/Inspector.cpp \
+    src/plvgui/OpenCVImageRenderer.cpp \
+    src/plvgui/RendererFactory.cpp \
+    src/plvgui/DataRenderer.cpp \
     src/plvgui/ImageConverter.cpp \
     src/plvgui/LibraryWidget.cpp \
     src/plvgui/PipelineScene.cpp \
@@ -65,9 +65,9 @@ HEADERS += include/CameraProducer.h \
     include/DummyProcessor.h \
     include/PipelineProcessor.h \
     include/Pipeline.h \
-    include/plvgui/OpenCVImageInspector.h \
-    include/plvgui/InspectorFactory.h \
-    include/plvgui/Inspector.h \
+    include/plvgui/OpenCVImageRenderer.h \
+    include/plvgui/RendererFactory.h \
+    include/plvgui/DataRenderer.h \
     include/plvgui/ImageConverter.h \
     include/plvgui/PipelineScene.h \
     include/plvgui/LibraryWidget.h \
