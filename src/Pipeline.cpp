@@ -152,16 +152,12 @@ void Pipeline::removeAllConnections()
 {
     assert( !m_running );
 
-    // first signal impending removal of connections
     for( PipelineConnectionsList::iterator itr = m_connections.begin();
             itr != m_connections.end(); ++itr )
     {
         RefPtr<PinConnection> connection = *itr;
-        connectionRemoved( connection );
+        removeConnection(connection);
     }
-
-    // now remove all connections
-    m_connections.clear();
 }
 
 void Pipeline::removeConnection( PinConnection* connection )
@@ -174,7 +170,9 @@ void Pipeline::removeConnection( PinConnection* connection )
         RefPtr<PinConnection> con2 = *itr;
         if( con1.getPtr() == con2.getPtr() )
         {
+            RefPtr<PinConnection> conn = *itr;
             m_connections.erase( itr );
+            emit(connectionRemoved(conn));
         }
     }
 }

@@ -71,11 +71,13 @@ namespace plv
         const PipelineConnectionsList& getConnections() const;
 
         /** Create a PinConnnection between the given InputPin and outputPin
+          * @emits connectionAdded(connection)
           */
         void connectPins( IOutputPin* outputPin, IInputPin* inputPin );
 
         /** Removes a single connection. Quite slow O(N) since it traverses a linked list.
           * TODO make faster?
+          * @emits connectionRemoved(connection)
           */
         void removeConnection( PinConnection* connection );
 
