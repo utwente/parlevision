@@ -48,26 +48,30 @@ namespace plvgui {
           * And restores it.
           */
         void loadSettings();
+        void updateRecentFileActions();
         LibraryWidget* m_libraryWidget;
         plv::RefPtr<plv::Pipeline> m_pipeline;
 
     private slots:
         // indicate the active document has changed
         void documentChanged();
+        void openRecentFile();
 
     private:
         void initGUI();
         void createLibraryWidget();
+        void createRecentFileActs();
         // set the file belonging to the active pipeline;
         // empty string means no file
-        void setCurrentFile(QString fileName) { m_fileName = fileName; }
+        void setCurrentFile(QString fileName);
         // create a new window
         MainWindow* newWindow();
 
         Ui::MainWindow* ui;
-        QSettings* m_settings;
         bool m_documentChanged;
         QString m_fileName;
+        enum { MaxRecentFiles = 5 };
+        QAction* recentFileActs[MaxRecentFiles];
 
 private slots:
     void on_actionNew_triggered();
