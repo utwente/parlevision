@@ -79,7 +79,7 @@ namespace plvgui {
         void on_actionNew_triggered();
         void on_actionLoad_triggered();
         void on_actionShow_Library_toggled(bool);
-        void on_sceneSelection_changed();
+        void sceneSelectionChanged();
 };
 
 } // namespace plvgui

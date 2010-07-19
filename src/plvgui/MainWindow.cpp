@@ -215,7 +215,7 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     this->m_scene = new PipelineScene(pipeline, ui->view);
 
     connect(m_scene, SIGNAL(selectionChanged()),
-            this, SLOT(on_sceneSelection_changed()));
+            this, SLOT(sceneSelectionChanged()));
 
     ui->view->setScene(m_scene);
 
@@ -403,7 +403,7 @@ void plvgui::MainWindow::on_actionDelete_triggered()
     }
 }
 
-void plvgui::MainWindow::on_sceneSelection_changed()
+void plvgui::MainWindow::sceneSelectionChanged()
 {
     ui->actionDelete->setEnabled(this->m_scene->selectedItems().size() > 0);
 }
