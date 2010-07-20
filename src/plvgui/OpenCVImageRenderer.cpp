@@ -41,11 +41,11 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
     setLayout( m_layout );
 
     QSizePolicy labelPolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    labelPolicy.setHeightForWidth(true);
+//    labelPolicy.setHeightForWidth(true);
     m_imagelabel->setSizePolicy(labelPolicy);
 
     QSizePolicy sizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    sizePolicy.setHeightForWidth(true);
+//    sizePolicy.setHeightForWidth(true);
     this->setSizePolicy(sizePolicy);
 
     m_converter = new ImageConverter();
@@ -106,8 +106,8 @@ void OpenCVImageRenderer::resizeEvent(QResizeEvent * /*resizeEvent*/)
 
 void OpenCVImageRenderer::fixAspectRatio()
 {
-    int containerWidth =  m_imagelabel->width();
-    int containerHeight = m_imagelabel->height();
+    int containerWidth =  m_constraintWidget->width();
+    int containerHeight = m_constraintWidget->height();
     double _aspectRatio = (double)m_imagelabel->sizeHint().width()
                                     / (double)m_imagelabel->sizeHint().height();
 
