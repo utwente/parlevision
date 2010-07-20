@@ -47,6 +47,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         leftColumnWidth = max(pw->boundingRect().width(), leftColumnWidth);
         y+=10;
     }
+    delete inPins;
 
     leftColumnWidth = max(titleLabel->boundingRect().width()/2.0, leftColumnWidth);
 
@@ -67,6 +68,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         outWidgets.append(pw);
         maxWidth = max(pw->boundingRect().width(), maxWidth);
     }
+    delete outPins;
 
     y = 20;
     foreach(PinWidget* pw, outWidgets)
