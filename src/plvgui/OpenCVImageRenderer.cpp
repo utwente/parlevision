@@ -53,17 +53,19 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent)
 
 void OpenCVImageRenderer::showEvent(QShowEvent* event)
 {
+    qDebug() << "connecting renderer";
+
     connect(m_converter.getPtr(), SIGNAL( converted(RefPtr<QtImage>) ),
-             this,                 SLOT( updateImage(RefPtr<QtImage>) ) );
+             this,                 SLOT( updateImage(RefPtr<QtImage>) ),
+             Qt::UniqueConnection);
 
     QWidget::showEvent(event);
 }
 
 void OpenCVImageRenderer::hideEvent(QHideEvent* event)
 {
-    disconnect(m_converter.getPtr(), SIGNAL( converted(RefPtr<QtImage>) ),
-             this,                 SLOT( updateImage(RefPtr<QtImage>) ) );
-
+    qDebug() << "disconnecting renderer";
+    this->disconnect();
     QWidget::hideEvent(event);
 }
 
