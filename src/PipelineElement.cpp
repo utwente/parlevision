@@ -2,6 +2,8 @@
 
 #include <QString>
 #include <QDebug>
+#include <QMetaObject>
+#include <QMetaProperty>
 
 #include "Pipeline.h"
 #include "RefCounted.h"
@@ -101,6 +103,15 @@ IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
 QString PipelineElement::getName() const
 {
     return PipelineElement::nameForType(this->metaObject()->className());
+}
+
+void PipelineElement::getConfigurablePropertyNames(std::list<QString>& list)
+{
+    const QMetaObject* metaObject = this->metaObject();
+    for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i)
+    {
+        list.push_back(QString::fromLatin1(metaObject->property(i).name()));
+    }
 }
 
 void PipelineElement::__process()

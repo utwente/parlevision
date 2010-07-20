@@ -491,11 +491,11 @@ void plvgui::MainWindow::sceneSelectionChanged()
 
     if(selectionCount == 0)
     {
-        // TODO disable inspector
+        m_inspectorWidget->nothingSelected();
     }
     if(selectionCount > 1)
     {
-        // TODO disable inspector
+        m_inspectorWidget->multipleSelected();
     }
     else if(selectionCount == 1)
     {
@@ -507,6 +507,10 @@ void plvgui::MainWindow::sceneSelectionChanged()
         {
             RefPtr<PipelineElement> element = pew->getElement();
             m_inspectorWidget->setTarget(element);
+        }
+        else
+        {
+            m_inspectorWidget->nothingSelected();
         }
     }
 }

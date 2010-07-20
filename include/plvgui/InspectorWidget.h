@@ -26,12 +26,18 @@ namespace plvgui
         ~InspectorWidget();
 
     public slots:
+        /** set the currently selected target to this one
+          * this automatically unselects any previous selections.
+          */
         void setTarget(plv::RefPtr<plv::PipelineElement> element);
+        void nothingSelected();
+        void multipleSelected();
 
     protected:
         void changeEvent(QEvent *e);
 
     private:
+        void clearSelection();
         Ui::InspectorWidget *ui;
         plv::RefPtr<plv::PipelineElement> element;
     };

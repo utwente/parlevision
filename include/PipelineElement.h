@@ -74,6 +74,9 @@ namespace plv
         /** @returns the ouput pin with that name, or null if none exists */
         IOutputPin* getOutputPin( const QString& name ) const;
 
+        /** Get a list of properties defined on this element */
+        void getConfigurablePropertyNames(std::list<QString>&);
+
         /** @returns the summed total of all connections in all input pins */
         int inputPinsConnectionCount() const;
 
