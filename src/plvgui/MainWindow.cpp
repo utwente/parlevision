@@ -6,6 +6,8 @@
 #include "ViewerWidget.h"
 #include "DataRenderer.h"
 #include "RendererFactory.h"
+#include "PinClickedEvent.h"
+#include "PinWidget.h"
 
 #include "Pipeline.h"
 #include "PipelineScene.h"
@@ -74,6 +76,25 @@ void MainWindow::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+bool MainWindow::event(QEvent* event)
+{
+//    qDebug() << "MainWindow got event " << event << " ut=" << PinDoubleClickedEvent::user_type();
+//    return QObject::event(event);
+    if(event->type() == PinDoubleClickedEvent::user_type())
+    {
+        PinDoubleClickedEvent* pce = static_cast<PinDoubleClickedEvent*>(event);
+        qDebug() << pce->getSource()->getPin()->getName();
+        RefPtr<IOutputPin> pin = ref_ptr_dynamic_cast<IOutputPin>(pce->getSource()->getPin());
+        assert(pin.isNotNull());
+        if(pin.isNotNull())
+        {
+            showViewerForPin(pin);
+        }
+    }
+
+    return QMainWindow::event(event);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -239,9 +260,6 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
 
     connect(ui->actionStart, SIGNAL(triggered()),
             pipeline, SLOT(start()));
-
-    connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
-            this, SLOT(addRenderersForPins(plv::RefPtr<plv::PipelineElement>)));
 
     connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(documentChanged()));

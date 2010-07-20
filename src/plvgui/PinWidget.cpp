@@ -62,7 +62,7 @@ void PinWidget::init(bool isInput=true)
 
 bool PinWidget::sceneEvent ( QEvent * event )
 {
-    qDebug() << "SceneEvent: " << event;
+//    qDebug() << "SceneEvent: " << event;
     return QGraphicsItemGroup::sceneEvent(event);
 }
 
@@ -87,7 +87,7 @@ void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
     // would make dragging the parent element very hard.
     if(!this->circle->contains(this->circle->mapFromParent(event->pos())))
     {
-        qDebug() << "clicked on PinWidget, but not inside circle ";
+//        qDebug() << "clicked on PinWidget, but not inside circle ";
 //                << circle->pos() << " != " << event->pos();
         // pass it on to the parent, so it can set us to selected
         QGraphicsItemGroup::mousePressEvent(event);
