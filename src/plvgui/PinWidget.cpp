@@ -113,7 +113,6 @@ void PinWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
     // This will never get triggered due to a quirk in Qt
     // that does not allow us to have both default behaviour
     // (selectable parent) and doubleclickevents.
-    qDebug() << "doubleclickEvent";
     handleMouseDoubleClick();
 }
 
