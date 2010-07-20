@@ -1,5 +1,5 @@
-#ifndef INSPECTOR_H
-#define INSPECTOR_H
+#ifndef DATARENDERER_H
+#define DATARENDERER_H
 
 #include <QWidget>
 #include <QObject>
@@ -7,7 +7,8 @@
 #include "RefPtr.h"
 #include "Types.h"
 
-namespace plv {
+namespace plv
+{
     class Pin;
 }
 
@@ -15,17 +16,17 @@ using namespace plv;
 
 namespace plvgui {
 
-    /** Interface for Inspectors that observe or monitor pins of a certain dataType.
-      * Each implementation must register itself with the InspectorFactory
+    /** Interface for DataRenderers that observe or monitor pins of a certain dataType.
+      * Each implementation must register itself with the DataRendererFactory
       * and implement the methods needed to render the datatype.
       */
-    class Inspector : public QWidget
+    class DataRenderer : public QWidget
     {
         Q_OBJECT
 
     public:
-        Inspector( QWidget* parent );
-        virtual ~Inspector();
+        DataRenderer( QWidget* parent );
+        virtual ~DataRenderer();
 
         /** Start inspecting this pin
           * Disconnects all previous connections
@@ -38,4 +39,4 @@ namespace plvgui {
     };
 }
 
-#endif // INSPECTOR_H
+#endif // DATARENDERER_H

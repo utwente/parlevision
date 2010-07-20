@@ -2,8 +2,10 @@
 #include "ui_mainwindow.h"
 
 #include "LibraryWidget.h"
-#include "Inspector.h"
-#include "InspectorFactory.h"
+#include "InspectorWidget.h"
+#include "ViewerWidget.h"
+#include "DataRenderer.h"
+#include "RendererFactory.h"
 
 #include "Pipeline.h"
 #include "PipelineScene.h"
@@ -24,18 +26,16 @@ using namespace plv;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_settings(new QSettings("UTwente", "ParleVision")),
-    m_documentChanged(false)
+    m_documentChanged(false),
+    m_fileName("")
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    setCurrentFile("");
     initGUI();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete m_settings;
 }
 
 void MainWindow::initGUI()
@@ -47,9 +47,12 @@ void MainWindow::initGUI()
     ui->view->setAcceptDrops(true);
 
     createLibraryWidget();
+    createInspectorWidget();
 
     // Restore window geometry and state
     loadSettings();
+
+    createRecentFileActs();
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -81,17 +84,84 @@ void MainWindow::closeEvent(QCloseEvent *event)
         m_pipeline->stop();
         m_pipeline->clear();
     }
-    qDebug() << "Saving geometry info to " << m_settings->fileName();
-    m_settings->setValue("MainWindow/geometry", saveGeometry());
-    m_settings->setValue("MainWindow/windowState", saveState());
+    QSettings settings;
+    qDebug() << "Saving geometry info to " << settings.fileName();
+    settings.setValue("MainWindow/geometry", saveGeometry());
+    settings.setValue("MainWindow/windowState", saveState());
     QMainWindow::closeEvent(event);
 }
 
 void MainWindow::loadSettings()
 {
-    qDebug() << "Reading settings from " << m_settings->fileName();
-    qDebug() << restoreGeometry(m_settings->value("MainWindow/geometry").toByteArray());
-    qDebug() << restoreState(m_settings->value("MainWindow/windowState").toByteArray());
+    QSettings settings;
+    qDebug() << "Reading settings from " << settings.fileName();
+    try
+    {
+        restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
+        restoreState(settings.value("MainWindow/windowState").toByteArray());
+    }
+    catch(...)
+    {
+        qWarning() << "Settings corrupt. Clearing.";
+        settings.clear();
+    }
+}
+
+void MainWindow::setCurrentFile(QString fileName)
+{
+    this->m_fileName = fileName;
+
+    if(fileName.isEmpty())
+    {
+        return;
+    }
+
+    setWindowTitle(QFileInfo(fileName).baseName());
+    setWindowFilePath(fileName);
+
+    // Load, update and save the list of recent files
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    files.removeAll(fileName);
+    files.prepend(fileName);
+    while (files.size() > MaxRecentFiles)
+    {
+        files.removeLast();
+    }
+
+    settings.setValue("recentFileList", files);
+
+    // update all windows
+    foreach (QWidget *widget, QApplication::topLevelWidgets())
+    {
+        MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
+        if (mainWin)
+        {
+            mainWin->updateRecentFileActions();
+        }
+    }
+}
+
+void MainWindow::updateRecentFileActions()
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+
+    int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
+
+    for (int i = 0; i < numRecentFiles; ++i)
+    {
+        QString text = tr("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
+        recentFileActs[i]->setText(text);
+        recentFileActs[i]->setData(files[i]);
+        recentFileActs[i]->setVisible(true);
+    }
+    for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
+    {
+        recentFileActs[j]->setVisible(false);
+    }
+
+    m_recentFilesSeparator->setVisible(numRecentFiles > 0);
 }
 
 void MainWindow::addWidget(QWidget *widget)
@@ -104,14 +174,48 @@ void MainWindow::createLibraryWidget()
 {
     m_libraryWidget = new LibraryWidget(this);
     this->addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
+    m_libraryWidget->toggleViewAction()->setIcon(QIcon(":/icons/library.png"));
+    ui->toolBar->addAction(m_libraryWidget->toggleViewAction());
     #ifdef Q_OS_MAC
     // Show LibraryWidget as floating window on Mac OS X
     m_libraryWidget->setFloating(true);
     #endif
+}
 
-    ui->actionShow_Library->setChecked(m_libraryWidget->isVisible());
-    connect(m_libraryWidget, SIGNAL(visibilityChanged(bool)),
-                                    this, SLOT(updateLibraryVisibility(bool)));
+void MainWindow::createInspectorWidget()
+{
+    m_inspectorWidget = new InspectorWidget(this);
+    this->addDockWidget(Qt::RightDockWidgetArea, m_inspectorWidget);
+    m_inspectorWidget->toggleViewAction()->setIcon(QIcon(":/icons/inspector.png"));
+    ui->toolBar->addAction(m_inspectorWidget->toggleViewAction());
+
+    #ifdef Q_OS_MAC
+    // Show LibraryWidget as floating window on Mac OS X
+    m_inspectorWidget->setFloating(true);
+    #endif
+}
+
+void MainWindow::createRecentFileActs()
+{
+    m_recentFilesSeparator = ui->menuFile->addSeparator();
+
+    for (int i = 0; i < MaxRecentFiles; ++i)
+    {
+        recentFileActs[i] = new QAction(this);
+        recentFileActs[i]->setVisible(false);
+        ui->menuFile->addAction(recentFileActs[i]);
+        connect(recentFileActs[i], SIGNAL(triggered()),
+                this, SLOT(openRecentFile()));
+    }
+
+    updateRecentFileActions();
+}
+
+void MainWindow::openRecentFile()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+        loadFile(action->data().toString());
 }
 
 void MainWindow::setPipeline(plv::Pipeline* pipeline)
@@ -123,8 +227,12 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     m_documentChanged = true;
 
     assert (ui->view != 0);
-    PipelineScene* scene = new PipelineScene(pipeline, ui->view);
-    ui->view->setScene(scene);
+    this->m_scene = new PipelineScene(pipeline, ui->view);
+
+    connect(m_scene, SIGNAL(selectionChanged()),
+            this, SLOT(sceneSelectionChanged()));
+
+    ui->view->setScene(m_scene);
 
     connect(ui->actionStop, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
@@ -148,7 +256,7 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(documentChanged()));
 
-    connect(scene, SIGNAL(changed(QList<QRectF>)),
+    connect(m_scene, SIGNAL(changed(QList<QRectF>)),
             this, SLOT(documentChanged()));
 
     // add renderers for all elements in the pipeline
@@ -178,6 +286,7 @@ void MainWindow::loadFile(QString fileName)
         RefPtr<Pipeline> pl = PipelineLoader::parsePipeline(fileName);
         bool state = pl->init();
         assert(state);
+        this->setCurrentFile(fileName);
         this->setPipeline(pl);
 
     }
@@ -216,12 +325,15 @@ void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
         assert(pin.isNotNull());
         qDebug() << "Adding renderer for Pin " << pin->getName();
 
-        Inspector* inspector = InspectorFactory::create(pin->getTypeInfo().name(), this);
-        inspector->setPin(pin);
-
-        this->addWidget(inspector);
+        ViewerWidget* viewer = new ViewerWidget(pin, this);
+        viewer->show();
+        #ifdef Q_OS_MAC
+        // Show as floating window on Mac OS X
+        viewer->setFloating(true);
+        #else
+        this->addDockWidget(Qt::BottomDockWidgetArea, viewer);
+        #endif
     }
-
 }
 
 //void MainWindow::addCamera(plv::OpenCVCamera* camera)
@@ -257,12 +369,6 @@ void plvgui::MainWindow::on_actionShow_Library_toggled(bool on)
     }
 }
 
-void MainWindow::updateLibraryVisibility(bool visible)
-{
-    ui->actionShow_Library->setChecked(visible);
-}
-
-
 void plvgui::MainWindow::on_actionLoad_triggered()
 {
     /*
@@ -292,11 +398,33 @@ void plvgui::MainWindow::on_actionLoad_triggered()
 
 void plvgui::MainWindow::on_actionNew_triggered()
 {
-    newWindow();
+    MainWindow* win = this;
+    if(this->m_pipeline.isNotNull())
+    {
+        win = newWindow();
+    }
+
+    RefPtr<Pipeline> pipeline = new Pipeline();
+    pipeline->init();
+    win->setPipeline(pipeline);
+
 }
 
 void MainWindow::documentChanged()
 {
     m_documentChanged = true;
     ui->actionSave->setEnabled(true);
+}
+
+void plvgui::MainWindow::on_actionDelete_triggered()
+{
+    if(this->m_scene)
+    {
+        this->m_scene->deleteSelected();
+    }
+}
+
+void plvgui::MainWindow::sceneSelectionChanged()
+{
+    ui->actionDelete->setEnabled(this->m_scene->selectedItems().size() > 0);
 }

@@ -32,6 +32,7 @@ namespace plvgui
 
         void addLine(ConnectionLine* line, QString pin);
         PinWidget* getWidgetFor(const Pin* p) const { return pinWidgets[p]; }
+        plv::RefPtr<plv::PipelineElement> getElement() const { return element; }
 
         virtual QRectF boundingRect() const;
         virtual bool event(QEvent * event);

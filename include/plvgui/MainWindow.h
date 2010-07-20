@@ -19,6 +19,8 @@ namespace plv {
 
 namespace plvgui {
     class LibraryWidget;
+    class InspectorWidget;
+    class PipelineScene;
 
     class MainWindow : public QMainWindow {
         Q_OBJECT
@@ -38,7 +40,6 @@ namespace plvgui {
 
     public slots:
         void addRenderersForPins(plv::RefPtr<plv::PipelineElement>);
-        void updateLibraryVisibility(bool);
 
     protected:
         void changeEvent(QEvent* e);
@@ -48,31 +49,39 @@ namespace plvgui {
           * And restores it.
           */
         void loadSettings();
+        void updateRecentFileActions();
         LibraryWidget* m_libraryWidget;
+        InspectorWidget* m_inspectorWidget;
         plv::RefPtr<plv::Pipeline> m_pipeline;
-
-    private slots:
-        // indicate the active document has changed
-        void documentChanged();
 
     private:
         void initGUI();
         void createLibraryWidget();
+        void createInspectorWidget();
+        void createRecentFileActs();
         // set the file belonging to the active pipeline;
         // empty string means no file
-        void setCurrentFile(QString fileName) { m_fileName = fileName; }
+        void setCurrentFile(QString fileName);
         // create a new window
         MainWindow* newWindow();
 
         Ui::MainWindow* ui;
-        QSettings* m_settings;
+        PipelineScene* m_scene;
         bool m_documentChanged;
         QString m_fileName;
+        QAction* m_recentFilesSeparator;
+        enum { MaxRecentFiles = 5 };
+        QAction* recentFileActs[MaxRecentFiles];
 
-private slots:
-    void on_actionNew_triggered();
-    void on_actionLoad_triggered();
-    void on_actionShow_Library_toggled(bool);
+    private slots:
+        // indicate the active document has changed
+        void documentChanged();
+        void openRecentFile();
+        void on_actionDelete_triggered();
+        void on_actionNew_triggered();
+        void on_actionLoad_triggered();
+        void on_actionShow_Library_toggled(bool);
+        void sceneSelectionChanged();
 };
 
 } // namespace plvgui

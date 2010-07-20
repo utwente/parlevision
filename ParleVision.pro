@@ -1,8 +1,7 @@
 DEPENDPATH += .
 include(ParleVision.local)
 macx { 
-    LIBS += -framework \
-        OpenCV
+    LIBS += -framework OpenCV
     
     # Make sure there is no mess in ./
     # but put all output files in build/(debug|release)
@@ -37,11 +36,12 @@ SOURCES += src/main.cpp \
     src/DummyProcessor.cpp \
     src/PipelineProcessor.cpp \
     src/Pipeline.cpp \
-    src/plvgui/OpenCVImageInspector.cpp \
-    src/plvgui/InspectorFactory.cpp \
-    src/plvgui/Inspector.cpp \
+    src/plvgui/OpenCVImageRenderer.cpp \
+    src/plvgui/RendererFactory.cpp \
+    src/plvgui/DataRenderer.cpp \
     src/plvgui/ImageConverter.cpp \
     src/plvgui/LibraryWidget.cpp \
+    src/plvgui/InspectorWidget.cpp \
     src/plvgui/PipelineScene.cpp \
     src/plvgui/PipelineElementWidget.cpp \
     src/plvgui/LibraryElement.cpp \
@@ -49,7 +49,8 @@ SOURCES += src/main.cpp \
     src/PipelineLoader.cpp \
     src/plvgui/ConnectionLine.cpp \
     src/plvgui/PinWidget.cpp \
-    src/plvgui/InteractiveLine.cpp
+    src/plvgui/InteractiveLine.cpp \
+    src/plvgui/ViewerWidget.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \
@@ -65,12 +66,13 @@ HEADERS += include/CameraProducer.h \
     include/DummyProcessor.h \
     include/PipelineProcessor.h \
     include/Pipeline.h \
-    include/plvgui/OpenCVImageInspector.h \
-    include/plvgui/InspectorFactory.h \
-    include/plvgui/Inspector.h \
+    include/plvgui/OpenCVImageRenderer.h \
+    include/plvgui/RendererFactory.h \
+    include/plvgui/DataRenderer.h \
     include/plvgui/ImageConverter.h \
     include/plvgui/PipelineScene.h \
     include/plvgui/LibraryWidget.h \
+    include/plvgui/InspectorWidget.h \
     include/plvgui/PipelineElementWidget.h \
     include/PlvExceptions.h \
     include/plvgui/LibraryElement.h \
@@ -79,7 +81,10 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/ConnectionLine.h \
     include/plvgui/PinWidget.h \
     include/plvgui/PinClickedEvent.h \
-    include/plvgui/InteractiveLine.h
+    include/plvgui/InteractiveLine.h \
+    include/plvgui/ViewerWidget.h
 FORMS += resources/mainwindow.ui \
-    resources/librarywidget.ui
+    resources/librarywidget.ui \
+    resources/inspectorwidget.ui \
+    resources/viewerwidget.ui
 RESOURCES += resources/icons.qrc

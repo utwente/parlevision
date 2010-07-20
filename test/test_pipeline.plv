@@ -20,7 +20,6 @@
 		</element>
 	</elements>
 	
-	
 	<connections>
 		<connection type="lossy">
 			<source>
@@ -30,18 +29,6 @@
 			</source>
 			<sink>
 				<processorId>2</processorId>
-				<processorName>plv::DummyProcessor</processorName>
-				<pinName>input</pinName>
-			</sink>
-		</connnection>
-		<connection type="lossy">
-			<source>
-				<processorId>2</processorId>
-				<processorName>plv::DummyProcessor</processorName>
-				<pinName>output</pinName>
-			</source>
-			<sink>
-				<processorId>3</processorId>
 				<processorName>plv::DummyProcessor</processorName>
 				<pinName>input</pinName>
 			</sink>

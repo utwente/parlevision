@@ -1,4 +1,4 @@
-#include "Inspector.h"
+#include "DataRenderer.h"
 
 #include <QDebug>
 
@@ -7,17 +7,17 @@
 using namespace plvgui;
 using namespace plv;
 
-Inspector::Inspector(QWidget *parent)
+DataRenderer::DataRenderer(QWidget *parent)
     : QWidget(parent)
 {
 }
 
-Inspector::~Inspector()
+DataRenderer::~DataRenderer()
 {
     disconnect();
 }
 
-void Inspector::setPin( const plv::Pin* p )
+void DataRenderer::setPin( const plv::Pin* p )
 {
     qDebug() << "attaching inspector to pin";
     disconnect();
@@ -25,8 +25,8 @@ void Inspector::setPin( const plv::Pin* p )
              this, SLOT( newData( RefPtr<Data> )) );
 }
 
-void Inspector::newData( RefPtr<Data> )
+void DataRenderer::newData( RefPtr<Data> )
 {
-    qDebug() << "WARNING: Abstract Inspector received newData signal.\n"
+    qDebug() << "WARNING: Abstract DataRenderer received newData signal.\n"
                 << "Did you forget to implement newData(Data* data) in a subclass?";
 }

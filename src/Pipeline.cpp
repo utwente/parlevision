@@ -32,16 +32,15 @@ int Pipeline::add( PipelineElement* child )
 
 void Pipeline::remove( PipelineElement* child )
 {
+    bool done = false;
     for( PipelineElementMap::iterator itr = m_children.begin()
-        ; itr != m_children.end(); ++itr )
+        ; !done && itr != m_children.end(); ++itr )
     {
         if( child == itr->second.getPtr() )
         {
-            // preserve the element so we can send it over the signal later
-            RefPtr<PipelineElement> element = itr->second;
-            removeConnectionsForElement( element.getPtr() );
-            m_children.erase(itr);
-            emit( elementRemoved(element) );
+            remove(itr->first);
+            done = true;
+            break;
         }
     }
 }
@@ -64,6 +63,7 @@ void Pipeline::remove( int id )
     {
         // preserve the element so we can send it over the signal later
         RefPtr<PipelineElement> element = itr->second;
+        removeConnectionsForElement(element);
         m_children.erase(itr);
         emit(elementRemoved(element));
     }
@@ -71,12 +71,17 @@ void Pipeline::remove( int id )
 
 void Pipeline::removeAllElements()
 {
+    // build list of ids as removing here would invalidate the map
+    std::list<int> ids;
     for( PipelineElementMap::iterator itr = m_children.begin(); itr!=m_children.end(); ++itr )
     {
-        // preserve the element so we can send it over the signal later
-        RefPtr<PipelineElement> element = itr->second;
-        elementRemoved( element );
-        m_children.erase( itr );
+        ids.push_back(itr->first);
+    }
+
+    // remove them one by one
+    for(std::list<int>::iterator itr = ids.begin(); itr != ids.end(); ++itr)
+    {
+        remove(*itr);
     }
 }
 
@@ -93,10 +98,8 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
         RefPtr<IInputPin> ipp = *itr;
         if( ipp->isConnected() )
         {
-            ipp->removeConnection();
             RefPtr<PinConnection> connection = ipp->getConnection();
-            connection->disconnect();
-            removeConnection( connection );
+            disconnect( connection );
         }
     }
 
@@ -111,7 +114,7 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
             for( std::list< RefPtr<PinConnection> >::const_iterator itr = connections.begin();
                  itr!= connections.end(); ++itr )
             {
-                removeConnection( *itr );
+                disconnect( *itr );
             }
         }
     }
@@ -152,20 +155,42 @@ void Pipeline::removeAllConnections()
 {
     assert( !m_running );
 
-    // first signal impending removal of connections
+    PipelineConnectionsList toRemove;
     for( PipelineConnectionsList::iterator itr = m_connections.begin();
             itr != m_connections.end(); ++itr )
     {
         RefPtr<PinConnection> connection = *itr;
-        connectionRemoved( connection );
+        toRemove.push_back(connection);
     }
 
-    // now remove all connections
-    m_connections.clear();
+    for( PipelineConnectionsList::iterator itr = toRemove.begin();
+            itr != toRemove.end(); ++itr )
+    {
+        RefPtr<PinConnection> connection = *itr;
+        assert(connection.isNotNull());
+        removeConnection(connection);
+    }
+}
+
+void Pipeline::disconnect( PinConnection* connection )
+{
+    if(connection == 0)
+    {
+        qWarning() << "Ignoring disconnect of null connection";
+        return;
+    }
+    RefPtr<PinConnection> conn( connection );
+    conn->disconnect();
+    removeConnection(connection);
 }
 
 void Pipeline::removeConnection( PinConnection* connection )
 {
+    if(connection == 0)
+    {
+        qWarning() << "Ignoring removal of null connection";
+        return;
+    }
     RefPtr<PinConnection> con1( connection );
 
     for( PipelineConnectionsList::iterator itr = m_connections.begin();
@@ -174,7 +199,10 @@ void Pipeline::removeConnection( PinConnection* connection )
         RefPtr<PinConnection> con2 = *itr;
         if( con1.getPtr() == con2.getPtr() )
         {
+            RefPtr<PinConnection> conn = *itr;
             m_connections.erase( itr );
+            emit(connectionRemoved(conn));
+            break;
         }
     }
 }

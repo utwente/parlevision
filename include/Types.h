@@ -58,7 +58,7 @@ namespace plv
           * could cause a crash. Reference counting is used to let data
           * resources delete themselves.
           */
-        virtual ~Data() {};
+        virtual ~Data() {}
     };
 
 }
