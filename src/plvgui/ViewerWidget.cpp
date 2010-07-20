@@ -45,3 +45,9 @@ void ViewerWidget::changeEvent(QEvent *e)
         break;
     }
 }
+
+
+RefPtr<IOutputPin> ViewerWidget::getPin()
+{
+    return this->pin;
+}

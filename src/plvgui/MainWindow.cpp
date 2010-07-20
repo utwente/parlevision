@@ -264,7 +264,7 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     for( std::list< RefPtr<PipelineElement> >::iterator itr = elements.begin()
         ; itr != elements.end(); ++itr )
     {
-        this->addRenderersForPins(*itr);
+        this->showViewersForElement(*itr);
     }
 
 }
@@ -310,7 +310,7 @@ MainWindow* MainWindow::newWindow()
     return other;
 }
 
-void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
+void MainWindow::showViewersForElement(plv::RefPtr<plv::PipelineElement> element)
 {
     qDebug() << "Adding renderers for " << element->getName();
     //this is temporary
@@ -320,11 +320,32 @@ void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
         itr != outPins->end();
         ++itr)
     {
-        RefPtr<IOutputPin> pin = *itr;
+        showViewerForPin(*itr);
+    }
+}
 
-        assert(pin.isNotNull());
-        qDebug() << "Adding renderer for Pin " << pin->getName();
+void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
+{
+    assert(pin.isNotNull());
+    qDebug() << "Adding renderer for Pin " << pin->getName();
 
+
+    // show existing window if exists
+    bool existing = false;
+    foreach (QWidget *widget, QApplication::allWidgets())
+    {
+        ViewerWidget* viewer = qobject_cast<ViewerWidget*>(widget);
+        if (viewer && viewer->getPin().getPtr() == pin.getPtr())
+        {
+            viewer->show();
+            existing = true;
+            break;
+        }
+    }
+
+    // or new window if not
+    if(!existing)
+    {
         ViewerWidget* viewer = new ViewerWidget(pin, this);
         viewer->show();
         #ifdef Q_OS_MAC
