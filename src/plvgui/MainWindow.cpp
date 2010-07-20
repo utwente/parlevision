@@ -352,14 +352,19 @@ void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
 
     // show existing window if exists
     bool existing = false;
+    int viewerCount = 0;
     foreach (QWidget *widget, QApplication::allWidgets())
     {
         ViewerWidget* viewer = qobject_cast<ViewerWidget*>(widget);
-        if (viewer && viewer->getPin().getPtr() == pin.getPtr())
+
+        if(viewer)
         {
-            viewer->show();
-            existing = true;
-            break;
+            if (viewer->getPin().getPtr() == pin.getPtr())
+            {
+                viewer->show();
+                existing = true;
+            }
+            viewerCount++;
         }
     }
 
@@ -371,6 +376,18 @@ void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
         #ifdef Q_OS_MAC
         // Show as floating window on Mac OS X
         viewer->setFloating(true);
+
+        // move the window so it's aligned with the top right corner
+        QPoint cornerPos = this->pos() + QPoint(this->geometry().width(), viewerCount*20);
+
+        bool isAcceptable = QApplication::desktop()->geometry().contains(QRect(cornerPos.x(), cornerPos.y(), 20, 20));
+        qDebug() << isAcceptable;
+
+        if(isAcceptable)
+        {
+            viewer->move(cornerPos);
+        }
+
         #else
         this->addDockWidget(Qt::BottomDockWidgetArea, viewer);
         #endif
