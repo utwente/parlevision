@@ -3,6 +3,7 @@
 #include "PipelineElementWidget.h"
 #include "Pin.h"
 #include "PinClickedEvent.h"
+#include "MainWindow.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -59,11 +60,25 @@ void PinWidget::init(bool isInput=true)
     this->addToGroup(label);
 }
 
+bool PinWidget::sceneEvent ( QEvent * event )
+{
+    qDebug() << "SceneEvent: " << event;
+    return QGraphicsItemGroup::sceneEvent(event);
+}
+
 void PinWidget::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-//    qDebug() << "hovering above " << this->getPin()->getName();
+    qDebug() << "hovering above " << this->getPin()->getName();
     event->accept();
 }
+
+/*
+void PinWidget::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
+    QPointF diff = event->scenePos()-event->lastScenePos();
+    this->parentItem()->moveBy(diff.x(), diff.y());
+}
+*/
 
 void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -72,18 +87,52 @@ void PinWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
     // would make dragging the parent element very hard.
     if(!this->circle->contains(this->circle->mapFromParent(event->pos())))
     {
-//        qDebug() << "clicked on PinWidget, but not inside circle "
+        qDebug() << "clicked on PinWidget, but not inside circle ";
 //                << circle->pos() << " != " << event->pos();
-        event->ignore();
+        // pass it on to the parent, so it can set us to selected
+        QGraphicsItemGroup::mousePressEvent(event);
         return;
     }
 
     event->accept();
-
     assert(this->scene() != 0);
     if(this->scene() != 0)
     {
         QCoreApplication::postEvent(this->scene(), new PinClickedEvent(this));
+    }
+}
+
+void PinWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+    qDebug() << "mouseReleased";
+    QGraphicsItemGroup::mouseReleaseEvent(event);
+}
+
+void PinWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+{
+    // This will never get triggered due to a quirk in Qt
+    // that does not allow us to have both default behaviour
+    // (selectable parent) and doubleclickevents.
+    qDebug() << "doubleclickEvent";
+    handleMouseDoubleClick();
+}
+
+void PinWidget::handleMouseDoubleClick()
+{
+    assert(this->scene() != 0);
+    if(this->scene() == 0)
+    {
+        return;
+    }
+
+    foreach(QWidget* tlw, QApplication::topLevelWidgets())
+    {
+        MainWindow* mw = qobject_cast<MainWindow*>(tlw);
+        if(mw != 0 && mw->isAncestorOf(this->scene()->views().first()))
+        {
+            qDebug() << "posting PinDoubleClickEvent to " << mw;
+            QCoreApplication::postEvent(mw, new PinDoubleClickedEvent(this));
+        }
     }
 }
 

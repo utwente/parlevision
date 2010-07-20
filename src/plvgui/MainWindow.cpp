@@ -259,6 +259,7 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(m_scene, SIGNAL(changed(QList<QRectF>)),
             this, SLOT(documentChanged()));
 
+    /*
     // add renderers for all elements in the pipeline
     std::list< RefPtr<PipelineElement> > elements = pipeline->getChildren();
     for( std::list< RefPtr<PipelineElement> >::iterator itr = elements.begin()
@@ -266,6 +267,7 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     {
         this->showViewersForElement(*itr);
     }
+    */
 
 }
 

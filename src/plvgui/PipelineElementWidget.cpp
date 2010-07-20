@@ -113,6 +113,23 @@ void PipelineElementWidget::mousePressEvent ( QGraphicsSceneMouseEvent * event )
     QGraphicsItem::mousePressEvent(event);
 }
 
+void PipelineElementWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+{
+    qDebug() << "PEW: mouseDoubleClickEvent " << event;
+    foreach(QGraphicsItem* child, this->childItems())
+    {
+        if(child->contains(child->mapFromParent(event->pos())))
+        {
+            qDebug() << "doubleclicked on " << child;
+            PinWidget* pw = dynamic_cast<PinWidget*> (child);
+            if(pw)
+            {
+                pw->handleMouseDoubleClick();
+            }
+        }
+    }
+}
+
 
 bool PipelineElementWidget::event(QEvent * event)
 {
