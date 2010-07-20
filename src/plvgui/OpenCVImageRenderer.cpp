@@ -95,7 +95,17 @@ void OpenCVImageRenderer::updateImage( RefPtr<QtImage> image )
     QMutexLocker lock( &m_busy_mutex );
     QImage* qImg = image->getImage();
     QPixmap pixmap = QPixmap::fromImage(*qImg);
+    QSize oldSize = m_imagelabel->sizeHint();
     m_imagelabel->setPixmap( pixmap );
+
+    if(m_imagelabel->sizeHint() != oldSize)
+    {
+        // hack to trigger fixAspectRatio properly
+        QSize size = this->size();
+        this->resize(size-QSize(1,1));
+        this->resize(size);
+    }
+
     m_busy = false;
 }
 
@@ -119,6 +129,7 @@ void OpenCVImageRenderer::fixAspectRatio()
     }
 
     m_constraintWidget->resize(contentsWidth, contentsHeight);
+    qDebug() << m_constraintWidget->size();
 }
 
 
