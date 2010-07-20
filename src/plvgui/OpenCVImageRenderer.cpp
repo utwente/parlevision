@@ -129,7 +129,6 @@ void OpenCVImageRenderer::fixAspectRatio()
     }
 
     m_constraintWidget->resize(contentsWidth, contentsHeight);
-    qDebug() << m_constraintWidget->size();
 }
 
 
