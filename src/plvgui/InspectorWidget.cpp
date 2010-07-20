@@ -32,7 +32,8 @@ void InspectorWidget::changeEvent(QEvent *e)
     }
 }
 
-void InspectorWidget::selectionChanged()
+void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
 {
-
+    this->element = element;
+    qDebug() << "Now inspecting " << element;
 }

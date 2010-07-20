@@ -8,6 +8,7 @@
 #include "RendererFactory.h"
 #include "PinClickedEvent.h"
 #include "PinWidget.h"
+#include "PipelineElementWidget.h"
 
 #include "Pipeline.h"
 #include "PipelineScene.h"
@@ -484,5 +485,28 @@ void plvgui::MainWindow::on_actionDelete_triggered()
 
 void plvgui::MainWindow::sceneSelectionChanged()
 {
-    ui->actionDelete->setEnabled(this->m_scene->selectedItems().size() > 0);
+    int selectionCount = this->m_scene->selectedItems().size();
+
+    ui->actionDelete->setEnabled(selectionCount > 0);
+
+    if(selectionCount == 0)
+    {
+        // TODO disable inspector
+    }
+    if(selectionCount > 1)
+    {
+        // TODO disable inspector
+    }
+    else if(selectionCount == 1)
+    {
+        // set inspector target
+        QGraphicsItem* selectedItem = this->m_scene->selectedItems().first();
+        qDebug() << "selected " << selectedItem;
+        PipelineElementWidget* pew = dynamic_cast<PipelineElementWidget*>(selectedItem);
+        if(pew)
+        {
+            RefPtr<PipelineElement> element = pew->getElement();
+            m_inspectorWidget->setTarget(element);
+        }
+    }
 }

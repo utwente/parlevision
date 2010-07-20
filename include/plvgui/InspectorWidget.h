@@ -3,6 +3,7 @@
 
 #include <QDockWidget>
 #include "RefPtr.h"
+#include "PipelineElement.h"
 
 namespace Ui
 {
@@ -25,13 +26,14 @@ namespace plvgui
         ~InspectorWidget();
 
     public slots:
-        void selectionChanged();
+        void setTarget(plv::RefPtr<plv::PipelineElement> element);
 
     protected:
         void changeEvent(QEvent *e);
 
     private:
         Ui::InspectorWidget *ui;
+        plv::RefPtr<plv::PipelineElement> element;
     };
 }
 #endif // INSPECTORWIDGET_H
