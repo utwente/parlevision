@@ -68,7 +68,7 @@ bool PinWidget::sceneEvent ( QEvent * event )
 
 void PinWidget::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    qDebug() << "hovering above " << this->getPin()->getName();
+//    qDebug() << "hovering above " << this->getPin()->getName();
     event->accept();
 }
 
