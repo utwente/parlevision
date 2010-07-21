@@ -3,6 +3,7 @@
 
 #include <QtGui>
 #include <list>
+#include <assert.h>
 
 #include "PipelineElement.h"
 
@@ -126,6 +127,10 @@ void InspectorWidget::addRow(QFormLayout* form, QString* name, int value)
         qWarning() << "WARNING: Property " << *name << " does not nave NOTIFY signal!";
     }
 
+    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
+    connect(spinBox, SIGNAL(valueChanged(int)),
+            element, slot.toAscii());
+
     form->addRow(new QLabel(*name, form->parentWidget()), spinBox);
 }
 
@@ -141,4 +146,17 @@ void InspectorWidget::addRow(QFormLayout* form, QString* name, QString value, bo
     Q_UNUSED(editable)
     //TODO editable
     form->addRow(new QLabel(*name, form->parentWidget()), new QLabel(value, form->parentWidget()));
+}
+
+const QString InspectorWidget::propertySlotSignature(QObject* obj, QString propertyName)
+{
+    assert(propertyName.length() > 0);
+    if(! propertyName.length() > 0)
+        return "UNKNOWN()";
+
+    QVariant value = obj->property(propertyName.toAscii());
+    QString methodName = "set"
+                         + propertyName.replace(0, 1, propertyName.at(0).toUpper())
+                         + "(" + QString(value.typeName()) + ")";
+    return methodName;
 }

@@ -71,6 +71,7 @@ int DummyProcessor::getSomeInt()
 
 void DummyProcessor::setSomeInt( int i )
 {
+    qDebug() << "setSomeInt("<<i<<")";
     m_someInt = i;
     emit(someIntChanged(i));
 }

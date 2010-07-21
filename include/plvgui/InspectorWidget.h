@@ -48,6 +48,8 @@ namespace plvgui
         Ui::InspectorWidget *ui;
         plv::RefPtr<plv::PipelineElement> element;
         QWidget* formContainer;
+
+        const QString propertySlotSignature(QObject* obj, QString property);
     };
 }
 #endif // INSPECTORWIDGET_H

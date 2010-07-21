@@ -26,14 +26,16 @@ namespace plv {
 
         /** propery methods */
         int getSomeInt();
-        void setSomeInt( int i );
-        void setSomeString( QString s );
+
         QString getSomeString();
 
     signals:
         void someIntChanged(int newValue);
         void someStringChanged(QString newValue);
 
+    public slots:
+        void setSomeInt( int i );
+        void setSomeString( QString s );
 
     private:
         InputPin<OpenCVImage>* m_inputPin;
