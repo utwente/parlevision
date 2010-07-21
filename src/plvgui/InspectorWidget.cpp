@@ -6,6 +6,8 @@
 #include <assert.h>
 
 #include "PipelineElement.h"
+#include "CameraProducer.h"
+#include "CameraConfigFormBuilder.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -47,20 +49,32 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
     std::list<QString> propertyNames;
     element->getConfigurablePropertyNames(propertyNames);
 
-    this->formContainer = new QWidget(this);
-    QFormLayout* form = new QFormLayout(this->formContainer);
-    formContainer->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-    this->formContainer->setLayout(form);
-
-    for(std::list<QString>::iterator itr = propertyNames.begin();
-        itr != propertyNames.end(); ++itr)
+    RefPtr<CameraProducer> cp = ref_ptr_dynamic_cast<CameraProducer> (element);
+    if(cp.isNotNull())
     {
-        QString propertyName = *itr;
-        QVariant value = element->property(propertyName.toAscii());
-        addRow(form, element, &propertyName, &value);
+        // use that
+        CameraConfigFormBuilder* b = new CameraConfigFormBuilder();
+        formContainer = b->buildForm(cp, this);
+        delete b;
     }
-//    ui->statusMsg->setText(element->getName());
-//    this->setWindowTitle(element->getName());
+    else
+    {
+        this->formContainer = new QWidget(this);
+        QFormLayout* form = new QFormLayout(this->formContainer);
+        formContainer->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+        this->formContainer->setLayout(form);
+
+        for(std::list<QString>::iterator itr = propertyNames.begin();
+            itr != propertyNames.end(); ++itr)
+        {
+            QString propertyName = *itr;
+            QVariant value = element->property(propertyName.toAscii());
+            addRow(form, element, &propertyName, &value);
+        }
+    }
+
+    //ui->statusMsg->setText(element->getName());
+    //this->setWindowTitle(element->getName());
     ui->verticalLayout->addWidget(formContainer);
 }
 
