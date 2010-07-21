@@ -21,19 +21,26 @@
 	</elements>
 	
 	<connections>
-		<connection type="lossy">
+		<connection>
 			<source>
 				<processorId>1</processorId>
-				<processorName>plv::CameraProducer</processorName>
 				<pinName>output</pinName>
 			</source>
 			<sink>
 				<processorId>2</processorId>
-				<processorName>plv::DummyProcessor</processorName>
 				<pinName>input</pinName>
 			</sink>
-		</connnection>
+		</connection>
+		<connection>
+			<source>
+				<processorId>2</processorId>
+				<pinName>output</pinName>
+			</source>
+			<sink>
+				<processorId>3</processorId>
+				<pinName>input</pinName>
+			</sink>
+		</connection>
 	</connections>
- </pipeline>
- 
- 
+</pipeline>
+

@@ -29,6 +29,6 @@ public:
 /** declare the RefPtr template instantiated with the QtImage class as a Qt Metatype
   *  so we can pass RefPtr<QtImage> along with signals and slots across thread boundaries
   */
-Q_DECLARE_METATYPE( plv::RefPtr<plv::QtImage> );
+Q_DECLARE_METATYPE( plv::RefPtr<plv::QtImage> )
 
 #endif // QtImage_H
