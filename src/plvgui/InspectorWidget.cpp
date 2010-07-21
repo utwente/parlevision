@@ -96,6 +96,9 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     case QVariant::Int:
         addRow(form, element, name, value->toInt());
         break;
+    case QVariant::Double:
+        addRow(form, element, name, value->toDouble());
+        break;
     case QVariant::Bool:
         addRow(form, element, name, value->toBool());
         break;
@@ -131,6 +134,35 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
 
     form->addRow(new QLabel(*name, form->parentWidget()), spinBox);
 }
+
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, double value)
+{
+    QDoubleSpinBox* spinBox = new QDoubleSpinBox(this);
+    spinBox->setRange(-10000000.0,100000000.0);
+    spinBox->setDecimals(5);
+    spinBox->setValue(value);
+
+    QMetaProperty prop = element->metaObject()->property(
+                    element->metaObject()->indexOfProperty(name->toAscii()));
+
+    if(prop.hasNotifySignal())
+    {
+        qDebug() << "connecting signal " << prop.notifySignal().signature();;
+        connect(element, QByteArray::number(QSIGNAL_CODE) + prop.notifySignal().signature(),
+                spinBox, SLOT(setValue(double)));
+    }
+    else
+    {
+        qWarning() << "WARNING: Property " << *name << " does not nave NOTIFY signal!";
+    }
+
+    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
+    connect(spinBox, SIGNAL(valueChanged(double)),
+            element, slot.toAscii());
+
+    form->addRow(new QLabel(*name, form->parentWidget()), spinBox);
+}
+
 
 void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, bool value)
 {

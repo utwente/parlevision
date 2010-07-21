@@ -45,6 +45,7 @@ namespace plvgui
         void clearSelection();
         void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QVariant* value);
         void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, int value);
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, double value);
         void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, bool value);
         void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QString value, bool editable=true);
         Ui::InspectorWidget *ui;
