@@ -109,7 +109,23 @@ void InspectorWidget::addRow(QFormLayout* form, QString* name, QVariant* value)
 void InspectorWidget::addRow(QFormLayout* form, QString* name, int value)
 {
     QSpinBox* spinBox = new QSpinBox(this);
+    spinBox->setRange(-10000,10000);
     spinBox->setValue(value);
+
+    QMetaProperty prop = element->metaObject()->property(
+                    element->metaObject()->indexOfProperty(name->toAscii()));
+
+    if(prop.hasNotifySignal())
+    {
+        qDebug() << "connecting signal " << prop.notifySignal().signature();;
+        connect(element, QByteArray::number(QSIGNAL_CODE) + prop.notifySignal().signature(),
+                spinBox, SLOT(setValue(int)));
+    }
+    else
+    {
+        qWarning() << "WARNING: Property " << *name << " does not nave NOTIFY signal!";
+    }
+
     form->addRow(new QLabel(*name, form->parentWidget()), spinBox);
 }
 

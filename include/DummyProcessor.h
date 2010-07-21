@@ -12,8 +12,8 @@ namespace plv {
     class DummyProcessor : public PipelineProcessor
     {
         Q_OBJECT
-        Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt )
-        Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString )
+        Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt NOTIFY someIntChanged  )
+        Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString NOTIFY someStringChanged )
 
     public:
         DummyProcessor();
@@ -29,6 +29,11 @@ namespace plv {
         void setSomeInt( int i );
         void setSomeString( QString s );
         QString getSomeString();
+
+    signals:
+        void someIntChanged(int newValue);
+        void someStringChanged(QString newValue);
+
 
     private:
         InputPin<OpenCVImage>* m_inputPin;

@@ -60,6 +60,8 @@ void DummyProcessor::process()
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
+
+    this->setSomeInt(this->getSomeInt()+1);
 }
 
 int DummyProcessor::getSomeInt()
@@ -70,6 +72,7 @@ int DummyProcessor::getSomeInt()
 void DummyProcessor::setSomeInt( int i )
 {
     m_someInt = i;
+    emit(someIntChanged(i));
 }
 
 void DummyProcessor::setSomeString( QString s )
