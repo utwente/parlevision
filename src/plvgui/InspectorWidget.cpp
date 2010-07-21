@@ -49,6 +49,7 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
 
     this->formContainer = new QWidget(this);
     QFormLayout* form = new QFormLayout(this->formContainer);
+    formContainer->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     this->formContainer->setLayout(form);
 
     for(std::list<QString>::iterator itr = propertyNames.begin();
@@ -114,8 +115,9 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
 void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, int value)
 {
     QSpinBox* spinBox = new QSpinBox(form->parentWidget());
-    spinBox->setRange(-10000,10000);
+    spinBox->setRange(-2147483647,2147483647);
     spinBox->setValue(value);
+    spinBox->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
     QMetaProperty prop = element->metaObject()->property(
                     element->metaObject()->indexOfProperty(name->toAscii()));
@@ -142,8 +144,10 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
 {
     QDoubleSpinBox* spinBox = new QDoubleSpinBox(form->parentWidget());
     spinBox->setRange(-10000000.0,100000000.0);
-//    spinBox->setDecimals(5);
+    spinBox->setSingleStep(0.1);
+    spinBox->setDecimals(8);
     spinBox->setValue(value);
+    spinBox->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
     QMetaProperty prop = element->metaObject()->property(
                     element->metaObject()->indexOfProperty(name->toAscii()));
