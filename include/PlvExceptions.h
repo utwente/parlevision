@@ -8,19 +8,19 @@ namespace plv
     class PipelineException : public std::runtime_error
     {
     public:
-        PipelineException( const std::string& str ) : std::runtime_error( str ) {};
+        PipelineException( const std::string& str ) : std::runtime_error( str ) {}
     };
 
     class IllegalAccessException : public std::runtime_error
     {
     public:
-        IllegalAccessException( const std::string& str ) : std::runtime_error( str ) {};
+        IllegalAccessException( const std::string& str ) : std::runtime_error( str ) {}
     };
 
    class IllegalArgumentException : public std::runtime_error
     {
     public:
-        IllegalArgumentException( const std::string& str ) : std::runtime_error( str ) {};
+        IllegalArgumentException( const std::string& str ) : std::runtime_error( str ) {}
     };
 
     class ElementCreationException : public std::runtime_error

@@ -1,6 +1,7 @@
 #include "Pipeline.h"
 
 #include <QDebug>
+#include <QStringBuilder>
 #include <list>
 
 #include "PipelineElement.h"
@@ -12,7 +13,8 @@
 using namespace plv;
 
 Pipeline::Pipeline() :
-        m_idCounter( 1 ), m_stopRequested( false ), m_running( false )
+        m_stopRequested( false ),
+        m_running( false )
 {
 }
 
@@ -21,56 +23,89 @@ Pipeline::~Pipeline()
     assert( !m_running );
 }
 
-int Pipeline::add( PipelineElement* child )
+int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentException)
 {
+    if( !canAddElement( child) )
+    {
+        QString msg = "Tried to add PipelineElement " % child->getName()
+                      % " to pipeline with an id which is already in use.";
+        throw IllegalArgumentException( msg.toStdString() );
+    }
+
     RefPtr<PipelineElement> element = child;
+    int id = element->getId();
+    if( id == - 1 )
+    {
+        id = getNewPipelineElementId();
+        element->setId( id );
+    }
     element->setPipeline(this);
-    m_children.insert( std::make_pair( m_idCounter, element) );
-    emit(elementAdded(element));
-    return m_idCounter++;
+    m_children.insert( id, element );
+    emit( elementAdded(element) );
+    return id;
 }
 
-void Pipeline::remove( PipelineElement* child )
+bool Pipeline::canAddElement( PipelineElement* child )
 {
-    bool done = false;
-    for( PipelineElementMap::iterator itr = m_children.begin()
-        ; !done && itr != m_children.end(); ++itr )
+    RefPtr<PipelineElement> element = child;
+    int id = element->getId();
+    if( id != -1 )
     {
-        if( child == itr->second.getPtr() )
-        {
-            remove(itr->first);
-            done = true;
-            break;
-        }
+        return( !m_children.contains( id ) );
     }
+    return true;
+}
+
+void Pipeline::removeElement( PipelineElement* child )
+{
+    int id = child->getId();
+    m_children.remove( id );
+}
+
+int Pipeline::getNewPipelineElementId()
+{
+    int id = 0;
+
+    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+    bool done = false;
+    while( itr.hasNext() && !done )
+    {
+        itr.next();
+        if( itr.key() > id )
+            done = true;
+        else
+            ++id;
+    }
+    return id;
 }
 
 PipelineElement* Pipeline::getElement( int id )
 {
-    PipelineElementMap::iterator itr = m_children.find( id );
-    if( itr != m_children.end() )
+    if( m_children.contains( id ) )
     {
-        // preserve the element so we can send it over the signal later
-        return itr->second.getPtr();
+        return m_children.value( id );
     }
     return 0;
 }
 
-void Pipeline::remove( int id )
+void Pipeline::removeElement( int id )
 {
-    PipelineElementMap::iterator itr = m_children.find( id );
-    if( itr != m_children.end() )
+    if( m_children.contains( id ) )
     {
         // preserve the element so we can send it over the signal later
-        RefPtr<PipelineElement> element = itr->second;
-        removeConnectionsForElement(element);
-        m_children.erase(itr);
-        emit(elementRemoved(element));
+        RefPtr<PipelineElement> element = m_children.value( id );
+        removeConnectionsForElement( element );
+        m_children.remove( id );
+        emit( elementRemoved(element) );
     }
 }
 
 void Pipeline::removeAllElements()
 {
+    // TODO is this correct
+    m_children.clear();
+
+/*
     // build list of ids as removing here would invalidate the map
     std::list<int> ids;
     for( PipelineElementMap::iterator itr = m_children.begin(); itr!=m_children.end(); ++itr )
@@ -83,6 +118,7 @@ void Pipeline::removeAllElements()
     {
         remove(*itr);
     }
+*/
 }
 
 void Pipeline::removeConnectionsForElement( PipelineElement* element )
@@ -125,21 +161,12 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
     delete outputPins;
 }
 
-std::list< RefPtr<PipelineElement> > Pipeline::getChildren() const
+const Pipeline::PipelineElementMap& Pipeline::getChildren() const
 {
-    //TODO implement this properly when I have access to documentation for std::map and std::list
-    std::list< RefPtr<PipelineElement> > elements;
-
-    for( PipelineElementMap::const_iterator itr = m_children.begin()
-        ; itr != m_children.end(); ++itr )
-    {
-        elements.push_back(itr->second);
-    }
-
-    return elements;
+    return m_children;
 }
 
-const std::list< RefPtr<PinConnection> >& Pipeline::getConnections() const
+const Pipeline::PipelineConnectionsList& Pipeline::getConnections() const
 {
     return m_connections;
 }
@@ -210,15 +237,16 @@ void Pipeline::removeConnection( PinConnection* connection )
 // TODO maybe refactor so we can report the processor which fails to initialize
 bool Pipeline::init()
 {
-    for( PipelineElementMap::iterator itr = m_children.begin()
-        ; itr != m_children.end(); ++itr )
+    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+
+    // TODO make initialisation proper with exceptions and reporting of
+    // processor which fails to initialize
+    if( itr.hasNext() )
     {
-        RefPtr<PipelineElement> element = itr->second;
-        bool state = element->init();
+        itr.next();
+        bool state = itr.value()->init();
         if( !state )
-        {
             return false;
-        }
     }
     return true;
 }
@@ -255,12 +283,15 @@ void Pipeline::stop()
 void Pipeline::run()
 {
     m_running = true;
+
     while(!m_stopRequested)
     {
-        for( PipelineElementMap::iterator itr = m_children.begin()
-            ; itr != m_children.end(); ++itr )
+        QMapIterator< int, RefPtr<PipelineElement> > itr( m_children );
+        while( itr.hasNext() )
         {
-            RefPtr<PipelineElement> element = itr->second;
+            itr.next();
+
+            RefPtr<PipelineElement> element = itr.value();
             try
             {
                 element->__process();

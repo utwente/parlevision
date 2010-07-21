@@ -2,7 +2,10 @@
 #define _PIPELINELOADER_H_
 
 #include <QXmlStreamReader>
+#include <QDomDocument>
+#include <QVariant>
 #include "PlvExceptions.h"
+#include "RefPtr.h"
 
 namespace plv
 {
@@ -12,24 +15,30 @@ namespace plv
     class PipelineLoader
     {
     public:
-        PipelineLoader();
-        ~PipelineLoader();
-
-        static Pipeline* parsePipeline( const QString& filename )
+        static RefPtr<Pipeline> parsePipeline( const QString& filename )
             throw(std::runtime_error); /*TODO checked exceptions*/
-        static Pipeline* parsePipeline( QXmlStreamReader* xmlReader )
+
+        static RefPtr<Pipeline> parsePipeline( QDomDocument* doc )
             throw(std::runtime_error); /*TODO checked exceptions*/
 
     private:
-        static PipelineElement* parseElement( QXmlStreamReader* xmlReader )
-            throw(std::runtime_error) /*TODO checked exceptions*/;
-        static void parseConnections( QXmlStreamReader* xmlReader, Pipeline* pipeline )
-            throw(std::runtime_error) /*TODO checked exceptions*/;
-        static void parseConnection( QXmlStreamReader* xmlReader, Pipeline* pipeline )
-            throw(std::runtime_error) /*TODO checked exceptions*/;
+        PipelineLoader();
+        ~PipelineLoader();
 
-        static void readUnknownXmlNode( QXmlStreamReader *xmlReader );
-        static QString readXmlNode( QXmlStreamReader *xmlReader );
+        static void parseElements( QDomNodeList* list, Pipeline* pipeline )
+            throw(std::runtime_error); /*TODO checked exceptions*/
+
+        static void parseConnections( QDomNodeList* list, Pipeline* pipeline )
+            throw(std::runtime_error); /*TODO checked exceptions*/
+
+
+        /** QObject propery system helper methods */
+        static int propertyIndex( QObject* qobject, const QString& name );
+        static QVariant::Type propertyType( QObject* qobject, int index );
+        static QVariant::Type propertyType( QObject* qobject, const QString& name );
+        static void setProperty( QObject* qobject, int index, const QVariant& value );
+        static void setProperty( QObject* qobject, const QString& name, const QVariant& value );
+        static QVariant convertData (QVariant::Type type, const QString& data);
     };
 }
 

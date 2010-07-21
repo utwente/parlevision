@@ -16,8 +16,9 @@ macx {
     DESTDIR = $$BUILDDIR
 }
 CONFIG(debug, debug|release):DEFINES += DEBUG
+QT      += xml
 
-# QMAKE_CXXFLAGS_DEBUG += -pedantic
+#QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
 # -Wunused-variable
 INCLUDEPATH += include \

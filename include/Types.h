@@ -58,13 +58,13 @@ namespace plv
           * could cause a crash. Reference counting is used to let data
           * resources delete themselves.
           */
-        virtual ~Data() {};
+        virtual ~Data() {}
     };
 
 }
 /** declare the RefPtr template instantiated with the Data class as a Qt Metatype 
   *  so we can pass RefPtr<Data> along with signals and slots across thread boundaries
   */
-Q_DECLARE_METATYPE( plv::RefPtr<plv::Data> );
+Q_DECLARE_METATYPE( plv::RefPtr<plv::Data> )
 
 #endif // TYPES_H

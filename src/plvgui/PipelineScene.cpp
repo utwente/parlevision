@@ -21,23 +21,21 @@ PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
         m_pipeline(pipeline),
         line(0)
 {
-    std::list< RefPtr<PipelineElement> > elements = m_pipeline->getChildren();
+    // add renderers for all elements in the pipeline
+    const Pipeline::PipelineElementMap& elements = pipeline->getChildren();
 
-    // add all elements from the pipeline to this scene
-    for( std::list< RefPtr<PipelineElement> >::iterator itr = elements.begin()
-        ; itr != elements.end(); ++itr )
+    QMapIterator< int, RefPtr<PipelineElement> > itr( elements );
+    while( itr.hasNext() )
     {
-        this->add(*itr);
+        itr.next();
+        this->add( itr.value() );
     }
 
-    const std::list< RefPtr<PinConnection> > connections = m_pipeline->getConnections();
-    // add all connections from the pipeline to this scene
-    for( std::list< RefPtr<PinConnection> >::const_iterator itr = connections.begin()
-        ; itr != connections.end(); ++itr )
+    const Pipeline::PipelineConnectionsList& connections = m_pipeline->getConnections();
+    foreach( RefPtr<PinConnection> connection, connections )
     {
-        this->add(*itr);
+        this->add( connection );
     }
-
 
     // make sure future additions to underlying pipeline get added as well
     connect(m_pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
@@ -136,7 +134,7 @@ void PipelineScene::remove(plv::PipelineElement* e)
 
 void PipelineScene::remove(plv::RefPtr<plv::PipelineElement> e)
 {
-    this->m_pipeline->remove(e);
+    this->m_pipeline->removeElement( e->getId() );
 }
 
 void PipelineScene::remove(plv::PinConnection* c)
@@ -325,7 +323,7 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
 
         if(m_pipeline.isNotNull())
         {
-            m_pipeline->add(pe);
+            m_pipeline->addElement( pe );
         }
     }
 }

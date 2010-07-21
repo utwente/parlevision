@@ -278,16 +278,6 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(m_scene, SIGNAL(changed(QList<QRectF>)),
             this, SLOT(documentChanged()));
 
-    /*
-    // add renderers for all elements in the pipeline
-    std::list< RefPtr<PipelineElement> > elements = pipeline->getChildren();
-    for( std::list< RefPtr<PipelineElement> >::iterator itr = elements.begin()
-        ; itr != elements.end(); ++itr )
-    {
-        this->showViewersForElement(*itr);
-    }
-    */
-
 }
 
 void MainWindow::loadFile(QString fileName)
@@ -306,10 +296,10 @@ void MainWindow::loadFile(QString fileName)
         // this window did not yet have a pipeline loaded yet
         RefPtr<Pipeline> pl = PipelineLoader::parsePipeline(fileName);
         bool state = pl->init();
+        qDebug() << "Loaded pipeline";
         assert(state);
         this->setCurrentFile(fileName);
         this->setPipeline(pl);
-
     }
     catch( std::runtime_error& e )
     {

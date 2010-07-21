@@ -14,15 +14,15 @@ using namespace plv;
 std::list<QString> PipelineElement::s_types;
 std::map<QString,QString> PipelineElement::s_names;
 
-PipelineElement::PipelineElement()
+PipelineElement::PipelineElement() : m_id( -1 )
 {
 }
 
 PipelineElement::~PipelineElement()
 {
-    if(m_parent != 0)
+    if( m_parent != 0 )
     {
-        m_parent->remove( this );
+        m_parent->removeElement( this );
     }
 }
 
@@ -35,19 +35,19 @@ PipelineElement::PipelineElement(const PipelineElement &other)
 {
 }
 
-void PipelineElement::setPipeline(Pipeline* parent)
+void PipelineElement::setPipeline( Pipeline* parent )
 {
-    if(m_parent.getPtr() == parent)
+    if( m_parent.getPtr() == parent )
     {
         // no effect
         return;
     }
 
-    if(m_parent.getPtr() != 0)
+    if( m_parent.getPtr() != 0 )
     {
         // switching pipelines.
         // remove ourself from the old pipeline first
-        m_parent->remove(this);
+        m_parent->removeElement(this);
     }
 
     m_parent = parent;

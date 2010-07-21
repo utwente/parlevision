@@ -6,6 +6,7 @@
 #include <QString>
 #include <QObject>
 #include <QMetaType>
+#include <assert.h>
 
 #include "RefPtr.h"
 #include "PlvExceptions.h"
@@ -33,6 +34,9 @@ namespace plv
         typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
 
     protected:
+        /** processor id */
+        int m_id;
+
         /** map which contains the input pins identified and indexed by their name */
         InputPinMap  m_inputPins;
 
@@ -48,6 +52,9 @@ namespace plv
         PipelineElement();
         PipelineElement( const PipelineElement& other );
         virtual ~PipelineElement();
+
+        inline void setId( int id ) { assert(m_id == -1); m_id = id; }
+        inline int getId() const { return m_id; }
 
         /** Initialise the element so it is ready to receive
           * process() calls.
