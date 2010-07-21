@@ -10,7 +10,11 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
-DummyProcessor::DummyProcessor()
+DummyProcessor::DummyProcessor() :
+        m_someInt(1337),
+        m_someDouble(1.23456),
+        m_someBool(true),
+        m_someString("hello")
 {
     m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     addInputPin( m_inputPin );

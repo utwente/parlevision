@@ -48,10 +48,10 @@ namespace plv {
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
 
-        QString m_someString;
         int m_someInt;
-        int m_someDouble;
+        double m_someDouble;
         bool m_someBool;
+        QString m_someString;
     };
 
 }
