@@ -5,6 +5,9 @@
 #include "RefPtr.h"
 #include "PipelineElement.h"
 
+
+class QFormLayout;
+
 namespace Ui
 {
     class InspectorWidget;
@@ -38,8 +41,13 @@ namespace plvgui
 
     private:
         void clearSelection();
+        void addRow(QFormLayout* form, QString* name, QVariant* value);
+        void addRow(QFormLayout* form, QString* name, int value);
+        void addRow(QFormLayout* form, QString* name, bool value);
+        void addRow(QFormLayout* form, QString* name, QString value, bool editable=true);
         Ui::InspectorWidget *ui;
         plv::RefPtr<plv::PipelineElement> element;
+        QWidget* formContainer;
     };
 }
 #endif // INSPECTORWIDGET_H
