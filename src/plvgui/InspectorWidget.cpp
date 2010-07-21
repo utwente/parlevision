@@ -51,14 +51,12 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
     QFormLayout* form = new QFormLayout(this->formContainer);
     this->formContainer->setLayout(form);
 
-
-
     for(std::list<QString>::iterator itr = propertyNames.begin();
         itr != propertyNames.end(); ++itr)
     {
         QString propertyName = *itr;
         QVariant value = element->property(propertyName.toAscii());
-        addRow(form, &propertyName, &value);
+        addRow(form, element, &propertyName, &value);
     }
 //    ui->statusMsg->setText(element->getName());
 //    this->setWindowTitle(element->getName());
@@ -91,23 +89,23 @@ void InspectorWidget::clearSelection()
     this->formContainer = 0;
 }
 
-void InspectorWidget::addRow(QFormLayout* form, QString* name, QVariant* value)
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QVariant* value)
 {
     switch(value->type())
     {
     case QVariant::Int:
-        addRow(form, name, value->toInt());
+        addRow(form, element, name, value->toInt());
         break;
     case QVariant::Bool:
-        addRow(form, name, value->toBool());
+        addRow(form, element, name, value->toBool());
         break;
     default:
         // substitute a non-editable string
-        addRow(form, name, value->toString(), false);
+        addRow(form, element, name, value->toString(), false);
     }
 }
 
-void InspectorWidget::addRow(QFormLayout* form, QString* name, int value)
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, int value)
 {
     QSpinBox* spinBox = new QSpinBox(this);
     spinBox->setRange(-10000,10000);
@@ -134,14 +132,14 @@ void InspectorWidget::addRow(QFormLayout* form, QString* name, int value)
     form->addRow(new QLabel(*name, form->parentWidget()), spinBox);
 }
 
-void InspectorWidget::addRow(QFormLayout* form, QString* name, bool value)
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, bool value)
 {
     QCheckBox* checkBox = new QCheckBox(this);
     checkBox->setChecked(value);
     form->addRow(new QLabel(*name, form->parentWidget()), checkBox);
 }
 
-void InspectorWidget::addRow(QFormLayout* form, QString* name, QString value, bool editable)
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QString value, bool editable)
 {
     Q_UNUSED(editable)
     //TODO editable

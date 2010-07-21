@@ -18,6 +18,8 @@ namespace plv
 //    class PipelineElement;
 }
 
+using namespace plv;
+
 namespace plvgui
 {
     class InspectorWidget : public QDockWidget
@@ -41,12 +43,12 @@ namespace plvgui
 
     private:
         void clearSelection();
-        void addRow(QFormLayout* form, QString* name, QVariant* value);
-        void addRow(QFormLayout* form, QString* name, int value);
-        void addRow(QFormLayout* form, QString* name, bool value);
-        void addRow(QFormLayout* form, QString* name, QString value, bool editable=true);
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QVariant* value);
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, int value);
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, bool value);
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QString value, bool editable=true);
         Ui::InspectorWidget *ui;
-        plv::RefPtr<plv::PipelineElement> element;
+        RefPtr<PipelineElement> element;
         QWidget* formContainer;
 
         const QString propertySlotSignature(QObject* obj, QString property);
