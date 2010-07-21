@@ -7,9 +7,9 @@
 #include "PipelineProducer.h"
 #include "Pin.h"
 #include "OpenCVImage.h"
+#include "OpenCVCamera.h"
 
 namespace plv {
-    class OpenCVCamera;
 
     class CameraProducer : public PipelineProducer
     {
@@ -29,6 +29,8 @@ namespace plv {
         virtual bool isBootstrapped() const;
         virtual bool isReadyForProcessing() const;
         virtual void process();
+
+        RefPtr<OpenCVCamera> getCamera() const { return m_camera; }
 
     protected:
 

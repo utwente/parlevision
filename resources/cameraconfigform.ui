@@ -14,10 +14,13 @@
    <string>Form</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+   </property>
    <item row="1" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Camera</string>
+      <string>Camera ID</string>
      </property>
     </widget>
    </item>
