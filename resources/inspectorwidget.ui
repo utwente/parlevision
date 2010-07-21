@@ -26,6 +26,9 @@
       <property name="text">
        <string>TextLabel</string>
       </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
      </widget>
     </item>
    </layout>
