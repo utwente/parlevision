@@ -13,7 +13,7 @@ namespace plv {
     {
         Q_OBJECT
         Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt NOTIFY someIntChanged  )
-        Q_PROPERTY( double someDouble READ getSomeInt WRITE setSomeInt NOTIFY someDoubleChanged  )
+        Q_PROPERTY( double someDouble READ getSomeDouble WRITE setSomeDouble NOTIFY someDoubleChanged  )
         Q_PROPERTY( bool someBool READ getSomeBool WRITE setSomeBool NOTIFY someBoolChanged  )
         Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString NOTIFY someStringChanged )
 
@@ -28,7 +28,7 @@ namespace plv {
 
         /** propery methods */
         int getSomeInt();
-        bool getSomeDouble() { return m_someDouble; }
+        double getSomeDouble() { return m_someDouble; }
         bool getSomeBool() { return m_someBool; }
         QString getSomeString();
 
