@@ -1,7 +1,7 @@
 #include "PipelineLoader.h"
 #include "Pipeline.h"
 #include "PipelineProcessor.h"
-#include "XmlMapper.h"
+#include "Pin.h"
 
 #include <QStringList>
 #include <QFile>
@@ -21,6 +21,100 @@ PipelineLoader::~PipelineLoader()
 {
 
 }
+
+void PipelineLoader::pipelineToXML( Pipeline* pl )
+    throw(std::runtime_error) /*TODO checked exceptions*/
+{
+    //RefPtr<Pipeline> pl = pipeline;
+
+    QDomDocument doc;
+
+    QDomElement xmlPipeline = doc.createElement( "pipeline" );
+    doc.appendChild( xmlPipeline );
+
+    QDomElement xmlElements = doc.createElement( "elements" );
+    xmlPipeline.appendChild( xmlElements );
+
+    const Pipeline::PipelineElementMap& ples = pl->getChildren();
+    QMapIterator<int, RefPtr<PipelineElement> > itr( ples );
+    while( itr.hasNext() )
+    {
+        itr.next();
+        RefPtr<PipelineElement> ple = itr.value();
+
+        QString className = ple->metaObject()->className();
+        int id = ple->getId();
+
+        QDomElement xmlElement = doc.createElement( "element" );
+        xmlElement.setAttribute( "id", id );
+        xmlElement.setAttribute( "name", className );
+        xmlElements.appendChild( xmlElement );
+
+        QDomElement xmlProperties = doc.createElement( "properties" );
+        xmlElement.appendChild( xmlProperties );
+
+        const QMetaObject* metaObject = ple->metaObject();
+        for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i)
+        {
+            QMetaProperty property = metaObject->property(i);
+            QString propertyName = QString::fromLatin1( property.name() );
+            QString propertyValue = property.read( ple ).toString();
+            QDomElement xmlProperty = doc.createElement( propertyName );
+            QDomText text = doc.createTextNode( propertyValue );
+            xmlProperty.appendChild( text );
+            xmlProperties.appendChild( xmlProperty );
+        }
+    }
+
+    QDomElement xmlConnections = doc.createElement( "connections" );
+    xmlPipeline.appendChild( xmlConnections );
+
+    const Pipeline::PipelineConnectionsList& connections = pl->getConnections();
+    foreach( RefPtr<PinConnection> connection, connections )
+    {
+        QDomElement xmlConnection = doc.createElement( "connection" );
+        xmlConnections.appendChild( xmlConnection );
+
+        QDomElement xmlSink = doc.createElement("sink");
+        xmlConnection.appendChild( xmlSink );
+
+        QDomElement xmlSinkPinName = doc.createElement( "pinName" );
+        QDomElement xmlSinkId = doc.createElement( "processorId" );
+
+        xmlSink.appendChild( xmlSinkPinName );
+        xmlSink.appendChild( xmlSinkId );
+
+        QString sinkPinName = connection->toPin()->getName();
+        QString sinkId = QVariant( connection->toPin()->getOwner()->getId() ).toString();
+
+        QDomText xmlSinkNameText = doc.createTextNode( sinkPinName );
+        QDomText xmlSinkIdText = doc.createTextNode( sinkId );
+
+        xmlSinkPinName.appendChild( xmlSinkNameText );
+        xmlSinkId.appendChild( xmlSinkIdText );
+
+        QDomElement xmlSource = doc.createElement("source");
+        xmlConnection.appendChild( xmlSource );
+
+        QDomElement xmlSourcePinName = doc.createElement( "pinName" );
+        QDomElement xmlSourceId = doc.createElement( "processorId" );
+
+        xmlSource.appendChild( xmlSourcePinName );
+        xmlSource.appendChild( xmlSourceId );
+
+        QString sourcePinName = connection->fromPin()->getName();
+        QString sourceId = QVariant( connection->fromPin()->getOwner()->getId() ).toString();
+
+        QDomText xmlSourceNameText = doc.createTextNode( sourcePinName );
+        QDomText xmlSourceIdText = doc.createTextNode( sourceId );
+
+        xmlSourcePinName.appendChild( xmlSourceNameText );
+        xmlSourceId.appendChild( xmlSourceIdText );
+    }
+
+    qDebug() << doc.toString();
+}
+
 
 RefPtr<Pipeline> PipelineLoader::parsePipeline( const QString& filename )
         throw(std::runtime_error) /*TODO checked exceptions*/

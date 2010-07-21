@@ -12,6 +12,10 @@ namespace plv
     class PipelineElement;
     class Pipeline;
 
+    /** Class which parses XML and maps XML data to properties in QObject classes.
+      * Original idea and source thanks to Matteo Bertozzi
+      * (http://th30z.netsons.org/2009/04/qt4-xml-objec-mapper/)
+      */
     class PipelineLoader
     {
     public:
@@ -19,6 +23,9 @@ namespace plv
             throw(std::runtime_error); /*TODO checked exceptions*/
 
         static RefPtr<Pipeline> parsePipeline( QDomDocument* doc )
+            throw(std::runtime_error); /*TODO checked exceptions*/
+
+        static void pipelineToXML( Pipeline* pipeline )
             throw(std::runtime_error); /*TODO checked exceptions*/
 
     private:
@@ -32,7 +39,12 @@ namespace plv
             throw(std::runtime_error); /*TODO checked exceptions*/
 
 
-        /** QObject propery system helper methods */
+
+        /** QObject propery system helper methods. Used to map XML data
+          * to properties in QObject classes.
+          * Original idea and source thanks to Matteo Bertozzi
+          * (http://th30z.netsons.org/2009/04/qt4-xml-objec-mapper/)
+          */
         static int propertyIndex( QObject* qobject, const QString& name );
         static QVariant::Type propertyType( QObject* qobject, int index );
         static QVariant::Type propertyType( QObject* qobject, const QString& name );
