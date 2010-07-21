@@ -132,8 +132,8 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     }
 
     QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
-    connect(spinBox, SIGNAL(valueChanged(int)),
-            element, slot.toAscii());
+    spinBox->setEnabled(connect(spinBox, SIGNAL(valueChanged(int)),
+                        element, slot.toAscii()));
 
     form->addRow(new QLabel(*name, form->parentWidget()), spinBox);
 }
@@ -160,8 +160,8 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     }
 
     QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
-    connect(spinBox, SIGNAL(valueChanged(double)),
-            element, slot.toAscii());
+    spinBox->setEnabled(connect(spinBox, SIGNAL(valueChanged(double)),
+                        element, slot.toAscii()));
 
     form->addRow(new QLabel(*name, form->parentWidget()), spinBox);
 }
@@ -187,8 +187,8 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     }
 
     QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
-    connect(checkBox, SIGNAL(toggled(bool)),
-            element, slot.toAscii());
+    checkBox->setEnabled(connect(checkBox, SIGNAL(toggled(bool)),
+                        element, slot.toAscii()));
 
     form->addRow(new QLabel(*name, form->parentWidget()), checkBox);
 }
@@ -219,8 +219,8 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
         }
 
         QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
-        connect(textField, SIGNAL(textChanged(QString)),
-                element, slot.toAscii());
+        textField->setEnabled(connect(textField, SIGNAL(textChanged(QString)),
+                            element, slot.toAscii()));
 
         form->addRow(new QLabel(*name, form->parentWidget()), textField);
     }
