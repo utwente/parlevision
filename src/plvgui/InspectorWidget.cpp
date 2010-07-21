@@ -8,6 +8,7 @@
 #include "PipelineElement.h"
 #include "CameraProducer.h"
 #include "CameraConfigFormBuilder.h"
+#include "ElementConfigFormBuilder.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -49,12 +50,11 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
     std::list<QString> propertyNames;
     element->getConfigurablePropertyNames(propertyNames);
 
-    RefPtr<CameraProducer> cp = ref_ptr_dynamic_cast<CameraProducer> (element);
-    if(cp.isNotNull())
+    if(ElementConfigFormBuilder::existsFor(element->metaObject()->className()))
     {
         // use that
-        CameraConfigFormBuilder* b = new CameraConfigFormBuilder();
-        formContainer = b->buildForm(cp, this);
+        ElementConfigFormBuilder* b = ElementConfigFormBuilder::getBuilderFor(element->metaObject()->className());
+        formContainer = b->buildForm(element, this);
         delete b;
     }
     else

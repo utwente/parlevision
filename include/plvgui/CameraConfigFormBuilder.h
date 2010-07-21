@@ -26,10 +26,14 @@ namespace plvgui
         RefPtr<CameraProducer> producer;
     };
 
-    class CameraConfigFormBuilder
+
+
+    class CameraConfigFormBuilder : public ElementConfigFormBuilder
     {
+        Q_OBJECT
+
     public:
-        QWidget* buildForm(PipelineElement* element, QWidget* parent=0);
+        virtual QWidget* buildForm(PipelineElement* element, QWidget* parent=0);
     };
 }
 

@@ -52,7 +52,8 @@ SOURCES += src/main.cpp \
     src/plvgui/PinWidget.cpp \
     src/plvgui/InteractiveLine.cpp \
     src/plvgui/ViewerWidget.cpp \
-    src/plvgui/CameraConfigFormBuilder.cpp
+    src/plvgui/CameraConfigFormBuilder.cpp \
+    src/plvgui/ElementConfigFormBuilder.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \
