@@ -46,6 +46,7 @@ namespace plvgui
 
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
         virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
+        virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
         void addToGroup(QGraphicsItem* item);
         QHash<const plv::Pin*, PinWidget*> pinWidgets;
     };

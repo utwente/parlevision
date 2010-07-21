@@ -6,6 +6,9 @@
 #include "ViewerWidget.h"
 #include "DataRenderer.h"
 #include "RendererFactory.h"
+#include "PinClickedEvent.h"
+#include "PinWidget.h"
+#include "PipelineElementWidget.h"
 
 #include "Pipeline.h"
 #include "PipelineScene.h"
@@ -74,6 +77,25 @@ void MainWindow::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+bool MainWindow::event(QEvent* event)
+{
+//    qDebug() << "MainWindow got event " << event << " ut=" << PinDoubleClickedEvent::user_type();
+//    return QObject::event(event);
+    if(event->type() == PinDoubleClickedEvent::user_type())
+    {
+        PinDoubleClickedEvent* pce = static_cast<PinDoubleClickedEvent*>(event);
+        qDebug() << pce->getSource()->getPin()->getName();
+        RefPtr<IOutputPin> pin = ref_ptr_dynamic_cast<IOutputPin>(pce->getSource()->getPin());
+        assert(pin.isNotNull());
+        if(pin.isNotNull())
+        {
+            showViewerForPin(pin);
+        }
+    }
+
+    return QMainWindow::event(event);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -241,9 +263,6 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
             pipeline, SLOT(start()));
 
     connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
-            this, SLOT(addRenderersForPins(plv::RefPtr<plv::PipelineElement>)));
-
-    connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(documentChanged()));
     connect(pipeline, SIGNAL(elementChanged(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(documentChanged()));
@@ -259,15 +278,6 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(m_scene, SIGNAL(changed(QList<QRectF>)),
             this, SLOT(documentChanged()));
 
-    // add renderers for all elements in the pipeline
-    const Pipeline::PipelineElementMap& elements = pipeline->getChildren();
-
-    QMapIterator< int, RefPtr<PipelineElement> > itr( elements );
-    while( itr.hasNext() )
-    {
-        itr.next();
-        this->addRenderersForPins( itr.value() );
-    }
 }
 
 void MainWindow::loadFile(QString fileName)
@@ -311,7 +321,7 @@ MainWindow* MainWindow::newWindow()
     return other;
 }
 
-void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
+void MainWindow::showViewersForElement(plv::RefPtr<plv::PipelineElement> element)
 {
     qDebug() << "Adding renderers for " << element->getName();
     //this is temporary
@@ -321,16 +331,54 @@ void MainWindow::addRenderersForPins(plv::RefPtr<plv::PipelineElement> element)
         itr != outPins->end();
         ++itr)
     {
-        RefPtr<IOutputPin> pin = *itr;
+        showViewerForPin(*itr);
+    }
+}
 
-        assert(pin.isNotNull());
-        qDebug() << "Adding renderer for Pin " << pin->getName();
+void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
+{
+    assert(pin.isNotNull());
+    qDebug() << "Adding renderer for Pin " << pin->getName();
 
+
+    // show existing window if exists
+    bool existing = false;
+    int viewerCount = 0;
+    foreach (QWidget *widget, QApplication::allWidgets())
+    {
+        ViewerWidget* viewer = qobject_cast<ViewerWidget*>(widget);
+
+        if(viewer)
+        {
+            if (viewer->getPin().getPtr() == pin.getPtr())
+            {
+                viewer->show();
+                existing = true;
+            }
+            viewerCount++;
+        }
+    }
+
+    // or new window if not
+    if(!existing)
+    {
         ViewerWidget* viewer = new ViewerWidget(pin, this);
         viewer->show();
         #ifdef Q_OS_MAC
         // Show as floating window on Mac OS X
         viewer->setFloating(true);
+
+        // move the window so it's aligned with the top right corner
+        QPoint cornerPos = this->pos() + QPoint(this->geometry().width(), viewerCount*20);
+
+        bool isAcceptable = QApplication::desktop()->geometry().contains(QRect(cornerPos.x(), cornerPos.y(), 20, 20));
+        qDebug() << isAcceptable;
+
+        if(isAcceptable)
+        {
+            viewer->move(cornerPos);
+        }
+
         #else
         this->addDockWidget(Qt::BottomDockWidgetArea, viewer);
         #endif
@@ -427,5 +475,32 @@ void plvgui::MainWindow::on_actionDelete_triggered()
 
 void plvgui::MainWindow::sceneSelectionChanged()
 {
-    ui->actionDelete->setEnabled(this->m_scene->selectedItems().size() > 0);
+    int selectionCount = this->m_scene->selectedItems().size();
+
+    ui->actionDelete->setEnabled(selectionCount > 0);
+
+    if(selectionCount == 0)
+    {
+        m_inspectorWidget->nothingSelected();
+    }
+    if(selectionCount > 1)
+    {
+        m_inspectorWidget->multipleSelected();
+    }
+    else if(selectionCount == 1)
+    {
+        // set inspector target
+        QGraphicsItem* selectedItem = this->m_scene->selectedItems().first();
+        qDebug() << "selected " << selectedItem;
+        PipelineElementWidget* pew = dynamic_cast<PipelineElementWidget*>(selectedItem);
+        if(pew)
+        {
+            RefPtr<PipelineElement> element = pew->getElement();
+            m_inspectorWidget->setTarget(element);
+        }
+        else
+        {
+            m_inspectorWidget->nothingSelected();
+        }
+    }
 }

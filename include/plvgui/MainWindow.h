@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 #include <QSettings>
+#include <QHash>
 #include "PipelineElement.h"
+#include "Pin.h"
 #include "RefPtr.h"
 
 class QToolbar;
@@ -38,8 +40,11 @@ namespace plvgui {
           */
         void loadFile(QString fileName);
 
+        virtual bool event(QEvent * event);
+
     public slots:
-        void addRenderersForPins(plv::RefPtr<plv::PipelineElement>);
+        void showViewersForElement(plv::RefPtr<plv::PipelineElement>);
+        void showViewerForPin(plv::RefPtr<plv::IOutputPin> targetPin);
 
     protected:
         void changeEvent(QEvent* e);

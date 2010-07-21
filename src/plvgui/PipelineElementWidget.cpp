@@ -47,6 +47,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         leftColumnWidth = max(pw->boundingRect().width(), leftColumnWidth);
         y+=10;
     }
+    delete inPins;
 
     leftColumnWidth = max(titleLabel->boundingRect().width()/2.0, leftColumnWidth);
 
@@ -67,6 +68,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         outWidgets.append(pw);
         maxWidth = max(pw->boundingRect().width(), maxWidth);
     }
+    delete outPins;
 
     y = 20;
     foreach(PinWidget* pw, outWidgets)
@@ -111,6 +113,21 @@ QVariant PipelineElementWidget::itemChange(GraphicsItemChange change,
 void PipelineElementWidget::mousePressEvent ( QGraphicsSceneMouseEvent * event )
 {
     QGraphicsItem::mousePressEvent(event);
+}
+
+void PipelineElementWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+{
+    foreach(QGraphicsItem* child, this->childItems())
+    {
+        if(child->contains(child->mapFromParent(event->pos())))
+        {
+            PinWidget* pw = dynamic_cast<PinWidget*> (child);
+            if(pw)
+            {
+                pw->handleMouseDoubleClick();
+            }
+        }
+    }
 }
 
 

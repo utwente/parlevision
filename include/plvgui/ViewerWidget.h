@@ -25,6 +25,7 @@ namespace plvgui
     public:
         explicit ViewerWidget(IOutputPin* pin, QWidget *parent = 0);
         ~ViewerWidget();
+        RefPtr<IOutputPin> getPin();
 
     protected:
         void changeEvent(QEvent *e);

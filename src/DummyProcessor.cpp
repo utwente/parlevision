@@ -10,7 +10,11 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
-DummyProcessor::DummyProcessor()
+DummyProcessor::DummyProcessor() :
+        m_someInt(1337),
+        m_someDouble(1.23456),
+        m_someBool(true),
+        m_someString("hello")
 {
     m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     addInputPin( m_inputPin );
@@ -56,28 +60,10 @@ void DummyProcessor::process()
     IplImage* iplImg2 = img2->getImageForWriting();
 
     // do a flip of the image
-    cvFlip( iplImg1, iplImg2, 1);
+    cvFlip( iplImg1, iplImg2, (int)m_someBool);
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
-}
 
-int DummyProcessor::getSomeInt()
-{
-    return m_someInt;
-}
-
-void DummyProcessor::setSomeInt( int i )
-{
-    m_someInt = i;
-}
-
-void DummyProcessor::setSomeString( QString s )
-{
-    m_someString = s;
-}
-
-QString DummyProcessor::getSomeString()
-{
-    return m_someString;
+    this->setSomeInt(this->getSomeInt()+1);
 }
