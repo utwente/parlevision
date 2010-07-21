@@ -13,6 +13,7 @@ namespace plv {
     {
         Q_OBJECT
         Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt NOTIFY someIntChanged  )
+        Q_PROPERTY( bool someBool READ getSomeBool WRITE setSomeBool NOTIFY someBoolChanged  )
         Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString NOTIFY someStringChanged )
 
     public:
@@ -26,15 +27,17 @@ namespace plv {
 
         /** propery methods */
         int getSomeInt();
-
+        bool getSomeBool() { return m_someBool; }
         QString getSomeString();
 
     signals:
         void someIntChanged(int newValue);
+        void someBoolChanged(bool newValue);
         void someStringChanged(QString newValue);
 
     public slots:
         void setSomeInt( int i );
+        void setSomeBool ( bool b ) { m_someBool = b; emit(someBoolChanged(b)); }
         void setSomeString( QString s );
 
     private:
@@ -42,6 +45,7 @@ namespace plv {
         OutputPin<OpenCVImage>* m_outputPin;
 
         QString m_someString;
+        int m_someBool;
         int m_someInt;
 
     };

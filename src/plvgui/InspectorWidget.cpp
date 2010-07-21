@@ -136,12 +136,32 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
 {
     QCheckBox* checkBox = new QCheckBox(this);
     checkBox->setChecked(value);
+
+    QMetaProperty prop = element->metaObject()->property(
+                    element->metaObject()->indexOfProperty(name->toAscii()));
+
+    if(prop.hasNotifySignal())
+    {
+        qDebug() << "connecting signal " << prop.notifySignal().signature();;
+        connect(element, QByteArray::number(QSIGNAL_CODE) + prop.notifySignal().signature(),
+                checkBox, SLOT(setChecked(bool)));
+    }
+    else
+    {
+        qWarning() << "WARNING: Property " << *name << " does not nave NOTIFY signal!";
+    }
+
+    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
+    connect(checkBox, SIGNAL(toggled(bool)),
+            element, slot.toAscii());
+
     form->addRow(new QLabel(*name, form->parentWidget()), checkBox);
 }
 
 void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QString value, bool editable)
 {
     Q_UNUSED(editable)
+    Q_UNUSED(element);
     //TODO editable
     form->addRow(new QLabel(*name, form->parentWidget()), new QLabel(value, form->parentWidget()));
 }
