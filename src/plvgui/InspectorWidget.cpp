@@ -113,7 +113,7 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
 
 void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, int value)
 {
-    QSpinBox* spinBox = new QSpinBox(this);
+    QSpinBox* spinBox = new QSpinBox(form->parentWidget());
     spinBox->setRange(-10000,10000);
     spinBox->setValue(value);
 
@@ -140,9 +140,9 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
 
 void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, double value)
 {
-    QDoubleSpinBox* spinBox = new QDoubleSpinBox(this);
+    QDoubleSpinBox* spinBox = new QDoubleSpinBox(form->parentWidget());
     spinBox->setRange(-10000000.0,100000000.0);
-    spinBox->setDecimals(5);
+//    spinBox->setDecimals(5);
     spinBox->setValue(value);
 
     QMetaProperty prop = element->metaObject()->property(
