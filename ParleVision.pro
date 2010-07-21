@@ -82,7 +82,8 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/PinWidget.h \
     include/plvgui/PinClickedEvent.h \
     include/plvgui/InteractiveLine.h \
-    include/plvgui/ViewerWidget.h
+    include/plvgui/ViewerWidget.h \
+    include/plvgui/ElementConfigFormBuilder.h
 FORMS += resources/mainwindow.ui \
     resources/librarywidget.ui \
     resources/inspectorwidget.ui \
