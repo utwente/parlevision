@@ -102,7 +102,10 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     case QVariant::Bool:
         addRow(form, element, name, value->toBool());
         break;
+    case QVariant::String:
+        addRow(form, element, name, value->toString(), true);
     default:
+        break;
         // substitute a non-editable string
         addRow(form, element, name, value->toString(), false);
     }
@@ -166,7 +169,7 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
 
 void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, bool value)
 {
-    QCheckBox* checkBox = new QCheckBox(this);
+    QCheckBox* checkBox = new QCheckBox(this->formContainer);
     checkBox->setChecked(value);
 
     QMetaProperty prop = element->metaObject()->property(
@@ -192,10 +195,35 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
 
 void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QString value, bool editable)
 {
-    Q_UNUSED(editable)
-    Q_UNUSED(element);
-    //TODO editable
-    form->addRow(new QLabel(*name, form->parentWidget()), new QLabel(value, form->parentWidget()));
+    if(!editable)
+    {
+        form->addRow(new QLabel(*name, form->parentWidget()), new QLabel(value, form->parentWidget()));
+    }
+    else
+    {
+        QLineEdit* textField = new QLineEdit(this->formContainer);
+        textField->setText(value);
+
+        QMetaProperty prop = element->metaObject()->property(
+                        element->metaObject()->indexOfProperty(name->toAscii()));
+
+        if(prop.hasNotifySignal())
+        {
+            qDebug() << "connecting signal " << prop.notifySignal().signature();;
+            connect(element, QByteArray::number(QSIGNAL_CODE) + prop.notifySignal().signature(),
+                    textField, SLOT(setText(QString)));
+        }
+        else
+        {
+            qWarning() << "WARNING: Property " << *name << " does not nave NOTIFY signal!";
+        }
+
+        QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
+        connect(textField, SIGNAL(textChanged(QString)),
+                element, slot.toAscii());
+
+        form->addRow(new QLabel(*name, form->parentWidget()), textField);
+    }
 }
 
 const QString InspectorWidget::propertySlotSignature(QObject* obj, QString propertyName)
