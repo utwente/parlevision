@@ -63,25 +63,3 @@ void DummyProcessor::process()
 
     this->setSomeInt(this->getSomeInt()+1);
 }
-
-int DummyProcessor::getSomeInt()
-{
-    return m_someInt;
-}
-
-void DummyProcessor::setSomeInt( int i )
-{
-    qDebug() << "setSomeInt("<<i<<")";
-    m_someInt = i;
-    emit(someIntChanged(i));
-}
-
-void DummyProcessor::setSomeString( QString s )
-{
-    m_someString = s;
-}
-
-QString DummyProcessor::getSomeString()
-{
-    return m_someString;
-}

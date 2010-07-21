@@ -27,10 +27,10 @@ namespace plv {
         virtual void process();
 
         /** propery methods */
-        int getSomeInt();
+        int getSomeInt() { return m_someInt; }
         double getSomeDouble() { return m_someDouble; }
         bool getSomeBool() { return m_someBool; }
-        QString getSomeString();
+        QString getSomeString() { return m_someString; }
 
     signals:
         void someIntChanged(int newValue);
@@ -39,10 +39,10 @@ namespace plv {
         void someStringChanged(QString newValue);
 
     public slots:
-        void setSomeInt(int i);
+        void setSomeInt(int i) {m_someInt = i; emit(someIntChanged(i));}
         void setSomeDouble(double d) {m_someDouble = d; emit(someDoubleChanged(d));}
         void setSomeBool(bool b) {m_someBool = b; emit(someBoolChanged(b));}
-        void setSomeString( QString s );
+        void setSomeString(QString s) {m_someString = s; emit(someStringChanged(s));}
 
     private:
         InputPin<OpenCVImage>* m_inputPin;
