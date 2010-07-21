@@ -56,7 +56,7 @@ void DummyProcessor::process()
     IplImage* iplImg2 = img2->getImageForWriting();
 
     // do a flip of the image
-    cvFlip( iplImg1, iplImg2, 1);
+    cvFlip( iplImg1, iplImg2, (int)m_someBool);
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
