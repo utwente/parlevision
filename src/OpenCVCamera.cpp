@@ -211,3 +211,26 @@ OpenCVImage* OpenCVCamera::getFrame()
     OpenCVImage* ocvimg = OpenCVImageFactory::instance()->getFromBuffer( image );
     return ocvimg;
 }
+
+/*
+int OpenCVCamera::getNumberOfAvailableCameras()
+{
+    int num = 0;
+    bool finished = false;
+
+    while( !finished )
+    {
+        CvCapture* capture = cvCreateCameraCapture( num );
+        if( !capture )
+        {
+            finished = true;
+        }
+        else
+        {
+            num++;
+            cvReleaseCapture( &capture );
+        }
+    }
+    return num;
+}
+*/

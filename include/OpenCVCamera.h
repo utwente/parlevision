@@ -63,6 +63,12 @@ namespace plv
 		inline int getWidth() const { return m_width; }
 		inline int getHeight() const { return m_height; }
 
+        /** Returns the number of available cameras.
+          * Note that this needs to be run while no cameras are in use
+          * and while all cameras are connected
+          */
+//        static const QHash<int,QString>* getAvailableCameras();
+
 	protected:
 		/** The run loop.
 		  * Captures camera output and fires signals.

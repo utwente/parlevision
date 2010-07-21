@@ -4,6 +4,8 @@
 #include <QtConcurrentRun>
 
 #include "MainWindow.h"
+#include "ElementConfigFormBuilder.h"
+#include "CameraConfigFormBuilder.h"
 #include "OpenCVCamera.h"
 #include "DummyProcessor.h"
 #include "RefPtr.h"
@@ -31,6 +33,7 @@ int main(int argc, char **argv)
     qRegisterMetaType< RefPtr<QtImage> >("RefPtr<QtImage>");
     plvRegisterPipelineElement<plv::CameraProducer>("plv::CameraProducer", "Camera");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
+    plvRegisterConfigFormBuilder<plvgui::CameraConfigFormBuilder>("plv::CameraProducer","plvgui::CameraConfigFormBuilder");
 	
     MainWindow* mainWin = new MainWindow();
 

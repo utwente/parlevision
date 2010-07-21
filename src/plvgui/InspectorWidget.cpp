@@ -6,6 +6,9 @@
 #include <assert.h>
 
 #include "PipelineElement.h"
+#include "CameraProducer.h"
+#include "CameraConfigFormBuilder.h"
+#include "ElementConfigFormBuilder.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -47,20 +50,31 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
     std::list<QString> propertyNames;
     element->getConfigurablePropertyNames(propertyNames);
 
-    this->formContainer = new QWidget(this);
-    QFormLayout* form = new QFormLayout(this->formContainer);
-    formContainer->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-    this->formContainer->setLayout(form);
-
-    for(std::list<QString>::iterator itr = propertyNames.begin();
-        itr != propertyNames.end(); ++itr)
+    if(ElementConfigFormBuilder::existsFor(element->metaObject()->className()))
     {
-        QString propertyName = *itr;
-        QVariant value = element->property(propertyName.toAscii());
-        addRow(form, element, &propertyName, &value);
+        // use that
+        ElementConfigFormBuilder* b = ElementConfigFormBuilder::getBuilderFor(element->metaObject()->className());
+        formContainer = b->buildForm(element, this);
+        delete b;
     }
-//    ui->statusMsg->setText(element->getName());
-//    this->setWindowTitle(element->getName());
+    else
+    {
+        this->formContainer = new QWidget(this);
+        QFormLayout* form = new QFormLayout(this->formContainer);
+        formContainer->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+        this->formContainer->setLayout(form);
+
+        for(std::list<QString>::iterator itr = propertyNames.begin();
+            itr != propertyNames.end(); ++itr)
+        {
+            QString propertyName = *itr;
+            QVariant value = element->property(propertyName.toAscii());
+            addRow(form, element, &propertyName, &value);
+        }
+    }
+
+    //ui->statusMsg->setText(element->getName());
+    //this->setWindowTitle(element->getName());
     ui->verticalLayout->addWidget(formContainer);
 }
 

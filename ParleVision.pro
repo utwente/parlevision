@@ -51,7 +51,9 @@ SOURCES += src/main.cpp \
     src/plvgui/ConnectionLine.cpp \
     src/plvgui/PinWidget.cpp \
     src/plvgui/InteractiveLine.cpp \
-    src/plvgui/ViewerWidget.cpp
+    src/plvgui/ViewerWidget.cpp \
+    src/plvgui/CameraConfigFormBuilder.cpp \
+    src/plvgui/ElementConfigFormBuilder.cpp
 HEADERS += include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \
@@ -83,9 +85,12 @@ HEADERS += include/CameraProducer.h \
     include/plvgui/PinWidget.h \
     include/plvgui/PinClickedEvent.h \
     include/plvgui/InteractiveLine.h \
-    include/plvgui/ViewerWidget.h
+    include/plvgui/ViewerWidget.h \
+    include/plvgui/ElementConfigFormBuilder.h \
+    include/plvgui/CameraConfigFormBuilder.h
 FORMS += resources/mainwindow.ui \
     resources/librarywidget.ui \
     resources/inspectorwidget.ui \
-    resources/viewerwidget.ui
+    resources/viewerwidget.ui \
+    resources/cameraconfigform.ui
 RESOURCES += resources/icons.qrc
