@@ -11,7 +11,7 @@ LibraryElement::LibraryElement(QString typeName, QWidget* parent)
     typeName(typeName),
     name(PipelineElement::nameForType(typeName))
 {
-    QSizePolicy sp = QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    QSizePolicy sp = QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     sp.setHeightForWidth(true);
     this->setSizePolicy(sp);
     this->setStyleSheet("background: lightgreen;");
