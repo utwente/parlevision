@@ -19,6 +19,9 @@ macx {
 #    UI_DIR = $$BUILDDIR
 #    DESTDIR = $$BUILDDIR
 }
+
+DESTDIR = ../libs
+
 CONFIG(debug, debug|release):DEFINES += DEBUG
 QT      += xml
 
