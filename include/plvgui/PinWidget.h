@@ -7,6 +7,7 @@
 
 
 class QGraphicsItem;
+class MainWindow;
 
 using namespace plv;
 
@@ -19,7 +20,6 @@ using namespace plv;
 namespace plvgui
 {
     class PipelineElementWidget;
-    class MainWindow;
 
     class PinWidget : public QObject, public QGraphicsItemGroup
     {
@@ -47,7 +47,7 @@ namespace plvgui
         RefPtr<Pin> m_pin;
         void init(bool isInput);
         QGraphicsEllipseItem* circle;
-        MainWindow* findMainWindow(QWidget*);
+//        MainWindow* findMainWindow(QWidget*);
     };
 }
 
