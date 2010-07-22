@@ -338,14 +338,12 @@ MainWindow* MainWindow::newWindow()
 void MainWindow::showViewersForElement(plv::RefPtr<plv::PipelineElement> element)
 {
     qDebug() << "Adding renderers for " << element->getName();
-    //this is temporary
-    std::list< RefPtr<IOutputPin> >* outPins = element->getOutputPins();
 
-    for(std::list< RefPtr<IOutputPin> >::iterator itr = outPins->begin();
-        itr != outPins->end();
-        ++itr)
+    const PipelineElement::OutputPinMap& outputPins = element->getOutputPins();
+    for( PipelineElement::OutputPinMap::const_iterator itr = outputPins.begin()
+        ; itr!=outputPins.end(); ++itr)
     {
-        showViewerForPin(*itr);
+        showViewerForPin(itr->second);
     }
 }
 

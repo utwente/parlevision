@@ -48,7 +48,7 @@ void OpenCVCamera::run()
     assert( m_captureDevice != 0 );
 
     while( m_state == CAM_RUNNING || m_state == CAM_PAUSED )
-    {;
+    {
         // get a frame, blocking call
         RefPtr<Data> frame = getFrame();
 

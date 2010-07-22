@@ -160,43 +160,45 @@ std::list<QString>* PipelineElement::getInputPinNames() const
     return names;
 }
 
-std::list< RefPtr<IInputPin> >* PipelineElement::getInputPins()
+const PipelineElement::InputPinMap& PipelineElement::getInputPins() const
 {
-    std::list< RefPtr<IInputPin> >* pins = new std::list< RefPtr<IInputPin> >();
+//    std::list< RefPtr<IInputPin> >* pins = new std::list< RefPtr<IInputPin> >();
 
-    for( InputPinMap::iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        RefPtr<IInputPin> pin = itr->second;
-        assert(pin.isNotNull());
-        pins->push_back(pin);
-    }
-    return pins;
+//    for( InputPinMap::iterator itr = m_inputPins.begin();
+//         itr != m_inputPins.end(); ++itr )
+//    {
+//        RefPtr<IInputPin> pin = itr->second;
+//        assert(pin.isNotNull());
+//        pins->push_back(pin);
+//    }
+//    return pins;
+    return m_inputPins;
 }
 
-std::list<QString>* PipelineElement::getOutputPinNames() const
+std::list<QString> PipelineElement::getOutputPinNames() const
 {
-    std::list<QString>* names = new std::list<QString>();
+    std::list<QString> names;
     for( OutputPinMap::const_iterator itr = m_outputPins.begin();
          itr != m_outputPins.end(); ++itr )
     {
-        names->push_back(itr->first);
+        names.push_back(itr->first);
     }
     return names;
 }
 
-std::list< RefPtr<IOutputPin> >* PipelineElement::getOutputPins()
+const PipelineElement::OutputPinMap& PipelineElement::getOutputPins() const
 {
-    std::list< RefPtr<IOutputPin> >* pins = new std::list< RefPtr<IOutputPin> >();
+//    std::list< RefPtr<IOutputPin> >* pins = new std::list< RefPtr<IOutputPin> >();
 
-    for( OutputPinMap::iterator itr = m_outputPins.begin();
-         itr != m_outputPins.end(); ++itr )
-    {
-        RefPtr<IOutputPin> pin = itr->second;
-        assert(pin.isNotNull());
-        pins->push_back(pin);
-    }
-    return pins;
+//    for( OutputPinMap::iterator itr = m_outputPins.begin();
+//         itr != m_outputPins.end(); ++itr )
+//    {
+//        RefPtr<IOutputPin> pin = itr->second;
+//        assert(pin.isNotNull());
+//        pins->push_back(pin);
+//    }
+//    return pins;
+    return m_outputPins;
 }
 
 int PipelineElement::outputPinsConnectionCount() const

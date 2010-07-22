@@ -61,13 +61,20 @@ void PinConnection::connect() throw (IncompatibleTypeException)
 void PinConnection::disconnect()
 {
     QMutexLocker lock( &m_mutex );
+
+    // remove connections
     m_producer->removeConnection( this );
-    //m_consumer->removeConnection( this );
     m_consumer->removeConnection();
 
     // clear and free producer and consumer
     m_producer.set( 0 );
     m_consumer.set( 0 );
+
+    // clear queue
+    for( unsigned int i = 0; i < m_queue.size(); ++i )
+    {
+        m_queue.pop();
+    }
 }
 
 bool PinConnection::hasData()

@@ -13,9 +13,6 @@ namespace plv {
         PipelineProducer();
         virtual ~PipelineProducer();
         PipelineProducer(const PipelineProducer&);
-
-        virtual void start() = 0;
-        virtual void stop() = 0;
     };
 
 }

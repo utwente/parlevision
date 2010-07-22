@@ -26,9 +26,9 @@ namespace plv
 
     class PipelineElement : public QObject, public RefCounted
     {
-        /** inherits from QObject thus Q_OBJECT macro is necessary */
         Q_OBJECT
 
+    public:
         /** typedefs to make code more readable */
         typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
         typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
@@ -46,6 +46,8 @@ namespace plv
     public:
         friend class Pipeline;
 
+        /*************** BEGIN PUBLIC API ******************/
+
         /** QMetaType requires a public default constructor,
          *  a public copy constructor and a public destructor.
          */
@@ -53,60 +55,22 @@ namespace plv
         PipelineElement( const PipelineElement& other );
         virtual ~PipelineElement();
 
-        inline void setId( int id ) { assert(m_id == -1); m_id = id; }
-        inline int getId() const { return m_id; }
-
         /** Initialise the element so it is ready to receive
           * process() calls.
-          * Should this be reentrant?
-          * @return true when initialization succesful
+          * This will only be called once by the pipeline
+          * and allows for late initialization.
           */
-        virtual bool init() = 0;
+        virtual void init() throw (PipelineException) = 0;
 
-        /** Adds the input pin to this processing element.
-          * @throws IllegalArgumentException if an input pin with
-          * the same name already exists
+        /** Start() and stop() are called when the pipeline
+          * is started and stopped by the user.
+          * This is useful for opening required input devices,
+          * starting threads etc.
+          * You must expect that a start() call
+          * may occur again after every stop().
           */
-        void addInputPin( IInputPin* pin ) throw (IllegalArgumentException);
-
-        /** Adds the output pin to this processing element.
-          * @throws IllegalArgumentException if an input pin with
-          * the same name already exists
-          */
-        void addOutputPin( IOutputPin* pin ) throw (IllegalArgumentException);
-
-        /** @returns the input pin with that name, or null if none exists */
-        IInputPin* getInputPin( const QString& name ) const;
-
-        /** @returns the ouput pin with that name, or null if none exists */
-        IOutputPin* getOutputPin( const QString& name ) const;
-
-        /** Get a list of properties defined on this element */
-        void getConfigurablePropertyNames(std::list<QString>&);
-
-        /** @returns the summed total of all connections in all input pins */
-        int inputPinsConnectionCount() const;
-
-        /** @returns the summed total of all connections in all output pins */
-        int outputPinsConnectionCount() const;
-
-        /** @returns the summed total of all connections in all input and output pins */
-        int pinsConnectionCount() const;
-
-        /** @returns a list of names of input pins added to this PipelineElement */
-        std::list<QString>* getInputPinNames() const;
-
-        /** @returns a list of inputpins */
-        std::list< RefPtr<IInputPin> >* getInputPins();
-
-        /** @returns a list of outputpins */
-        std::list< RefPtr<IOutputPin> >* getOutputPins();
-
-        /** @returns a list of names of output pins added to this PipelineElement */
-        std::list<QString>* getOutputPinNames() const;
-
-        /** returns true if there is at least one Pin with a connection */
-        bool hasPinConnections() const;
+        virtual void start() throw (PipelineException) {}
+        virtual void stop() throw (PipelineException) {}
 
         /** @returns true when this PipelineElement is ready for procesing, which
           * means that the process method is allowed to be called by the scheduler. This
@@ -127,7 +91,7 @@ namespace plv
           * This method should return true when the requirements which are needed
           * for valid output have been met.
           */
-        virtual bool isBootstrapped() const = 0;
+        //virtual bool isBootstrapped() const = 0;
 
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor
@@ -136,7 +100,59 @@ namespace plv
         virtual void process() = 0;
 
         /** Get the name that describes this element, in human readable form */
-        QString getName() const;
+        virtual QString getName() const;
+
+
+        /*************** END OF API ******************/
+
+
+        /** Adds the input pin to this processing element.
+          * @throws IllegalArgumentException if an input pin with
+          * the same name already exists
+          */
+        void addInputPin( IInputPin* pin ) throw (IllegalArgumentException);
+
+        /** Adds the output pin to this processing element.
+          * @throws IllegalArgumentException if an input pin with
+          * the same name already exists
+          */
+        void addOutputPin( IOutputPin* pin ) throw (IllegalArgumentException);
+
+        /** @returns the input pin with that name, or null if none exists */
+        IInputPin* getInputPin( const QString& name ) const;
+
+        /** @returns the ouput pin with that name, or null if none exists */
+        IOutputPin* getOutputPin( const QString& name ) const;
+
+        inline void setId( int id ) { assert(m_id == -1); m_id = id; }
+        inline int getId() const { return m_id; }
+
+        /** Get a list of properties defined on this element */
+        virtual void getConfigurablePropertyNames(std::list<QString>&);
+
+        /** @returns the summed total of all connections in all input pins */
+        int inputPinsConnectionCount() const;
+
+        /** @returns the summed total of all connections in all output pins */
+        int outputPinsConnectionCount() const;
+
+        /** @returns the summed total of all connections in all input and output pins */
+        int pinsConnectionCount() const;
+
+        /** @returns a list of names of input pins added to this PipelineElement */
+        std::list<QString>* getInputPinNames() const;
+
+        /** @returns a list of inputpins */
+        const InputPinMap& getInputPins() const;
+
+        /** @returns a list of outputpins */
+        const OutputPinMap& getOutputPins() const;
+
+        /** @returns a list of names of output pins added to this PipelineElement */
+        std::list<QString> getOutputPinNames() const;
+
+        /** returns true if there is at least one Pin with a connection */
+        bool hasPinConnections() const;
 
         /** Get a list of all known PipelineElement Type names
         */

@@ -29,9 +29,8 @@ DummyProcessor::~DummyProcessor()
     delete m_outputPin;
 }
 
-bool DummyProcessor::init()
+void DummyProcessor::init() throw (PipelineException)
 {
-    return true;
 }
 
 bool DummyProcessor::isReadyForProcessing() const
@@ -39,10 +38,10 @@ bool DummyProcessor::isReadyForProcessing() const
     return m_inputPin->hasData();
 }
 
-bool DummyProcessor::isBootstrapped() const
-{
-    return true;
-}
+//bool DummyProcessor::isBootstrapped() const
+//{
+//    return true;
+//}
 
 void DummyProcessor::process()
 {

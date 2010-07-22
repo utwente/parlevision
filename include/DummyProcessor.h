@@ -21,8 +21,8 @@ namespace plv {
         DummyProcessor();
         ~DummyProcessor();
 
-        virtual bool init();
-        virtual bool isBootstrapped() const;
+        virtual void init() throw (PipelineException);
+        //virtual bool isBootstrapped() const;
         virtual bool isReadyForProcessing() const;
         virtual void process();
 
