@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
     cout << "Loading " << argv[1];
     RefPtr<Pipeline> pipeline = PipelineLoader::deserialize(argv[1]);
-    pipeline->init();
+//    pipeline->init();
     pipeline->start();
 
     return a.exec();

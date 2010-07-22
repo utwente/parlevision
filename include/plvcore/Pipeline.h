@@ -5,6 +5,7 @@
 #include <list>
 #include <QMap>
 #include <QList>
+#include <QSet>
 #include <QThread>
 
 #include "RefPtr.h"
@@ -119,6 +120,7 @@ namespace plv
     private:
         bool m_stopRequested;
         bool m_running;
+        QSet<int> m_initialized;
 
     signals:
         void elementAdded(plv::RefPtr<plv::PipelineElement>);

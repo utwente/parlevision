@@ -309,9 +309,9 @@ void MainWindow::loadFile(QString fileName)
     {
         // this window did not yet have a pipeline loaded yet
         RefPtr<Pipeline> pl = PipelineLoader::deserialize(fileName);
-        bool state = pl->init();
+//        bool state = pl->init();
         qDebug() << "Loaded pipeline";
-        assert(state);
+//        assert(state);
         this->setCurrentFile(fileName);
         this->setPipeline(pl);
     }
@@ -505,7 +505,6 @@ void plvgui::MainWindow::on_actionNew_triggered()
     }
 
     RefPtr<Pipeline> pipeline = new Pipeline();
-    pipeline->init();
     win->setCurrentFile("");
     win->setPipeline(pipeline);
 }

@@ -244,9 +244,15 @@ bool Pipeline::init()
     if( itr.hasNext() )
     {
         itr.next();
-        bool state = itr.value()->init();
-        if( !state )
-            return false;
+        RefPtr<PipelineElement> element = itr.value();
+        if(!m_initialized.contains(element->getId()))
+        {
+            bool state = element->init();
+            if( !state )
+                return false;
+            else
+                m_initialized.insert(element->getId());
+        }
     }
     return true;
 }
@@ -264,6 +270,9 @@ void Pipeline::clear()
 
 void Pipeline::start()
 {
+    // TODO this is a hack to test
+    init();
+
     // TODO make thread safe
     // and ensure that pipeline cannot be started twice
     m_stopRequested = false;

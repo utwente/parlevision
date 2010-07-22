@@ -22,7 +22,7 @@ macx {
 #    UI_DIR = $$BUILDDIR
 #    DESTDIR = $$BUILDDIR
 
-   QMAKE_POST_LINK=cp -f ../libs/*.dylib ../libs/parlevision.app/Contents/MacOS/
+#   QMAKE_POST_LINK=cp -f ../libs/*.dylib ../libs/parlevision.app/Contents/MacOS/
 }
 
 LIBS += -L../libs -lplvcore -lplvgui

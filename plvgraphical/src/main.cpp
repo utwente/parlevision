@@ -38,12 +38,17 @@ void loadPlugins(QApplication* app)
          pluginsDir.cdUp();
          pluginsDir.cdUp();
          pluginsDir.cdUp();
-         pluginsDir.cdUp();
-         pluginsDir.cdUp();
+         qDebug() << "base dir: " << pluginsDir;
      }
  #endif
-     pluginsDir.cd("plugins");
+     bool inPluginsDir = pluginsDir.cd("plugins");
      qDebug() << "looking in " << pluginsDir;
+     if(!inPluginsDir)
+     {
+         qWarning() << "Plugins directory not found. Skipping loading of plugins";
+         return;
+     }
+
      foreach (QString fileName, pluginsDir.entryList(QDir::Files))
      {
          qDebug() << "Trying " << fileName;
