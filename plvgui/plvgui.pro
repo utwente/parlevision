@@ -22,7 +22,7 @@ macx {
 #    DESTDIR = $$BUILDDIR
 }
 
-LIBS += -L../libs -lpvcore
+LIBS += -L../libs -lplvcore
 
 CONFIG(debug, debug|release):DEFINES += DEBUG
 QT      += xml
@@ -30,10 +30,11 @@ QT      += xml
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
 # -Wunused-variable
-INCLUDEPATH +=  include/plvcore \
-                include/plvgui
+INCLUDEPATH +=  ../include/plvcore \
+                ../include/plvgui
                 
-SOURCES +=
+SOURCES += \
+    src/MainWindow.cpp \
     src/OpenCVImageRenderer.cpp \
     src/RendererFactory.cpp \
     src/DataRenderer.cpp \
@@ -50,23 +51,24 @@ SOURCES +=
     src/CameraConfigFormBuilder.cpp \
     src/ElementConfigFormBuilder.cpp
 
-HEADERS += include/Plugin.h \
-    include/plvgui/OpenCVImageRenderer.h \
-    include/plvgui/RendererFactory.h \
-    include/plvgui/DataRenderer.h \
-    include/plvgui/ImageConverter.h \
-    include/plvgui/PipelineScene.h \
-    include/plvgui/LibraryWidget.h \
-    include/plvgui/InspectorWidget.h \
-    include/plvgui/PipelineElementWidget.h \
-    include/plvgui/LibraryElement.h \
-    include/plvgui/ConnectionLine.h \
-    include/plvgui/PinWidget.h \
-    include/plvgui/PinClickedEvent.h \
-    include/plvgui/InteractiveLine.h \
-    include/plvgui/ViewerWidget.h \
-    include/plvgui/ElementConfigFormBuilder.h \
-    include/plvgui/CameraConfigFormBuilder.h
+HEADERS += \
+    ../include/plvgui/MainWindow.h \
+    ../include/plvgui/OpenCVImageRenderer.h \
+    ../include/plvgui/RendererFactory.h \
+    ../include/plvgui/DataRenderer.h \
+    ../include/plvgui/ImageConverter.h \
+    ../include/plvgui/PipelineScene.h \
+    ../include/plvgui/LibraryWidget.h \
+    ../include/plvgui/InspectorWidget.h \
+    ../include/plvgui/PipelineElementWidget.h \
+    ../include/plvgui/LibraryElement.h \
+    ../include/plvgui/ConnectionLine.h \
+    ../include/plvgui/PinWidget.h \
+    ../include/plvgui/PinClickedEvent.h \
+    ../include/plvgui/InteractiveLine.h \
+    ../include/plvgui/ViewerWidget.h \
+    ../include/plvgui/ElementConfigFormBuilder.h \
+    ../include/plvgui/CameraConfigFormBuilder.h
 
 FORMS += ../resources/mainwindow.ui \
     ../resources/librarywidget.ui \

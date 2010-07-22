@@ -7,7 +7,6 @@
 
 
 class QGraphicsItem;
-class MainWindow;
 
 using namespace plv;
 
@@ -19,6 +18,7 @@ using namespace plv;
 
 namespace plvgui
 {
+    class MainWindow;
     class PipelineElementWidget;
 
     class PinWidget : public QObject, public QGraphicsItemGroup
