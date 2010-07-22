@@ -27,7 +27,7 @@ DESTDIR = ../libs
 CONFIG(debug, debug|release):DEFINES += DEBUG
 
 QT += core
-QT -= gui
+#QT -= gui
 QT += xml
 
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
@@ -45,7 +45,7 @@ SOURCES += \
     src/PipelineElement.cpp \
     src/PipelineProducer.cpp \
     src/OpenCVCamera.cpp \
- #   src/QtImage.cpp \
+    src/QtImage.cpp \
     src/OpenCVImage.cpp \
     src/RefCounted.cpp \
     src/DummyProcessor.cpp \
@@ -64,7 +64,7 @@ HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/RefPtr.h \
     ../include/plvcore/RefCounted.h \
     ../include/plvcore/Types.h \
-#    ../include/plvcore/QtImage.h \
+    ../include/plvcore/QtImage.h \
     ../include/plvcore/OpenCVImage.h \
     ../include/plvcore/DummyProcessor.h \
     ../include/plvcore/PipelineProcessor.h \
