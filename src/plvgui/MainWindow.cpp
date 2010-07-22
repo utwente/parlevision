@@ -562,4 +562,13 @@ void MainWindow::save()
     qDebug() << "Saving to " << m_fileName;
     m_documentChanged = false;
 
+    try
+    {
+        PipelineLoader::serialize( m_fileName, m_pipeline );
+    }
+    catch( std::runtime_error& e )
+    {
+        qDebug() << "Pipeline saving failed with " << e.what();
+    }
+
 }
