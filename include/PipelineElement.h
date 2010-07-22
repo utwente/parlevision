@@ -187,5 +187,4 @@ int plvRegisterPipelineElement(const char* typeName, const char* humanName)
     return qRegisterMetaType<PET>(typeName);
 }
 
-
 #endif // PIPELINEELEMENT_H

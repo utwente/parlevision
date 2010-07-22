@@ -53,7 +53,8 @@ SOURCES += src/main.cpp \
     src/plvgui/ViewerWidget.cpp \
     src/plvgui/CameraConfigFormBuilder.cpp \
     src/plvgui/ElementConfigFormBuilder.cpp
-HEADERS += include/CameraProducer.h \
+HEADERS += include/Plugin.h \
+    include/CameraProducer.h \
     include/Pin.h \
     include/PinConnection.h \
     include/PipelineElement.h \

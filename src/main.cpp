@@ -1,7 +1,10 @@
 #include <QApplication>
+#include <QtPlugin>
 #include <iostream>
 #include <QDebug>
 #include <QtConcurrentRun>
+
+#include "PipelineElement.h"
 
 #include "MainWindow.h"
 #include "ElementConfigFormBuilder.h"
@@ -20,10 +23,49 @@
 using namespace plv;
 using namespace plvgui;
 
+#include <QDir>
+#include <QPluginLoader>
+#include "Plugin.h"
+void loadPlugins(QApplication* app)
+ {
+     QDir pluginsDir(app->applicationDirPath());
+ #if defined(Q_OS_WIN)
+     if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
+         pluginsDir.cdUp();
+ #elif defined(Q_OS_MAC)
+     if (pluginsDir.dirName() == "MacOS")
+     {
+         pluginsDir.cdUp();
+         pluginsDir.cdUp();
+         pluginsDir.cdUp();
+         pluginsDir.cdUp();
+         pluginsDir.cdUp();
+     }
+ #endif
+     pluginsDir.cd("plugins");
+     qDebug() << "looking in " << pluginsDir;
+     foreach (QString fileName, pluginsDir.entryList(QDir::Files))
+     {
+         qDebug() << "Trying " << fileName;
+         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+         QObject *plugin = pluginLoader.instance();
+         if (plugin)
+         {
+             Plugin* thePlugin = qobject_cast<Plugin*>(plugin);
+             if (thePlugin)
+             {
+                 thePlugin->onLoad();
+             }
+         }
+     }
+ }
+
+
 int main(int argc, char **argv)
 {
     Q_INIT_RESOURCE(icons);
     QApplication app(argc, argv);
+    loadPlugins(&app);
     app.setApplicationName("ParleVision");
     app.setOrganizationName("University of Twente");
 
@@ -42,4 +84,3 @@ int main(int argc, char **argv)
 
     return retval;
 }
-
