@@ -2,7 +2,6 @@ Makefile*
 debug
 release
 object_script*
-ParleVision.pro.user
 *.app
 .DS_Store
 build
@@ -16,3 +15,9 @@ ParleVision.ncb
 ParleVision.local
 *.pro.user.*
 ui_*.h
+*.pro.user
+plvcore-build
+plvgui-build
+plvheadless-build*
+plvgraphical-build*
+libs

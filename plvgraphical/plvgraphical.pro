@@ -21,6 +21,8 @@ macx {
 #    RCC_DIR = $$BUILDDIR
 #    UI_DIR = $$BUILDDIR
 #    DESTDIR = $$BUILDDIR
+
+   QMAKE_POST_LINK=cp -f ../libs/*.dylib ../libs/parlevision.app/Contents/MacOS/
 }
 
 LIBS += -L../libs -lplvcore -lplvgui
