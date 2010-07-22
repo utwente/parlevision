@@ -15,7 +15,6 @@
 #include "Pin.h"
 #include "DataRenderer.h"
 #include "QtImage.h"
-#include "XmlMapper.h"
 #include "PipelineLoader.h"
 
 using namespace plv;
