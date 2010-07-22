@@ -49,6 +49,10 @@ void MainWindow::initGUI()
 
     ui->view->setAcceptDrops(true);
 
+    ui->view->setEnabled(false);
+    ui->actionSave->setEnabled(false);
+    ui->actionSaveAs->setEnabled(false);
+
     createLibraryWidget();
     createInspectorWidget();
 
@@ -256,6 +260,10 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
 
     ui->view->setScene(m_scene);
 
+    ui->view->setEnabled(true);
+    ui->actionSave->setEnabled(true);
+    ui->actionSaveAs->setEnabled(true);
+
     connect(ui->actionStop, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
 
@@ -445,6 +453,41 @@ void plvgui::MainWindow::on_actionLoad_triggered()
     }
 }
 
+void plvgui::MainWindow::on_actionSave_triggered()
+{
+    if(this->m_pipeline.isNull())
+        return;
+
+
+    if(this->m_fileName.isEmpty())
+    {
+        // reroute to Save As to acquire filename
+        on_actionSaveAs_triggered();
+    }
+    else
+    {
+        save();
+    }
+}
+
+void plvgui::MainWindow::on_actionSaveAs_triggered()
+{
+    if(this->m_pipeline.isNull())
+        return;
+
+    // get filename
+    QString fileName = QFileDialog::getSaveFileName(this,
+                            tr("File to save pipeline to"),
+                            "",
+                            tr("ParleVision Pipeline (*.plv *.pipeline)"));
+    if(fileName.isEmpty())
+        return;
+
+    qDebug() << "User selected " << fileName;
+    m_fileName = fileName;
+    save();
+}
+
 void plvgui::MainWindow::on_actionNew_triggered()
 {
     MainWindow* win = this;
@@ -455,8 +498,8 @@ void plvgui::MainWindow::on_actionNew_triggered()
 
     RefPtr<Pipeline> pipeline = new Pipeline();
     pipeline->init();
+    win->setCurrentFile("");
     win->setPipeline(pipeline);
-
 }
 
 void MainWindow::documentChanged()
@@ -503,4 +546,14 @@ void plvgui::MainWindow::sceneSelectionChanged()
             m_inspectorWidget->nothingSelected();
         }
     }
+}
+
+void MainWindow::save()
+{
+    if(this->m_pipeline.isNull() || this->m_fileName.isNull())
+        return;
+
+    qDebug() << "Saving to " << m_fileName;
+    m_documentChanged = false;
+
 }
