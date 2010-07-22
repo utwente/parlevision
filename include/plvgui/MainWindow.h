@@ -67,6 +67,7 @@ namespace plvgui {
         // set the file belonging to the active pipeline;
         // empty string means no file
         void setCurrentFile(QString fileName);
+        void save();
         // create a new window
         MainWindow* newWindow();
 
@@ -80,6 +81,8 @@ namespace plvgui {
 
     private slots:
         // indicate the active document has changed
+        void on_actionSaveAs_triggered();
+        void on_actionSave_triggered();
         void documentChanged();
         void openRecentFile();
         void on_actionDelete_triggered();
