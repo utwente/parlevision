@@ -16,10 +16,19 @@ namespace plv
 
     class PinConnection : public RefCounted
     {
+        friend class Pipeline;
     public:
         PinConnection( IOutputPin* producer, IInputPin* consumer ) throw ( IncompatibleTypeException );
         ~PinConnection();
 
+        bool hasData();
+        int size();
+        RefPtr<Data> get() throw ( PipelineException );
+        void put( RefPtr<Data> data );
+        RefPtr<const IOutputPin> fromPin() const;
+        RefPtr<const IInputPin>  toPin() const;
+
+    protected:
         void connect() throw ( IncompatibleTypeException );
 
         /** Disconnect this connection from its pins
@@ -30,22 +39,10 @@ namespace plv
           */
         void disconnect();
 
-        bool hasData();
-        int size();
-        RefPtr<Data> get() throw ( PipelineException );
-        void put( RefPtr<Data> data );
-
-        RefPtr<const IOutputPin> fromPin() const;
-        RefPtr<const IInputPin>  toPin() const;
-
-    protected:
         RefPtr<IOutputPin> m_producer;
         RefPtr<IInputPin>  m_consumer;
-
         std::queue< RefPtr<Data> > m_queue;
-
         QMutex m_mutex;
-
     };
 }
 

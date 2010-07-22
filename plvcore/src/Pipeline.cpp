@@ -125,40 +125,32 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
 {
     RefPtr<PipelineElement> ple( element );
 
-    std::list< RefPtr<IInputPin> >* inputPins = ple->getInputPins();
-    std::list< RefPtr<IOutputPin> >* outputPins = ple->getOutputPins();
+    const PipelineElement::InputPinMap& inputPins = ple->getInputPins();
+    const PipelineElement::OutputPinMap& outputPins = ple->getOutputPins();
 
-    for( std::list< RefPtr<IInputPin> >::iterator itr = inputPins->begin()
-        ; itr!=inputPins->end(); ++itr)
+    for( PipelineElement::InputPinMap::const_iterator itr = inputPins.begin()
+        ; itr!=inputPins.end(); ++itr)
     {
-        RefPtr<IInputPin> ipp = *itr;
+        RefPtr<IInputPin> ipp = itr->second;
         if( ipp->isConnected() )
         {
             RefPtr<PinConnection> connection = ipp->getConnection();
-            disconnect( connection );
+            disconnect( connection.getPtr() );
         }
     }
 
-    for( std::list< RefPtr<IOutputPin> >::iterator itr = outputPins->begin()
-        ; itr!=outputPins->end(); ++itr)
+    for( PipelineElement::OutputPinMap::const_iterator itr = outputPins.begin()
+        ; itr!=outputPins.end(); ++itr)
     {
-        RefPtr<IOutputPin> opp = *itr;
+        RefPtr<IOutputPin> opp = itr->second;
 
-        if( opp->isConnected() )
+        const std::list< RefPtr<PinConnection> >& connections = opp->getConnections();
+        for( std::list< RefPtr<PinConnection> >::const_iterator itr = connections.begin();
+             itr!= connections.end(); ++itr )
         {
-            const std::list< RefPtr<PinConnection> >& connections = opp->getConnections();
-            for( std::list< RefPtr<PinConnection> >::const_iterator itr = connections.begin();
-                 itr!= connections.end(); ++itr )
-            {
-                disconnect( *itr );
-            }
+            disconnect( (*itr).getPtr() );
         }
     }
-
-
-    // TODO better to use automatic removal than this
-    delete inputPins;
-    delete outputPins;
 }
 
 const Pipeline::PipelineElementMap& Pipeline::getChildren() const
@@ -195,40 +187,42 @@ void Pipeline::removeAllConnections()
     {
         RefPtr<PinConnection> connection = *itr;
         assert(connection.isNotNull());
-        removeConnection(connection);
+
+        // TODO this should not compile! RefPtr to raw pointer implicit conversion
+        removeConnection( connection );
     }
 }
 
 void Pipeline::disconnect( PinConnection* connection )
 {
-    if(connection == 0)
+    if( connection == 0 )
     {
         qWarning() << "Ignoring disconnect of null connection";
         return;
     }
     RefPtr<PinConnection> conn( connection );
     conn->disconnect();
-    removeConnection(connection);
+    removeConnection( connection );
 }
 
 void Pipeline::removeConnection( PinConnection* connection )
 {
-    if(connection == 0)
+    RefPtr<PinConnection> con = connection;
+
+    if( con.isNull() )
     {
         qWarning() << "Ignoring removal of null connection";
         return;
     }
-    RefPtr<PinConnection> con1( connection );
 
     for( PipelineConnectionsList::iterator itr = m_connections.begin();
             itr != m_connections.end(); ++itr )
     {
         RefPtr<PinConnection> con2 = *itr;
-        if( con1.getPtr() == con2.getPtr() )
+        if( con.getPtr() == con2.getPtr() )
         {
-            RefPtr<PinConnection> conn = *itr;
             m_connections.erase( itr );
-            emit(connectionRemoved(conn));
+            emit( connectionRemoved( con ) );
             break;
         }
     }
@@ -241,19 +235,25 @@ bool Pipeline::init()
 
     // TODO make initialisation proper with exceptions and reporting of
     // processor which fails to initialize
-    if( itr.hasNext() )
+    // and not return true all the time
+    try
     {
-        itr.next();
-        RefPtr<PipelineElement> element = itr.value();
-        if(!m_initialized.contains(element->getId()))
+        if( itr.hasNext() )
         {
-            bool state = element->init();
-            if( !state )
-                return false;
-            else
+            itr.next();
+            RefPtr<PipelineElement> element = itr.value();
+            if( !m_initialized.contains(element->getId()) )
+            {
+                element->init();
                 m_initialized.insert(element->getId());
+            }
         }
     }
+    catch( PipelineException& e )
+    {
+        qDebug() << "FIXME: Exception caught in Pipeline::init()" << e.what();
+    }
+
     return true;
 }
 

@@ -72,11 +72,15 @@ void CameraProducer::newFrame( RefPtr<Data> frame )
     //m_frameReady.wakeAll();
 }
 
-bool CameraProducer::init()
+void CameraProducer::init() throw (PipelineException)
+{
+}
+
+void CameraProducer::start() throw (PipelineException)
 {
     if( !m_camera->init() )
     {
-        return false;
+        throw std::runtime_error("Camera failed to initialise");
     }
 
     m_camera->setDimensions( 640, 480 );
@@ -95,25 +99,18 @@ bool CameraProducer::init()
     // mutex was relocked by the condition
     // unlock it here
     m_frameMutex.unlock();
-
-    return true;
 }
 
-void CameraProducer::start()
+void CameraProducer::stop() throw (PipelineException)
 {
-    // TODO
+    m_camera->release();
 }
 
-void CameraProducer::stop()
-{
-    // TODO
-}
-
-bool CameraProducer::isBootstrapped() const
-{
-    // TODO
-    return true;
-}
+//bool CameraProducer::isBootstrapped() const
+//{
+//    // TODO
+//    return true;
+//}
 
 bool CameraProducer::isReadyForProcessing() const
 {

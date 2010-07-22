@@ -34,14 +34,13 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
     setFiltersChildEvents(false);
 
     // draw all inputpins
-    std::list< RefPtr<IInputPin> >* inPins = element->getInputPins();
+    const PipelineElement::InputPinMap& inPins = element->getInputPins();
     int y = 20;
     qreal leftColumnWidth = 0;
-    for(std::list< RefPtr<IInputPin> >::iterator itr = inPins->begin();
-        itr != inPins->end();
-        ++itr)
+    for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
+        ; itr!=inPins.end(); ++itr)
     {
-        RefPtr<IInputPin> pin = *itr;
+        RefPtr<IInputPin> pin = itr->second;
         assert(pin.isNotNull());
         PinWidget* pw = new PinWidget(this, pin);
         this->pinWidgets[pin.getPtr()] = pw;
@@ -50,28 +49,26 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         leftColumnWidth = max(pw->boundingRect().width(), leftColumnWidth);
         y+=10;
     }
-    delete inPins;
+
 
     leftColumnWidth = max(titleLabel->boundingRect().width()/2.0, leftColumnWidth);
 
     // outputpins should be aligned right.
     // in order to do this, we first make all the widgets,
     // then add them with proper translation.
-    std::list< RefPtr<IOutputPin> >* outPins = element->getOutputPins();
+    const PipelineElement::OutputPinMap& outPins = element->getOutputPins();
     QList<PinWidget*> outWidgets = QList<PinWidget*>();
     qreal maxWidth = 0;
-    for(std::list< RefPtr<IOutputPin> >::iterator itr = outPins->begin();
-        itr != outPins->end();
-        ++itr)
+    for( PipelineElement::OutputPinMap::const_iterator itr = outPins.begin()
+        ; itr!=outPins.end(); ++itr)
     {
-        RefPtr<IOutputPin> pin = *itr;
+        RefPtr<IOutputPin> pin = itr->second;
         assert(pin.isNotNull());
         PinWidget* pw = new PinWidget(this, pin);
         this->pinWidgets[pin.getPtr()] = pw;
         outWidgets.append(pw);
         maxWidth = max(pw->boundingRect().width(), maxWidth);
     }
-    delete outPins;
 
     y = 20;
     foreach(PinWidget* pw, outWidgets)

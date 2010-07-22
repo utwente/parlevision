@@ -21,12 +21,12 @@ namespace plv {
         CameraProducer(const CameraProducer&);
 
         /** inherited by PipelineProducer */
-        virtual void start();
-        virtual void stop();
+        virtual void start() throw (PipelineException);
+        virtual void stop() throw (PipelineException);
 
         /** inherited by PipelineElement */
-        virtual bool init();
-        virtual bool isBootstrapped() const;
+        virtual void init() throw (PipelineException);
+        //virtual bool isBootstrapped() const;
         virtual bool isReadyForProcessing() const;
         virtual void process();
 
