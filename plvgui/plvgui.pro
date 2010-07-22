@@ -2,6 +2,8 @@ TARGET = plvgui
 TEMPLATE = lib
 CONFIG += plugin
 
+DESTDIR= ../libs/
+
 DEPENDPATH += . \
               ..
               
@@ -75,4 +77,5 @@ FORMS += ../resources/mainwindow.ui \
     ../resources/inspectorwidget.ui \
     ../resources/viewerwidget.ui \
     ../resources/cameraconfigform.ui
+
 RESOURCES += ../resources/icons.qrc
