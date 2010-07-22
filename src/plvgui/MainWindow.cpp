@@ -95,9 +95,9 @@ bool MainWindow::event(QEvent* event)
         PinDoubleClickedEvent* pce = static_cast<PinDoubleClickedEvent*>(event);
         qDebug() << pce->getSource()->getPin()->getName();
         RefPtr<IOutputPin> pin = ref_ptr_dynamic_cast<IOutputPin>(pce->getSource()->getPin());
-        assert(pin.isNotNull());
         if(pin.isNotNull())
         {
+            // only show viewer for output pins
             showViewerForPin(pin);
         }
     }
