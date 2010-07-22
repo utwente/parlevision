@@ -77,6 +77,23 @@ QString PipelineLoader::serialize( Pipeline* pl )
             xmlProperty.appendChild( text );
             xmlProperties.appendChild( xmlProperty );
         }
+
+        {
+            QVariant xVal = ple->property("sceneCoordX");
+            QVariant yVal = ple->property("sceneCoordY");
+            if( xVal.isValid() && yVal.isValid() )
+            {
+                QDomElement xmlXValProperty = doc.createElement( "sceneCoordX" );
+                QDomText xValText = doc.createTextNode( xVal.toString() );
+                xmlXValProperty.appendChild( xValText );
+                xmlProperties.appendChild( xmlXValProperty );
+
+                QDomElement xmlYValProperty = doc.createElement( "sceneCoordY" );
+                QDomText yValText = doc.createTextNode( yVal.toString() );
+                xmlYValProperty.appendChild( yValText );
+                xmlProperties.appendChild( xmlYValProperty );
+            }
+        }
     }
 
     QDomElement xmlConnections = doc.createElement( "connections" );
@@ -146,7 +163,9 @@ RefPtr<Pipeline> PipelineLoader::deserialize( const QString& filename )
 
     QDomDocument doc;
     doc.setContent( &file );
-    return deserialize( &doc );
+    RefPtr<Pipeline> pl = deserialize( &doc );
+    file.close();
+    return pl;
 }
 
 RefPtr<Pipeline> PipelineLoader::deserialize( QDomDocument* document )
@@ -224,11 +243,13 @@ void PipelineLoader::parseElements( QDomNodeList* list, Pipeline* pipeline )
                 QString propertyValue = element.text();
 
                 // convert the data to a known QVariant datatype
+                // if the property is unknown it will add the property
+                // as string
                 QVariant data = convertData( propertyType(ple, propertyName), propertyValue );
 
                 qDebug() << "Found property with name: " << propertyName << " and value: " << data;
 
-                setProperty( ple, propertyName, data );
+                ple->setProperty( propertyName.toAscii().constData(), data );
             }
         }
     }
