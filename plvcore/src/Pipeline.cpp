@@ -273,6 +273,15 @@ void Pipeline::start()
     // TODO this is a hack to test
     init();
 
+
+    // TODO formalize this procedure (starting of pipeline) more!
+    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+    while( itr.hasNext() )
+    {
+        itr.next();
+        itr.value()->start();
+    }
+
     // TODO make thread safe
     // and ensure that pipeline cannot be started twice
     m_stopRequested = false;
@@ -281,6 +290,14 @@ void Pipeline::start()
 
 void Pipeline::stop()
 {
+    // TODO formalize this procedure (starting of pipeline) more!
+    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+    while( itr.hasNext() )
+    {
+        itr.next();
+        itr.value()->stop();
+    }
+
     m_stopRequested = true;
     //TODO more elegant solution here with QTimer
     while( m_running )
