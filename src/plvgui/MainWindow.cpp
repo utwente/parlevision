@@ -52,6 +52,9 @@ void MainWindow::initGUI()
     ui->view->setEnabled(false);
     ui->actionSave->setEnabled(false);
     ui->actionSaveAs->setEnabled(false);
+    ui->actionStart->setEnabled(false);
+    ui->actionPause->setEnabled(false);
+    ui->actionStop->setEnabled(false);
 
     createLibraryWidget();
     createInspectorWidget();
@@ -263,6 +266,9 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     ui->view->setEnabled(true);
     ui->actionSave->setEnabled(true);
     ui->actionSaveAs->setEnabled(true);
+    ui->actionStart->setEnabled(true);
+    ui->actionPause->setEnabled(true);
+    ui->actionStop->setEnabled(true);
 
     connect(ui->actionStop, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
