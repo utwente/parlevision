@@ -19,18 +19,21 @@ namespace plv
     class PipelineLoader
     {
     public:
-        static RefPtr<Pipeline> parsePipeline( const QString& filename )
+        static RefPtr<Pipeline> deserialize( const QString& filename )
             throw(std::runtime_error); /*TODO checked exceptions*/
 
-        static RefPtr<Pipeline> parsePipeline( QDomDocument* doc )
+        static RefPtr<Pipeline> deserialize( QDomDocument* doc )
             throw(std::runtime_error); /*TODO checked exceptions*/
 
-        static void pipelineToXML( Pipeline* pipeline )
+        static void serialize( const QString& filename, Pipeline* pipeline )
             throw(std::runtime_error); /*TODO checked exceptions*/
 
     private:
         PipelineLoader();
         ~PipelineLoader();
+
+        static QString serialize( Pipeline* pipeline )
+            throw(std::runtime_error); /*TODO checked exceptions*/
 
         static void parseElements( QDomNodeList* list, Pipeline* pipeline )
             throw(std::runtime_error); /*TODO checked exceptions*/

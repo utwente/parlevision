@@ -22,7 +22,20 @@ PipelineLoader::~PipelineLoader()
 
 }
 
-void PipelineLoader::pipelineToXML( Pipeline* pl )
+void PipelineLoader::serialize( const QString& filename, Pipeline* pipeline )
+    throw(std::runtime_error) /*TODO checked exceptions*/
+{
+    QFile file( filename );
+    if( !file.open(QIODevice::WriteOnly | QIODevice::Text ))
+    {
+        throw std::runtime_error (
+            QString( "Failed to open file " + filename).toStdString() );
+    }
+    QTextStream out(&file);
+    out << serialize( pipeline );
+}
+
+QString PipelineLoader::serialize( Pipeline* pl )
     throw(std::runtime_error) /*TODO checked exceptions*/
 {
     //RefPtr<Pipeline> pl = pipeline;
@@ -111,12 +124,11 @@ void PipelineLoader::pipelineToXML( Pipeline* pl )
         xmlSourcePinName.appendChild( xmlSourceNameText );
         xmlSourceId.appendChild( xmlSourceIdText );
     }
-
-    qDebug() << doc.toString();
+    return doc.toString();
 }
 
 
-RefPtr<Pipeline> PipelineLoader::parsePipeline( const QString& filename )
+RefPtr<Pipeline> PipelineLoader::deserialize( const QString& filename )
         throw(std::runtime_error) /*TODO checked exceptions*/
 {
     if( !QFile::exists( filename ) )
@@ -131,13 +143,13 @@ RefPtr<Pipeline> PipelineLoader::parsePipeline( const QString& filename )
         throw std::runtime_error (
             QString( "Failed to open file " + filename).toStdString() );
     }
-    //QXmlStreamReader xmlReader( &file );
+
     QDomDocument doc;
     doc.setContent( &file );
-    return parsePipeline( &doc );
+    return deserialize( &doc );
 }
 
-RefPtr<Pipeline> PipelineLoader::parsePipeline( QDomDocument* document )
+RefPtr<Pipeline> PipelineLoader::deserialize( QDomDocument* document )
     throw(std::runtime_error) /*TODO checked exceptions*/
 {
     RefPtr<Pipeline> pipeline = new Pipeline();

@@ -294,7 +294,7 @@ void MainWindow::loadFile(QString fileName)
     try
     {
         // this window did not yet have a pipeline loaded yet
-        RefPtr<Pipeline> pl = PipelineLoader::parsePipeline(fileName);
+        RefPtr<Pipeline> pl = PipelineLoader::deserialize(fileName);
         bool state = pl->init();
         qDebug() << "Loaded pipeline";
         assert(state);
