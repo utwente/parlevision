@@ -26,7 +26,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QScrollArea" name="scrollArea">
       <property name="sizePolicy">
@@ -75,13 +75,6 @@
         </size>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>Test</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <layout class="QVBoxLayout" name="container">
           <property name="sizeConstraint">
