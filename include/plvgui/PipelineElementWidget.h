@@ -49,6 +49,8 @@ namespace plvgui
         virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
         void addToGroup(QGraphicsItem* item);
         QHash<const plv::Pin*, PinWidget*> pinWidgets;
+    private slots:
+        void savePositionProperties();
     };
 }
 

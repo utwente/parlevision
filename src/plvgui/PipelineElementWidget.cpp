@@ -25,6 +25,9 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
     this->setFlag(QGraphicsItem::ItemIsMovable, true);
     this->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
+    connect(this, SIGNAL(xChanged()), this, SLOT(savePositionProperties()));
+    connect(this, SIGNAL(yChanged()), this, SLOT(savePositionProperties()));
+
     QGraphicsTextItem* titleLabel = new QGraphicsTextItem(element->getName(), this);
     this->addToGroup(titleLabel);
 
@@ -165,4 +168,10 @@ void PipelineElementWidget::paint(QPainter *painter, const QStyleOptionGraphicsI
 
     painter->setBrush(Qt::green);
     painter->drawRoundedRect(this->boundingRect(),8,8, Qt::AbsoluteSize);
+}
+
+void PipelineElementWidget::savePositionProperties()
+{
+    this->element->setProperty("sceneCoordX", this->scenePos().x());
+    this->element->setProperty("sceneCoordY", this->scenePos().y());
 }

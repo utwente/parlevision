@@ -492,6 +492,8 @@ void plvgui::MainWindow::on_actionSaveAs_triggered()
     qDebug() << "User selected " << fileName;
     m_fileName = fileName;
     save();
+    // this updates the window file path as well
+    setCurrentFile(fileName);
 }
 
 void plvgui::MainWindow::on_actionNew_triggered()
