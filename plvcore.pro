@@ -21,8 +21,9 @@ QT      += xml
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
 # -Wunused-variable
-INCLUDEPATH += include \
-    include/plvgui
+
+INCLUDEPATH += include/plvcore
+
 SOURCES += src/main.cpp \
     src/CameraProducer.cpp \
     src/Pin.cpp \
