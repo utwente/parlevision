@@ -2,7 +2,9 @@ TARGET = plvcore
 TEMPLATE = lib
 CONFIG += plugin
 
-DEPENDPATH += .
+DEPENDPATH +=   .\
+                ..
+
 include(../ParleVision.local)
 macx { 
     LIBS += -framework OpenCV
@@ -34,6 +36,8 @@ QT += xml
 
 INCLUDEPATH += ../include/plvcore
 
+DEFINES += PLVCORE_LIBRARY
+
 SOURCES += \
     src/CameraProducer.cpp \
     src/Pin.cpp \
@@ -49,7 +53,8 @@ SOURCES += \
     src/Pipeline.cpp \
     src/PipelineLoader.cpp \
 
-HEADERS += ../include/plvcore/Plugin.h \
+HEADERS += ../include/plvcore/plvcore_global.h \
+    ../include/plvcore/Plugin.h \
     ../include/plvcore/CameraProducer.h \
     ../include/plvcore/Pin.h \
     ../include/plvcore/PinConnection.h \
