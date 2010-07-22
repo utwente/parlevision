@@ -10,6 +10,9 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="allowedAreas">
+   <set>Qt::BottomDockWidgetArea</set>
+  </property>
   <property name="windowTitle">
    <string>Viewer</string>
   </property>

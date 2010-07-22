@@ -16,6 +16,9 @@
   <property name="whatsThis">
    <string>Element or Connection Inspector panel</string>
   </property>
+  <property name="allowedAreas">
+   <set>Qt::RightDockWidgetArea</set>
+  </property>
   <property name="windowTitle">
    <string>Inspector</string>
   </property>
