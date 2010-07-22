@@ -39,4 +39,6 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+DESTDIR=../libs/
+
 SOURCES += main.cpp

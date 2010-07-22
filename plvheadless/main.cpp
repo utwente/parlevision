@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     plvRegisterPipelineElement<plv::CameraProducer>("plv::CameraProducer", "Camera");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
 
-    if(argc < 1)
+    if(argc < 2)
     {
         cerr << "Usage: " << argv[0] << " path/to/pipeline.plv";
     }
