@@ -7,7 +7,7 @@ using namespace plv;
 using namespace plvgui;
 
 LibraryElement::LibraryElement(QString typeName, QWidget* parent)
-    : QWidget(parent),
+    : QLabel(parent),
     typeName(typeName),
     name(PipelineElement::nameForType(typeName))
 {
@@ -20,9 +20,7 @@ LibraryElement::LibraryElement(QString typeName, QWidget* parent)
 //        this->adjustSize();
     this->resize(100,40);
     this->setFixedHeight(40);
-    this->layout = new QVBoxLayout();
-    this->setLayout(layout);
-    this->layout->addWidget(new QLabel(this->name, this));
+    this->setText(this->name);
 }
 
 QSize LibraryElement::sizeHint() const
@@ -34,5 +32,3 @@ int LibraryElement::heightForWidth(int w) const
 {
     return 40;
 }
-
-

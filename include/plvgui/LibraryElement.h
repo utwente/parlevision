@@ -2,14 +2,11 @@
 #define LIBRARYELEMENT_H
 
 #include <QString>
-#include <QWidget>
+#include <QLabel>
 #include <QHBoxLayout>
 
-class QWidget;
-
-
 namespace plvgui {
-    class LibraryElement : public QWidget
+    class LibraryElement : public QLabel
     {
     public:
         LibraryElement(QString typeName, QWidget* parent);
@@ -23,7 +20,6 @@ namespace plvgui {
     private:
         QString typeName;
         QString name;
-        QVBoxLayout* layout;
     };
 }
 
