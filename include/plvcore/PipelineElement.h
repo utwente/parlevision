@@ -17,18 +17,19 @@ namespace plv
     class IOutputPin;
     class Pipeline;
 
-//    typedef enum _PlvPipelineElementState
-//    {
-//        PLV_PLE_STATE_UNINITIALIZED,
-//        PLV_PLE_STATE_NOT_READY,
-//        PLV_PLE_STATE_READY
-//    } PlvPipelineElementState;
-
     class PipelineElement : public QObject, public RefCounted
     {
         Q_OBJECT
 
     public:
+//        typedef enum _PlvPipelineElementState
+//        {
+//            UNINITIALIZED,
+//            READY,
+//            PROCESSING
+//        } PlvPipelineElementState;
+
+
         /** typedefs to make code more readable */
         typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
         typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
@@ -42,6 +43,9 @@ namespace plv
 
         /** map which contains the output pins identified and indexed by their name */
         OutputPinMap m_outputPins;
+
+//        /** mutex used to change state in a thread safe way */
+//        QMutex m_pleStateMutex;
 
     public:
         friend class Pipeline;
@@ -72,9 +76,10 @@ namespace plv
         virtual void start() throw (PipelineException) {}
         virtual void stop() throw (PipelineException) {}
 
-        /** @returns true when this PipelineElement is ready for procesing, which
-          * means that the process method is allowed to be called by the scheduler. This
-          * method is necessary to support processors which do not require input to be
+        /** @returns true when this PipelineElement is ready for procesing,
+          * which is when the process method is allowed to be called by the scheduler.
+          * This method is used by the scheduler to schedule processors
+          * and necessary to support processors which do not require input to be
           * available on all defined pins and hence makes it relatively easy to support
           * asynchronous events using normal pipeline connections. Also, processors could
           * be implemented as state machines, using pipeline connections as change of
@@ -95,7 +100,7 @@ namespace plv
 
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor
-          * are ready i.e. when isReadyForProcessing returns true.
+          * are ready i.e. when isReadyForProcessing returns a positive integer.
           */
         virtual void process() = 0;
 
@@ -140,7 +145,7 @@ namespace plv
         int pinsConnectionCount() const;
 
         /** @returns a list of names of input pins added to this PipelineElement */
-        std::list<QString>* getInputPinNames() const;
+        std::list<QString> getInputPinNames() const;
 
         /** @returns a list of inputpins */
         const InputPinMap& getInputPins() const;

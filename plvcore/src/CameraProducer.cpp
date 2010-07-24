@@ -51,18 +51,11 @@ CameraProducer::CameraProducer(const CameraProducer& other):
 void CameraProducer::process()
 {
     QMutexLocker lock(&m_frameMutex);
+    assert( m_lastFrame.isNotNull() );
+    m_outputPin->put( m_lastFrame.getPtr() );
 
-    if( m_lastFrame.isNotNull() )
-    {
-        m_outputPin->put( m_lastFrame.getPtr() );
-        //m_lastProcessedId = m_lastFrame->getId();
-    }
-    else
-    {
-        qDebug() << "WARNING: CameraProducer::process() called too early";
-    }
-
-//    qDebug() << "Pin type: " << m_outputPin->getTypeInfo().name();
+    // clear last frame so we do not process this image twice
+    m_lastFrame.set( 0 );
 }
 
 void CameraProducer::newFrame( RefPtr<Data> frame )
@@ -114,6 +107,5 @@ void CameraProducer::stop() throw (PipelineException)
 
 bool CameraProducer::isReadyForProcessing() const
 {
-    // TODO
-    return true;
+    return( m_lastFrame.isNotNull() );
 }

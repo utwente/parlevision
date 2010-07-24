@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <QStringBuilder>
 #include <list>
+#include <QtConcurrentRun>
+#include <QTime>
 
 #include "PipelineElement.h"
 #include "PipelineProcessor.h"
@@ -56,11 +58,11 @@ bool Pipeline::canAddElement( PipelineElement* child )
     return true;
 }
 
-void Pipeline::removeElement( PipelineElement* child )
-{
-    int id = child->getId();
-    m_children.remove( id );
-}
+//void Pipeline::removeElement( PipelineElement* child )
+//{
+//    int id = child->getId();
+//    m_children.remove( id );
+//}
 
 int Pipeline::getNewPipelineElementId()
 {
@@ -273,7 +275,6 @@ void Pipeline::start()
     // TODO this is a hack to test
     init();
 
-
     // TODO formalize this procedure (starting of pipeline) more!
     QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
     while( itr.hasNext() )
@@ -290,7 +291,7 @@ void Pipeline::start()
 
 void Pipeline::stop()
 {
-    // TODO formalize this procedure (starting of pipeline) more!
+    // TODO formalize this procedure (s of pipeline) more!
     QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
     while( itr.hasNext() )
     {
@@ -298,48 +299,109 @@ void Pipeline::stop()
         itr.value()->stop();
     }
 
-    m_stopRequested = true;
     //TODO more elegant solution here with QTimer
+    m_stopRequested = true;
     while( m_running )
     {
         usleep(100);
     }
 }
 
+void Pipeline::schedule( QMap< int, ScheduleInfo* >& schedule )
+{
+    QMapIterator< int, RefPtr<PipelineElement> > itr( m_children );
+    while( itr.hasNext() )
+    {
+        itr.next();
+        RefPtr<PipelineElement> element = itr.value();
+
+        ScheduleInfo* si;
+        QMap< int, ScheduleInfo* >::iterator itr2 = schedule.find( element->getId() );
+        if( itr2 != schedule.end() )
+        {
+            si = itr2.value();
+        }
+        else
+        {
+            si = new ScheduleInfo( element.getPtr() );
+            schedule.insert( element->getId(), si );
+        }
+    }
+}
+
+void Pipeline::runProcessor( ScheduleInfo* info )
+{
+    int id = info->getElement()->getId();
+
+    QTime t;
+    t.start();
+    info->getElement()->__process();
+    int elapsed = t.elapsed();
+    int avgTime = info->getAvgProcessingTime();
+    int nAvgTime = avgTime > 0 ? (int) ( elapsed * 0.1 ) + ( avgTime * 0.9 ) : elapsed;
+    info->setAvgProcessingTime( nAvgTime );
+
+    //qDebug(" Executed processor %i, time elapsed: %d ms", id , elapsed );
+
+    QMutexLocker lock( &m_schedulerMutex );
+    m_processing.remove( id );
+}
+
 void Pipeline::run()
 {
     m_running = true;
 
+    QMap< int, ScheduleInfo* > schedule;
+
     while(!m_stopRequested)
     {
-        QMapIterator< int, RefPtr<PipelineElement> > itr( m_children );
-        while( itr.hasNext() )
-        {
-            itr.next();
+        this->schedule( schedule );
 
-            RefPtr<PipelineElement> element = itr.value();
-            try
+        if( !schedule.isEmpty() )
+        {
+            QMapIterator< int, ScheduleInfo* > itr( schedule );
+            while( itr.hasNext() )
             {
-                element->__process();
-            }
-            catch( PipelineException& pe )
-            {
-                qDebug() << "Uncaught exception in PipelineElement::process()"
-                         << "of type PipelineException with message: " << pe.what();
-            }
-            catch( IllegalAccessException& iae )
-            {
-                qDebug() << "Uncaught exception in PipelineElement::process()"
-                         << "of type IllegalAccessException with message: " << iae.what();
-            }
-            catch( ... )
-            {
-                qDebug() << "Uncaught exception in PipelineElement::process()"
-                         << "of unknown type.";
+                try
+                {
+                    itr.next();
+                    ScheduleInfo* si = itr.value();
+                    RefPtr<PipelineElement> element = si->getElement();
+                    int id = element->getId();
+                    //qDebug() << "Scheduling processor " << element->getName() << " with count " << itr.key();
+
+                    QMutexLocker lock( &m_schedulerMutex );
+                    if( !m_processing.contains( id ) )
+                    {
+                        if( element->isReadyForProcessing() )
+                        {
+                            m_processing.insert( id );
+                            QtConcurrent::run( this, &Pipeline::runProcessor, si );
+                        }
+                    }
+                }
+                catch( PipelineException& pe )
+                {
+                    qDebug() << "Uncaught exception in PipelineElement::process()"
+                             << "of type PipelineException with message: " << pe.what();
+                }
+                catch( IllegalAccessException& iae )
+                {
+                    qDebug() << "Uncaught exception in PipelineElement::process()"
+                             << "of type IllegalAccessException with message: " << iae.what();
+                }
+                catch( ... )
+                {
+                    qDebug() << "Uncaught exception in PipelineElement::process()"
+                             << "of unknown type.";
+                }
             }
         }
-//        usleep(100);
-        usleep(1000000/40);
+        else
+        {
+            // nothing to do, sleep a little while
+            usleep( 0 );
+        }
     }
     m_running = false;
 }

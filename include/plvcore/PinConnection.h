@@ -16,6 +16,13 @@ namespace plv
 
     class PinConnection : public RefCounted
     {
+        enum ConnectionType {
+            LOSSLESS,
+            LOSSY_FIFO,
+            LOSSY_LIFO
+        };
+
+
         friend class Pipeline;
     public:
         PinConnection( IOutputPin* producer, IInputPin* consumer ) throw ( IncompatibleTypeException );
@@ -23,6 +30,7 @@ namespace plv
 
         bool hasData();
         int size();
+        inline ConnectionType getType();
         RefPtr<Data> get() throw ( PipelineException );
         void put( RefPtr<Data> data );
         RefPtr<const IOutputPin> fromPin() const;
@@ -42,8 +50,14 @@ namespace plv
         RefPtr<IOutputPin> m_producer;
         RefPtr<IInputPin>  m_consumer;
         std::queue< RefPtr<Data> > m_queue;
+        ConnectionType m_type;
         QMutex m_mutex;
     };
+}
+
+namespace plv
+{
+    PinConnection::ConnectionType PinConnection::getType() { return m_type; }
 }
 
 #endif // PINCONNECTION_H

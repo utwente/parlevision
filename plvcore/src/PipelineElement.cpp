@@ -20,10 +20,10 @@ PipelineElement::PipelineElement() : m_id( -1 )
 
 PipelineElement::~PipelineElement()
 {
-    if( m_parent != 0 )
-    {
-        m_parent->removeElement( this );
-    }
+//    if( m_parent != 0 )
+//    {
+//        m_parent->removeElement( this );
+//    }
 }
 
 PipelineElement::PipelineElement(const PipelineElement &other)
@@ -47,7 +47,7 @@ void PipelineElement::setPipeline( Pipeline* parent )
     {
         // switching pipelines.
         // remove ourself from the old pipeline first
-        m_parent->removeElement(this);
+        m_parent->removeElement( m_id );
     }
 
     m_parent = parent;
@@ -147,31 +147,19 @@ void PipelineElement::__process()
     }
 }
 
-std::list<QString>* PipelineElement::getInputPinNames() const
+std::list<QString> PipelineElement::getInputPinNames() const
 {
-    std::list<QString>* names = new std::list<QString>();
+    std::list<QString> names;
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
-        QString name = itr->first;
-        qDebug() << "listing " << name;
-        names->push_back(name);
+        names.push_back(itr->first);
     }
     return names;
 }
 
 const PipelineElement::InputPinMap& PipelineElement::getInputPins() const
 {
-//    std::list< RefPtr<IInputPin> >* pins = new std::list< RefPtr<IInputPin> >();
-
-//    for( InputPinMap::iterator itr = m_inputPins.begin();
-//         itr != m_inputPins.end(); ++itr )
-//    {
-//        RefPtr<IInputPin> pin = itr->second;
-//        assert(pin.isNotNull());
-//        pins->push_back(pin);
-//    }
-//    return pins;
     return m_inputPins;
 }
 
@@ -188,16 +176,6 @@ std::list<QString> PipelineElement::getOutputPinNames() const
 
 const PipelineElement::OutputPinMap& PipelineElement::getOutputPins() const
 {
-//    std::list< RefPtr<IOutputPin> >* pins = new std::list< RefPtr<IOutputPin> >();
-
-//    for( OutputPinMap::iterator itr = m_outputPins.begin();
-//         itr != m_outputPins.end(); ++itr )
-//    {
-//        RefPtr<IOutputPin> pin = itr->second;
-//        assert(pin.isNotNull());
-//        pins->push_back(pin);
-//    }
-//    return pins;
     return m_outputPins;
 }
 

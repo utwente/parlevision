@@ -9,7 +9,8 @@ using namespace plv;
 PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer )
     throw ( IncompatibleTypeException ) :
         m_producer( producer ),
-        m_consumer( consumer )
+        m_consumer( consumer ),
+        m_type( LOSSLESS )
 {
     assert(m_consumer.isNotNull());
     assert(m_producer.isNotNull());

@@ -7,6 +7,8 @@
 #include <QList>
 #include <QSet>
 #include <QThread>
+#include <QMutex>
+#include <QMutexLocker>
 
 #include "RefPtr.h"
 #include "RefCounted.h"
@@ -18,6 +20,7 @@ namespace plv
     class Pin;
     class IInputPin;
     class IOutputPin;
+    class ScheduleInfo;
 
     class Pipeline : public QThread, public RefCounted
     {
@@ -63,7 +66,7 @@ namespace plv
           * Caller should ensure the parent of the child is updated.
           * @emits elementAdded(child)
           */
-        void removeElement( PipelineElement* child );
+        //void removeElement( PipelineElement* child );
 
         /** Removes the PipelineElement with the given internal id from this pipeline.
           * The ID should be the one returned by add( PipelineElement* child );
@@ -109,6 +112,8 @@ namespace plv
     protected:
         PipelineElementMap m_children;
         PipelineConnectionsList m_connections;
+        QSet<int> m_processing;
+        QMutex m_schedulerMutex;
 
         /**
           * The QThread run loop
@@ -116,6 +121,9 @@ namespace plv
         virtual void run();
 
         int getNewPipelineElementId();
+
+        void schedule( QMap< int, ScheduleInfo* >& schedule );
+        void runProcessor( ScheduleInfo* info );
 
     private:
         bool m_stopRequested;
@@ -135,6 +143,35 @@ namespace plv
         void start();
         void stop();
 
+    };
+
+    class ScheduleInfo
+    {
+    protected:
+        RefPtr<PipelineElement> m_element;
+        int m_staticPriority;
+        int m_dynamicPriority;
+        int m_avgProcessingTime;
+
+    public:
+        ScheduleInfo( PipelineElement* pl, int priority = 0 ) :
+            m_element( pl ), m_staticPriority( priority )
+        {
+        }
+
+        void setStaticPriority( int priority ) { m_staticPriority = priority; }
+        int getStaticPriority() const { return m_staticPriority; }
+
+        void setDynamicPriority( int priority ) { m_dynamicPriority = priority; }
+        int getDynamicPriority() const { return m_dynamicPriority; }
+
+        PipelineElement* getElement() const { return m_element.getPtr(); }
+
+        int getAvgProcessingTime() const { return m_avgProcessingTime; }
+        void setAvgProcessingTime( int time ) { m_avgProcessingTime = time; }
+
+    private:
+        ScheduleInfo( const ScheduleInfo&) {}
     };
 }
 #endif // PIPELINE_H
