@@ -104,23 +104,12 @@ void Pipeline::removeElement( int id )
 
 void Pipeline::removeAllElements()
 {
-    // TODO is this correct
+    foreach( RefPtr<PipelineElement> element, m_children )
+    {
+        removeConnectionsForElement( element );
+        emit( elementRemoved(element) );
+    }
     m_children.clear();
-
-/*
-    // build list of ids as removing here would invalidate the map
-    std::list<int> ids;
-    for( PipelineElementMap::iterator itr = m_children.begin(); itr!=m_children.end(); ++itr )
-    {
-        ids.push_back(itr->first);
-    }
-
-    // remove them one by one
-    for(std::list<int>::iterator itr = ids.begin(); itr != ids.end(); ++itr)
-    {
-        remove(*itr);
-    }
-*/
 }
 
 void Pipeline::removeConnectionsForElement( PipelineElement* element )
