@@ -47,6 +47,8 @@ void MainWindow::initGUI()
     ui->setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
 
+    this->setWindowTitle("ParleVision - no pipeline");
+
     ui->view->setAcceptDrops(true);
 
     ui->view->setEnabled(false);
@@ -142,6 +144,7 @@ void MainWindow::setCurrentFile(QString fileName)
 
     if(fileName.isEmpty())
     {
+        this->setWindowTitle("Untitled");
         return;
     }
 
