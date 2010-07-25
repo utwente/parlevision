@@ -52,7 +52,8 @@ SOURCES += \
     src/InteractiveLine.cpp \
     src/ViewerWidget.cpp \
     src/CameraConfigFormBuilder.cpp \
-    src/ElementConfigFormBuilder.cpp
+    src/ElementConfigFormBuilder.cpp \
+    src/ImageWidget.cpp
 
 HEADERS += \
     ../include/plvgui/MainWindow.h \
@@ -71,7 +72,8 @@ HEADERS += \
     ../include/plvgui/InteractiveLine.h \
     ../include/plvgui/ViewerWidget.h \
     ../include/plvgui/ElementConfigFormBuilder.h \
-    ../include/plvgui/CameraConfigFormBuilder.h
+    ../include/plvgui/CameraConfigFormBuilder.h \
+    ../include/plvgui/ImageWidget.h
 
 FORMS += ../resources/mainwindow.ui \
     ../resources/librarywidget.ui \

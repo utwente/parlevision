@@ -23,7 +23,9 @@ namespace plv {
 
 using namespace plv;
 
-namespace plvgui {
+namespace plvgui
+{
+    class ImageWidget;
 
     class OpenCVImageRenderer : public DataRenderer
     {
@@ -34,7 +36,7 @@ namespace plvgui {
         virtual ~OpenCVImageRenderer() {}
 //        QSize sizeHint() const;
 //        int heightForWidth(int w) const;
-        void resizeEvent(QResizeEvent * /*resizeEvent*/);
+//        void resizeEvent(QResizeEvent * /*resizeEvent*/);
 
     protected:
         void showEvent(QShowEvent* event);
@@ -43,9 +45,11 @@ namespace plvgui {
     private:
         void putImage();
         void fixAspectRatio();
-        QLabel*         m_imagelabel;
-        QWidget*        m_constraintWidget;
+        //QLabel*         m_imagelabel;
+
         QVBoxLayout*    m_layout;
+        ImageWidget*    m_imageWidget;
+
         bool            m_busy;
         QMutex          m_busy_mutex;
         RefPtr<ImageConverter> m_converter;
@@ -55,13 +59,13 @@ namespace plvgui {
         void updateImage( RefPtr<QtImage> img );
     };
 
-    class ImageLabel : public QLabel
-    {
-    public:
-        ImageLabel(QWidget* parent);
-        QSize sizeHint() const;
-        QSize minimumSizeHint() const;
-        int heightForWidth(int w) const;
-    };
+//    class ImageLabel : public QLabel
+//    {
+//    public:
+//        ImageLabel(QWidget* parent);
+//        QSize sizeHint() const;
+//        QSize minimumSizeHint() const;
+//        int heightForWidth(int w) const;
+//    };
 }
 #endif // OpenCVImageRenderer_H
