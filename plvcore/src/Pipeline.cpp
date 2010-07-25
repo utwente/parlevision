@@ -117,8 +117,6 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
     RefPtr<PipelineElement> ple( element );
 
     const PipelineElement::InputPinMap& inputPins = ple->getInputPins();
-    const PipelineElement::OutputPinMap& outputPins = ple->getOutputPins();
-
     for( PipelineElement::InputPinMap::const_iterator itr = inputPins.begin()
         ; itr!=inputPins.end(); ++itr)
     {
@@ -130,6 +128,7 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
         }
     }
 
+    const PipelineElement::OutputPinMap& outputPins = ple->getOutputPins();
     for( PipelineElement::OutputPinMap::const_iterator itr = outputPins.begin()
         ; itr!=outputPins.end(); ++itr)
     {
@@ -165,23 +164,12 @@ void Pipeline::removeAllConnections()
 {
     assert( !m_running );
 
-    PipelineConnectionsList toRemove;
-    for( PipelineConnectionsList::iterator itr = m_connections.begin();
-            itr != m_connections.end(); ++itr )
+    foreach( RefPtr<PinConnection> connection, m_connections )
     {
-        RefPtr<PinConnection> connection = *itr;
-        toRemove.push_back(connection);
+        connection->disconnect();
+        emit( connectionRemoved( connection ) );
     }
-
-    for( PipelineConnectionsList::iterator itr = toRemove.begin();
-            itr != toRemove.end(); ++itr )
-    {
-        RefPtr<PinConnection> connection = *itr;
-        assert(connection.isNotNull());
-
-        // TODO this should not compile! RefPtr to raw pointer implicit conversion
-        removeConnection( connection );
-    }
+    m_connections.clear();
 }
 
 void Pipeline::disconnect( PinConnection* connection )
