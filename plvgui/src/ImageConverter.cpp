@@ -22,7 +22,7 @@ void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
     try
     {
         const IplImage* image = imgdata->getImage();
-        QImage* qImage = iplImageToQImage( image );
+        QImage qImage = iplImageToQImage( image );
         RefPtr<QtImage> qtimg = new QtImage( qImage );
         emit( converted( qtimg ) );
     }
@@ -33,10 +33,10 @@ void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
 
 }
 
-QImage* ImageConverter::iplImageToQImage( const IplImage* img )
+QImage ImageConverter::iplImageToQImage( const IplImage* img )
         throw( ImageConversionException )
 {
-    QImage* qimg = 0;
+    QImage qimg;
     QString errStr;
 
     const uchar* cvImgData;
@@ -57,15 +57,15 @@ QImage* ImageConverter::iplImageToQImage( const IplImage* img )
                 // OpenCV image is stored with one byte grey pixel.
                 // Convert it to an 8 bit indexed QImage.
                 // We add the index at the function exit
-                qimg = new QImage( img->width, img->height, QImage::Format_Indexed8 );
+                qimg = QImage( img->width, img->height, QImage::Format_Indexed8 );
                 cvImgData = reinterpret_cast<const uchar*>( img->imageData );
-                qImgData = const_cast<uchar*>( qimg->bits() );
-                bytesPerLine = qimg->bytesPerLine();
+                qImgData = const_cast<uchar*>( qimg.bits() );
+                bytesPerLine = qimg.bytesPerLine();
 
                 for( int y = 0; y < img->height; ++y )
                 {
                     // Copy line by line
-                    uchar* scanline = qimg->scanLine( y );
+                    uchar* scanline = qimg.scanLine( y );
                     memcpy( scanline, qImgData, img->width );
 
                     cvImgData += img->widthStep;
@@ -75,14 +75,14 @@ QImage* ImageConverter::iplImageToQImage( const IplImage* img )
             case 3:
                 // image is stored with 3 channels and one byte per pixel
                 // per channel. Convert to RGB32 which uses 4 bytes per pixel
-                qimg = new QImage( img->width, img->height, QImage::Format_RGB32 );
+                qimg = QImage( img->width, img->height, QImage::Format_RGB32 );
                 cvImgData = reinterpret_cast<const uchar*>( img->imageData );
 
                 for (int y = 0; y < img->height; ++y )
                 {
                     cvIndex = cvLineStart;
                     QRgb* scanline = reinterpret_cast<QRgb*>(
-                            qimg->scanLine( y ) );
+                            qimg.scanLine( y ) );
 
                     for (int x = 0; x < img->width; ++x )
                     {
@@ -153,9 +153,6 @@ QImage* ImageConverter::iplImageToQImage( const IplImage* img )
     }
     catch( ... )
     {
-        // clean up and propagate
-        if( qimg != 0 )
-            delete qimg;
         throw;
     }
 
@@ -166,7 +163,7 @@ QImage* ImageConverter::iplImageToQImage( const IplImage* img )
         {
             colorTable.push_back(qRgb(i, i, i));
         }
-        qimg->setColorTable(colorTable);
+        qimg.setColorTable(colorTable);
     }
 
     return qimg;

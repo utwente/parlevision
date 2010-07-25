@@ -46,7 +46,7 @@ namespace plvgui
         /** Converts an OpenCV iplImage to a QImage.
           * @throw ImageConversionException when conversion fails.
           */
-        static QImage* iplImageToQImage( const IplImage* img )
+        static QImage iplImageToQImage( const IplImage* img )
                 throw( ImageConversionException );
 
     signals:

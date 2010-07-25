@@ -95,8 +95,8 @@ void OpenCVImageRenderer::updateImage( RefPtr<QtImage> image )
 {
     //TODO better make this a separate mutex, but this will do for now
     QMutexLocker lock( &m_busy_mutex );
-    QImage* qImg = image->getImage();
-    QPixmap pixmap = QPixmap::fromImage(*qImg);
+    QImage qImg = image->getImage();
+    QPixmap pixmap = QPixmap::fromImage(qImg);
     QSize oldSize = m_imagelabel->sizeHint();
     m_imagelabel->setPixmap( pixmap );
 

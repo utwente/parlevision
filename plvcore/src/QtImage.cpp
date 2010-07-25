@@ -3,7 +3,7 @@
 
 using namespace plv;
 
-QtImage::QtImage( QImage* img ) :
+QtImage::QtImage( QImage img ) :
         Data(),
         m_img( img )
 {
@@ -11,13 +11,12 @@ QtImage::QtImage( QImage* img ) :
 
 QtImage::QtImage( const QtImage& other ) :
         Data(),
-        m_img( new QImage( *other.m_img ))
+        m_img( other.m_img )
 {
 }
 
 QtImage::~QtImage()
 {
-    delete m_img;
 }
 
 /** Compare two opencv images for type equality */
