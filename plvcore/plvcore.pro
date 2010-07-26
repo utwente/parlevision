@@ -27,7 +27,7 @@ DESTDIR = ../libs
 CONFIG(debug, debug|release):DEFINES += DEBUG
 
 QT += core
-#QT -= gui
+QT -= gui
 QT += xml
 
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
