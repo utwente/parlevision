@@ -249,13 +249,12 @@ void PipelineScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
                 }
                 catch(NonFatalException e)
                 {
-                    QMessageBox msgBox(QMessageBox::Critical,
-                                       QString("Error"),
-                                       QString(e.what()),
-                                       QMessageBox::Ok,
-                                       getMainWindow());
-                    msgBox.setWindowModality(Qt::WindowModal);
-                    msgBox.exec();
+                    MainWindow* mw = getMainWindow();
+
+                    if(mw)
+                        mw->handleMessage(QtCriticalMsg, e.what());
+                    else
+                        qCritical() << e.what();
                 }
             }
         }
@@ -362,4 +361,6 @@ MainWindow* PipelineScene::getMainWindow()
             return mw;
         }
     }
+
+    return 0;
 }

@@ -23,6 +23,8 @@ namespace plvgui {
     class LibraryWidget;
     class InspectorWidget;
     class PipelineScene;
+    class NonFatalException;
+    class FatalError;
 
     class MainWindow : public QMainWindow {
         Q_OBJECT
@@ -41,6 +43,9 @@ namespace plvgui {
         void loadFile(QString fileName);
 
         virtual bool event(QEvent * event);
+
+        void handleMessage(QtMsgType type, const char* msg);
+        void handleMessage(QtMsgType type, QString msg);
 
     public slots:
         void showViewersForElement(plv::RefPtr<plv::PipelineElement>);
@@ -67,6 +72,7 @@ namespace plvgui {
         // set the file belonging to the active pipeline;
         // empty string means no file
         void setCurrentFile(QString fileName);
+        void offerToSave();
         void save();
         // create a new window
         MainWindow* newWindow();
