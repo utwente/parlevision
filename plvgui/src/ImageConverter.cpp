@@ -1,11 +1,9 @@
 #include "ImageConverter.h"
+#include "OpenCVImage.h"
 
 #include <QImage>
 #include <QString>
 #include <QtConcurrentRun>
-
-#include "OpenCVImage.h"
-#include "QtImage.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -22,9 +20,8 @@ void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
     try
     {
         const IplImage* image = imgdata->getImage();
-        QImage qImage = iplImageToQImage( image );
-        RefPtr<QtImage> qtimg = new QtImage( qImage );
-        emit( converted( qtimg ) );
+        QImage qimage = iplImageToQImage( image );
+        emit( converted( qimage ) );
     }
     catch( ImageConversionException& e )
     {

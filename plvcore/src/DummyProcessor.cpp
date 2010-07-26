@@ -35,7 +35,11 @@ void DummyProcessor::init() throw (PipelineException)
 
 bool DummyProcessor::isReadyForProcessing() const
 {
-    return m_inputPin->getConnection()->hasData();
+    if( m_inputPin->isConnected() )
+    {
+        return m_inputPin->getConnection()->hasData();
+    }
+    return false;
 }
 
 //bool DummyProcessor::isBootstrapped() const

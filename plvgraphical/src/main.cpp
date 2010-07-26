@@ -5,7 +5,6 @@
 #include <QtConcurrentRun>
 
 #include "PipelineElement.h"
-
 #include "MainWindow.h"
 #include "ElementConfigFormBuilder.h"
 #include "CameraConfigFormBuilder.h"
@@ -17,7 +16,6 @@
 #include "RendererFactory.h"
 #include "Pin.h"
 #include "DataRenderer.h"
-#include "QtImage.h"
 #include "PipelineLoader.h"
 
 using namespace plv;
@@ -76,7 +74,7 @@ int main(int argc, char **argv)
 
     // register classes with Qt so they can be used in signals and slots
     qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
-    qRegisterMetaType< RefPtr<QtImage> >("RefPtr<QtImage>");
+    //qRegisterMetaType< RefPtr<QtImage> >("RefPtr<QtImage>");
     plvRegisterPipelineElement<plv::CameraProducer>("plv::CameraProducer", "Camera");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
     plvRegisterConfigFormBuilder<plvgui::CameraConfigFormBuilder>("plv::CameraProducer","plvgui::CameraConfigFormBuilder");
