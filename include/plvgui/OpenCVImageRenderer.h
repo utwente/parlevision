@@ -5,7 +5,6 @@
 #include <QLabel>
 
 #include "OpenCVImage.h"
-#include "QtImage.h"
 #include "RefPtr.h"
 #include "ImageConverter.h"
 #include "DataRenderer.h"
@@ -56,7 +55,7 @@ namespace plvgui
 
     public slots:
         virtual void newData( RefPtr<Data> data );
-        void updateImage( RefPtr<QtImage> img );
+        void updateImage( QImage img );
     };
 
 //    class ImageLabel : public QLabel

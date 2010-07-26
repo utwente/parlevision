@@ -1,15 +1,13 @@
 #ifndef IMAGECONVERTER_H
 #define IMAGECONVERTER_H
 
+#include "RefPtr.h"
+
 #include <QObject>
 #include <opencv/cv.h>
-
-#include "RefPtr.h"
-#include "QtImage.h"
-
 #include <stdexcept>
 
-class QImage;
+#include <QImage>
 
 namespace plv {
     class OpenCVImage;
@@ -53,7 +51,7 @@ namespace plvgui
         /** Emitted when converting is done.
           * The contained image might not be valid if an error occurred
           */
-        void converted( RefPtr<QtImage> img );
+        void converted( QImage img );
     };
 }
 

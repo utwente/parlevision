@@ -5,7 +5,6 @@
 
 #include "Types.h"
 #include "OpenCVImage.h"
-#include "QtImage.h"
 #include "RefPtr.h"
 #include "ImageConverter.h"
 #include "ImageWidget.h"
@@ -47,8 +46,8 @@ void OpenCVImageRenderer::showEvent(QShowEvent* event)
 {
     qDebug() << "connecting renderer";
 
-    connect(m_converter.getPtr(), SIGNAL( converted(RefPtr<QtImage>) ),
-             this,                 SLOT( updateImage(RefPtr<QtImage>) ),
+    connect(m_converter.getPtr(), SIGNAL( converted( QImage ) ),
+             this,                 SLOT( updateImage( QImage ) ),
              Qt::UniqueConnection);
 
     QWidget::showEvent(event);
@@ -83,11 +82,10 @@ void OpenCVImageRenderer::newData( RefPtr<Data> data )
     }
 }
 
-void OpenCVImageRenderer::updateImage( RefPtr<QtImage> image )
+void OpenCVImageRenderer::updateImage( QImage image )
 {
     //TODO better make this a separate mutex, but this will do for now
     QMutexLocker lock( &m_busy_mutex );
-    QImage qImg = image->getImage();
-    m_imageWidget->setImage( qImg );
+    m_imageWidget->setImage( image );
     m_busy = false;
 }
