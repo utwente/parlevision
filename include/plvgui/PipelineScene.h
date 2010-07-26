@@ -7,7 +7,7 @@
 #include "RefPtr.h"
 #include "Pipeline.h"
 #include "PinConnection.h"
-
+#include "Exceptions.h"
 
 class QObject;
 
@@ -24,6 +24,7 @@ namespace plvgui
     class PinWidget;
     class InteractiveLine;
     class ConnectionLine;
+    class MainWindow;
 
     /** A QGraphicsScene that wraps a Pipeline
       * to provide a graphical canvas for all the elements to live on.
@@ -95,7 +96,9 @@ namespace plvgui
 
     private:
         void clearLine();
-        void handleConnectionCreation(PinWidget* source, PinWidget* target);
+        void handleConnectionCreation(PinWidget* source, PinWidget* target)
+                throw (NonFatalException);
+        MainWindow* getMainWindow();
 
         plv::RefPtr<plv::Pipeline> m_pipeline;
         QHash<plv::PipelineElement*, PipelineElementWidget*> elementWidgets;

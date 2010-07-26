@@ -12,6 +12,7 @@
 #include "PlvExceptions.h"
 #include "PinClickedEvent.h"
 #include "PinWidget.h"
+#include "MainWindow.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -242,8 +243,20 @@ void PipelineScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
             if(pw != 0)
             {
                 mouseEvent->accept();
-
-                handleConnectionCreation(line->getFromPin(), pw);
+                try
+                {
+                    handleConnectionCreation(line->getFromPin(), pw);
+                }
+                catch(NonFatalException e)
+                {
+                    QMessageBox msgBox(QMessageBox::Critical,
+                                       QString("Error"),
+                                       QString(e.what()),
+                                       QMessageBox::Ok,
+                                       getMainWindow());
+                    msgBox.setWindowModality(Qt::WindowModal);
+                    msgBox.exec();
+                }
             }
         }
     }
@@ -264,24 +277,35 @@ void PipelineScene::clearLine()
 }
 
 void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* target)
+           throw (NonFatalException)
 {
     RefPtr<IOutputPin> fromPin = ref_ptr_dynamic_cast<IOutputPin>(source->getPin());
-    assert(fromPin.isNotNull());
+
+    if(fromPin.isNull())
+        throw NonFatalException("Cannot make connection: Source is not an output pin");
 
     RefPtr<IInputPin> toPin = ref_ptr_dynamic_cast<IInputPin>(target->getPin());
+
     if(toPin.isNull())
-    {
-        qWarning() << "Cannot make connection: Target is not an input pin";
-        return;
-    }
-    assert(toPin.isNotNull());
+        throw NonFatalException("Cannot make connection: Target is not an input pin");
 
     qDebug() << "Making connection "
             << fromPin->getOwner()->getName() << "/" << fromPin->getName()
             << " -> "
             << toPin->getOwner()->getName() << "/" << toPin->getName();
 
-    this->m_pipeline->connectPins(fromPin,toPin);
+    try
+    {
+        this->m_pipeline->connectPins(fromPin,toPin);
+    }
+    catch(IncompatibleTypeException e)
+    {
+        throw NonFatalException(e.what());
+    }
+    catch(DuplicateConnectionException e)
+    {
+        throw NonFatalException(e.what());
+    }
 }
 
 void PipelineScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
@@ -328,3 +352,14 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
     }
 }
 
+MainWindow* PipelineScene::getMainWindow()
+{
+    foreach(QWidget* tlw, QApplication::topLevelWidgets())
+    {
+        MainWindow* mw = qobject_cast<MainWindow*>(tlw);
+        if(mw != 0 && mw->isAncestorOf(this->views().first()))
+        {
+            return mw;
+        }
+    }
+}

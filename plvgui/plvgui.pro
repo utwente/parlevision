@@ -73,7 +73,8 @@ HEADERS += \
     ../include/plvgui/ViewerWidget.h \
     ../include/plvgui/ElementConfigFormBuilder.h \
     ../include/plvgui/CameraConfigFormBuilder.h \
-    ../include/plvgui/ImageWidget.h
+    ../include/plvgui/ImageWidget.h \
+    ../include/plvgui/Exceptions.h
 
 FORMS += ../resources/mainwindow.ui \
     ../resources/librarywidget.ui \

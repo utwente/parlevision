@@ -3,11 +3,12 @@
 #include "Pin.h"
 
 #include <QStringBuilder>
+#include <QString>
 
 using namespace plv;
 
 PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer )
-    throw ( IncompatibleTypeException ) :
+    throw ( IncompatibleTypeException, DuplicateConnectionException ) :
         m_producer( producer ),
         m_consumer( consumer ),
         m_type( LOSSLESS )
@@ -26,18 +27,17 @@ PinConnection::~PinConnection()
     assert( m_producer.isNull() );
 }
 
-void PinConnection::connect() throw (IncompatibleTypeException)
+void PinConnection::connect()
+        throw (IncompatibleTypeException, DuplicateConnectionException)
 {
     QMutexLocker lock( &m_mutex );
 
     assert(m_consumer.isNotNull());
     assert(m_producer.isNotNull());
 
-    m_producer->addConnection(this);
-
-    assert(!m_consumer->isConnected());
-    m_consumer->setConnection(this);
-    assert( m_consumer->isConnected() );
+    if(m_consumer->isConnected())
+        throw DuplicateConnectionException(
+                QString(m_consumer->getName() + " is already connected").toStdString());
 
     const std::type_info& producerTypeInfo = m_producer->getTypeInfo();
     const std::type_info& consumerTypeInfo = m_consumer->getTypeInfo();
@@ -57,6 +57,11 @@ void PinConnection::connect() throw (IncompatibleTypeException)
 
         throw IncompatibleTypeException( errStr.toStdString() );
     }
+
+    m_producer->addConnection(this);
+
+    m_consumer->setConnection(this);
+    assert( m_consumer->isConnected() );
 }
 
 void PinConnection::disconnect()

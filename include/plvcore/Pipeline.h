@@ -87,7 +87,8 @@ namespace plv
         /** Create a PinConnnection between the given InputPin and outputPin
           * @emits connectionAdded(connection)
           */
-        void connectPins( IOutputPin* outputPin, IInputPin* inputPin );
+        void connectPins( IOutputPin* outputPin, IInputPin* inputPin )
+                throw ( IncompatibleTypeException, DuplicateConnectionException );
 
         /** Disconnects and removes a single connection.
           * Quite slow O(N) since it traverses a linked list.
