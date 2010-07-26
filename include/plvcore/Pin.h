@@ -273,7 +273,6 @@ namespace plv
             RefPtr<T> typedData = ref_ptr_dynamic_cast<T>( data );
             if( typedData.isNull() )
             {
-               //return 0;
                throw PipelineException( "Data delivered to pin of incomaptible type " );
             }
 #else
@@ -297,22 +296,15 @@ namespace plv
             this->m_connection = connection;
         }
 
-        virtual void removeConnection( PinConnection* connection )
-        {
-            assert( connection != 0 );
-            assert( connection == m_connection );
-
-            // clear connection
-            m_connection.set( 0 );
-        }
-
         virtual void removeConnection()
         {
+            assert( m_connection.isNotNull() );
             m_connection.set( 0 );
         }
 
         virtual PinConnection* getConnection() const
         {
+            assert( m_connection.isNotNull() );
             return m_connection.getPtr();
         }
 
