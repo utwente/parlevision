@@ -24,6 +24,7 @@ using namespace plvgui;
 #include <QDir>
 #include <QPluginLoader>
 #include "Plugin.h"
+
 void loadPlugins(QApplication* app)
  {
      QDir pluginsDir(app->applicationDirPath());
@@ -51,6 +52,7 @@ void loadPlugins(QApplication* app)
      {
          qDebug() << "Trying " << fileName;
          QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+         bool loaded = pluginLoader.load();
          QObject *plugin = pluginLoader.instance();
          if (plugin)
          {
@@ -59,6 +61,16 @@ void loadPlugins(QApplication* app)
              {
                  thePlugin->onLoad();
              }
+             else
+             {
+                 qWarning() << "Plugin library " << fileName
+                         << " is not a valid plugin: " << pluginLoader.errorString();
+             }
+         }
+         else
+         {
+             qWarning() << "Failed to load plugin " << fileName;
+             qWarning() << "Reason: " << pluginLoader.errorString();
          }
      }
  }
