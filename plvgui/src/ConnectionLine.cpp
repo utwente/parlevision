@@ -22,17 +22,7 @@ ConnectionLine::ConnectionLine(PinWidget* fromPin,
 {
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemIsMovable, false);
-    setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-}
-
-QRectF ConnectionLine::boundingRect() const
-{
-    qreal extra = (pen().width() + 20) / 2.0;
-
-    return QRectF(line().p1(), QSizeF(line().p2().x() - line().p1().x(),
-                                      line().p2().y() - line().p1().y()))
-        .normalized()
-        .adjusted(-extra, -extra, extra, extra);
+    setPen(QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 }
 
 QPainterPath ConnectionLine::shape() const
@@ -52,15 +42,10 @@ void ConnectionLine::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem* style,
                            QWidget * w)
 {
-    // find the centers of the circles to use as coordinates for the line
-    qreal width = fromPin->getCircle()->boundingRect().width();
-    QPointF p1 = QPointF(fromPin->getCircle()->scenePos())
-                    + QPointF(width/2.0,width/2.0);
 
-    QPointF p2 = QPointF(toPin->getCircle()->scenePos())
-                    + QPointF(width/2.0,width/2.0);
+    QLineF line(fromPin->getCircle()->mapToScene(fromPin->getCircle()->getCenter()),
+                toPin->getCircle()->mapToScene(toPin->getCircle()->getCenter()));
 
-    QLineF line(p1, p2);
     setLine(line);
     QGraphicsLineItem::paint(painter, style, w);
 

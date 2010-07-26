@@ -15,11 +15,11 @@ InteractiveLine::InteractiveLine(PinWidget* fromPin,
                                    : QObject(scene),
                                    QGraphicsLineItem(parent, scene),
                                    fromPin(fromPin),
-                                   targetPos(fromPin->getCircle()->scenePos())
+                                   targetPos(fromPin->getCircle()->mapToScene(fromPin->getCircle()->getCenter()))
 {
     setFlag(QGraphicsItem::ItemIsSelectable, false);
     setFlag(QGraphicsItem::ItemIsMovable, false);
-    setPen(QPen(Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    setPen(QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 }
 
 QRectF InteractiveLine::boundingRect() const
@@ -43,13 +43,8 @@ void InteractiveLine::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem* style,
                            QWidget * w)
 {
-    // find the centers of the circles to use as coordinates for the line
-    qreal width = fromPin->getCircle()->boundingRect().width();
-    QPointF p1 = QPointF(fromPin->getCircle()->scenePos())
-                    + QPointF(width/2.0,width/2.0);
-
-
-    QLineF line(p1, this->targetPos);
+    QLineF line(fromPin->getCircle()->mapToScene(fromPin->getCircle()->getCenter()),
+                this->targetPos);
     setLine(line);
     QGraphicsLineItem::paint(painter, style, w);
 

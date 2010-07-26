@@ -41,9 +41,9 @@ void PinWidget::init(bool isInput=true)
     assert(m_pin.isNotNull());
     QGraphicsTextItem* label = new QGraphicsTextItem(m_pin->getName());
 
-    this->circle = new QGraphicsEllipseItem(0,0,7,7,this);
+    this->circle = new PinCircle(0,0,20,20,this);
 
-    this->circle->translate(0, 10);
+    this->circle->translate(0, 4.0);
 
     if(isInput)
     {
@@ -108,7 +108,7 @@ void PinWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     QGraphicsItemGroup::mouseReleaseEvent(event);
 }
 
-void PinWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+void PinWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*)
 {
     // This will never get triggered due to a quirk in Qt
     // that does not allow us to have both default behaviour
@@ -148,3 +148,23 @@ void PinWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->drawRect(this->boundingRect());
 }
 */
+
+PinCircle::PinCircle(qreal x, qreal y, qreal width, qreal height, PinWidget* parent)
+    : QGraphicsEllipseItem(x+(width-7)/2.0, y+(height-7)/2.0, 7, 7, parent),
+    m_pin(parent->getPin()),
+    m_width(width),
+    m_height(height)
+{
+}
+
+QPainterPath PinCircle::shape() const
+{
+    QPainterPath path;
+    path.addRect(0, 0, m_width,m_height);
+    return path;
+}
+
+QPointF PinCircle::getCenter() const
+{
+    return QPointF(m_width/2.0, m_height/2.0);
+}
