@@ -67,7 +67,7 @@ void ConnectionLine::paint(QPainter *painter,
         painter->drawLine(line);
 
         QPen whitePen = this->pen();
-        whitePen.setColor(Qt::lightGray);
+        whitePen.setColor(Qt::white);
         painter->setPen(whitePen);
         painter->drawLine(line);
     }
