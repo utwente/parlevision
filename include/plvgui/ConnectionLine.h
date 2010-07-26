@@ -42,6 +42,7 @@ namespace plvgui
                               QGraphicsScene *scene);
 
         QPainterPath shape() const;
+        QRectF boundingRect() const;
         RefPtr<PinConnection> getPinConnection() const { return connection; }
 
     public slots:
