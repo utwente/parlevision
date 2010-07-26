@@ -28,6 +28,9 @@ namespace plvgui
     /** A QGraphicsScene that wraps a Pipeline
       * to provide a graphical canvas for all the elements to live on.
       * This is only the model, it needs a QGraphicsView to render.
+      *
+      * The PipelineScene also handles all interaction with its contents,
+      * such as adding, removing, selecting and changing elements and connections.
       */
     class PipelineScene : public QGraphicsScene
     {
