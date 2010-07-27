@@ -44,6 +44,13 @@ namespace plv
             : std::runtime_error(msg) {}
     };
 
+    class DuplicateConnectionException : public std::runtime_error
+    {
+    public:
+        DuplicateConnectionException(std::string msg)
+            : std::runtime_error(msg) {}
+    };
+
 //    class DataFormatException : public PipelineException
 //    {
 //    public:

@@ -13,6 +13,8 @@
 #include "PinConnection.h"
 #include "Scheduler.h"
 
+#include "PlvExceptions.h"
+
 using namespace plv;
 
 Pipeline::Pipeline() :
@@ -157,6 +159,7 @@ const Pipeline::PipelineConnectionsList& Pipeline::getConnections() const
 }
 
 void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
+        throw (IncompatibleTypeException, DuplicateConnectionException)
 {
     RefPtr<PinConnection> connection = new PinConnection(outputPin, inputPin);
     m_connections.push_back(connection);

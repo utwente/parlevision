@@ -574,3 +574,62 @@ void MainWindow::save()
     }
 
 }
+
+void MainWindow::handleMessage(QtMsgType type, const char* msg)
+{
+    handleMessage(type, QString(msg));
+}
+
+void MainWindow::handleMessage(QtMsgType type, QString msg)
+{
+    QMessageBox msgBox(QMessageBox::Critical,
+                       QString("Error"),
+                       msg,
+                       QMessageBox::Ok,
+                       this);
+    msgBox.setWindowModality(Qt::WindowModal);
+
+    QErrorMessage errorDialog(this);
+    errorDialog.setWindowModality(Qt::WindowModal);
+
+    switch (type) {
+    case QtDebugMsg:
+        break;
+    case QtWarningMsg:
+        errorDialog.showMessage(msg);
+        errorDialog.exec();
+        break;
+    case QtCriticalMsg:
+        errorDialog.showMessage("Error: " + QString(msg));
+        errorDialog.exec();
+        break;
+    case QtFatalMsg:
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setText("Fatal Error: " + QString(msg)
+                                + "\nThe application will now close");
+        msgBox.exec();
+
+        this->offerToSave();
+        QApplication::exit();
+    }
+}
+
+void MainWindow::offerToSave()
+{
+    if(this->m_pipeline.isNull())
+        return;
+
+    QMessageBox msgBox(QMessageBox::Question,
+                       QString("Save"),
+                       tr("Would you like to save before closing?"),
+                       QMessageBox::Save | QMessageBox::Discard,
+                       this);
+    msgBox.setWindowModality(Qt::WindowModal);
+
+    int result = msgBox.exec();
+
+    if(result == QDialog::Accepted)
+    {
+        on_actionSave_triggered();
+    }
+}

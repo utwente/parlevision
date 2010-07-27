@@ -20,6 +20,7 @@ namespace plvgui
 {
     class MainWindow;
     class PipelineElementWidget;
+    class PinCircle;
 
     class PinWidget : public QObject, public QGraphicsItemGroup
     {
@@ -30,7 +31,7 @@ namespace plvgui
         PinWidget(PipelineElementWidget* parent, RefPtr<IOutputPin> p);
         virtual QRectF boundingRect() const;
         RefPtr<Pin> getPin() const {return m_pin;}
-        const QGraphicsItem* getCircle() const {return circle;}
+        const PinCircle* getCircle() const {return circle;}
         void handleMouseDoubleClick();
 
     protected:
@@ -46,8 +47,20 @@ namespace plvgui
         PipelineElementWidget* m_parent;
         RefPtr<Pin> m_pin;
         void init(bool isInput);
-        QGraphicsEllipseItem* circle;
+        PinCircle* circle;
 //        MainWindow* findMainWindow(QWidget*);
+    };
+
+
+    class PinCircle : public QGraphicsEllipseItem
+    {
+    public:
+        PinCircle(qreal x, qreal y, qreal width, qreal height, PinWidget* parent);
+        virtual QPainterPath shape() const;
+        QPointF getCenter() const;
+    private:
+        RefPtr<Pin> m_pin;
+        qreal m_width, m_height;
     };
 }
 
