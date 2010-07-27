@@ -49,15 +49,18 @@ namespace plv
           * the TypedPin sub class.
           */
         virtual const std::type_info& getTypeInfo() const = 0;
-
-        //virtual void removeConnection( PinConnection* connection ) = 0;
     };
 
     class IInputPin : public Pin
     {
-    public:
-        IInputPin( const QString& name, PipelineElement* owner ) :
-                Pin( name, owner )
+   public:
+        enum InputPinType {
+            OPTIONAL,
+            REQUIRED
+        };
+
+        IInputPin( const QString& name, PipelineElement* owner, InputPinType type = REQUIRED ) :
+                Pin( name, owner ), m_type( type )
         {
         }
 
@@ -76,7 +79,10 @@ namespace plv
         virtual void removeConnection() = 0;
         virtual PinConnection* getConnection() const = 0;
 
+        InputPinType getType() const { return m_type; }
+
     protected:
+        InputPinType m_type;
         std::stack< RefPtr<Data> > m_scope;
     };
 
@@ -216,8 +222,8 @@ namespace plv
     class InputPin : public IInputPin
     {
     public:
-        InputPin( const QString& name, PipelineElement* owner ) :
-                IInputPin( name, owner ) {}
+        InputPin( const QString& name, PipelineElement* owner, InputPinType type = REQUIRED ) :
+                IInputPin( name, owner, type ) {}
 
         virtual void scope()
         {
@@ -260,7 +266,6 @@ namespace plv
         {
             if( !(this->m_connection.isNotNull() && this->m_connection->hasData() ))
             {
-                //return 0;
                 throw PipelineException( "Illegal: method get() called on pin which has no data available" );
             }
 

@@ -3,12 +3,14 @@
 
 #include <map>
 #include <list>
+
 #include <QMap>
 #include <QList>
 #include <QSet>
 #include <QThread>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QTime>
 
 #include "RefPtr.h"
 #include "RefCounted.h"
@@ -20,7 +22,7 @@ namespace plv
     class Pin;
     class IInputPin;
     class IOutputPin;
-    class ScheduleInfo;
+    class Scheduler;
 
     class Pipeline : public QThread, public RefCounted
     {
@@ -123,11 +125,12 @@ namespace plv
         int getNewPipelineElementId();
 
         void schedule( QMap< int, ScheduleInfo* >& schedule );
-        void runProcessor( ScheduleInfo* info );
+        ScheduleInfo* runProcessor( ScheduleInfo* info );
 
     private:
         bool m_stopRequested;
         bool m_running;
+        Scheduler* m_scheduler;
         QSet<int> m_initialized;
 
     signals:
@@ -143,35 +146,6 @@ namespace plv
         void start();
         void stop();
 
-    };
-
-    class ScheduleInfo
-    {
-    protected:
-        RefPtr<PipelineElement> m_element;
-        int m_staticPriority;
-        int m_dynamicPriority;
-        int m_avgProcessingTime;
-
-    public:
-        ScheduleInfo( PipelineElement* pl, int priority = 0 ) :
-            m_element( pl ), m_staticPriority( priority )
-        {
-        }
-
-        void setStaticPriority( int priority ) { m_staticPriority = priority; }
-        int getStaticPriority() const { return m_staticPriority; }
-
-        void setDynamicPriority( int priority ) { m_dynamicPriority = priority; }
-        int getDynamicPriority() const { return m_dynamicPriority; }
-
-        PipelineElement* getElement() const { return m_element.getPtr(); }
-
-        int getAvgProcessingTime() const { return m_avgProcessingTime; }
-        void setAvgProcessingTime( int time ) { m_avgProcessingTime = time; }
-
-    private:
-        ScheduleInfo( const ScheduleInfo&) {}
     };
 }
 #endif // PIPELINE_H

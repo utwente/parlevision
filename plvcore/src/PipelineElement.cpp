@@ -234,3 +234,23 @@ QString PipelineElement::nameForType(QString typeName)
 {
     return PipelineElement::s_names[typeName];
 }
+
+int PipelineElement::maxInputQueueSize() const
+{
+    const PipelineElement::InputPinMap& inputs = this->getInputPins();
+    int maxQueueSize = 0;
+
+    for( PipelineElement::InputPinMap::const_iterator itr = inputs.begin(); itr!=inputs.end(); ++itr )
+    {
+        int queueSize = 0;
+
+        IInputPin* inputPin = itr->second;
+        if( inputPin->isConnected() )
+        {
+            queueSize = inputPin->getConnection()->size();
+        }
+
+        if( queueSize > maxQueueSize ) maxQueueSize = queueSize;
+    }
+    return maxQueueSize;
+}

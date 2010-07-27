@@ -46,6 +46,7 @@ namespace plv {
 
     private:
         InputPin<OpenCVImage>* m_inputPin;
+        InputPin<OpenCVImage>* m_inputPinOptional;
         OutputPin<OpenCVImage>* m_outputPin;
 
         int m_someInt;

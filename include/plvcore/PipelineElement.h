@@ -16,20 +16,13 @@ namespace plv
     class IInputPin;
     class IOutputPin;
     class Pipeline;
+    class ScheduleInfo;
 
     class PipelineElement : public QObject, public RefCounted
     {
         Q_OBJECT
 
     public:
-//        typedef enum _PlvPipelineElementState
-//        {
-//            UNINITIALIZED,
-//            READY,
-//            PROCESSING
-//        } PlvPipelineElementState;
-
-
         /** typedefs to make code more readable */
         typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
         typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
@@ -49,6 +42,7 @@ namespace plv
 
     public:
         friend class Pipeline;
+        friend class ScheduleInfo;
 
         /*************** BEGIN PUBLIC API ******************/
 
@@ -178,6 +172,12 @@ namespace plv
           * @return a human readable name for the type
           */
         static QString nameForType(QString typeName);
+
+        /** Returns the largest queue size of the connections connected
+          * to the input pins. Returns 0 when there are no input pins with
+          * a connection.
+          */
+        int maxInputQueueSize() const;
 
     protected:
         RefPtr<Pipeline> m_parent;

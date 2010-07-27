@@ -11,18 +11,21 @@
 #include "PipelineProducer.h"
 #include "Pin.h"
 #include "PinConnection.h"
+#include "Scheduler.h"
 
 using namespace plv;
 
 Pipeline::Pipeline() :
         m_stopRequested( false ),
-        m_running( false )
+        m_running( false ),
+        m_scheduler( new Scheduler( this ) )
 {
 }
 
 Pipeline::~Pipeline()
 {
     assert( !m_running );
+    delete m_scheduler;
 }
 
 int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentException)
@@ -284,101 +287,78 @@ void Pipeline::stop()
     }
 }
 
-void Pipeline::schedule( QMap< int, ScheduleInfo* >& schedule )
-{
-    QMapIterator< int, RefPtr<PipelineElement> > itr( m_children );
-    while( itr.hasNext() )
-    {
-        itr.next();
-        RefPtr<PipelineElement> element = itr.value();
-
-        ScheduleInfo* si;
-        QMap< int, ScheduleInfo* >::iterator itr2 = schedule.find( element->getId() );
-        if( itr2 != schedule.end() )
-        {
-            si = itr2.value();
-        }
-        else
-        {
-            si = new ScheduleInfo( element.getPtr() );
-            schedule.insert( element->getId(), si );
-        }
-    }
-}
-
-void Pipeline::runProcessor( ScheduleInfo* info )
-{
-    int id = info->getElement()->getId();
-
-    QTime t;
-    t.start();
-    info->getElement()->__process();
-    int elapsed = t.elapsed();
-    int avgTime = info->getAvgProcessingTime();
-    int nAvgTime = avgTime > 0 ? (int) ( elapsed * 0.1 ) + ( avgTime * 0.9 ) : elapsed;
-    info->setAvgProcessingTime( nAvgTime );
-
-    //qDebug(" Executed processor %i, time elapsed: %d ms", id , elapsed );
-
-    QMutexLocker lock( &m_schedulerMutex );
-    m_processing.remove( id );
-}
-
 void Pipeline::run()
 {
     m_running = true;
 
-    QMap< int, ScheduleInfo* > schedule;
+
+    m_scheduler->setActiveThreadCount( 8 );
 
     while(!m_stopRequested)
     {
-        this->schedule( schedule );
-
-        if( !schedule.isEmpty() )
-        {
-            QMapIterator< int, ScheduleInfo* > itr( schedule );
-            while( itr.hasNext() )
-            {
-                try
-                {
-                    itr.next();
-                    ScheduleInfo* si = itr.value();
-                    RefPtr<PipelineElement> element = si->getElement();
-                    int id = element->getId();
-                    //qDebug() << "Scheduling processor " << element->getName() << " with count " << itr.key();
-
-                    QMutexLocker lock( &m_schedulerMutex );
-                    if( !m_processing.contains( id ) )
-                    {
-                        if( element->isReadyForProcessing() )
-                        {
-                            m_processing.insert( id );
-                            QtConcurrent::run( this, &Pipeline::runProcessor, si );
-                        }
-                    }
-                }
-                catch( PipelineException& pe )
-                {
-                    qDebug() << "Uncaught exception in PipelineElement::process()"
-                             << "of type PipelineException with message: " << pe.what();
-                }
-                catch( IllegalAccessException& iae )
-                {
-                    qDebug() << "Uncaught exception in PipelineElement::process()"
-                             << "of type IllegalAccessException with message: " << iae.what();
-                }
-                catch( ... )
-                {
-                    qDebug() << "Uncaught exception in PipelineElement::process()"
-                             << "of unknown type.";
-                }
-            }
-        }
-        else
-        {
-            // nothing to do, sleep a little while
-            usleep( 0 );
-        }
+        m_scheduler->schedule();
     }
+
     m_running = false;
+
+//        if( !schedule.isEmpty() )
+//        {
+//            QSet<ScheduleInfo*> scheduled;
+//            QMapIterator< int, ScheduleInfo* > itr( schedule );
+//            while( itr.hasNext() )
+//            {
+//                try
+//                {
+//                    itr.next();
+//                    ScheduleInfo* si = itr.value();
+//                    RefPtr<PipelineElement> element = si->getElement();
+//                    int id = element->getId();
+
+//                    QMutexLocker lock( &m_schedulerMutex );
+//                    if( si->updateAndGetState() == ScheduleInfo::READY )
+//                    {
+//                        m_processing.insert( id );
+//                        scheduled.insert( si );
+////                        //int activeThreads = QThreadPool::globalInstance()->activeThreadCount();
+////                        while( QThreadPool::globalInstance()->activeThreadCount() == QThreadPool::globalInstance()->maxThreadCount() )
+////                        {
+////                            qDebug() << "Max thread count reached ("
+////                                    << QThreadPool::globalInstance()->activeThreadCount()
+////                                    << "), sleeping.";
+////                            usleep( 100 );
+////                        }
+//                        QFuture<ScheduleInfo*> info = QtConcurrent::run( this, &Pipeline::runProcessor, si );
+//                    }
+//                }
+//                catch( PipelineException& pe )
+//                {
+//                    qDebug() << "Uncaught exception in PipelineElement::process()"
+//                             << "of type PipelineException with message: " << pe.what();
+//                }
+//                catch( IllegalAccessException& iae )
+//                {
+//                    qDebug() << "Uncaught exception in PipelineElement::process()"
+//                             << "of type IllegalAccessException with message: " << iae.what();
+//                }
+//                catch( ... )
+//                {
+//                    qDebug() << "Uncaught exception in PipelineElement::process()"
+//                             << "of unknown type.";
+//                }
+//            }
+
+//            foreach( ScheduleInfo* si, scheduled )
+//            {
+//                qDebug(" Executed processor %i, avg time elapsed: %d ms, maxQueueSize %i",
+//                       si->getElement()->getId(), si->getAvgProcessingTime(), si->maxQueueSize() );
+//            }
+//        }
+//        else
+//        {
+//            // nothing to do, sleep a little while
+//            usleep( 0 );
+//        }
+//    }
 }
+
+
