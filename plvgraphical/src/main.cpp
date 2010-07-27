@@ -10,6 +10,7 @@
 #include "CameraConfigFormBuilder.h"
 #include "OpenCVCamera.h"
 #include "DummyProcessor.h"
+#include "EdgeDetector.h"
 #include "RefPtr.h"
 #include "Pipeline.h"
 #include "CameraProducer.h"
@@ -77,6 +78,7 @@ int main(int argc, char **argv)
     //qRegisterMetaType< RefPtr<QtImage> >("RefPtr<QtImage>");
     plvRegisterPipelineElement<plv::CameraProducer>("plv::CameraProducer", "Camera");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
+    plvRegisterPipelineElement<plv::EdgeDetector>("plv::EdgeDetector", "Laplace");
     plvRegisterConfigFormBuilder<plvgui::CameraConfigFormBuilder>("plv::CameraProducer","plvgui::CameraConfigFormBuilder");
 	
     MainWindow* mainWin = new MainWindow();
