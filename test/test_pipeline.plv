@@ -1,5 +1,12 @@
 <pipeline>
  <elements>
+  <element id="0" name="plv::EdgeDetector">
+   <properties>
+    <apertureSize>3</apertureSize>
+    <sceneCoordX>94</sceneCoordX>
+    <sceneCoordY>-172</sceneCoordY>
+   </properties>
+  </element>
   <element id="1" name="plv::CameraProducer">
    <properties>
     <sceneCoordX>-370</sceneCoordX>
@@ -8,22 +15,12 @@
   </element>
   <element id="2" name="plv::DummyProcessor">
    <properties>
-    <someInt>20</someInt>
+    <someInt>2405</someInt>
     <someDouble>1.23456</someDouble>
     <someBool>true</someBool>
     <someString>someStringValue</someString>
     <sceneCoordX>-145</sceneCoordX>
     <sceneCoordY>-174</sceneCoordY>
-   </properties>
-  </element>
-  <element id="3" name="plv::DummyProcessor">
-   <properties>
-    <someInt>80</someInt>
-    <someDouble>1.23456</someDouble>
-    <someBool>true</someBool>
-    <someString>someOtherStringValue</someString>
-    <sceneCoordX>71</sceneCoordX>
-    <sceneCoordY>-192</sceneCoordY>
    </properties>
   </element>
  </elements>
@@ -41,7 +38,7 @@
   <connection>
    <sink>
     <pinName>input</pinName>
-    <processorId>3</processorId>
+    <processorId>0</processorId>
    </sink>
    <source>
     <pinName>output</pinName>
