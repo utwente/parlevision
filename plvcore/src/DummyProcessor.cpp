@@ -16,8 +16,11 @@ DummyProcessor::DummyProcessor() :
         m_someBool(true),
         m_someString("hello")
 {
-    m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
+    m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
     addInputPin( m_inputPin );
+
+    m_inputPinOptional = new InputPin<OpenCVImage>( "input2", this, IInputPin::OPTIONAL );
+    addInputPin( m_inputPinOptional );
 
     m_outputPin = new OutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
     addOutputPin( m_outputPin );

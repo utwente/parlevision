@@ -51,6 +51,8 @@ SOURCES += \
     src/PipelineProcessor.cpp \
     src/Pipeline.cpp \
     src/PipelineLoader.cpp \
+    src/Scheduler.cpp \
+    src/EdgeDetector.cpp
 
 HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Plugin.h \
@@ -69,3 +71,5 @@ HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Pipeline.h \
     ../include/plvcore/PlvExceptions.h \
     ../include/plvcore/PipelineLoader.h \
+    ../include/plvcore/Scheduler.h \
+    ../include/plvcore/EdgeDetector.h
