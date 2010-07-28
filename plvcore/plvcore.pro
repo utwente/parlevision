@@ -39,6 +39,7 @@ INCLUDEPATH += ../include/plvcore
 DEFINES += PLVCORE_LIBRARY
 
 SOURCES += \
+    src/Application.cpp \
     src/CameraProducer.cpp \
     src/Pin.cpp \
     src/PinConnection.cpp \
@@ -55,6 +56,7 @@ SOURCES += \
     src/EdgeDetector.cpp
 
 HEADERS += ../include/plvcore/plvcore_global.h \
+    ../include/plvcore/Application.h \
     ../include/plvcore/Plugin.h \
     ../include/plvcore/CameraProducer.h \
     ../include/plvcore/Pin.h \
