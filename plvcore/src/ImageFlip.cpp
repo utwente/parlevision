@@ -22,8 +22,6 @@ ImageFlip::ImageFlip() :
 
 ImageFlip::~ImageFlip()
 {
-    delete m_inputPin;
-    delete m_outputPin;
 }
 
 void ImageFlip::init() throw (PipelineException)

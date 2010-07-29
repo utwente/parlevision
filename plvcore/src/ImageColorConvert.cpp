@@ -25,8 +25,6 @@ ImageColorConvert::ImageColorConvert() :
 
 ImageColorConvert::~ImageColorConvert()
 {
-    delete m_inputPin;
-    delete m_outputPin;
 }
 
 void ImageColorConvert::init() throw (PipelineException)

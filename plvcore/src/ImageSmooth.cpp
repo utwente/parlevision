@@ -25,8 +25,6 @@ ImageSmooth::ImageSmooth() :
 
 ImageSmooth::~ImageSmooth()
 {
-    delete m_inputPin;
-    delete m_outputPin;
 }
 
 void ImageSmooth::init() throw (PipelineException)

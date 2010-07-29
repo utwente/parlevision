@@ -28,8 +28,6 @@ DummyProcessor::DummyProcessor() :
 
 DummyProcessor::~DummyProcessor()
 {
-    delete m_inputPin;
-    delete m_outputPin;
 }
 
 void DummyProcessor::init() throw (PipelineException)

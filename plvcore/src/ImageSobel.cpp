@@ -22,8 +22,6 @@ ImageSobel::ImageSobel() :
 
 ImageSobel::~ImageSobel()
 {
-    delete m_inputPin;
-    delete m_outputPin;
 }
 
 void ImageSobel::init() throw (PipelineException)

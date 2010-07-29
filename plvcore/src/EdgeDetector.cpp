@@ -22,8 +22,6 @@ EdgeDetector::EdgeDetector() :
 
 EdgeDetector::~EdgeDetector()
 {
-    delete m_inputPin;
-    delete m_outputPin;
 }
 
 void EdgeDetector::init() throw (PipelineException)

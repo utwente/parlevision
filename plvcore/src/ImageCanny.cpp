@@ -24,8 +24,6 @@ ImageCanny::ImageCanny() :
 
 ImageCanny::~ImageCanny()
 {
-    delete m_inputPin;
-    delete m_outputPin;
 }
 
 void ImageCanny::init() throw (PipelineException)

@@ -24,8 +24,6 @@ ImageCornerHarris::ImageCornerHarris() :
 
 ImageCornerHarris::~ImageCornerHarris()
 {
-    delete m_inputPin;
-    delete m_outputPin;
 }
 
 void ImageCornerHarris::init() throw (PipelineException)
