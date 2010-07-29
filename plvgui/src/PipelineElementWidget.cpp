@@ -35,7 +35,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 
     // draw all inputpins
     const PipelineElement::InputPinMap& inPins = element->getInputPins();
-    int y = 20;
+    int y = 30;
     qreal leftColumnWidth = 0;
     for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
         ; itr!=inPins.end(); ++itr)
@@ -47,7 +47,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         pw->translate(0, y);
         this->addToGroup(pw);
         leftColumnWidth = max(pw->boundingRect().width(), leftColumnWidth);
-        y+=10;
+        y+=20;
     }
 
 
@@ -70,13 +70,13 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         maxWidth = max(pw->boundingRect().width(), maxWidth);
     }
 
-    y = 20;
+    y = 30;
     foreach(PinWidget* pw, outWidgets)
     {
         qreal offset = leftColumnWidth + 20 + maxWidth - pw->boundingRect().width();
         pw->translate(offset, y);
         this->addToGroup(pw);
-        y+=10;
+        y+=20;
     }
 
     // center the title
