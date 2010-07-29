@@ -134,16 +134,17 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
     }
 
     const PipelineElement::OutputPinMap& outputPins = ple->getOutputPins();
-    for( PipelineElement::OutputPinMap::const_iterator itr = outputPins.begin()
-        ; itr!=outputPins.end(); ++itr)
+    for( PipelineElement::OutputPinMap::const_iterator outputPinItr = outputPins.begin()
+        ; outputPinItr!=outputPins.end(); ++outputPinItr)
     {
-        RefPtr<IOutputPin> opp = itr->second;
+        RefPtr<IOutputPin> opp = outputPinItr->second;
 
         const std::list< RefPtr<PinConnection> >& connections = opp->getConnections();
-        for( std::list< RefPtr<PinConnection> >::const_iterator itr = connections.begin();
-             itr!= connections.end(); ++itr )
+        for( std::list< RefPtr<PinConnection> >::const_iterator connItr = connections.begin();
+             connItr!= connections.end(); ++connItr )
         {
-            disconnect( (*itr).getPtr() );
+            RefPtr<PinConnection> connection = *connItr;
+            disconnect( connection.getPtr() );
         }
     }
 }
