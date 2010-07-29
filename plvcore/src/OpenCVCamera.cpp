@@ -40,7 +40,7 @@ bool OpenCVCamera::init()
 
     m_state = CAM_INITIALIZED;
     qDebug() << "OpenCV camera initialised with initial resolution of "
-            << width << "," << height;
+            << m_width << "," << m_height;
     return true;
 }
 
@@ -55,7 +55,7 @@ void OpenCVCamera::run()
         RefPtr<Data> frame = getFrame();
 
         // send a signal to subscribers
-		if( frame.isNotNull() )
+        if( frame.isNotNull() )
         {
             emit newFrame( frame );
         }
@@ -180,12 +180,25 @@ bool OpenCVCamera::setDimensions( int width, int height )
     double dwidth = (double) width;
 
     // check for 4:3 dimensions
+    // OpenCV only support 4:3 camera resolutions right now
     if( ((int)(dwidth * (3.0/4.0))) != height )
         return false;
     else
     {
         cvSetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH, dwidth );
-        return( width = getWidth() && height == getHeight() );
+        int nwidth = getWidth();
+        int nheight = getHeight();
+
+        if( nwidth == width && nheight == height )
+        {
+            qDebug() << "Camera resolution changed to " << nwidth << "x" << nheight;
+            return true;
+        }
+
+        qDebug()<< "Camera resolution failed to change to " << width << "x" << height
+                << " and is at " << nwidth << "x" << nheight;
+
+        return false;
     }
 }
 
