@@ -23,13 +23,14 @@ OpenCVCamera::~OpenCVCamera()
 
 bool OpenCVCamera::init()
 {
-    qDebug() << "Initialising OpenCV camera";
-
     QMutexLocker lock( &m_opencv_mutex );
+
+    qDebug() << "Trying to initialize OpenCV camera with id " << m_id;
 
     m_captureDevice = cvCreateCameraCapture( m_id );
     if( m_captureDevice == 0 )
     {
+        qDebug() << "Initialization of camera failed";
         return false;
     }
 
@@ -38,7 +39,8 @@ bool OpenCVCamera::init()
     m_height = (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_HEIGHT );
 
     m_state = CAM_INITIALIZED;
-    qDebug() << "camera initialised";
+    qDebug() << "OpenCV camera initialised with initial resolution of "
+            << width << "," << height;
     return true;
 }
 
