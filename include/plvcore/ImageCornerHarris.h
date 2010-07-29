@@ -12,7 +12,7 @@ namespace plv {
     {
         Q_OBJECT
         Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
-        Q_PROPERTY( int m_blockSize READ getBlockSize WRITE setBlockSize NOTIFY blockSizeChanged )
+        Q_PROPERTY( int blockSize READ getBlockSize WRITE setBlockSize NOTIFY blockSizeChanged )
         Q_PROPERTY( double k READ getK WRITE setK NOTIFY kChanged )
 
     public:

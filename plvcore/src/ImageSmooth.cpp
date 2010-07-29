@@ -11,7 +11,10 @@ using namespace plv;
 #define OUTPUT_PIN_NAME "output"
 
 ImageSmooth::ImageSmooth() :
-        m_apertureSize(3)
+        m_one(3),
+        m_two(0),
+        m_three(0.0),
+        m_four(0.0)
 {
     m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     addInputPin( m_inputPin );
@@ -61,19 +64,8 @@ void ImageSmooth::process()
     IplImage* iplImg2 = img2->getImageForWriting();
 
     // do a smooth operator of the image
-    cvSmooth( iplImg1, iplImg2, (int)CV_GAUSSIAN, 3, 0, 0.0, 0.0);
+    cvSmooth( iplImg1, iplImg2, (int)CV_GAUSSIAN, m_one, m_two, m_three, m_four);
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
-}
-
-void ImageSmooth::setApertureSize(int i)
-{
-    m_apertureSize = i;
-    emit(apertureSizeChanged(i));
-}
-
-int ImageSmooth::nearestOdd(int i)
-{
-    return ( i%2 == 0 ? ++i : i );
 }

@@ -11,7 +11,10 @@ namespace plv {
     class ImageSmooth : public PipelineProcessor
     {
         Q_OBJECT
-        Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
+        Q_PROPERTY( int one READ getOne WRITE setOne NOTIFY oneChanged )
+        Q_PROPERTY( int two READ getTwo WRITE setTwo NOTIFY twoChanged )
+        Q_PROPERTY( double three READ getThree WRITE setThree NOTIFY threeChanged )
+        Q_PROPERTY( double four READ getFour WRITE setFour NOTIFY fourChanged )
 
     public:
         ImageSmooth();
@@ -23,13 +26,22 @@ namespace plv {
         virtual void process();
 
         /** propery methods */
-        int getApertureSize() { return m_apertureSize; }
+        int getOne() { return m_one; }
+        int getTwo() { return m_two; }
+        double getThree() { return m_three; }
+        double getFour() { return m_four; }
 
     signals:
-        void apertureSizeChanged(int newValue);
+        void oneChanged(int newValue);
+        void twoChanged(int newValue);
+        void threeChanged(double newValue);
+        void fourChanged(double newValue);
 
     public slots:
-        void setApertureSize(int i);
+        void setOne(int i) { m_one = i; emit(oneChanged(i)); }
+        void setTwo(int i) { m_two = i; emit(twoChanged(i)); }
+        void setThree(double i) { m_three = i; emit(threeChanged(i)); }
+        void setFour(double i) { m_four = i; emit(fourChanged(i)); }
 
     private:
         int nearestOdd(int i);
@@ -37,8 +49,10 @@ namespace plv {
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
 
-
-        int m_apertureSize;
+        int m_one;
+        int m_two;
+        double m_three;
+        double m_four;
     };
 }
 #endif // IMAGEFLIP_H
