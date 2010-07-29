@@ -141,7 +141,7 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
     {
         RefPtr<IOutputPin> opp = outputPinItr->second;
 
-        const std::list< RefPtr<PinConnection> >& connections = opp->getConnections();
+        std::list< RefPtr<PinConnection> > connections = opp->getConnections();
         for( std::list< RefPtr<PinConnection> >::const_iterator connItr = connections.begin();
              connItr!= connections.end(); ++connItr )
         {

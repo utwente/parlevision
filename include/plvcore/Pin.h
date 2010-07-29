@@ -118,7 +118,8 @@ namespace plv
         // TODO ugly hack to make things work ...
         // TODO should all PinConnection stuff be moved to IOutputPin
         // and should IOutputPin be called an interface then?
-        virtual const std::list< RefPtr<PinConnection> >& getConnections() = 0;
+        // returns a copy of the connections
+        virtual std::list< RefPtr<PinConnection> > getConnections() = 0;
 
     signals:
         void newData( RefPtr<Data> data );
@@ -195,8 +196,9 @@ namespace plv
             return !m_connections.empty();
         }
 
-        virtual const std::list< RefPtr<PinConnection > >& getConnections()
+        virtual std::list< RefPtr<PinConnection > > getConnections()
         {
+            // makes a copy
             return m_connections;
         }
 
