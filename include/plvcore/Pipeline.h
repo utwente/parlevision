@@ -107,11 +107,6 @@ namespace plv
           */
         void removeAllConnections();
 
-        /** Removes the connection from the pipeline
-          * @requires connection is disconnected from any pins
-          */
-        void removeConnection(PinConnection* connection);
-
     protected:
         PipelineElementMap m_children;
         PipelineConnectionsList m_connections;
