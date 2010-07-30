@@ -16,11 +16,8 @@ using namespace plv;
 ImageColorConvert::ImageColorConvert() :
         m_conversionType( CV_RGB2GRAY )
 {
-    m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
-    addInputPin( m_inputPin );
-
-    m_outputPin = new OutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
-    addOutputPin( m_outputPin );
+    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
+    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
 }
 
 ImageColorConvert::~ImageColorConvert()

@@ -38,7 +38,6 @@ void Application::loadBuiltins()
 {
     // register classes with Qt so they can be used in signals and slots
     qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
-    //qRegisterMetaType< RefPtr<QtImage> >("RefPtr<QtImage>");
     plvRegisterPipelineElement<plv::CameraProducer>("plv::CameraProducer", "Camera");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
     plvRegisterPipelineElement<plv::EdgeDetector>("plv::EdgeDetector", "Laplace");

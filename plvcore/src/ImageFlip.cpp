@@ -15,11 +15,8 @@ ImageFlip::ImageFlip() :
         m_someInt( 0 ),
         m_someBool( false )
 {
-    m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
-    addInputPin( m_inputPin );
-
-    m_outputPin = new OutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
-    addOutputPin( m_outputPin );
+    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
+    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
 }
 
 ImageFlip::~ImageFlip()

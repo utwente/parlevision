@@ -109,10 +109,12 @@ OpenCVImage* OpenCVImageFactory::getFromBuffer( IplImage* buffer, bool own )
     {
         img = new OpenCVImage( buffer );
 
+#if OPENCVIMAGE_USE_POOL
         // up the ref count by one and add to pool
-        //img->inc();
-        //m_objectPool.push_back( img );
-        //m_objectPoolSize += img->size();
+        img->inc();
+        m_objectPool.push_back( img );
+        m_objectPoolSize += img->size();
+#endif
     }
     return img;
 }
@@ -153,10 +155,12 @@ OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth,
         IplImage* cvimg = cvCreateImage( cvSize( width, height ), depth, channels );
         image = new OpenCVImage( cvimg );
 
+#if OPENCVIMAGE_USE_POOL
         // up the ref count by one
-        //image->inc();
-        //m_objectPoolSize += image->size();
-        //m_objectPool.push_back( image );
+        image->inc();
+        m_objectPoolSize += image->size();
+        m_objectPool.push_back( image );
+#endif
     }
 
     assert( image != 0 );
