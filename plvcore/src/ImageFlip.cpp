@@ -11,7 +11,9 @@ using namespace plv;
 #define OUTPUT_PIN_NAME "output"
 
 ImageFlip::ImageFlip() :
-        m_apertureSize(3)
+        m_apertureSize(3),
+        m_someInt( 0 ),
+        m_someBool( false )
 {
     m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     addInputPin( m_inputPin );
