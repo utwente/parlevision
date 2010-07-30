@@ -6,12 +6,11 @@
 #include <QReadWriteLock>
 #include <opencv/cv.h>
 
-//typedef struct _IplImage IplImage;
-
 #include "Types.h"
 #include "PlvExceptions.h"
 
 #define OPENCVIMAGE_MAX_OBJECT_POOL_SIZE (1024 * 1024 * 8)
+#define OPENCVIMAGE_USE_POOL 0
 
 namespace plv
 {
@@ -120,49 +119,11 @@ namespace plv
     protected:
         OpenCVImage( IplImage* img );
         OpenCVImage( const OpenCVImage& other );
-
         virtual ~OpenCVImage();
 
-//        IplImage* getImageForWriting();
-//        void releaseImageForWriting();
-
-    protected:
         IplImage* m_img;
         mutable QMutex m_imgLock;
     };
-
-//    class OpenCVImageWriter
-//    {
-//    public:
-//        OpenCVImageWriter( OpenCVImage* img ) :
-//            m_img( img ),
-//            m_iplImg( 0 )
-//        {
-//        }
-//
-//        ~OpenCVImageWriter()
-//        {
-//            release();
-//        }
-//
-//        inline IplImage* get()
-//        {
-//            if( m_iplImg == 0 )
-//                m_iplImg = m_img->getImageForWriting();
-//            return m_iplImg;
-//        }
-//
-//        inline void release()
-//        {
-//            if( m_iplImg != 0 )
-//                m_img->releaseImageForWriting();
-//            m_iplImg = 0;
-//        }
-//
-//    protected:
-//        OpenCVImage* m_img;
-//        IplImage* m_iplImg;
-//    };
 }
 
 #endif
