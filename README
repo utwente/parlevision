@@ -20,7 +20,7 @@ INSTALLING DEPENDENCIES
                 If you want to build using Qt Creator, use the GCC ones.
 
 FIXING BUILD ENVIRONMENT
-If your libraries are in different locations, you might have to tell the build system where to find them. You can make a personal ParleVision.pro.local (see ParleVision.local.example).
+If your libraries are in different locations, you might have to tell the build system where to find them. You can make a personal ParleVision.local (see ParleVision.local.example).
                 
 BUILDING PARLEVISION
 To build ParleVision from source, you need the Qt SDK, which can be obtained from http://qt.nokia.com/. Depending on your platform, there are different options for building:
