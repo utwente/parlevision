@@ -38,6 +38,8 @@ PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
         this->add( connection );
     }
 
+    this->setSceneRect(0,0,100,100);
+
     // make sure future additions to underlying pipeline get added as well
     connect(m_pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(add(plv::RefPtr<plv::PipelineElement>)));
@@ -52,6 +54,8 @@ PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
 
     connect(m_pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(handleRemove(plv::RefPtr<plv::PinConnection>)));
+
+    connect(this, SIGNAL(sceneRectChanged(QRectF)), this, SLOT(update(QRectF)));
 
 }
 
