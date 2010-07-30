@@ -28,8 +28,14 @@
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
         <property name="renderHints">
          <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+        </property>
+        <property name="viewportUpdateMode">
+         <enum>QGraphicsView::FullViewportUpdate</enum>
         </property>
        </widget>
       </item>

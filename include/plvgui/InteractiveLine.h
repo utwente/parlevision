@@ -34,8 +34,6 @@ namespace plvgui
                               QGraphicsItem *parent,
                               QGraphicsScene *scene);
 
-        QRectF boundingRect() const;
-        QPainterPath shape() const;
         PinWidget* getFromPin() const {return this->fromPin;}
 
     public slots:
