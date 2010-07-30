@@ -14,7 +14,8 @@ using namespace plv;
 std::list<QString> PipelineElement::s_types;
 std::map<QString,QString> PipelineElement::s_names;
 
-PipelineElement::PipelineElement() : m_id( -1 )
+PipelineElement::PipelineElement() :
+        m_id( -1 )
 {
 }
 
@@ -30,29 +31,29 @@ PipelineElement::PipelineElement(const PipelineElement &other)
     : QObject(),
         RefCounted(other),
         m_inputPins(other.m_inputPins),
-        m_outputPins(other.m_outputPins),
-        m_parent(other.m_parent)
+        m_outputPins(other.m_outputPins)//,
+//        m_parent(other.m_parent)
 {
 }
 
 void PipelineElement::setPipeline( Pipeline* parent )
 {
-    QMutexLocker lock( &m_pleMutex );
+//    QMutexLocker lock( &m_pleMutex );
 
-    if( m_parent.getPtr() == parent )
-    {
-        // no effect
-        return;
-    }
+//    if( m_parent.getPtr() == parent )
+//    {
+//        // no effect
+//        return;
+//    }
 
-    if( m_parent.getPtr() != 0 )
-    {
-        // switching pipelines.
-        // remove ourself from the old pipeline first
-        m_parent->removeElement( m_id );
-    }
+//    if( m_parent.getPtr() != 0 )
+//    {
+//        // switching pipelines.
+//        // remove ourself from the old pipeline first
+//        m_parent->removeElement( m_id );
+//    }
 
-    m_parent = parent;
+//    m_parent = parent;
 }
 
 void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentException)

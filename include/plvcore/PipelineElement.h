@@ -103,7 +103,6 @@ namespace plv
 
         /*************** END OF API ******************/
 
-
         /** Adds the input pin to this processing element.
           * @throws IllegalArgumentException if an input pin with
           * the same name already exists
@@ -183,7 +182,7 @@ namespace plv
         int maxInputQueueSize() const;
 
     protected:
-        RefPtr<Pipeline> m_parent;
+        //RefPtr<Pipeline> m_parent;
 
         // list to keep track of registered types
         static std::list<QString> s_types;
