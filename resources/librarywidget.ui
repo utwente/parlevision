@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>150</width>
-    <height>126</height>
+    <width>190</width>
+    <height>216</height>
    </size>
   </property>
   <property name="accessibleDescription">
@@ -38,7 +38,7 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QScrollArea" name="scrollArea">
       <property name="sizePolicy">
@@ -71,7 +71,7 @@
          <x>0</x>
          <y>0</y>
          <width>232</width>
-         <height>430</height>
+         <height>210</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -97,22 +97,12 @@
           </property>
          </layout>
         </item>
-        <item>
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
        </layout>
       </widget>
      </widget>
+    </item>
+    <item>
+     <widget class="QTextBrowser" name="infoBox"/>
     </item>
    </layout>
   </widget>

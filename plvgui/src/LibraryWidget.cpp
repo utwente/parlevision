@@ -2,10 +2,12 @@
 #include "ui_librarywidget.h"
 #include "PipelineElement.h"
 #include "LibraryElement.h"
+#include "RefPtr.h"
 #include <QDebug>
 #include <QtGui>
 
 using namespace plvgui;
+using namespace plv;
 
 LibraryWidget::LibraryWidget(QWidget *parent) :
     QDockWidget(parent),
@@ -30,7 +32,16 @@ LibraryWidget::~LibraryWidget()
 
 void LibraryWidget::addItem(QString typeName)
 {
-    LibraryElement* w = new LibraryElement(typeName, this);
+    int id = QMetaType::type(typeName.toAscii());
+    if(!QMetaType::isRegistered(id))
+    {
+        qWarning() << "Ignoring unknown element " << typeName;
+        return;
+    }
+
+    RefPtr<PipelineElement> element = static_cast<PipelineElement*>(QMetaType::construct(id));
+
+    LibraryElement* w = new LibraryElement(element, this);
     ui->container->addWidget(w);
 }
 
@@ -47,7 +58,7 @@ void LibraryWidget::mousePressEvent(QMouseEvent *event)
 
     QPoint hotSpot = event->pos() - element->pos();
 
-    QString elementName = element->getType();
+    QString elementName = element->getElement()->metaObject()->className();
     qDebug() << "starting drag of " << elementName;
 
     QByteArray itemData;

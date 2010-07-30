@@ -4,22 +4,26 @@
 #include <QString>
 #include <QLabel>
 #include <QHBoxLayout>
+#include "RefPtr.h"
+
+namespace plv
+{
+    class PipelineElement;
+}
 
 namespace plvgui {
     class LibraryElement : public QLabel
     {
     public:
-        LibraryElement(QString typeName, QWidget* parent);
-        QString getType() { return typeName; }
-        QString getName() { return name; }
+        LibraryElement(plv::RefPtr<plv::PipelineElement> element, QWidget* parent);
+        plv::RefPtr<plv::PipelineElement> getElement() { return element; }
 
     protected:
         virtual QSize sizeHint() const;
         virtual int heightForWidth(int w) const;
 
     private:
-        QString typeName;
-        QString name;
+        plv::RefPtr<plv::PipelineElement> element;
     };
 }
 
