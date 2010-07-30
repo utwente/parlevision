@@ -53,7 +53,13 @@ SOURCES += \
     src/Pipeline.cpp \
     src/PipelineLoader.cpp \
     src/Scheduler.cpp \
-    src/EdgeDetector.cpp
+    src/EdgeDetector.cpp \
+    src/ImageSmooth.cpp \
+    src/ImageSobel.cpp \
+    src/ImageFlip.cpp \
+    src/ImageCornerHarris.cpp \
+    src/ImageColorConvert.cpp \
+    src/ImageCanny.cpp
 
 HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Application.h \
@@ -74,4 +80,10 @@ HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/PlvExceptions.h \
     ../include/plvcore/PipelineLoader.h \
     ../include/plvcore/Scheduler.h \
-    ../include/plvcore/EdgeDetector.h
+    ../include/plvcore/EdgeDetector.h \
+    ../include/plvcore/ImageSmooth.h \
+    ../include/plvcore/ImageSobel.h \
+    ../include/plvcore/ImageFlip.h \
+    ../include/plvcore/ImageCornerHarris.h \
+    ../include/plvcore/ImageColorConvert.h \
+    ../include/plvcore/ImageCanny.h

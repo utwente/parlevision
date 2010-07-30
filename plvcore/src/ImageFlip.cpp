@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include "DummyProcessor.h"
+#include "ImageFlip.h"
 #include "Pin.h"
 #include "OpenCVImage.h"
 #include <opencv/cv.h>
@@ -10,52 +10,47 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
-DummyProcessor::DummyProcessor() :
-        m_someInt(1337),
-        m_someDouble(1.23456),
-        m_someBool(true),
-        m_someString("hello")
+ImageFlip::ImageFlip() :
+        m_apertureSize(3)
 {
-    m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
+    m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     addInputPin( m_inputPin );
-
-    m_inputPinOptional = new InputPin<OpenCVImage>( "input2", this, IInputPin::OPTIONAL );
-    addInputPin( m_inputPinOptional );
 
     m_outputPin = new OutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
     addOutputPin( m_outputPin );
 }
 
-DummyProcessor::~DummyProcessor()
+ImageFlip::~ImageFlip()
 {
 }
 
-void DummyProcessor::init() throw (PipelineException)
+void ImageFlip::init() throw (PipelineException)
 {
 }
 
-bool DummyProcessor::isReadyForProcessing() const
+bool ImageFlip::isReadyForProcessing() const
 {
-    if( m_inputPin->isConnected() )
-    {
-        return m_inputPin->getConnection()->hasData();
-    }
-    return false;
+    return m_inputPin->hasData();
 }
 
-//bool DummyProcessor::isBootstrapped() const
-//{
-//    return true;
-//}
-
-void DummyProcessor::process()
+void ImageFlip::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
     RefPtr<OpenCVImage> img = m_inputPin->get();
+    if(img->getDepth() != IPL_DEPTH_8U)
+    {
+        throw std::runtime_error("format not yet supported");
+    }
+
+    // temporary image with extra room (depth)
+    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
+            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
+
     RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
+
 
     // open for reading
     const IplImage* iplImg1 = img->getImage();
@@ -70,4 +65,18 @@ void DummyProcessor::process()
     m_outputPin->put( img2.getPtr() );
 
     this->setSomeInt(this->getSomeInt()+1);
+
+    // publish the new image
+    m_outputPin->put( img2.getPtr() );
+}
+
+void ImageFlip::setApertureSize(int i)
+{
+    m_apertureSize = i;
+    emit(apertureSizeChanged(i));
+}
+
+int ImageFlip::nearestOdd(int i)
+{
+    return ( i%2 == 0 ? ++i : i );
 }

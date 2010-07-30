@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include "EdgeDetector.h"
+#include "ImageCanny.h"
 #include "Pin.h"
 #include "OpenCVImage.h"
 #include <opencv/cv.h>
@@ -10,8 +10,10 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
-EdgeDetector::EdgeDetector() :
-        m_apertureSize(3)
+ImageCanny::ImageCanny() :
+        m_apertureSize(3),
+        m_thresholdLow(0.1),
+        m_thresholdHigh(1.0)
 {
     m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     addInputPin( m_inputPin );
@@ -20,20 +22,20 @@ EdgeDetector::EdgeDetector() :
     addOutputPin( m_outputPin );
 }
 
-EdgeDetector::~EdgeDetector()
+ImageCanny::~ImageCanny()
 {
 }
 
-void EdgeDetector::init() throw (PipelineException)
+void ImageCanny::init() throw (PipelineException)
 {
 }
 
-bool EdgeDetector::isReadyForProcessing() const
+bool ImageCanny::isReadyForProcessing() const
 {
     return m_inputPin->hasData();
 }
 
-void EdgeDetector::process()
+void ImageCanny::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
@@ -46,7 +48,7 @@ void EdgeDetector::process()
 
     // temporary image with extra room (depth)
     RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
+            img->getWidth(), img->getHeight(), IPL_DEPTH_8U , 1 );
 
     RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
@@ -55,25 +57,20 @@ void EdgeDetector::process()
     // open for reading
     const IplImage* iplImg1 = img->getImage();
 
-    // perform laplace filter
-    IplImage* tmpImg = tmp->getImageForWriting();
-    cvLaplace( iplImg1, tmpImg, nearestOdd(this->m_apertureSize));
-
-    // scale back to output format
+    // open image for writing
     IplImage* iplImg2 = img2->getImageForWriting();
-    cvConvertScale( tmpImg, iplImg2, 1, 0 );
+    IplImage* iplTmp = tmp->getImageForWriting();
+
+    // INPUT REQUIRED TO BE GRAYSCALED! take the first channel as grayscale image
+    cvSplit(iplImg1,iplTmp,NULL,NULL,NULL);
+
+    // do a canny edge detection operator of the image
+    cvCanny( iplTmp, iplTmp, m_thresholdLow, m_thresholdHigh, m_apertureSize);
+
+    // convert the image back to 8bit depth
+//    cvConvertScale(iplTmp, iplImg2, 1, 0);
+    cvMerge( iplTmp, iplTmp, iplTmp, NULL, iplImg2 );
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
-}
-
-void EdgeDetector::setApertureSize(int i)
-{
-    m_apertureSize = i;
-    emit(apertureSizeChanged(i));
-}
-
-int EdgeDetector::nearestOdd(int i)
-{
-    return ( i%2 == 0 ? ++i : i );
 }

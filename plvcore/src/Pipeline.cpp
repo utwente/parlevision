@@ -121,7 +121,8 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
 {
     RefPtr<PipelineElement> ple( element );
 
-    const PipelineElement::InputPinMap& inputPins = ple->getInputPins();
+    // get a copy of the input pin map
+    PipelineElement::InputPinMap inputPins = ple->getInputPins();
     for( PipelineElement::InputPinMap::const_iterator itr = inputPins.begin()
         ; itr!=inputPins.end(); ++itr)
     {
@@ -133,17 +134,19 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
         }
     }
 
-    const PipelineElement::OutputPinMap& outputPins = ple->getOutputPins();
-    for( PipelineElement::OutputPinMap::const_iterator itr = outputPins.begin()
-        ; itr!=outputPins.end(); ++itr)
+    // get a copy of the output pin map
+    PipelineElement::OutputPinMap outputPins = ple->getOutputPins();
+    for( PipelineElement::OutputPinMap::const_iterator outputPinItr = outputPins.begin()
+        ; outputPinItr!=outputPins.end(); ++outputPinItr)
     {
-        RefPtr<IOutputPin> opp = itr->second;
+        RefPtr<IOutputPin> opp = outputPinItr->second;
 
-        const std::list< RefPtr<PinConnection> >& connections = opp->getConnections();
-        for( std::list< RefPtr<PinConnection> >::const_iterator itr = connections.begin();
-             itr!= connections.end(); ++itr )
+        std::list< RefPtr<PinConnection> > connections = opp->getConnections();
+        for( std::list< RefPtr<PinConnection> >::const_iterator connItr = connections.begin();
+             connItr!= connections.end(); ++connItr )
         {
-            disconnect( (*itr).getPtr() );
+            RefPtr<PinConnection> connection = *connItr;
+            disconnect( connection.getPtr() );
         }
     }
 }
@@ -185,20 +188,8 @@ void Pipeline::disconnect( PinConnection* connection )
         qWarning() << "Ignoring disconnect of null connection";
         return;
     }
-    RefPtr<PinConnection> conn( connection );
-    conn->disconnect();
-    removeConnection( connection );
-}
-
-void Pipeline::removeConnection( PinConnection* connection )
-{
-    RefPtr<PinConnection> con = connection;
-
-    if( con.isNull() )
-    {
-        qWarning() << "Ignoring removal of null connection";
-        return;
-    }
+    RefPtr<PinConnection> con( connection );
+    con->disconnect();
 
     for( PipelineConnectionsList::iterator itr = m_connections.begin();
             itr != m_connections.end(); ++itr )
@@ -293,9 +284,6 @@ void Pipeline::stop()
 void Pipeline::run()
 {
     m_running = true;
-
-
-    m_scheduler->setActiveThreadCount( 8 );
 
     while(!m_stopRequested)
     {

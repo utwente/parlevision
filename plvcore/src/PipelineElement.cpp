@@ -37,6 +37,8 @@ PipelineElement::PipelineElement(const PipelineElement &other)
 
 void PipelineElement::setPipeline( Pipeline* parent )
 {
+    QMutexLocker lock( &m_pleMutex );
+
     if( m_parent.getPtr() == parent )
     {
         // no effect
@@ -55,6 +57,8 @@ void PipelineElement::setPipeline( Pipeline* parent )
 
 void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentException)
 {
+    QMutexLocker lock( &m_pleMutex );
+
     InputPinMap::iterator itr = m_inputPins.find( pin->getName() );
     if( itr != m_inputPins.end() )
     {
@@ -68,6 +72,8 @@ void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentExcept
 
 void PipelineElement::addOutputPin( IOutputPin* pin ) throw (IllegalArgumentException)
 {
+    QMutexLocker lock( &m_pleMutex );
+
     OutputPinMap::iterator itr = m_outputPins.find( pin->getName() );
     if( itr != m_outputPins.end() )
     {
@@ -81,6 +87,8 @@ void PipelineElement::addOutputPin( IOutputPin* pin ) throw (IllegalArgumentExce
 
 IInputPin* PipelineElement::getInputPin( const QString& name ) const
 {
+    QMutexLocker lock( &m_pleMutex );
+
     InputPinMap::const_iterator itr = m_inputPins.find( name );
     if( itr != m_inputPins.end() )
     {
@@ -92,12 +100,30 @@ IInputPin* PipelineElement::getInputPin( const QString& name ) const
 
 IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
 {
+    QMutexLocker lock( &m_pleMutex );
+
     OutputPinMap::const_iterator itr = m_outputPins.find( name );
     if( itr != m_outputPins.end() )
     {
         return itr->second.getPtr();
     }
     return 0;
+}
+
+PipelineElement::InputPinMap PipelineElement::getInputPins() const
+{
+    QMutexLocker lock( &m_pleMutex );
+
+    // return a copy
+    return m_inputPins;
+}
+
+PipelineElement::OutputPinMap PipelineElement::getOutputPins() const
+{
+    QMutexLocker lock( &m_pleMutex );
+
+    // return a copy
+    return m_outputPins;
 }
 
 QString PipelineElement::getName() const
@@ -116,6 +142,8 @@ void PipelineElement::getConfigurablePropertyNames(std::list<QString>& list)
 
 void PipelineElement::__process()
 {
+    QMutexLocker lock( &m_pleMutex );
+
     for( InputPinMap::iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
@@ -149,6 +177,8 @@ void PipelineElement::__process()
 
 std::list<QString> PipelineElement::getInputPinNames() const
 {
+    QMutexLocker lock( &m_pleMutex );
+
     std::list<QString> names;
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
@@ -158,13 +188,10 @@ std::list<QString> PipelineElement::getInputPinNames() const
     return names;
 }
 
-const PipelineElement::InputPinMap& PipelineElement::getInputPins() const
-{
-    return m_inputPins;
-}
-
 std::list<QString> PipelineElement::getOutputPinNames() const
 {
+    QMutexLocker lock( &m_pleMutex );
+
     std::list<QString> names;
     for( OutputPinMap::const_iterator itr = m_outputPins.begin();
          itr != m_outputPins.end(); ++itr )
@@ -174,13 +201,10 @@ std::list<QString> PipelineElement::getOutputPinNames() const
     return names;
 }
 
-const PipelineElement::OutputPinMap& PipelineElement::getOutputPins() const
-{
-    return m_outputPins;
-}
-
 int PipelineElement::outputPinsConnectionCount() const
 {
+    QMutexLocker lock( &m_pleMutex );
+
     int connectionCount = 0;
 
     for( OutputPinMap::const_iterator itr = m_outputPins.begin();
@@ -196,6 +220,8 @@ int PipelineElement::outputPinsConnectionCount() const
 
 int PipelineElement::inputPinsConnectionCount() const
 {
+    QMutexLocker lock( &m_pleMutex );
+
     int connectionCount = 0;
 
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
@@ -237,10 +263,12 @@ QString PipelineElement::nameForType(QString typeName)
 
 int PipelineElement::maxInputQueueSize() const
 {
-    const PipelineElement::InputPinMap& inputs = this->getInputPins();
+    QMutexLocker lock( &m_pleMutex );
+
     int maxQueueSize = 0;
 
-    for( PipelineElement::InputPinMap::const_iterator itr = inputs.begin(); itr!=inputs.end(); ++itr )
+    for( PipelineElement::InputPinMap::const_iterator itr = m_inputPins.begin();
+        itr!=m_inputPins.end(); ++itr )
     {
         int queueSize = 0;
 

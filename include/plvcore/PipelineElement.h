@@ -37,8 +37,7 @@ namespace plv
         /** map which contains the output pins identified and indexed by their name */
         OutputPinMap m_outputPins;
 
-//        /** mutex used to change state in a thread safe way */
-//        QMutex m_pleStateMutex;
+        mutable QMutex m_pleMutex;
 
     public:
         friend class Pipeline;
@@ -141,11 +140,15 @@ namespace plv
         /** @returns a list of names of input pins added to this PipelineElement */
         std::list<QString> getInputPinNames() const;
 
-        /** @returns a list of inputpins */
-        const InputPinMap& getInputPins() const;
+        /** returns a copy of the contents of the input pin map
+          * This function is thread safe.
+          */
+        InputPinMap getInputPins() const;
 
-        /** @returns a list of outputpins */
-        const OutputPinMap& getOutputPins() const;
+        /** returns a copy of the contents of the output pin map.
+          * This function is thread safe.
+          */
+        OutputPinMap getOutputPins() const;
 
         /** @returns a list of names of output pins added to this PipelineElement */
         std::list<QString> getOutputPinNames() const;

@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include "EdgeDetector.h"
+#include "ImageSmooth.h"
 #include "Pin.h"
 #include "OpenCVImage.h"
 #include <opencv/cv.h>
@@ -10,8 +10,11 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
-EdgeDetector::EdgeDetector() :
-        m_apertureSize(3)
+ImageSmooth::ImageSmooth() :
+        m_one(3),
+        m_two(0),
+        m_three(0.0),
+        m_four(0.0)
 {
     m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     addInputPin( m_inputPin );
@@ -20,20 +23,20 @@ EdgeDetector::EdgeDetector() :
     addOutputPin( m_outputPin );
 }
 
-EdgeDetector::~EdgeDetector()
+ImageSmooth::~ImageSmooth()
 {
 }
 
-void EdgeDetector::init() throw (PipelineException)
+void ImageSmooth::init() throw (PipelineException)
 {
 }
 
-bool EdgeDetector::isReadyForProcessing() const
+bool ImageSmooth::isReadyForProcessing() const
 {
     return m_inputPin->hasData();
 }
 
-void EdgeDetector::process()
+void ImageSmooth::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
@@ -55,25 +58,12 @@ void EdgeDetector::process()
     // open for reading
     const IplImage* iplImg1 = img->getImage();
 
-    // perform laplace filter
-    IplImage* tmpImg = tmp->getImageForWriting();
-    cvLaplace( iplImg1, tmpImg, nearestOdd(this->m_apertureSize));
-
-    // scale back to output format
+    // open image for writing
     IplImage* iplImg2 = img2->getImageForWriting();
-    cvConvertScale( tmpImg, iplImg2, 1, 0 );
+
+    // do a smooth operator of the image
+    cvSmooth( iplImg1, iplImg2, (int)CV_GAUSSIAN, m_one, m_two, m_three, m_four);
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
-}
-
-void EdgeDetector::setApertureSize(int i)
-{
-    m_apertureSize = i;
-    emit(apertureSizeChanged(i));
-}
-
-int EdgeDetector::nearestOdd(int i)
-{
-    return ( i%2 == 0 ? ++i : i );
 }

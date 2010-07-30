@@ -2,53 +2,61 @@
 #define PLVEXCEPTIONS_H
 
 #include <stdexcept>
+#include <QString>
 
 namespace plv
 {
-    class PipelineException : public std::runtime_error
+    class PlvException : public std::runtime_error
     {
     public:
-        PipelineException( const std::string& str ) : std::runtime_error( str ) {}
+        PlvException( const QString& str ) : std::runtime_error( str.toStdString() ) {}
+        PlvException( const std::string& str ) : std::runtime_error( str ) {}
     };
 
-    class IllegalAccessException : public std::runtime_error
+    class PipelineException : public PlvException
     {
     public:
-        IllegalAccessException( const std::string& str ) : std::runtime_error( str ) {}
+        PipelineException( const std::string& str ) : PlvException( str ) {}
     };
 
-   class IllegalArgumentException : public std::runtime_error
+    class IllegalAccessException : public PlvException
     {
     public:
-        IllegalArgumentException( const std::string& str ) : std::runtime_error( str ) {}
+        IllegalAccessException( const std::string& str ) : PlvException( str ) {}
     };
 
-    class ElementCreationException : public std::runtime_error
+   class IllegalArgumentException : public PlvException
+    {
+    public:
+        IllegalArgumentException( const std::string& str ) : PlvException( str ) {}
+    };
+
+    class ElementCreationException : public PlvException
     {
     public:
         ElementCreationException(std::string msg)
-            : std::runtime_error(msg) {}
+            : PlvException(msg) {}
     };
 
-    class InstantiationException : public std::runtime_error
+    class InstantiationException : public PlvException
     {
     public:
         InstantiationException(std::string msg)
-            : std::runtime_error(msg) {}
+            : PlvException(msg) {}
     };
 
-    class IncompatibleTypeException : public std::runtime_error
+    class IncompatibleTypeException : public PlvException
     {
     public:
         IncompatibleTypeException(std::string msg)
-            : std::runtime_error(msg) {}
+            : PlvException(msg) {}
     };
 
-    class DuplicateConnectionException : public std::runtime_error
+    class DuplicateConnectionException : public PlvException
     {
     public:
         DuplicateConnectionException(std::string msg)
-            : std::runtime_error(msg) {}
+            : PlvException(msg) {}
     };
 
 //    class DataFormatException : public PipelineException

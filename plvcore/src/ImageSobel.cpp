@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include "EdgeDetector.h"
+#include "ImageSobel.h"
 #include "Pin.h"
 #include "OpenCVImage.h"
 #include <opencv/cv.h>
@@ -10,7 +10,7 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
-EdgeDetector::EdgeDetector() :
+ImageSobel::ImageSobel() :
         m_apertureSize(3)
 {
     m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
@@ -20,20 +20,20 @@ EdgeDetector::EdgeDetector() :
     addOutputPin( m_outputPin );
 }
 
-EdgeDetector::~EdgeDetector()
+ImageSobel::~ImageSobel()
 {
 }
 
-void EdgeDetector::init() throw (PipelineException)
+void ImageSobel::init() throw (PipelineException)
 {
 }
 
-bool EdgeDetector::isReadyForProcessing() const
+bool ImageSobel::isReadyForProcessing() const
 {
     return m_inputPin->hasData();
 }
 
-void EdgeDetector::process()
+void ImageSobel::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
@@ -55,25 +55,26 @@ void EdgeDetector::process()
     // open for reading
     const IplImage* iplImg1 = img->getImage();
 
-    // perform laplace filter
-    IplImage* tmpImg = tmp->getImageForWriting();
-    cvLaplace( iplImg1, tmpImg, nearestOdd(this->m_apertureSize));
-
-    // scale back to output format
+    // open image for writing
     IplImage* iplImg2 = img2->getImageForWriting();
-    cvConvertScale( tmpImg, iplImg2, 1, 0 );
+    IplImage* iplTmp = tmp->getImageForWriting();
+
+    // do a sobel operator of the image
+    cvSobel( iplImg1, iplTmp, 1,0,3);
+    // convert the image back to 8bit depth
+    cvConvertScale(iplTmp, iplImg2, 1, 0);
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
 }
 
-void EdgeDetector::setApertureSize(int i)
+void ImageSobel::setApertureSize(int i)
 {
     m_apertureSize = i;
     emit(apertureSizeChanged(i));
 }
 
-int EdgeDetector::nearestOdd(int i)
+int ImageSobel::nearestOdd(int i)
 {
     return ( i%2 == 0 ? ++i : i );
 }

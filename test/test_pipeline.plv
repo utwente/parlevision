@@ -3,24 +3,72 @@
   <element id="0" name="plv::EdgeDetector">
    <properties>
     <apertureSize>3</apertureSize>
-    <sceneCoordX>94</sceneCoordX>
-    <sceneCoordY>-172</sceneCoordY>
+    <sceneCoordX>-165</sceneCoordX>
+    <sceneCoordY>-457</sceneCoordY>
    </properties>
   </element>
   <element id="1" name="plv::CameraProducer">
    <properties>
-    <sceneCoordX>-370</sceneCoordX>
-    <sceneCoordY>-153</sceneCoordY>
+    <sceneCoordX>-473</sceneCoordX>
+    <sceneCoordY>-259</sceneCoordY>
    </properties>
   </element>
   <element id="2" name="plv::DummyProcessor">
    <properties>
-    <someInt>2405</someInt>
+    <someInt>4909</someInt>
     <someDouble>1.23456</someDouble>
-    <someBool>true</someBool>
+    <someBool>false</someBool>
     <someString>someStringValue</someString>
-    <sceneCoordX>-145</sceneCoordX>
-    <sceneCoordY>-174</sceneCoordY>
+    <sceneCoordX>-157</sceneCoordX>
+    <sceneCoordY>-379</sceneCoordY>
+   </properties>
+  </element>
+  <element id="3" name="plv::ImageSmooth">
+   <properties>
+    <apertureSize>3</apertureSize>
+    <sceneCoordX>-315</sceneCoordX>
+    <sceneCoordY>-258</sceneCoordY>
+   </properties>
+  </element>
+  <element id="4" name="plv::ImageFlip">
+   <properties>
+    <apertureSize>3</apertureSize>
+    <someInt>-1163003435</someInt>
+    <someBool>true</someBool>
+    <sceneCoordX>-142</sceneCoordX>
+    <sceneCoordY>-284</sceneCoordY>
+   </properties>
+  </element>
+  <element id="5" name="plv::ImageCanny">
+   <properties>
+    <apertureSize>3</apertureSize>
+    <thresholdLow>0.1</thresholdLow>
+    <thresholdHigh>1</thresholdHigh>
+    <sceneCoordX>-143</sceneCoordX>
+    <sceneCoordY>-198</sceneCoordY>
+   </properties>
+  </element>
+  <element id="6" name="plv::ImageSobel">
+   <properties>
+    <apertureSize>3</apertureSize>
+    <sceneCoordX>-140</sceneCoordX>
+    <sceneCoordY>-118</sceneCoordY>
+   </properties>
+  </element>
+  <element id="7" name="plv::ImageColorConvert">
+   <properties>
+    <conversionType>7</conversionType>
+    <sceneCoordX>-136</sceneCoordX>
+    <sceneCoordY>-32</sceneCoordY>
+   </properties>
+  </element>
+  <element id="8" name="plv::ImageCornerHarris">
+   <properties>
+    <apertureSize>3</apertureSize>
+    <m_blockSize>3</m_blockSize>
+    <k>0.04</k>
+    <sceneCoordX>-134</sceneCoordX>
+    <sceneCoordY>45</sceneCoordY>
    </properties>
   </element>
  </elements>
@@ -28,7 +76,7 @@
   <connection>
    <sink>
     <pinName>input</pinName>
-    <processorId>2</processorId>
+    <processorId>3</processorId>
    </sink>
    <source>
     <pinName>output</pinName>
@@ -42,7 +90,67 @@
    </sink>
    <source>
     <pinName>output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
     <processorId>2</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>4</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>5</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>6</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>7</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>8</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>3</processorId>
    </source>
   </connection>
  </connections>

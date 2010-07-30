@@ -1,17 +1,20 @@
 #include <QDebug>
 
-#include "EdgeDetector.h"
+#include "ImageColorConvert.h"
 #include "Pin.h"
 #include "OpenCVImage.h"
 #include <opencv/cv.h>
+#include <opencv/cxcore.h>
+#include <opencv/highgui.h>
+#include <opencv/ml.h>
 
 using namespace plv;
 
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
-EdgeDetector::EdgeDetector() :
-        m_apertureSize(3)
+ImageColorConvert::ImageColorConvert() :
+        m_conversionType( CV_RGB2GRAY )
 {
     m_inputPin = new InputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     addInputPin( m_inputPin );
@@ -20,20 +23,20 @@ EdgeDetector::EdgeDetector() :
     addOutputPin( m_outputPin );
 }
 
-EdgeDetector::~EdgeDetector()
+ImageColorConvert::~ImageColorConvert()
 {
 }
 
-void EdgeDetector::init() throw (PipelineException)
+void ImageColorConvert::init() throw (PipelineException)
 {
 }
 
-bool EdgeDetector::isReadyForProcessing() const
+bool ImageColorConvert::isReadyForProcessing() const
 {
     return m_inputPin->hasData();
 }
 
-void EdgeDetector::process()
+void ImageColorConvert::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
@@ -46,7 +49,7 @@ void EdgeDetector::process()
 
     // temporary image with extra room (depth)
     RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
+            img->getWidth(), img->getHeight(), img->getDepth(), 1 );
 
     RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
@@ -55,25 +58,15 @@ void EdgeDetector::process()
     // open for reading
     const IplImage* iplImg1 = img->getImage();
 
-    // perform laplace filter
-    IplImage* tmpImg = tmp->getImageForWriting();
-    cvLaplace( iplImg1, tmpImg, nearestOdd(this->m_apertureSize));
-
-    // scale back to output format
+    // open image for writing
     IplImage* iplImg2 = img2->getImageForWriting();
-    cvConvertScale( tmpImg, iplImg2, 1, 0 );
+    IplImage* iplTmp = tmp->getImageForWriting();
+
+    cvCvtColor(iplImg1, iplTmp, m_conversionType);
+
+    // merge the temporary image in the three channels of the output image
+    cvMerge(iplTmp, iplTmp, iplTmp, NULL, iplImg2);
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
-}
-
-void EdgeDetector::setApertureSize(int i)
-{
-    m_apertureSize = i;
-    emit(apertureSizeChanged(i));
-}
-
-int EdgeDetector::nearestOdd(int i)
-{
-    return ( i%2 == 0 ? ++i : i );
 }
