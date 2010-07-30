@@ -53,7 +53,7 @@ namespace plv
 
     class IInputPin : public Pin
     {
-   public:
+    public:
         enum InputPinType {
             OPTIONAL,
             REQUIRED
@@ -326,12 +326,31 @@ namespace plv
         }
 
         ~InputPin() {}
-
     protected:
 
         /** isNull() if there is no connection */
         RefPtr<PinConnection> m_connection;
     };
+
+    template <class T>
+    OutputPin<T> * createOutputPin( const QString& name, PipelineElement* owner )
+    throw (IllegalArgumentException)
+    {
+        // if add fails pin is automatically deleted and exception is thrown
+        OutputPin<T> * pin = new OutputPin<T>( name, owner );
+        owner->addOutputPin( pin );
+        return pin;
+    }
+
+    template<typename T>
+    InputPin<T> * createInputPin( const QString& name, PipelineElement* owner, IInputPin::InputPinType type = IInputPin::REQUIRED )
+    throw (IllegalArgumentException)
+    {
+        // if add fails pin is automatically deleted and exception is thrown
+        InputPin<T> * pin = new InputPin<T>( name, owner, type );
+        owner->addInputPin( pin );
+        return pin;
+    }
 }
 
 #endif // PIN_H
