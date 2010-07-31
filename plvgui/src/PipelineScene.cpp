@@ -374,10 +374,11 @@ MainWindow* PipelineScene::getMainWindow()
 
 void PipelineScene::recalculateSceneRect()
 {
-    const qreal padding = 40;
     QRectF r = itemsBoundingRect();
-    setSceneRect(QRectF(qMin(0.0,r.left()),
-                  qMin(0.0, r.top()),
-                  qMax(320.0, r.left()+r.width()),
-                  qMax(240.0, r.top()+r.height())));
+    QRectF newRect = QRectF(0.0,
+                  0.0,
+                  qMax(320.0, r.width()),
+                  qMax(240.0, r.height()));
+    qDebug() << "new rect: " << newRect;
+    setSceneRect(newRect);
 }
