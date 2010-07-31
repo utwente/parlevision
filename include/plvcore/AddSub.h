@@ -42,7 +42,7 @@ namespace plv {
         void normalizeChanged(bool newValue);
 
     public slots:
-        void setMethod(int i) {if (i > METHOD_MAX || i < 0) return; m_method = i; emit(methodChanged(i));}
+        void setMethod(int i);
         void setNormalize(bool b) {m_normalize = b; emit(normalizeChanged(b));}
 
     private:
