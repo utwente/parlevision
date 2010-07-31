@@ -1,6 +1,7 @@
 #include "PipelineScene.h"
 
 #include <QtGui>
+#include <QtGlobal>
 #include <QDebug>
 
 #include "Pipeline.h"
@@ -38,7 +39,7 @@ PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
         this->add( connection );
     }
 
-    this->setSceneRect(0,0,100,100);
+//    this->setSceneRect(0,0,100,100);
 
     // make sure future additions to underlying pipeline get added as well
     connect(m_pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
@@ -56,6 +57,8 @@ PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
             this, SLOT(handleRemove(plv::RefPtr<plv::PinConnection>)));
 
     connect(this, SIGNAL(sceneRectChanged(QRectF)), this, SLOT(update(QRectF)));
+
+    connect(this, SIGNAL(changed(QList<QRectF>)), this, SLOT(recalculateSceneRect()));
 
 }
 
@@ -367,4 +370,14 @@ MainWindow* PipelineScene::getMainWindow()
     }
 
     return 0;
+}
+
+void PipelineScene::recalculateSceneRect()
+{
+    const qreal padding = 40;
+    QRectF r = itemsBoundingRect();
+    setSceneRect(QRectF(qMin(0.0,r.left()),
+                  qMin(0.0, r.top()),
+                  qMax(320.0, r.left()+r.width()),
+                  qMax(240.0, r.top()+r.height())));
 }

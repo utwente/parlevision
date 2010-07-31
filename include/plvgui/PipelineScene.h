@@ -85,6 +85,11 @@ namespace plvgui
         void handleRemove(plv::PinConnection* c);
         void handleRemove(plv::RefPtr<plv::PinConnection> c);
 
+        /** Recalculates the scene rect based on its contents.
+          * This is a relatively expensive method that ensures
+          * everything fits, but the scene has a default size as well.
+          */
+        void recalculateSceneRect();
 
     protected:
 //        virtual void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent);
@@ -93,6 +98,7 @@ namespace plvgui
         virtual void dragEnterEvent ( QGraphicsSceneDragDropEvent * event );
         virtual void dragMoveEvent ( QGraphicsSceneDragDropEvent * event );
         virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
+        QRectF	sceneRect () const;
 
     private:
         void clearLine();
