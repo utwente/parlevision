@@ -181,6 +181,8 @@ namespace plv
           */
         int maxInputQueueSize() const;
 
+        QString getClassProperty(const char* name) const;
+
     protected:
         //RefPtr<Pipeline> m_parent;
 

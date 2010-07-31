@@ -3,8 +3,10 @@
 #include "PipelineElement.h"
 #include "LibraryElement.h"
 #include "RefPtr.h"
+#include "Pin.h"
 #include <QDebug>
 #include <QtGui>
+#include <QStringBuilder>
 
 using namespace plvgui;
 using namespace plv;
@@ -56,6 +58,8 @@ void LibraryWidget::mousePressEvent(QMouseEvent *event)
 
     if (!element) return;
 
+    ui->infoBox->setText(infoFor(element->getElement()));
+
     QPoint hotSpot = event->pos() - element->pos();
 
     QString elementName = element->getElement()->metaObject()->className();
@@ -77,4 +81,48 @@ void LibraryWidget::mousePressEvent(QMouseEvent *event)
     drag->setHotSpot(hotSpot);
 
     drag->exec(Qt::CopyAction, Qt::CopyAction);
+}
+
+QString LibraryWidget::infoFor(plv::PipelineElement* element)
+{
+    QString desc = element->getClassProperty("description");
+    if(desc.isEmpty()) { desc = "(no description)"; }
+
+    QString inputPinRows;
+    const PipelineElement::InputPinMap& inPins = element->getInputPins();
+    for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
+        ; itr!=inPins.end(); ++itr)
+    {
+        RefPtr<IInputPin> pin = itr->second;
+        inputPinRows = inputPinRows % "<tr>"
+                        % "<td>" % QString(pin->getName()) %"</td>"
+                        % "<td>" % QString(pin->getTypeInfo().name()) %"</td>"
+                        % "</tr>";
+    }
+
+
+    QString outputPinRows;
+    const PipelineElement::OutputPinMap& outPins = element->getOutputPins();
+    for( PipelineElement::OutputPinMap::const_iterator itr = outPins.begin()
+        ; itr!=outPins.end(); ++itr)
+    {
+        RefPtr<IOutputPin> pin = itr->second;
+        outputPinRows = outputPinRows % "<tr>"
+                        % "<td>" % QString(pin->getName()) %"</td>"
+                        % "<td>" % QString(pin->getTypeInfo().name()) %"</td>"
+                        % "</tr>";
+    }
+
+    return "<h1>" % element->getName() % "</h1>"
+            % "<p>"
+            % desc % "</p>"
+            % "<h2>Input Pins</h2>"
+            % "<table><tr><th>Name</th><th>Type</th>"
+            % inputPinRows
+            % "</table>"
+            % "<h2>Output Pins</h2>"
+            % "<table><tr><th>Name</th><th>Type</th>"
+            % outputPinRows
+            % "</table>";
+
 }

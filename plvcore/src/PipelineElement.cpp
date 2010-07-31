@@ -283,3 +283,13 @@ int PipelineElement::maxInputQueueSize() const
     }
     return maxQueueSize;
 }
+
+
+QString PipelineElement::getClassProperty(const char* name) const
+{
+    int idx = this->metaObject()->indexOfClassInfo(name);
+    if(idx == -1)
+        return "";
+
+    return this->metaObject()->classInfo(idx).value();
+}

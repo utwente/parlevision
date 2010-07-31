@@ -7,7 +7,13 @@ namespace Ui {
     class LibraryWidget;
 }
 
-namespace plvgui {
+namespace plv
+{
+    class PipelineElement;
+}
+
+namespace plvgui
+{
     class LibraryWidget : public QDockWidget
     {
         Q_OBJECT
@@ -24,7 +30,7 @@ namespace plvgui {
     private:
         Ui::LibraryWidget *ui;
         void addItem(QString name);
-
+        QString infoFor(plv::PipelineElement*);
 
     private slots:
         void on_pushButton_clicked();
