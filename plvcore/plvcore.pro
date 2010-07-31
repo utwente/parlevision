@@ -59,7 +59,8 @@ SOURCES += \
     src/ImageFlip.cpp \
     src/ImageCornerHarris.cpp \
     src/ImageColorConvert.cpp \
-    src/ImageCanny.cpp
+    src/ImageCanny.cpp \
+    src/AddSub.cpp
 
 HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Application.h \
@@ -86,4 +87,5 @@ HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/ImageFlip.h \
     ../include/plvcore/ImageCornerHarris.h \
     ../include/plvcore/ImageColorConvert.h \
-    ../include/plvcore/ImageCanny.h
+    ../include/plvcore/ImageCanny.h \
+    ../include/plvcore/AddSub.h

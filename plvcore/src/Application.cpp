@@ -6,17 +6,20 @@
 
 #include "Plugin.h"
 #include "PipelineElement.h"
-#include "DummyProcessor.h"
-#include "EdgeDetector.h"
 #include "RefPtr.h"
 #include "Pipeline.h"
-#include "CameraProducer.h"
 #include "PipelineLoader.h"
-#include "ImageFlip.h"
+
+#include "CameraProducer.h"
+
+#include "AddSub.h"
+#include "DummyProcessor.h"
+#include "EdgeDetector.h"
+#include "ImageCanny.h"
 #include "ImageColorConvert.h"
 #include "ImageCornerHarris.h"
+#include "ImageFlip.h"
 #include "ImageSmooth.h"
-#include "ImageCanny.h"
 #include "ImageSobel.h"
 
 using namespace plv;
@@ -38,15 +41,19 @@ void Application::loadBuiltins()
 {
     // register classes with Qt so they can be used in signals and slots
     qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
+    //producers
     plvRegisterPipelineElement<plv::CameraProducer>("plv::CameraProducer", "Camera");
+    //processors
+    plvRegisterPipelineElement<plv::AddSub>("plv::AddSub", "AddSubDiff");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
     plvRegisterPipelineElement<plv::EdgeDetector>("plv::EdgeDetector", "Laplace");
-    plvRegisterPipelineElement<plv::ImageFlip>("plv::ImageFlip", "Flip Image");
-    plvRegisterPipelineElement<plv::ImageSmooth>("plv::ImageSmooth", "Smooth");
     plvRegisterPipelineElement<plv::ImageCanny>("plv::ImageCanny", "Canny Edge Detection");
-    plvRegisterPipelineElement<plv::ImageSobel>("plv::ImageSobel", "Sobel");
     plvRegisterPipelineElement<plv::ImageColorConvert>("plv::ImageColorConvert", "Color Conversion");
     plvRegisterPipelineElement<plv::ImageCornerHarris>("plv::ImageCornerHarris", "Harris Corner Detection");
+    plvRegisterPipelineElement<plv::ImageFlip>("plv::ImageFlip", "Flip Image");
+    plvRegisterPipelineElement<plv::ImageSmooth>("plv::ImageSmooth", "Smooth");
+    plvRegisterPipelineElement<plv::ImageSobel>("plv::ImageSobel", "Sobel");
+    //consumers
 }
 
 void Application::loadPlugins()
