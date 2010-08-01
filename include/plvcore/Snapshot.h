@@ -25,6 +25,8 @@ namespace plv {
         ~Snapshot();
 
         virtual void init() throw (PipelineException);
+        /**override: every start, a new snapshot must be enforced*/
+        virtual void start() throw (PipelineException);
         //virtual bool isBootstrapped() const;
         virtual bool isReadyForProcessing() const;
         virtual void process();

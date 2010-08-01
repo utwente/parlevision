@@ -25,7 +25,10 @@ void Snapshot::init() throw (PipelineException)
 {
     m_imgSnapshot = RefPtr<OpenCVImage>();
 }
-
+void Snapshot::start() throw (PipelineException)
+{
+    m_imgSnapshot = RefPtr<OpenCVImage>();
+}
 bool Snapshot::isReadyForProcessing() const
 {
     return m_inputPin->hasData();
