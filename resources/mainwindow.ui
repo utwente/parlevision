@@ -151,7 +151,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Save</string>
+    <string>&amp;Save</string>
    </property>
    <property name="toolTip">
     <string>Save the active pipeline to a file</string>
@@ -167,7 +167,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Open</string>
+    <string>&amp;Open</string>
    </property>
    <property name="iconText">
     <string>Load</string>
@@ -229,7 +229,7 @@
     <string>Remove the currentlly selected element from the pipeline</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Backspace</string>
+    <string>Del</string>
    </property>
   </action>
   <action name="actionNew">
