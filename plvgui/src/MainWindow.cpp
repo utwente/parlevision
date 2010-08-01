@@ -58,6 +58,9 @@ void MainWindow::initGUI()
     ui->actionPause->setEnabled(false);
     ui->actionStop->setEnabled(false);
 
+    QShortcut* shortcut = new QShortcut(QKeySequence(tr("Backspace")),this);
+    connect(shortcut, SIGNAL(activated()), ui->actionDelete, SLOT(trigger()));
+
     createLibraryWidget();
     createInspectorWidget();
 
