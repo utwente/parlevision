@@ -388,9 +388,12 @@ void PipelineScene::ensureFit()
 void PipelineScene::recalculateSceneRect()
 {
     QRectF r = itemsBoundingRect();
+    qreal width = r.width() + qMax(0.0, r.x()) + 40;
+    qreal height = r.height() + qMax(0.0, r.y()) + 40;
+
     QRectF newRect = QRectF(0.0,
                   0.0,
-                  qMax(320.0, r.width()+40),
-                  qMax(240.0, r.height()+40));
+                  qMax(320.0, width),
+                  qMax(240.0, height));
     setSceneRect(newRect);
 }
