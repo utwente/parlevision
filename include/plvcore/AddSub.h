@@ -15,6 +15,11 @@ namespace plv {
     class AddSub : public PipelineProcessor
     {
         Q_OBJECT
+
+        Q_CLASSINFO("author", "Ported from old version by Dennis")
+        Q_CLASSINFO("name", "AddSubDiff")
+        Q_CLASSINFO("description", "A simple processor to add or subtract an images from another image, or calculate their difference. Operation determined by 'method' parameter.");
+
         Q_PROPERTY( int method READ getMethod WRITE setMethod NOTIFY methodChanged )
         Q_PROPERTY( bool normalize READ getNormalize WRITE setNormalize NOTIFY normalizeChanged  )
 
