@@ -77,8 +77,11 @@ void AddSub::process()
             break;
         case METHOD_ADD:
             cvAdd(iplImgIn1,iplImgIn2,iplImgOut, NULL);
+            if (m_normalize)
+            {
             cvConvertScale(iplImgOut,iplImgOut, 0.5, 0);
             cvAbsDiffS(iplImgOut,iplImgOut, cvScalar(0));
+            }
 
             break;
         case METHOD_SUB:
