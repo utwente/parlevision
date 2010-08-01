@@ -10,7 +10,8 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
-EdgeDetectorSobel::EdgeDetectorSobel()
+EdgeDetectorSobel::EdgeDetectorSobel():
+        m_apertureSize(3)
 {
     m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
@@ -56,10 +57,25 @@ void EdgeDetectorSobel::process()
     IplImage* iplTmp = tmp->getImageForWriting();
 
     // do a sobel operator of the image
-    cvSobel( iplImg1, iplTmp, 1,0,3);
+    cvSobel( iplImg1, iplTmp, 1,0,m_apertureSize);
     // convert the image back to 8bit depth
     cvConvertScale(iplTmp, iplImg2, 1, 0);
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
+}
+
+
+void EdgeDetectorSobel::setApertureSize(int i)
+{
+    //aperture size must be odd and positive, max 31 (?)
+    if (i < 1) i = 1;
+    if (i > 31) i = 31;
+    if (i%2 == 0)
+    {   //even: determine appropriate new odd value
+        if (i > m_apertureSize) i++; //we were increasing -- increase to next odd value
+        else i--;                    //we were decreasing -- decrease to next odd value
+    }
+    m_apertureSize = i;
+    emit(apertureSizeChanged(m_apertureSize));
 }

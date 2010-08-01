@@ -13,7 +13,7 @@ namespace plv {
     {
         Q_OBJECT
 
-        Q_CLASSINFO("author", "Ported from old version by Wim")
+        Q_CLASSINFO("author", "Ported from old version by Wim & Dennis")
         Q_CLASSINFO("name", "Edge detector Laplace")
         Q_CLASSINFO("description", "Edge detection using the Laplace method.");
 
@@ -38,7 +38,6 @@ namespace plv {
         void setApertureSize(int i);
 
     private:
-        int nearestOdd(int i);
 
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;

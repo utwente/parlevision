@@ -12,7 +12,7 @@ namespace plv {
     {
         Q_OBJECT
 
-        Q_CLASSINFO("author", "Ported from old version by Wim")
+        Q_CLASSINFO("author", "Ported from old version by Wim & Dennis")
         Q_CLASSINFO("name", "Edge detector Canny")
         Q_CLASSINFO("description", "Edge detection using the Canny method.");
 
@@ -40,7 +40,7 @@ namespace plv {
         void thresholdHighChanged(double newValue);
 
     public slots:
-        void setApertureSize(int i) { m_apertureSize = i; emit(apertureSizeChanged(i)); }
+        void setApertureSize(int i);
         void setThresholdLow (double newValue) { m_thresholdLow  = newValue; emit(thresholdLowChanged(newValue)); }
         void setThresholdHigh(double newValue) { m_thresholdHigh = newValue; emit(thresholdHighChanged(newValue)); }
 

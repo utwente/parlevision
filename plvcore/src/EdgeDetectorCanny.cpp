@@ -71,3 +71,18 @@ void EdgeDetectorCanny::process()
     // publish the new image
     m_outputPin->put( img2.getPtr() );
 }
+
+
+void EdgeDetectorCanny::setApertureSize(int i)
+{
+    //aperture size must be odd and positive, min 3, max 7 (but that is already way too much for sensible results)
+    if (i < 3) i = 3;
+    if (i > 7) i = 7;
+    if (i%2 == 0)
+    {   //even: determine appropriate new odd value
+        if (i > m_apertureSize) i++; //we were increasing -- increase to next odd value
+        else i--;                    //we were decreasing -- decrease to next odd value
+    }
+    m_apertureSize = i;
+    emit(apertureSizeChanged(m_apertureSize));
+}

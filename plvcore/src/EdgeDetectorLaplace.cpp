@@ -54,7 +54,10 @@ void EdgeDetectorLaplace::process()
 
     // perform laplace filter
     IplImage* tmpImg = tmp->getImageForWriting();
-    cvLaplace( iplImg1, tmpImg, nearestOdd(this->m_apertureSize));
+
+    //FIXME: it seems that this is a openCV2.0 function; the 2.1 function looks different
+    //see http://opencv.willowgarage.com/documentation/cpp/image_filtering.html
+    cvLaplace( iplImg1, tmpImg, this->m_apertureSize);
 
     // scale back to output format
     IplImage* iplImg2 = img2->getImageForWriting();
@@ -66,11 +69,14 @@ void EdgeDetectorLaplace::process()
 
 void EdgeDetectorLaplace::setApertureSize(int i)
 {
+    //aperture size must be odd and positive, max 31 (but that is already way too much for sensible results)
+    if (i < 1) i = 1;
+    if (i > 31) i = 31;
+    if (i%2 == 0)
+    {   //even: determine appropriate new odd value
+        if (i > m_apertureSize) i++; //we were increasing -- increase to next odd value
+        else i--;                    //we were decreasing -- decrease to next odd value
+    }
     m_apertureSize = i;
-    emit(apertureSizeChanged(i));
-}
-
-int EdgeDetectorLaplace::nearestOdd(int i)
-{
-    return ( i%2 == 0 ? ++i : i );
+    emit(apertureSizeChanged(m_apertureSize));
 }
