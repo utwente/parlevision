@@ -1,0 +1,57 @@
+<pipeline>
+ <elements>
+  <element id="0" name="plv::CameraProducer">
+   <properties>
+    <sceneCoordX>12</sceneCoordX>
+    <sceneCoordY>53</sceneCoordY>
+   </properties>
+  </element>
+  <element id="1" name="plv::AddSub">
+   <properties>
+    <method>2</method>
+    <normalize>false</normalize>
+    <sceneCoordX>430</sceneCoordX>
+    <sceneCoordY>116</sceneCoordY>
+   </properties>
+  </element>
+  <element id="2" name="plv::EdgeDetector">
+   <properties>
+    <apertureSize>19</apertureSize>
+    <sceneCoordX>169</sceneCoordX>
+    <sceneCoordY>166</sceneCoordY>
+   </properties>
+  </element>
+ </elements>
+ <connections>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>2</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>0</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input 1</pinName>
+    <processorId>1</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>0</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input 2</pinName>
+    <processorId>1</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>2</processorId>
+   </source>
+  </connection>
+ </connections>
+</pipeline>
