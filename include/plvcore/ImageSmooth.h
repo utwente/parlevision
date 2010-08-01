@@ -7,7 +7,7 @@
 namespace plv {
     class Pipeline;
     class OpenCVImage;
-
+    //FIXME: add Q_CLASSINFO with documentation on the processor, and the meaning of the pins!
     class ImageSmooth : public PipelineProcessor
     {
         Q_OBJECT
