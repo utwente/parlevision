@@ -204,7 +204,9 @@ void MainWindow::createLibraryWidget()
     m_libraryWidget = new LibraryWidget(this);
     this->addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
     m_libraryWidget->toggleViewAction()->setIcon(QIcon(":/icons/library.png"));
+    m_libraryWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_L));
     ui->toolBar->addAction(m_libraryWidget->toggleViewAction());
+    ui->menuView->addAction(m_libraryWidget->toggleViewAction());
     #ifdef Q_OS_MAC
     // Show LibraryWidget as floating window on Mac OS X
     m_libraryWidget->setFloating(true);
@@ -216,8 +218,9 @@ void MainWindow::createInspectorWidget()
     m_inspectorWidget = new InspectorWidget(this);
     this->addDockWidget(Qt::RightDockWidgetArea, m_inspectorWidget);
     m_inspectorWidget->toggleViewAction()->setIcon(QIcon(":/icons/inspector.png"));
+    m_inspectorWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_I));
     ui->toolBar->addAction(m_inspectorWidget->toggleViewAction());
-
+    ui->menuView->addAction(m_inspectorWidget->toggleViewAction());
     #ifdef Q_OS_MAC
     // Show LibraryWidget as floating window on Mac OS X
     m_inspectorWidget->setFloating(true);
