@@ -62,7 +62,17 @@ void AddSub::process()
         throw std::runtime_error("The two images need to be the same in depth, size and nr of channels");
     }
 
-    //get a new output image
+    //need this because I need to scale down input for adding, otherwise I get too many white areas
+    RefPtr<OpenCVImage> imgTempIn1 = OpenCVImageFactory::instance()->get(
+            img1->getWidth(), img1->getHeight(), img1->getDepth(), img1->getNumChannels() );
+    RefPtr<OpenCVImage> imgTempIn2 = OpenCVImageFactory::instance()->get(
+            img2->getWidth(), img2->getHeight(), img2->getDepth(), img2->getNumChannels() );
+
+    // open temp images for writing
+    IplImage* iplImgTempIn1 = imgTempIn1->getImageForWriting();
+    IplImage* iplImgTempIn2 = imgTempIn2->getImageForWriting();
+
+    //get a new output image of same depth and size as input image
     RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
             img1->getWidth(), img1->getHeight(), img1->getDepth(), img1->getNumChannels() );
 
@@ -76,23 +86,20 @@ void AddSub::process()
             //NOOP we do nothing
             break;
         case METHOD_ADD:
-            cvAdd(iplImgIn1,iplImgIn2,iplImgOut, NULL);
-            if (m_normalize)
-            {
-            cvConvertScale(iplImgOut,iplImgOut, 0.5, 0);
-            cvAbsDiffS(iplImgOut,iplImgOut, cvScalar(0));
-            }
-
+            //scale down to prevent saturation during the add operation
+            cvConvertScale(iplImgIn1,iplImgTempIn1, 0.5, 0);
+            cvConvertScale(iplImgIn2,iplImgTempIn2, 0.5, 0);
+            cvAdd(iplImgTempIn1,iplImgTempIn2,iplImgOut, NULL);
+            //scale back up again
+            if (!m_normalize)cvConvertScale(iplImgOut,iplImgOut, 2, 0);
             break;
         case METHOD_SUB:
-            //subtract 2nd source image from 1st. Store in iplImgOut
+            //subtract 2nd source image from 1st. Store in iplImgOut.
             cvSub(iplImgIn1,iplImgIn2,iplImgOut);
             break;
-        case METHOD_DIFF:
-            cvAbsDiff(iplImgIn1,iplImgIn2,iplImgOut);
-            break;
+
     }
-    //normalize if necessary
+
 
     // publish the new image
     m_outputPin->put( imgOut.getPtr() );

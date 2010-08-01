@@ -40,6 +40,8 @@ void Application::init()
 
 void Application::loadBuiltins()
 {
+    //FIXME: [DR] can we, instead of using the 2nd name arguments, get this information within plvRegisterPipelineElement from Q_CLASSINFO"name"? And use actual classname if this Q_CLASSINFO was not set?
+
     // register classes with Qt so they can be used in signals and slots
     qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
     qRegisterMetaType< plv::Enum >( "plv::Enum" );
@@ -48,7 +50,7 @@ void Application::loadBuiltins()
     plvRegisterPipelineElement<plv::CameraProducer>("plv::CameraProducer", "Camera");
 
     //processors
-    plvRegisterPipelineElement<plv::AddSub>("plv::AddSub", "AddSubDiff");
+    plvRegisterPipelineElement<plv::AddSub>("plv::AddSub", "AddSub");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
     plvRegisterPipelineElement<plv::EdgeDetector>("plv::EdgeDetector", "Laplace");
     plvRegisterPipelineElement<plv::ImageCanny>("plv::ImageCanny", "Canny Edge Detection");
