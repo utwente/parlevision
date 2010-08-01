@@ -39,8 +39,6 @@ PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
         this->add( connection );
     }
 
-//    this->setSceneRect(0,0,100,100);
-
     // make sure future additions to underlying pipeline get added as well
     connect(m_pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(add(plv::RefPtr<plv::PipelineElement>)));
@@ -376,10 +374,8 @@ void PipelineScene::ensureFit()
 {
     foreach(PipelineElementWidget* item, this->elementWidgets.values())
     {
-
         if(item->scenePos().x() < 0.0)
         {
-            qDebug() << "moving " << item;
             item->translate(-item->scenePos().x(),0);
         }
         if(item->scenePos().y() < 0.0)
@@ -396,6 +392,5 @@ void PipelineScene::recalculateSceneRect()
                   0.0,
                   qMax(320.0, r.width()+40),
                   qMax(240.0, r.height()+40));
-    qDebug() << "new rect: " << newRect;
     setSceneRect(newRect);
 }
