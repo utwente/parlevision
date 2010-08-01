@@ -62,7 +62,8 @@ SOURCES += \
     src/ImageColorConvert.cpp \
     src/AddSub.cpp \
     src/EdgeDetectorCanny.cpp \
-    src/AddSub.cpp
+    src/Add.cpp \
+    src/Sub.cpp
 
 HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Application.h \
@@ -90,4 +91,5 @@ HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/ImageCornerHarris.h \
     ../include/plvcore/ImageColorConvert.h \
     ../include/plvcore/EdgeDetectorCanny.h \
-    ../include/plvcore/AddSub.h
+    ../include/plvcore/Add.h \
+    ../include/plvcore/Sub.h

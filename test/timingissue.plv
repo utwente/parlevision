@@ -6,9 +6,8 @@
     <sceneCoordY>75</sceneCoordY>
    </properties>
   </element>
-  <element id="1" name="plv::AddSub">
+  <element id="1" name="plv::Add">
    <properties>
-    <method>1</method>
     <normalize>true</normalize>
     <sceneCoordX>371</sceneCoordX>
     <sceneCoordY>82</sceneCoordY>

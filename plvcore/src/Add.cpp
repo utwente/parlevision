@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include "AddSub.h"
+#include "Add.h"
 #include "Pin.h"
 #include "OpenCVImage.h"
 #include <opencv/cv.h>
@@ -11,8 +11,7 @@ using namespace plv;
 #define INPUT_PIN_NAME2 "input 2"
 #define OUTPUT_PIN_NAME "output"
 
-AddSub::AddSub() :
-        m_method(1),
+Add::Add() :
         m_normalize ( false )
 {
     m_inputPin1 = createInputPin<OpenCVImage>( INPUT_PIN_NAME1, this );
@@ -20,26 +19,24 @@ AddSub::AddSub() :
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
 }
 
-AddSub::~AddSub()
+Add::~Add()
 {
 }
 
-void AddSub::init() throw (PipelineException)
+void Add::init() throw (PipelineException)
 {
 }
 
-bool AddSub::isReadyForProcessing() const
+bool Add::isReadyForProcessing() const
 {
     return (m_inputPin1->hasData() && m_inputPin2->hasData());
 }
 
-void AddSub::process()
+void Add::process()
 {
     assert(m_inputPin1 != 0);
     assert(m_inputPin2 != 0);
     assert(m_outputPin != 0);
-    assert(m_method >= 0);
-    assert(m_method <= METHOD_MAX);
 
     RefPtr<OpenCVImage> img1 = m_inputPin1->get();
     RefPtr<OpenCVImage> img2 = m_inputPin2->get();
@@ -79,35 +76,13 @@ void AddSub::process()
     // open output image for writing
     IplImage* iplImgOut = imgOut->getImageForWriting();
 
-    // do the add/sub/diff operation
-    switch(m_method)
-    {
-        case METHOD_NOTHING:
-            //NOOP we do nothing
-            break;
-        case METHOD_ADD:
-            //scale down to prevent saturation during the add operation
-            cvConvertScale(iplImgIn1,iplImgTempIn1, 0.5, 0);
-            cvConvertScale(iplImgIn2,iplImgTempIn2, 0.5, 0);
-            cvAdd(iplImgTempIn1,iplImgTempIn2,iplImgOut, NULL);
-            //scale back up again
-            if (!m_normalize)cvConvertScale(iplImgOut,iplImgOut, 2, 0);
-            break;
-        case METHOD_SUB:
-            //subtract 2nd source image from 1st. Store in iplImgOut.
-            cvSub(iplImgIn1,iplImgIn2,iplImgOut);
-            break;
-
-    }
-
+    //scale down to prevent saturation during the add operation
+    cvConvertScale(iplImgIn1,iplImgTempIn1, 0.5, 0);
+    cvConvertScale(iplImgIn2,iplImgTempIn2, 0.5, 0);
+    cvAdd(iplImgTempIn1,iplImgTempIn2,iplImgOut, NULL);
+    //scale back up again
+    if (!m_normalize)cvConvertScale(iplImgOut,iplImgOut, 2, 0);
 
     // publish the new image
     m_outputPin->put( imgOut.getPtr() );
-}
-
-void AddSub::setMethod(int i)
-{
-    if (i > METHOD_MAX || i < 0) i=m_method;
-    m_method = i;
-    emit(methodChanged(m_method));
 }

@@ -13,7 +13,7 @@
 
 #include "CameraProducer.h"
 
-#include "AddSub.h"
+#include "Add.h"
 #include "DummyProcessor.h"
 #include "EdgeDetectorLaplace.h"
 #include "EdgeDetectorCanny.h"
@@ -50,7 +50,7 @@ void Application::loadBuiltins()
     plvRegisterPipelineElement<plv::CameraProducer>("plv::CameraProducer", "Camera");
 
     //processors
-    plvRegisterPipelineElement<plv::AddSub>("plv::AddSub", "AddSub");
+    plvRegisterPipelineElement<plv::Add>("plv::Add", "A add B");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
     plvRegisterPipelineElement<plv::EdgeDetectorCanny>("plv::EdgeDetectorCanny", "Edge Canny");
     plvRegisterPipelineElement<plv::EdgeDetectorLaplace>("plv::EdgeDetectorLaplace", "Edge Laplace");
