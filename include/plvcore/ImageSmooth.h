@@ -44,7 +44,6 @@ namespace plv {
         void setFour(double i) { m_four = i; emit(fourChanged(i)); }
 
     private:
-        int nearestOdd(int i);
 
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;

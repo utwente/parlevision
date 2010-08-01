@@ -11,9 +11,13 @@ namespace plv {
     class ImageFlip : public PipelineProcessor
     {
         Q_OBJECT
-        Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
-        Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt NOTIFY someIntChanged  )
-        Q_PROPERTY( bool someBool READ getSomeBool WRITE setSomeBool NOTIFY someBoolChanged  )
+
+        Q_CLASSINFO("author", "Ported from old version by Wim & Dennis")
+        Q_CLASSINFO("name", "Flip")
+        Q_CLASSINFO("description", "Flip image. FlipX means \"flip around x-axis\". Same for FlipY.");
+
+        Q_PROPERTY( bool flipX READ getFlipX WRITE setFlipX NOTIFY flipXChanged  )
+        Q_PROPERTY( bool flipY READ getFlipY WRITE setFlipY NOTIFY flipYChanged  )
 
     public:
         ImageFlip();
@@ -25,29 +29,25 @@ namespace plv {
         virtual void process();
 
         /** propery methods */
-        int getApertureSize() { return m_apertureSize; }
-        int getSomeInt() { return m_someInt; }
-        bool getSomeBool() { return m_someBool; }
+        bool getFlipX() { return m_flipX; }
+        bool getFlipY() { return m_flipY; }
 
     signals:
-        void apertureSizeChanged(int newValue);
-        void someIntChanged(int newValue);
-        void someBoolChanged(bool newValue);
+        void flipXChanged(bool newValue);
+        void flipYChanged(bool newValue);
 
     public slots:
-        void setApertureSize(int i);
-        void setSomeInt(int i) {m_someInt = i; emit(someIntChanged(i));}
-        void setSomeBool(bool b) {m_someBool = b; emit(someBoolChanged(b));}
+        void setFlipX(bool b);
+        void setFlipY(bool b);
 
     private:
-        int nearestOdd(int i);
 
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
 
-        int m_apertureSize;
-        int m_someInt;
-        bool m_someBool;
+        bool m_flipX;
+        bool m_flipY;
+        int m_method;
     };
 }
 #endif // IMAGEFLIP_H

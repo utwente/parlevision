@@ -11,9 +11,9 @@ using namespace plv;
 #define OUTPUT_PIN_NAME "output"
 
 ImageFlip::ImageFlip() :
-        m_apertureSize(3),
-        m_someInt( 0 ),
-        m_someBool( false )
+        m_flipX(true),
+        m_flipY(true),
+        m_method(-1)
 {
     m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
@@ -37,44 +37,61 @@ void ImageFlip::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    if(img->getDepth() != IPL_DEPTH_8U)
-    {
-        throw std::runtime_error("format not yet supported");
-    }
+    RefPtr<OpenCVImage> imgIn = m_inputPin->get();
 
-    // temporary image with extra room (depth)
-    //TODO: [DR]: why do we need the extra depth here?
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
-
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
+    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
+            imgIn->getWidth(), imgIn->getHeight(), imgIn->getDepth(), imgIn->getNumChannels() );
 
 
     // open for reading
-    const IplImage* iplImg1 = img->getImage();
+    const IplImage* iplImgIn = imgIn->getImage();
 
     // open image for writing
-    IplImage* iplImg2 = img2->getImageForWriting();
+    IplImage* iplImgOut = imgOut->getImageForWriting();
 
     // do a flip of the image
-    cvFlip( iplImg1, iplImg2, (int)m_someBool);
+    if (m_flipX || m_flipY) cvFlip( iplImgIn, iplImgOut, m_method);
+    else cvCopy( iplImgIn, iplImgOut);
 
     // publish the new image
-    m_outputPin->put( img2.getPtr() );
-
-    this->setSomeInt(this->getSomeInt()+1);
+    m_outputPin->put( imgOut.getPtr() );
 
 }
 
-void ImageFlip::setApertureSize(int i)
+
+
+void ImageFlip::setFlipX(bool b)
 {
-    m_apertureSize = i;
-    emit(apertureSizeChanged(i));
+    if (b)
+    {
+        if (m_flipY) m_method = -1;
+        else m_method=0;
+    }
+    else
+    {
+        if (m_flipY) m_method = 1;
+        else m_method=0;
+    }
+
+
+    m_flipX = b;
+    emit(flipXChanged(m_flipX));
 }
 
-int ImageFlip::nearestOdd(int i)
+void ImageFlip::setFlipY(bool b)
 {
-    return ( i%2 == 0 ? ++i : i );
+    if (b)
+    {
+        if (m_flipX) m_method = -1;
+        else m_method=1;
+    }
+    else
+    {
+        if (m_flipX) m_method = 0;
+        else m_method=1;
+    }
+
+
+    m_flipY = b;
+    emit(flipYChanged(m_flipY));
 }

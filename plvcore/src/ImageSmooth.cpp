@@ -10,6 +10,7 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
+//FIXME: [DR] properties must be validated on change, see e.g. laplace edge detector for example
 ImageSmooth::ImageSmooth() :
         m_one(3),
         m_two(0),
