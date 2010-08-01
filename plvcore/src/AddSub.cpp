@@ -30,7 +30,7 @@ void AddSub::init() throw (PipelineException)
 
 bool AddSub::isReadyForProcessing() const
 {
-    return m_inputPin1->hasData() && m_inputPin2->hasData();
+    return (m_inputPin1->hasData() && m_inputPin2->hasData());
 }
 
 void AddSub::process()
