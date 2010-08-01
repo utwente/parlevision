@@ -196,12 +196,6 @@ void MainWindow::updateRecentFileActions()
     m_recentFilesSeparator->setVisible(numRecentFiles > 0);
 }
 
-void MainWindow::addWidget(QWidget *widget)
-{
-    widget->setMaximumSize(320,240);
-    ui->utilityContainer->addWidget(widget);
-}
-
 void MainWindow::createLibraryWidget()
 {
     m_libraryWidget = new LibraryWidget(this);
