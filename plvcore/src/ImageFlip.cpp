@@ -68,7 +68,6 @@ void ImageFlip::process()
 
 }
 
-//FIXME: [DR]: Why here? It is also already set in the H-file!
 void ImageFlip::setApertureSize(int i)
 {
     m_apertureSize = i;
