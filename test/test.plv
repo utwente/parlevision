@@ -1,0 +1,14 @@
+<pipeline>
+ <elements>
+  <element id="0" name="plv::ImageFlip">
+   <properties>
+    <apertureSize>3</apertureSize>
+    <someInt>0</someInt>
+    <someBool>true</someBool>
+    <sceneCoordX>115</sceneCoordX>
+    <sceneCoordY>325</sceneCoordY>
+   </properties>
+  </element>
+ </elements>
+ <connections/>
+</pipeline>
