@@ -66,8 +66,6 @@ void ImageFlip::process()
 
     this->setSomeInt(this->getSomeInt()+1);
 
-    // publish the new image
-    m_outputPin->put( img2.getPtr() ); //FIXME: REDUNDANT
 }
 
 //FIXME: [DR]: Why here? It is also already set in the H-file!
