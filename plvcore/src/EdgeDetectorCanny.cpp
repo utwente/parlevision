@@ -10,6 +10,11 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
+
+//FIXME:
+//why do we need to do all this complicated conversion up and down in process()? Better to just do a simple Canny,
+//but refuse to process (i.e., throw away all frames) when input is not proper grayscale.
+//maybe also send message or something...
 EdgeDetectorCanny::EdgeDetectorCanny() :
         m_apertureSize(3),
         m_thresholdLow(0.1),
@@ -72,7 +77,43 @@ void EdgeDetectorCanny::process()
     m_outputPin->put( img2.getPtr() );
 }
 
+/*/
+void alternativeProcess()
+{
+    assert(m_inputPin != 0);
+    assert(m_outputPin != 0);
 
+    RefPtr<OpenCVImage> img = m_inputPin->get();
+    if(img->getDepth() != IPL_DEPTH_8U)
+    {
+        throw std::runtime_error("format not yet supported");
+    }
+
+    // temporary image with extra room (depth)
+    //FIXME: [DR] Why?
+    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
+            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
+
+    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
+            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
+
+
+    // open for reading
+    const IplImage* iplImg1 = img->getImage();
+
+    // perform canny filter
+    IplImage* tmpImg = tmp->getImageForWriting();
+
+    cvCanny(iplImg1, tmpImg, m_thresholdLow, m_thresholdHigh, m_apertureSize);
+
+    // scale back to output format
+    IplImage* iplImg2 = img2->getImageForWriting();
+    cvConvertScale( tmpImg, iplImg2, 1, 0 );
+
+    // publish the new image
+    m_outputPin->put( img2.getPtr() );
+}
+/**/
 void EdgeDetectorCanny::setApertureSize(int i)
 {
     //aperture size must be odd and positive, min 3, max 7 (but that is already way too much for sensible results)
