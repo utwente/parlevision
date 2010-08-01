@@ -30,6 +30,7 @@ namespace plv {
         /** propery methods */
         int getApertureSize() { return m_apertureSize; }
 
+
     signals:
         void apertureSizeChanged(int newValue);
 
@@ -42,6 +43,7 @@ namespace plv {
         OutputPin<OpenCVImage>* m_outputPin;
 
         int m_apertureSize;
+
     };
 }
 #endif // EDGEDETECTORSOBEL_H

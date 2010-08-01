@@ -48,9 +48,9 @@ void EdgeDetectorCanny::process()
         throw std::runtime_error("format not yet supported");
     }
 
-    // temporary image with extra room (depth)
+    // temporary image with extra room (depth), see e.g. http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
     RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_8U , 1 );
+            img->getWidth(), img->getHeight(), IPL_DEPTH_16U , 1 );
 
     RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
@@ -77,7 +77,7 @@ void EdgeDetectorCanny::process()
     m_outputPin->put( img2.getPtr() );
 }
 
-/*/
+/*
 void alternativeProcess()
 {
     assert(m_inputPin != 0);
@@ -89,8 +89,8 @@ void alternativeProcess()
         throw std::runtime_error("format not yet supported");
     }
 
-    // temporary image with extra room (depth)
-    //FIXME: [DR] Why?
+    // temporary image with extra room (depth), see e.g. http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
+
     RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
 
@@ -113,7 +113,7 @@ void alternativeProcess()
     // publish the new image
     m_outputPin->put( img2.getPtr() );
 }
-/**/
+*/
 void EdgeDetectorCanny::setApertureSize(int i)
 {
     //aperture size must be odd and positive, min 3, max 7 (but that is already way too much for sensible results)

@@ -41,7 +41,7 @@ void EdgeDetectorSobel::process()
         throw std::runtime_error("format not yet supported");
     }
 
-    // temporary image with extra room (depth)
+    // temporary image with extra room (depth), see e.g. http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
     RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
 
@@ -57,6 +57,7 @@ void EdgeDetectorSobel::process()
     IplImage* iplTmp = tmp->getImageForWriting();
 
     // do a sobel operator of the image
+    //FIXME: missing parameters for x_order and y_order
     cvSobel( iplImg1, iplTmp, 1,0,m_apertureSize);
     // convert the image back to 8bit depth
     cvConvertScale(iplTmp, iplImg2, 1, 0);
@@ -79,3 +80,4 @@ void EdgeDetectorSobel::setApertureSize(int i)
     m_apertureSize = i;
     emit(apertureSizeChanged(m_apertureSize));
 }
+
