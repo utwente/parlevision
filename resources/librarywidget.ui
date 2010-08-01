@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>256</width>
-    <height>480</height>
+    <width>280</width>
+    <height>572</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+   <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>280</width>
-    <height>572</height>
+    <height>300</height>
    </size>
   </property>
   <property name="accessibleDescription">
@@ -50,7 +50,7 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>240</height>
+        <height>100</height>
        </size>
       </property>
       <property name="acceptDrops">
@@ -76,8 +76,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>232</width>
-         <height>240</height>
+         <width>256</width>
+         <height>320</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -118,7 +118,7 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>100</height>
+        <height>20</height>
        </size>
       </property>
      </widget>
