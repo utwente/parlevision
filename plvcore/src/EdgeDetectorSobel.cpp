@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include "ImageSobel.h"
+#include "EdgeDetectorSobel.h"
 #include "Pin.h"
 #include "OpenCVImage.h"
 #include <opencv/cv.h>
@@ -10,27 +10,26 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
-ImageSobel::ImageSobel() :
-        m_apertureSize(3)
+EdgeDetectorSobel::EdgeDetectorSobel()
 {
     m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
 }
 
-ImageSobel::~ImageSobel()
+EdgeDetectorSobel::~EdgeDetectorSobel()
 {
 }
 
-void ImageSobel::init() throw (PipelineException)
+void EdgeDetectorSobel::init() throw (PipelineException)
 {
 }
 
-bool ImageSobel::isReadyForProcessing() const
+bool EdgeDetectorSobel::isReadyForProcessing() const
 {
     return m_inputPin->hasData();
 }
 
-void ImageSobel::process()
+void EdgeDetectorSobel::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
@@ -63,15 +62,4 @@ void ImageSobel::process()
 
     // publish the new image
     m_outputPin->put( img2.getPtr() );
-}
-
-void ImageSobel::setApertureSize(int i)
-{
-    m_apertureSize = i;
-    emit(apertureSizeChanged(i));
-}
-
-int ImageSobel::nearestOdd(int i)
-{
-    return ( i%2 == 0 ? ++i : i );
 }

@@ -15,13 +15,13 @@
 
 #include "AddSub.h"
 #include "DummyProcessor.h"
-#include "EdgeDetector.h"
-#include "ImageCanny.h"
+#include "EdgeDetectorLaplace.h"
+#include "EdgeDetectorCanny.h"
 #include "ImageColorConvert.h"
 #include "ImageCornerHarris.h"
 #include "ImageFlip.h"
 #include "ImageSmooth.h"
-#include "ImageSobel.h"
+#include "EdgeDetectorSobel.h"
 
 using namespace plv;
 
@@ -52,13 +52,13 @@ void Application::loadBuiltins()
     //processors
     plvRegisterPipelineElement<plv::AddSub>("plv::AddSub", "AddSub");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
-    plvRegisterPipelineElement<plv::EdgeDetector>("plv::EdgeDetector", "Laplace");
-    plvRegisterPipelineElement<plv::ImageCanny>("plv::ImageCanny", "Canny Edge Detection");
+    plvRegisterPipelineElement<plv::EdgeDetectorCanny>("plv::EdgeDetectorCanny", "Edge Canny");
+    plvRegisterPipelineElement<plv::EdgeDetectorLaplace>("plv::EdgeDetectorLaplace", "Edge Laplace");
+    plvRegisterPipelineElement<plv::EdgeDetectorSobel>("plv::EdgeDetectorSobel", "Edge Sobel");
     plvRegisterPipelineElement<plv::ImageColorConvert>("plv::ImageColorConvert", "Color Conversion");
     plvRegisterPipelineElement<plv::ImageCornerHarris>("plv::ImageCornerHarris", "Harris Corner Detection");
     plvRegisterPipelineElement<plv::ImageFlip>("plv::ImageFlip", "Flip Image");
     plvRegisterPipelineElement<plv::ImageSmooth>("plv::ImageSmooth", "Smooth");
-    plvRegisterPipelineElement<plv::ImageSobel>("plv::ImageSobel", "Sobel");
     //consumers
 }
 

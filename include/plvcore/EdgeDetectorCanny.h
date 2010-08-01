@@ -1,5 +1,5 @@
-#ifndef IMAGECANNY_H
-#define IMAGECANNY_H
+#ifndef EDGEDETECTORCANNY_H
+#define EDGEDETECTORCANNY_H
 
 #include "PipelineProcessor.h"
 #include "Pin.h"
@@ -8,16 +8,21 @@ namespace plv {
     class Pipeline;
     class OpenCVImage;
 
-    class ImageCanny : public PipelineProcessor
+    class EdgeDetectorCanny : public PipelineProcessor
     {
         Q_OBJECT
+
+        Q_CLASSINFO("author", "Ported from old version by Wim")
+        Q_CLASSINFO("name", "Edge detector Canny")
+        Q_CLASSINFO("description", "Edge detection using the Canny method.");
+
         Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
         Q_PROPERTY( double thresholdLow READ getThresholdLow WRITE setThresholdLow NOTIFY thresholdLowChanged )
         Q_PROPERTY( double thresholdHigh READ getThresholdHigh WRITE setThresholdHigh NOTIFY thresholdHighChanged )
 
     public:
-        ImageCanny();
-        ~ImageCanny();
+        EdgeDetectorCanny();
+        ~EdgeDetectorCanny();
 
         virtual void init() throw (PipelineException);
         //virtual bool isBootstrapped() const;
@@ -50,4 +55,4 @@ namespace plv {
         double m_thresholdHigh;
     };
 }
-#endif // IMAGECANNY_H
+#endif // EDGEDETECTORCANNY_H

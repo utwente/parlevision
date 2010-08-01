@@ -39,6 +39,7 @@ INCLUDEPATH += ../include/plvcore
 DEFINES += PLVCORE_LIBRARY
 
 SOURCES += \
+    src/Types.cpp \
     src/Application.cpp \
     src/CameraProducer.cpp \
     src/Pin.cpp \
@@ -53,15 +54,15 @@ SOURCES += \
     src/Pipeline.cpp \
     src/PipelineLoader.cpp \
     src/Scheduler.cpp \
-    src/EdgeDetector.cpp \
+    src/EdgeDetectorLaplace.cpp \
     src/ImageSmooth.cpp \
-    src/ImageSobel.cpp \
+    src/EdgeDetectorSobel.cpp \
     src/ImageFlip.cpp \
     src/ImageCornerHarris.cpp \
     src/ImageColorConvert.cpp \
-    src/ImageCanny.cpp \
     src/AddSub.cpp \
-    src/Types.cpp
+    src/EdgeDetectorCanny.cpp \
+    src/AddSub.cpp
 
 HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Application.h \
@@ -82,11 +83,11 @@ HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/PlvExceptions.h \
     ../include/plvcore/PipelineLoader.h \
     ../include/plvcore/Scheduler.h \
-    ../include/plvcore/EdgeDetector.h \
+    ../include/plvcore/EdgeDetectorLaplace.h \
     ../include/plvcore/ImageSmooth.h \
-    ../include/plvcore/ImageSobel.h \
+    ../include/plvcore/EdgeDetectorSobel.h \
     ../include/plvcore/ImageFlip.h \
     ../include/plvcore/ImageCornerHarris.h \
     ../include/plvcore/ImageColorConvert.h \
-    ../include/plvcore/ImageCanny.h \
+    ../include/plvcore/EdgeDetectorCanny.h \
     ../include/plvcore/AddSub.h
