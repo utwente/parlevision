@@ -18,11 +18,12 @@
 #include "DummyProcessor.h"
 #include "EdgeDetectorLaplace.h"
 #include "EdgeDetectorCanny.h"
+#include "EdgeDetectorSobel.h"
 #include "ImageColorConvert.h"
 #include "ImageCornerHarris.h"
 #include "ImageFlip.h"
 #include "ImageSmooth.h"
-#include "EdgeDetectorSobel.h"
+#include "Snapshot.h"
 
 using namespace plv;
 
@@ -61,6 +62,7 @@ void Application::loadBuiltins()
     plvRegisterPipelineElement<plv::ImageCornerHarris>("plv::ImageCornerHarris", "Harris Corner Detection");
     plvRegisterPipelineElement<plv::ImageFlip>("plv::ImageFlip", "Flip Image");
     plvRegisterPipelineElement<plv::ImageSmooth>("plv::ImageSmooth", "Smooth");
+    plvRegisterPipelineElement<plv::Snapshot>("plv::Snapshot", "Snapshot");
     //consumers
 }
 
