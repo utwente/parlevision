@@ -10,6 +10,8 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
+/**
+  * This processor is mainly for showing the code with which one creates pins and properties and such */
 DummyProcessor::DummyProcessor() :
         m_someInt(1337),
         m_someDouble(1.23456),

@@ -55,7 +55,7 @@ void Snapshot::process()
     }
 
     //get the stored snapshot image, to copy it to the output
-    IplImage* iplImgSnapshot = m_imgSnapshot->getImage();
+    IplImage* iplImgSnapshot = m_imgSnapshot->getImageForWriting();
 
     //make snapshot if requested
     if (m_makeSnapshot)
