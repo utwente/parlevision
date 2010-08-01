@@ -47,6 +47,9 @@ void MainWindow::initGUI()
     ui->setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
 
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
     this->setWindowTitle("ParleVision - no pipeline");
 
     ui->view->setAcceptDrops(true);
