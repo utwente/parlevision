@@ -3,40 +3,45 @@
   <element id="0" name="plv::EdgeDetector">
    <properties>
     <apertureSize>3</apertureSize>
-    <sceneCoordX>-165</sceneCoordX>
-    <sceneCoordY>-457</sceneCoordY>
+    <sceneCoordX>334</sceneCoordX>
+    <sceneCoordY>271</sceneCoordY>
    </properties>
   </element>
   <element id="1" name="plv::CameraProducer">
    <properties>
-    <sceneCoordX>-473</sceneCoordX>
-    <sceneCoordY>-259</sceneCoordY>
+    <sceneCoordX>-52</sceneCoordX>
+    <sceneCoordY>220</sceneCoordY>
    </properties>
   </element>
   <element id="2" name="plv::DummyProcessor">
    <properties>
     <someInt>4909</someInt>
     <someDouble>1.23456</someDouble>
-    <someBool>false</someBool>
+    <someBool>true</someBool>
     <someString>someStringValue</someString>
-    <sceneCoordX>-157</sceneCoordX>
-    <sceneCoordY>-379</sceneCoordY>
+    <someVarWithNr1>0</someVarWithNr1>
+    <someVarWithNr2>0</someVarWithNr2>
+    <sceneCoordX>326</sceneCoordX>
+    <sceneCoordY>497</sceneCoordY>
    </properties>
   </element>
   <element id="3" name="plv::ImageSmooth">
    <properties>
-    <apertureSize>3</apertureSize>
-    <sceneCoordX>-315</sceneCoordX>
-    <sceneCoordY>-258</sceneCoordY>
+    <one>3</one>
+    <two>0</two>
+    <three>0</three>
+    <four>0</four>
+    <sceneCoordX>135</sceneCoordX>
+    <sceneCoordY>218</sceneCoordY>
    </properties>
   </element>
   <element id="4" name="plv::ImageFlip">
    <properties>
     <apertureSize>3</apertureSize>
     <someInt>-1163003435</someInt>
-    <someBool>true</someBool>
-    <sceneCoordX>-142</sceneCoordX>
-    <sceneCoordY>-284</sceneCoordY>
+    <someBool>false</someBool>
+    <sceneCoordX>334</sceneCoordX>
+    <sceneCoordY>424</sceneCoordY>
    </properties>
   </element>
   <element id="5" name="plv::ImageCanny">
@@ -44,31 +49,31 @@
     <apertureSize>3</apertureSize>
     <thresholdLow>0.1</thresholdLow>
     <thresholdHigh>1</thresholdHigh>
-    <sceneCoordX>-143</sceneCoordX>
-    <sceneCoordY>-198</sceneCoordY>
+    <sceneCoordX>323</sceneCoordX>
+    <sceneCoordY>348</sceneCoordY>
    </properties>
   </element>
   <element id="6" name="plv::ImageSobel">
    <properties>
     <apertureSize>3</apertureSize>
-    <sceneCoordX>-140</sceneCoordX>
-    <sceneCoordY>-118</sceneCoordY>
+    <sceneCoordX>341</sceneCoordX>
+    <sceneCoordY>185</sceneCoordY>
    </properties>
   </element>
   <element id="7" name="plv::ImageColorConvert">
    <properties>
     <conversionType>7</conversionType>
-    <sceneCoordX>-136</sceneCoordX>
-    <sceneCoordY>-32</sceneCoordY>
+    <sceneCoordX>341</sceneCoordX>
+    <sceneCoordY>97</sceneCoordY>
    </properties>
   </element>
   <element id="8" name="plv::ImageCornerHarris">
    <properties>
     <apertureSize>3</apertureSize>
-    <m_blockSize>3</m_blockSize>
+    <blockSize>3</blockSize>
     <k>0.04</k>
-    <sceneCoordX>-134</sceneCoordX>
-    <sceneCoordY>45</sceneCoordY>
+    <sceneCoordX>334</sceneCoordX>
+    <sceneCoordY>20</sceneCoordY>
    </properties>
   </element>
  </elements>

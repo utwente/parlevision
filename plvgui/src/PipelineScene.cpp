@@ -394,8 +394,8 @@ void PipelineScene::recalculateSceneRect()
     QRectF r = itemsBoundingRect();
     QRectF newRect = QRectF(0.0,
                   0.0,
-                  qMax(320.0, r.width()),
-                  qMax(240.0, r.height()));
+                  qMax(320.0, r.width()+40),
+                  qMax(240.0, r.height()+40));
     qDebug() << "new rect: " << newRect;
     setSceneRect(newRect);
 }
