@@ -229,7 +229,7 @@
     <string>Remove the currentlly selected element from the pipeline</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Backspace</string>
+    <string>Ctrl+Backspace, Backspace, Del</string>
    </property>
   </action>
   <action name="actionNew">
