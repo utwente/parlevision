@@ -105,6 +105,8 @@ namespace plvgui
         void handleConnectionCreation(PinWidget* source, PinWidget* target)
                 throw (NonFatalException);
         MainWindow* getMainWindow();
+        // make sure everything fits inside the scene
+        void ensureFit();
 
         plv::RefPtr<plv::Pipeline> m_pipeline;
         QHash<plv::PipelineElement*, PipelineElementWidget*> elementWidgets;

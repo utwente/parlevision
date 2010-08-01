@@ -89,7 +89,7 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
     qreal y = yVal.isValid() ? yVal.toReal() : 0;
 
     pew->translate(x,y);
-
+    this->ensureFit();
 }
 
 void PipelineScene::add(plv::PinConnection* c)
@@ -268,8 +268,8 @@ void PipelineScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
     }
 
     clearLine();
-
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
+    ensureFit();
 }
 
 void PipelineScene::clearLine()
@@ -370,6 +370,23 @@ MainWindow* PipelineScene::getMainWindow()
     }
 
     return 0;
+}
+
+void PipelineScene::ensureFit()
+{
+    foreach(PipelineElementWidget* item, this->elementWidgets.values())
+    {
+
+        if(item->scenePos().x() < 0.0)
+        {
+            qDebug() << "moving " << item;
+            item->translate(-item->scenePos().x(),0);
+        }
+        if(item->scenePos().y() < 0.0)
+        {
+            item->translate(0,-item->scenePos().y());
+        }
+    }
 }
 
 void PipelineScene::recalculateSceneRect()
