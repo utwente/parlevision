@@ -112,6 +112,7 @@ void DelayImage::process()
 
 void DelayImage::clearBuffer()
 {
+    //FIXME: mutex with process!
     for (int i = 0; i <= MAX_STEPS; i++)
     {
         m_delayedImgs[i] = 0;
@@ -121,6 +122,7 @@ void DelayImage::clearBuffer()
 
 void DelayImage::setSteps(int i)
 {   //stgeps must be positive and maximum MAX_STEPS
+    //FIXME: mutex with process!
     if (i < 0) i = 0;
     if (i > MAX_STEPS) i = MAX_STEPS;
     m_steps = i;
