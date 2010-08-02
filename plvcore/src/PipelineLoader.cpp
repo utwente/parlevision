@@ -364,50 +364,58 @@ void PipelineLoader::setProperty( QObject* qobject, const QString& name, const Q
 
 QVariant PipelineLoader::convertData( QVariant::Type type, const QString& data )
 {
-    if (type == QVariant::Bool)
+    switch( type )
     {
-        return(bool(data.compare("true", Qt::CaseInsensitive) ||  data == "1"));
+    case QVariant::Bool:
+    {
+        // accept either string "true" or "1"
+        // everything else is considered false
+        bool val = data.compare("true", Qt::CaseInsensitive) == 0;
+        val = val || data.compare("1") == 0;
+        return val;
     }
-    else if (type == QVariant::Char)
+    case QVariant::Char:
     {
         return(data.size() > 0 ? data.at(0) : QChar());
     }
-    else if (type == QVariant::ByteArray)
+    case QVariant::ByteArray:
     {
         return(data.toAscii());
     }
-    else if (type == QVariant::Date)
+    case QVariant::Date:
     {
         return(QDateTime::fromString(data));
     }
-    else if (type == QVariant::Double)
+    case QVariant::Double:
     {
         return(data.toDouble());
     }
-    else if (type == QVariant::Int)
+    case QVariant::Int:
     {
         return(data.toInt());
     }
-    else if (type == QVariant::LongLong)
+    case QVariant::LongLong:
     {
         return(data.toLongLong());
     }
-    else if (type == QVariant::Time)
+    case QVariant::Time:
     {
         return(QTime::fromString(data));
     }
-    else if (type == QVariant::UInt)
+    case QVariant::UInt:
     {
         return(data.toUInt());
     }
-    else if (type == QVariant::ULongLong)
+    case QVariant::ULongLong:
     {
         return(data.toULongLong());
     }
-    else if (type == QVariant::Url)
+    case QVariant::Url:
     {
         return(QUrl(data));
     }
-
-    return(data);
+    default:
+        // unknown, just return as string
+        return(data);
+    }
 }
