@@ -1,0 +1,72 @@
+<pipeline>
+ <elements>
+  <element id="0" name="plv::CameraProducer">
+   <properties>
+    <sceneCoordX>4</sceneCoordX>
+    <sceneCoordY>39</sceneCoordY>
+   </properties>
+  </element>
+  <element id="1" name="plv::ImageColorConvert">
+   <properties>
+    <conversionType>7</conversionType>
+    <sceneCoordX>140</sceneCoordX>
+    <sceneCoordY>131</sceneCoordY>
+   </properties>
+  </element>
+  <element id="2" name="plv::DelayImage">
+   <properties>
+    <steps>5</steps>
+    <sceneCoordX>271</sceneCoordX>
+    <sceneCoordY>193</sceneCoordY>
+   </properties>
+  </element>
+  <element id="3" name="plv::Diff">
+   <properties>
+    <sceneCoordX>436</sceneCoordX>
+    <sceneCoordY>136</sceneCoordY>
+   </properties>
+  </element>
+ </elements>
+ <connections>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>1</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>0</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>2</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>1</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input 1</pinName>
+    <processorId>3</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>1</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input 2</pinName>
+    <processorId>3</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>2</processorId>
+   </source>
+  </connection>
+ </connections>
+</pipeline>
