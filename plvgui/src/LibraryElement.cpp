@@ -13,21 +13,12 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     : QWidget(parent),
     element(element)
 {
-    QSizePolicy sp = QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    sp.setHeightForWidth(true);
-    this->setSizePolicy(sp);
+    this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     this->setContentsMargins(0,0,0,0);
-
-//    this->setMinimumSize(100,40);
-//    this->setMaximumSize(100,40);
-//        this->adjustSize();
-//    this->resize(100,40);
-//    this->setFixedHeight(40);
 
     this->setObjectName("Library Element " + element->getName());
 
     this->outerContainer = new QVBoxLayout(this);
-    this->outerContainer->setAlignment(Qt::AlignCenter);
     this->outerContainer->setContentsMargins(8,8,8,8);
     this->outerContainer->setSpacing(2);
 
@@ -56,8 +47,9 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
 
     QLabel* title = new QLabel(this->element->getName(), this);
     title->setContentsMargins(0,0,0,0);
-    title->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    this->outerContainer->addWidget(title, Qt::AlignCenter);
+    title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    title->setAlignment(Qt::AlignCenter);
+    this->outerContainer->addWidget(title);
     this->outerContainer->addWidget(pinWrapper);
 
     const PipelineElement::InputPinMap& inPins = element->getInputPins();
@@ -99,13 +91,9 @@ void LibraryElement::paintEvent(QPaintEvent * event)
 
 QSize LibraryElement::sizeHint() const
 {
-//    return QSize(100,40);
-    return QWidget::sizeHint();
-}
-
-int LibraryElement::heightForWidth(int w) const
-{
-    return QWidget::heightForWidth(w);
+    QSize size = QWidget::sizeHint();
+    size.setWidth(200);
+    return size;
 }
 
 void LibraryElement::mousePressEvent(QMouseEvent*)

@@ -30,8 +30,7 @@ namespace plvgui {
         void released();
 
     protected:
-        virtual QSize sizeHint() const;
-        virtual int heightForWidth(int w) const;
+        QSize sizeHint() const;
         void mousePressEvent(QMouseEvent* event);
         void mouseMoveEvent(QMouseEvent* event);
         void mouseReleaseEvent(QMouseEvent* event);
