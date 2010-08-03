@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
+#include "ui_welcome.h"
 
 #include "LibraryWidget.h"
 #include "InspectorWidget.h"
@@ -46,7 +47,9 @@ void MainWindow::initGUI()
     // Load design from Form mainwindow.ui
     ui->setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
-    this->welcomeWidget = new QLabel("Test");
+    Ui::WelcomeWidget* w = new Ui::WelcomeWidget();
+    this->welcomeWidget = new QWidget(this);
+    w->setupUi(this->welcomeWidget);
 
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);

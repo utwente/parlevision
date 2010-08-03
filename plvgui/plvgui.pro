@@ -80,6 +80,8 @@ FORMS += ../resources/mainwindow.ui \
     ../resources/librarywidget.ui \
     ../resources/inspectorwidget.ui \
     ../resources/viewerwidget.ui \
-    ../resources/cameraconfigform.ui
+    ../resources/cameraconfigform.ui \
+    ../resources/welcome.ui
 
-RESOURCES += ../resources/icons.qrc
+RESOURCES += ../resources/icons.qrc \
+            ../resources/images.qrc
