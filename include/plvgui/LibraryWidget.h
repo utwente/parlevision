@@ -39,7 +39,6 @@ namespace plvgui
         void addItem(QString name);
         QString infoFor(plv::PipelineElement*);
         LibraryElement* draggedElement;
-
     };
 }
 

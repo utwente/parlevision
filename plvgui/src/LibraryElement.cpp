@@ -76,9 +76,6 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
         label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         outPinContainer->addWidget(label, Qt::AlignRight | Qt::AlignTop);
     }
-
-    this->setBackgroundRole(QPalette::Base);
-    repaint();
 }
 
 void LibraryElement::paintEvent(QPaintEvent * event)
