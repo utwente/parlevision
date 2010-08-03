@@ -91,6 +91,14 @@ namespace plvgui
           */
         void recalculateSceneRect();
 
+        /** Indicate something has changed to the underlying model
+          * @emits contentsChanged()
+          */
+        void setChanged();
+
+    signals:
+        void contentsChanged();
+
     protected:
 //        virtual void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent);
         virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent);

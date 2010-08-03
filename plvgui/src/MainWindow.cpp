@@ -115,6 +115,11 @@ bool MainWindow::event(QEvent* event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    if(this->m_documentChanged)
+    {
+        offerToSave();
+    }
+
     if( m_pipeline.isNotNull() )
     {
         qDebug() << "Stopping pipeline...";
@@ -125,6 +130,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     qDebug() << "Saving geometry info to " << settings.fileName();
     settings.setValue("MainWindow/geometry", saveGeometry());
     settings.setValue("MainWindow/windowState", saveState());
+
     QMainWindow::closeEvent(event);
 }
 
@@ -149,13 +155,9 @@ void MainWindow::setCurrentFile(QString fileName)
     this->m_fileName = fileName;
 
     if(fileName.isEmpty())
-    {
-        this->setWindowTitle("Untitled");
         return;
-    }
 
-    setWindowTitle(QFileInfo(fileName).baseName());
-    setWindowFilePath(fileName);
+    this->updateWindowTitle();
 
     // Load, update and save the list of recent files
     QSettings settings;
@@ -265,7 +267,6 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     assert(this->m_pipeline.isNull());
 
     this->m_pipeline = pipeline;
-    m_documentChanged = true;
 
     assert (ui->view != 0);
     this->m_scene = new PipelineScene(pipeline, ui->view);
@@ -301,9 +302,11 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(documentChanged()));
 
-    connect(m_scene, SIGNAL(changed(QList<QRectF>)),
+    connect(m_scene, SIGNAL(contentsChanged()),
             this, SLOT(documentChanged()));
 
+    qDebug() << "setting documentChanged to false #1";
+    m_documentChanged = false;
 }
 
 void MainWindow::loadFile(QString fileName)
@@ -517,12 +520,18 @@ void plvgui::MainWindow::on_actionNew_triggered()
     RefPtr<Pipeline> pipeline = new Pipeline();
     win->setCurrentFile("");
     win->setPipeline(pipeline);
+    m_documentChanged = false;
+    updateWindowTitle();
 }
 
 void MainWindow::documentChanged()
 {
+    if(m_documentChanged)
+        return;
+
     m_documentChanged = true;
     ui->actionSave->setEnabled(true);
+    updateWindowTitle();
 }
 
 void plvgui::MainWindow::on_actionDelete_triggered()
@@ -571,15 +580,16 @@ void MainWindow::save()
         return;
 
     qDebug() << "Saving to " << m_fileName;
-    m_documentChanged = false;
 
     try
     {
         PipelineLoader::serialize( m_fileName, m_pipeline );
+        m_documentChanged = false;
+        updateWindowTitle();
     }
     catch( std::runtime_error& e )
     {
-        qDebug() << "Pipeline saving failed with " << e.what();
+        qCritical() << "Pipeline saving failed with " << e.what();
     }
 
 }
@@ -641,4 +651,24 @@ void MainWindow::offerToSave()
     {
         on_actionSave_triggered();
     }
+}
+
+
+void MainWindow::updateWindowTitle()
+{
+    QString title;
+    if(this->m_fileName.isEmpty())
+    {
+        title = "Untitled";
+    }
+    else
+    {
+        title = QFileInfo(m_fileName).baseName();
+        setWindowFilePath(m_fileName);
+    }
+    if(m_documentChanged)
+    {
+        title += "*";
+    }
+    setWindowTitle(title);
 }

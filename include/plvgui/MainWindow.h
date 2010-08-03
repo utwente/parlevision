@@ -74,6 +74,7 @@ namespace plvgui {
         void setCurrentFile(QString fileName);
         void offerToSave();
         void save();
+        void updateWindowTitle();
         // create a new window
         MainWindow* newWindow();
 
@@ -86,9 +87,9 @@ namespace plvgui {
         QAction* recentFileActs[MaxRecentFiles];
 
     private slots:
-        // indicate the active document has changed
         void on_actionSaveAs_triggered();
         void on_actionSave_triggered();
+        // indicate the active document has changed
         void documentChanged();
         void openRecentFile();
         void on_actionDelete_triggered();
