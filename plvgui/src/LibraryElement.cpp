@@ -86,3 +86,17 @@ int LibraryElement::heightForWidth(int w) const
     return QWidget::heightForWidth(w);
 }
 
+void LibraryElement::mousePressEvent(QMouseEvent*)
+{
+    emit(pressed());
+}
+
+void LibraryElement::mouseMoveEvent(QMouseEvent*)
+{
+    emit(moved());
+}
+
+void LibraryElement::mouseReleaseEvent(QMouseEvent*)
+{
+    emit(released());
+}

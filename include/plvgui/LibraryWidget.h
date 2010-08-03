@@ -14,6 +14,8 @@ namespace plv
 
 namespace plvgui
 {
+    class LibraryElement;
+
     class LibraryWidget : public QDockWidget
     {
         Q_OBJECT
@@ -25,15 +27,19 @@ namespace plvgui
     protected:
 //         void dragEnterEvent(QDragEnterEvent *event);
 //         void dragMoveEvent(QDragMoveEvent *event);
-         void mousePressEvent(QMouseEvent *event);
+        void mousePressEvent(QMouseEvent *event);
+
+    private slots:
+        void elementPressed();
+        void elementMoved();
+        void elementReleased();
 
     private:
         Ui::LibraryWidget *ui;
         void addItem(QString name);
         QString infoFor(plv::PipelineElement*);
+        LibraryElement* draggedElement;
 
-    private slots:
-        void on_pushButton_clicked();
     };
 }
 
