@@ -16,7 +16,9 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     QSizePolicy sp = QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     sp.setHeightForWidth(true);
     this->setSizePolicy(sp);
-    this->setStyleSheet("background: lightgreen; padding: 0; margin: 0;");
+    this->setContentsMargins(0,0,0,0);
+    this->setStyleSheet("background: lightgreen;");
+
 //    this->setMinimumSize(100,40);
 //    this->setMaximumSize(100,40);
 //        this->adjustSize();
@@ -26,20 +28,20 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     this->setObjectName("Library Element " + element->getName());
 
     this->outerContainer = new QVBoxLayout(this);
-    this->outerContainer->setContentsMargins(4,4,4,4);
+    this->outerContainer->setContentsMargins(0,0,0,0);
 
     QWidget* pinWrapper = new QWidget(this);
-    pinWrapper->setStyleSheet("background: red; padding: 0; margin: 0;");
+
     this->innerContainer = new QHBoxLayout(pinWrapper);
     this->innerContainer->setAlignment(Qt::AlignTop);
     this->innerContainer->setContentsMargins(0,0,0,0);
     QWidget* inPinWrapper = new QWidget(this);
-    inPinWrapper->setStyleSheet("background: pink;");
+
     this->inPinContainer = new QVBoxLayout(inPinWrapper);
     this->inPinContainer->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     this->inPinContainer->setContentsMargins(0,0,0,0);
     QWidget* outPinWrapper = new QWidget(this);
-    outPinWrapper->setStyleSheet("background: yellow;");
+
     this->outPinContainer = new QVBoxLayout(outPinWrapper);
     this->outPinContainer->setAlignment(Qt::AlignTop | Qt::AlignRight);
     this->outPinContainer->setContentsMargins(0,0,0,0);
@@ -47,7 +49,7 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     this->innerContainer->addWidget(inPinWrapper, Qt::AlignLeft | Qt::AlignTop);
     this->innerContainer->addWidget(outPinWrapper, Qt::AlignRight | Qt::AlignTop);
     QLabel* title = new QLabel(this->element->getName(), this);
-    title->setStyleSheet("background: blue;");
+
     this->outerContainer->addWidget(title, Qt::AlignHCenter);
     this->outerContainer->addWidget(pinWrapper);
 
@@ -59,7 +61,7 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
         RefPtr<IInputPin> pin = itr->second;
         assert(pin.isNotNull());
         QWidget* label = new QLabel(pin->getName());
-        label->setStyleSheet("background: orange;");
+        label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         inPinContainer->addWidget(label, Qt::AlignLeft | Qt::AlignTop);
     }
 
@@ -70,9 +72,12 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
         RefPtr<IOutputPin> pin = itr->second;
         assert(pin.isNotNull());
         QWidget* label = new QLabel(pin->getName());
-        label->setStyleSheet("background: orange;");
+        label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         outPinContainer->addWidget(label, Qt::AlignRight | Qt::AlignTop);
     }
+
+    this->setBackgroundRole(QPalette::Base);
+    repaint();
 }
 
 QSize LibraryElement::sizeHint() const
