@@ -18,6 +18,8 @@ DummyProcessor::DummyProcessor() :
         m_someVarWithNr1(0),
         m_someVarWithNr2(0)
 {
+
+
     m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
     m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::OPTIONAL );
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );

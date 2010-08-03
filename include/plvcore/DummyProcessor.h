@@ -3,6 +3,7 @@
 
 #include "PipelineProcessor.h"
 #include "Pin.h"
+#include "Types.h"
 
 namespace plv {
 
@@ -23,24 +24,15 @@ namespace plv {
         Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString NOTIFY someStringChanged )
         Q_PROPERTY( int someVarWithNr1 READ getSomeVarWithNr1 WRITE setSomeVarWithNr1 NOTIFY someVarWithNr1Changed )
         Q_PROPERTY( int someVarWithNr2 READ getSomeVarWithNr2 WRITE setSomeVarWithNr2 NOTIFY someVarWithNr2Changed )
-        //Q_PROPERTY(Priority priority READ getPriority WRITE setPriority)
+
+        //Q_PROPERTY(Priority priority READ getPriority WRITE setPriority NOTIFY priorityChanged )
         //Q_ENUMS(Priority)
 
-//        enum Priority { High, Low, VeryHigh, VeryLow };
-
-//        void setPriority(Priority priority)
-//        {
-//            m_priority = priority;
-//            emit( priorityChanged );
-//        }
-
-//        Priority priority() const
-//        {
-//            return m_priority;
-//        }
-
+        Q_PROPERTY( plv::PlvEnum priority READ getPriority WRITE setPriority NOTIFY priorityChanged )
 
     public:
+        //enum Priority { High, Low, VeryHigh, VeryLow };
+
         DummyProcessor();
         ~DummyProcessor();
 
@@ -58,6 +50,11 @@ namespace plv {
         int getSomeVarWithNr1() { return m_someVarWithNr1; }
         int getSomeVarWithNr2() { return m_someVarWithNr2; }
 
+        plv::PlvEnum getPriority() const
+        {
+            return m_priority;
+        }
+
     signals:
         void someIntChanged(int newValue);
         void someDoubleChanged(double newValue);
@@ -65,6 +62,7 @@ namespace plv {
         void someStringChanged(QString newValue);
         void someVarWithNr1Changed(int var);
         void someVarWithNr2Changed(int var);
+        void priorityChanged( plv::PlvEnum p );
 
     public slots:
         void setSomeInt(int i) {m_someInt = i; emit(someIntChanged(i));}
@@ -73,6 +71,12 @@ namespace plv {
         void setSomeString(QString s) {m_someString = s; emit(someStringChanged(s));}
         void setSomeVarWithNr1(int var) { m_someVarWithNr1 = var; emit( someVarWithNr1Changed(var) ); }
         void setSomeVarWithNr2(int var) { m_someVarWithNr2 = var; emit( someVarWithNr2Changed(var) ); }
+
+        void setPriority( plv::PlvEnum e )
+        {
+            m_priority = e;
+            emit( priorityChanged( m_priority ) );
+        }
 
     private:
         InputPin<OpenCVImage>* m_inputPin;
@@ -85,6 +89,7 @@ namespace plv {
         QString m_someString;
         int m_someVarWithNr1;
         int m_someVarWithNr2;
+        plv::PlvEnum m_priority;
     };
 
 }

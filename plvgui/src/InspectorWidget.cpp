@@ -9,6 +9,7 @@
 #include "CameraProducer.h"
 #include "CameraConfigFormBuilder.h"
 #include "ElementConfigFormBuilder.h"
+#include "Types.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -119,10 +120,17 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
         break;
     case QVariant::String:
         addRow(form, element, name, value->toString(), true);
-    default:
         break;
+    case QVariant::UserType:
+        if(value->canConvert<plv::PlvEnum>() )
+        {
+            qDebug() << "Works!";
+        }
+        break;
+    default:
         // substitute a non-editable string
         addRow(form, element, name, value->toString(), false);
+        break;
     }
 }
 

@@ -3,9 +3,60 @@
 
 #include <QMetaType>
 #include "RefPtr.h"
+#include "assert.h"
 
 namespace plv 
 {
+    class PlvEnum
+    {
+    public:
+        PlvEnum() : m_selected( 0 ) {}
+        ~PlvEnum() {}
+
+        PlvEnum( const PlvEnum& other ) :
+            m_selected( other.m_selected ),
+            m_items( other.m_items )
+        {
+        }
+
+        void setSelected( int i )
+        {
+            assert( m_items.contains( i ) );
+            m_selected = i;
+        }
+
+        void setSelected( const QString& selected )
+        {
+            int i = 0;
+            foreach( const QString& str , m_items.values() )
+            {
+                if( str.compare( selected ) == 0 )
+                {
+                    m_selected = i;
+                    break;
+                }
+                ++i;
+            }
+        }
+
+        int getSelected() const
+        {
+            return m_selected;
+        }
+
+        QString getString( int i )
+        {
+            if( m_items.contains(i) )
+                return m_items[i];
+            else
+                return "INVALID";
+        }
+
+    protected:
+        int m_selected;
+        QMap<int, QString> m_items;
+    };
+
 
     /** Base class for data resources.
       *
@@ -66,5 +117,6 @@ namespace plv
   *  so we can pass RefPtr<Data> along with signals and slots across thread boundaries
   */
 Q_DECLARE_METATYPE( plv::RefPtr<plv::Data> )
+Q_DECLARE_METATYPE( plv::PlvEnum )
 
 #endif // TYPES_H
