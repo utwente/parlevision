@@ -69,15 +69,14 @@ void LibraryWidget::elementMoved()
     // start drag
     this->draggedElement = qobject_cast<LibraryElement*>(sender());
 
-    QPoint hotSpot = draggedElement->pos();
+    QPoint hotSpot = QPoint(0,0);
     QString elementName = draggedElement->getElement()->metaObject()->className();
-    qDebug() << "starting drag of " << elementName;
+//    qDebug() << "starting drag of " << elementName << " hotspot: "<< hotSpot;
 
     QByteArray itemData;
     itemData.append(elementName);
 
     QMimeData* mimeData = new QMimeData();
-//    mimeData->setText(elementName);
     mimeData->setData("x-plv-element-name", itemData);
 
     QPixmap pixmap(draggedElement->size());
