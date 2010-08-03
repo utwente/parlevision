@@ -2,9 +2,12 @@
 #define LIBRARYELEMENT_H
 
 #include <QString>
-#include <QLabel>
+#include <QWidget>
 #include <QHBoxLayout>
 #include "RefPtr.h"
+
+class QVBoxLayout;
+class QHBoxLayout;
 
 namespace plv
 {
@@ -12,7 +15,7 @@ namespace plv
 }
 
 namespace plvgui {
-    class LibraryElement : public QLabel
+    class LibraryElement : public QWidget
     {
     public:
         LibraryElement(plv::RefPtr<plv::PipelineElement> element, QWidget* parent);
@@ -24,6 +27,11 @@ namespace plvgui {
 
     private:
         plv::RefPtr<plv::PipelineElement> element;
+
+        QVBoxLayout* outerContainer;
+        QHBoxLayout* innerContainer;
+        QVBoxLayout* inPinContainer;
+        QVBoxLayout* outPinContainer;
     };
 }
 
