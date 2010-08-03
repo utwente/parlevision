@@ -19,7 +19,7 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     this->setObjectName("Library Element " + element->getName());
 
     this->outerContainer = new QVBoxLayout(this);
-    this->outerContainer->setContentsMargins(8,8,8,8);
+    this->outerContainer->setContentsMargins(8,2,8,4);
     this->outerContainer->setSpacing(2);
 
     QWidget* pinWrapper = new QWidget(this);
@@ -52,6 +52,7 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     this->outerContainer->addWidget(title);
     this->outerContainer->addWidget(pinWrapper);
 
+    QString pinStyle = "font-size: 10px;";
     const PipelineElement::InputPinMap& inPins = element->getInputPins();
     for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
         ; itr!=inPins.end(); ++itr)
@@ -59,6 +60,7 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
         RefPtr<IInputPin> pin = itr->second;
         assert(pin.isNotNull());
         QWidget* label = new QLabel(pin->getName());
+        label->setStyleSheet(pinStyle);
         label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         inPinContainer->addWidget(label, Qt::AlignLeft | Qt::AlignTop);
     }
@@ -70,6 +72,7 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
         RefPtr<IOutputPin> pin = itr->second;
         assert(pin.isNotNull());
         QWidget* label = new QLabel(pin->getName());
+        label->setStyleSheet(pinStyle);
         label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         outPinContainer->addWidget(label, Qt::AlignRight | Qt::AlignTop);
     }
