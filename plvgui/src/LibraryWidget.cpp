@@ -23,7 +23,6 @@ LibraryWidget::LibraryWidget(QWidget *parent) :
     for(std::list<QString>::iterator iter = types.begin();
         iter != types.end(); iter++)
     {
-        qDebug() << "LibraryWidget: Adding type " << *iter;
         createItem(*iter);
     }
     // add sorted by name
@@ -100,13 +99,9 @@ void LibraryWidget::elementReleased()
     LibraryElement* element = qobject_cast<LibraryElement*>(sender());
     if (!element) return;
 
-    if(this->draggedElement != 0)
+    if(this->draggedElement == 0)
     {
-        // we were dragging
-        // don't do anything?
-    }
-    else
-    {
+        // this was a click, not the end of a drag
         ui->infoBox->setText(infoFor(element->getElement()));
     }
     this->draggedElement = 0;
