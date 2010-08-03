@@ -31,7 +31,7 @@ namespace plvgui {
     public:
         MainWindow(QWidget* parent = 0);
         ~MainWindow();
-
+        void addWidget(QWidget* widget);
         /** Set the pipeline for this window
           * This can only be done once for every MainWindow.
           * If you need to load another pipeline, make a new MainWindow.
