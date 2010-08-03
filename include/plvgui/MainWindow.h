@@ -85,6 +85,7 @@ namespace plvgui {
         QAction* m_recentFilesSeparator;
         enum { MaxRecentFiles = 5 };
         QAction* recentFileActs[MaxRecentFiles];
+        QWidget* welcomeWidget;
 
     private slots:
         void on_actionSaveAs_triggered();

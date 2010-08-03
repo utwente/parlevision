@@ -46,6 +46,7 @@ void MainWindow::initGUI()
     // Load design from Form mainwindow.ui
     ui->setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
+    this->welcomeWidget = new QLabel("Test");
 
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
@@ -53,8 +54,9 @@ void MainWindow::initGUI()
     this->setWindowTitle("ParleVision - no pipeline");
 
     ui->view->setAcceptDrops(true);
-
     ui->view->setEnabled(false);
+    ui->view->hide();
+    ui->topContainer->insertWidget(0, this->welcomeWidget);
     ui->actionSave->setEnabled(false);
     ui->actionSaveAs->setEnabled(false);
     ui->actionStart->setEnabled(false);
@@ -268,9 +270,11 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(m_scene, SIGNAL(selectionChanged()),
             this, SLOT(sceneSelectionChanged()));
 
-    ui->view->setScene(m_scene);
+    this->welcomeWidget->hide();
 
+    ui->view->setScene(m_scene);
     ui->view->setEnabled(true);
+    ui->view->show();
     ui->actionSave->setEnabled(true);
     ui->actionSaveAs->setEnabled(true);
     ui->actionStart->setEnabled(true);
