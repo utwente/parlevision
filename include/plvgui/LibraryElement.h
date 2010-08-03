@@ -35,6 +35,7 @@ namespace plvgui {
         void mousePressEvent(QMouseEvent* event);
         void mouseMoveEvent(QMouseEvent* event);
         void mouseReleaseEvent(QMouseEvent* event);
+        void paintEvent(QPaintEvent*);
 
     private:
         plv::RefPtr<plv::PipelineElement> element;

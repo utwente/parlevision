@@ -17,7 +17,6 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     sp.setHeightForWidth(true);
     this->setSizePolicy(sp);
     this->setContentsMargins(0,0,0,0);
-    this->setStyleSheet("background: lightgreen;");
 
 //    this->setMinimumSize(100,40);
 //    this->setMaximumSize(100,40);
@@ -28,12 +27,13 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     this->setObjectName("Library Element " + element->getName());
 
     this->outerContainer = new QVBoxLayout(this);
-    this->outerContainer->setContentsMargins(0,0,0,0);
+    this->outerContainer->setAlignment(Qt::AlignCenter);
+    this->outerContainer->setContentsMargins(8,8,8,8);
 
     QWidget* pinWrapper = new QWidget(this);
 
     this->innerContainer = new QHBoxLayout(pinWrapper);
-    this->innerContainer->setAlignment(Qt::AlignTop);
+    this->innerContainer->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
     this->innerContainer->setContentsMargins(0,0,0,0);
     QWidget* inPinWrapper = new QWidget(this);
 
@@ -48,11 +48,11 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
 
     this->innerContainer->addWidget(inPinWrapper, Qt::AlignLeft | Qt::AlignTop);
     this->innerContainer->addWidget(outPinWrapper, Qt::AlignRight | Qt::AlignTop);
+
     QLabel* title = new QLabel(this->element->getName(), this);
-
-    this->outerContainer->addWidget(title, Qt::AlignHCenter);
+    title->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    this->outerContainer->addWidget(title, Qt::AlignCenter);
     this->outerContainer->addWidget(pinWrapper);
-
 
     const PipelineElement::InputPinMap& inPins = element->getInputPins();
     for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
@@ -78,6 +78,17 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
 
     this->setBackgroundRole(QPalette::Base);
     repaint();
+}
+
+void LibraryElement::paintEvent(QPaintEvent * event)
+{
+    QPainter painter(this);
+    QPainterPath path;
+    painter.setRenderHint(QPainter::Antialiasing);
+    path.addRoundedRect(0, 0, this->width()-1, this->height()-1, 8.0, 8.0);
+    painter.fillPath(path, Qt::green);
+    painter.strokePath(path, painter.pen());
+    QWidget::paintEvent(event);
 }
 
 QSize LibraryElement::sizeHint() const
