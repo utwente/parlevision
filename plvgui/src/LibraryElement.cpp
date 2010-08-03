@@ -29,27 +29,33 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     this->outerContainer = new QVBoxLayout(this);
     this->outerContainer->setAlignment(Qt::AlignCenter);
     this->outerContainer->setContentsMargins(8,8,8,8);
+    this->outerContainer->setSpacing(2);
 
     QWidget* pinWrapper = new QWidget(this);
 
     this->innerContainer = new QHBoxLayout(pinWrapper);
     this->innerContainer->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
     this->innerContainer->setContentsMargins(0,0,0,0);
-    QWidget* inPinWrapper = new QWidget(this);
 
+    QWidget* inPinWrapper = new QWidget(this);
+    inPinWrapper->setContentsMargins(0,0,0,0);
     this->inPinContainer = new QVBoxLayout(inPinWrapper);
     this->inPinContainer->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     this->inPinContainer->setContentsMargins(0,0,0,0);
-    QWidget* outPinWrapper = new QWidget(this);
+    this->inPinContainer->setSpacing(0);
 
+    QWidget* outPinWrapper = new QWidget(this);
+    outPinWrapper->setContentsMargins(0,0,0,0);
     this->outPinContainer = new QVBoxLayout(outPinWrapper);
     this->outPinContainer->setAlignment(Qt::AlignTop | Qt::AlignRight);
     this->outPinContainer->setContentsMargins(0,0,0,0);
+    this->outPinContainer->setSpacing(0);
 
     this->innerContainer->addWidget(inPinWrapper, Qt::AlignLeft | Qt::AlignTop);
     this->innerContainer->addWidget(outPinWrapper, Qt::AlignRight | Qt::AlignTop);
 
     QLabel* title = new QLabel(this->element->getName(), this);
+    title->setContentsMargins(0,0,0,0);
     title->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     this->outerContainer->addWidget(title, Qt::AlignCenter);
     this->outerContainer->addWidget(pinWrapper);
@@ -85,7 +91,7 @@ void LibraryElement::paintEvent(QPaintEvent * event)
     QPainter painter(this);
     QPainterPath path;
     painter.setRenderHint(QPainter::Antialiasing);
-    path.addRoundedRect(0, 0, this->width()-1, this->height()-1, 8.0, 8.0);
+    path.addRoundedRect(0, 0, this->width()-1, this->height()-1, 8.0, 8.0, Qt::AbsoluteSize);
     painter.fillPath(path, Qt::green);
     painter.strokePath(path, painter.pen());
     QWidget::paintEvent(event);
