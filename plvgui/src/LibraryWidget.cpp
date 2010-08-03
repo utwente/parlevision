@@ -24,7 +24,12 @@ LibraryWidget::LibraryWidget(QWidget *parent) :
         iter != types.end(); iter++)
     {
         qDebug() << "LibraryWidget: Adding type " << *iter;
-        addItem(*iter);
+        createItem(*iter);
+    }
+    // add sorted by name
+    foreach(LibraryElement* lw, this->allElements.values())
+    {
+        ui->container->addWidget(lw);
     }
 }
 
@@ -33,7 +38,7 @@ LibraryWidget::~LibraryWidget()
     delete ui;
 }
 
-void LibraryWidget::addItem(QString typeName)
+void LibraryWidget::createItem(QString typeName)
 {
     int id = QMetaType::type(typeName.toAscii());
     if(!QMetaType::isRegistered(id))
@@ -48,7 +53,8 @@ void LibraryWidget::addItem(QString typeName)
     connect(w, SIGNAL(pressed()), this, SLOT(elementPressed()));
     connect(w, SIGNAL(moved()), this, SLOT(elementMoved()));
     connect(w, SIGNAL(released()), this, SLOT(elementReleased()));
-    ui->container->addWidget(w);
+//    ui->container->addWidget(w);
+    this->allElements.insert(w->getElement()->getName().toLower(), w);
 }
 
 void LibraryWidget::mousePressEvent(QMouseEvent *event)

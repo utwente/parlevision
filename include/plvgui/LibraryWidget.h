@@ -2,6 +2,7 @@
 #define LIBRARYWIDGET_H
 
 #include <QDockWidget>
+#include <QMultiMap>
 
 namespace Ui {
     class LibraryWidget;
@@ -36,9 +37,11 @@ namespace plvgui
 
     private:
         Ui::LibraryWidget *ui;
-        void addItem(QString name);
+        // create an item and add it to allElements
+        void createItem(QString name);
         QString infoFor(plv::PipelineElement*);
         LibraryElement* draggedElement;
+        QMultiMap<QString,LibraryElement*> allElements;
     };
 }
 
