@@ -121,6 +121,9 @@
         <height>20</height>
        </size>
       </property>
+      <property name="openExternalLinks">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
    </layout>

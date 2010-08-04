@@ -8,9 +8,17 @@ namespace plv {
     class Pipeline;
     class OpenCVImage;
     //FIXME: add Q_CLASSINFO with documentation on the processor, and the meaning of the pins!
+
     class ImageSmooth : public PipelineProcessor
     {
         Q_OBJECT
+
+
+        Q_CLASSINFO("name", "Smooth");
+        Q_CLASSINFO("description", "<a href='http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsmooth#cvSmooth'>"
+                                    "http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsmooth#cvSmooth"
+                                    "</a>")
+
         Q_PROPERTY( int one READ getOne WRITE setOne NOTIFY oneChanged )
         Q_PROPERTY( int two READ getTwo WRITE setTwo NOTIFY twoChanged )
         Q_PROPERTY( double three READ getThree WRITE setThree NOTIFY threeChanged )
