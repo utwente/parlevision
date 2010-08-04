@@ -13,7 +13,8 @@ using namespace plv;
 
 LibraryWidget::LibraryWidget(QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::LibraryWidget)
+    ui(new Ui::LibraryWidget),
+    draggedElement(0)
 {
     ui->setupUi(this);
 
@@ -22,8 +23,12 @@ LibraryWidget::LibraryWidget(QWidget *parent) :
     for(std::list<QString>::iterator iter = types.begin();
         iter != types.end(); iter++)
     {
-        qDebug() << "LibraryWidget: Adding type " << *iter;
-        addItem(*iter);
+        createItem(*iter);
+    }
+    // add sorted by name
+    foreach(LibraryElement* lw, this->allElements.values())
+    {
+        ui->container->addWidget(lw);
     }
 }
 
@@ -32,7 +37,7 @@ LibraryWidget::~LibraryWidget()
     delete ui;
 }
 
-void LibraryWidget::addItem(QString typeName)
+void LibraryWidget::createItem(QString typeName)
 {
     int id = QMetaType::type(typeName.toAscii());
     if(!QMetaType::isRegistered(id))
@@ -44,43 +49,62 @@ void LibraryWidget::addItem(QString typeName)
     RefPtr<PipelineElement> element = static_cast<PipelineElement*>(QMetaType::construct(id));
 
     LibraryElement* w = new LibraryElement(element, this);
-    ui->container->addWidget(w);
-}
-
-void plvgui::LibraryWidget::on_pushButton_clicked()
-{
-    addItem("test");
+    connect(w, SIGNAL(pressed()), this, SLOT(elementPressed()));
+    connect(w, SIGNAL(moved()), this, SLOT(elementMoved()));
+    connect(w, SIGNAL(released()), this, SLOT(elementReleased()));
+//    ui->container->addWidget(w);
+    this->allElements.insert(w->getElement()->getName().toLower(), w);
 }
 
 void LibraryWidget::mousePressEvent(QMouseEvent *event)
 {
-    LibraryElement* element = dynamic_cast<LibraryElement*>(childAt(event->pos()));
+    QDockWidget::mousePressEvent(event);
+}
 
-    if (!element) return;
+void LibraryWidget::elementPressed()
+{
+    // Currently not needed
+}
 
-    ui->infoBox->setText(infoFor(element->getElement()));
+void LibraryWidget::elementMoved()
+{
+    if(this->draggedElement != 0)
+        return;
 
-    QPoint hotSpot = event->pos() - element->pos();
+    // start drag
+    this->draggedElement = qobject_cast<LibraryElement*>(sender());
 
-    QString elementName = element->getElement()->metaObject()->className();
-    qDebug() << "starting drag of " << elementName;
+    QPoint hotSpot = QPoint(0,0);
+    QString elementName = draggedElement->getElement()->metaObject()->className();
+//    qDebug() << "starting drag of " << elementName << " hotspot: "<< hotSpot;
 
     QByteArray itemData;
     itemData.append(elementName);
 
     QMimeData* mimeData = new QMimeData();
-//    mimeData->setText(elementName);
     mimeData->setData("x-plv-element-name", itemData);
 
-    QPixmap pixmap(element->size());
-    element->render(&pixmap);
+    QPixmap pixmap(draggedElement->size());
+    draggedElement->render(&pixmap);
 
     QDrag* drag = new QDrag(this);
     drag->setMimeData(mimeData);
     drag->setPixmap(pixmap);
     drag->setHotSpot(hotSpot);
-
     drag->exec(Qt::CopyAction, Qt::CopyAction);
+}
+
+void LibraryWidget::elementReleased()
+{
+    LibraryElement* element = qobject_cast<LibraryElement*>(sender());
+    if (!element) return;
+
+    if(this->draggedElement == 0)
+    {
+        // this was a click, not the end of a drag
+        ui->infoBox->setText(infoFor(element->getElement()));
+    }
+    this->draggedElement = 0;
 }
 
 QString LibraryWidget::infoFor(plv::PipelineElement* element)

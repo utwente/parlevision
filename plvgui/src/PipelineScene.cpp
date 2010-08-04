@@ -86,6 +86,9 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
     qreal x = xVal.isValid() ? xVal.toReal() : 0;
     qreal y = yVal.isValid() ? yVal.toReal() : 0;
 
+    connect(e.getPtr(), SIGNAL(propertyChanged(QString)),
+            this, SLOT(setChanged()));
+
     pew->translate(x,y);
     this->ensureFit();
 }
@@ -97,8 +100,6 @@ void PipelineScene::add(plv::PinConnection* c)
 
 void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
 {
-    //TODO
-    qDebug() << "PipelineScene: adding connection ";
     RefPtr<const Pin> from = c->fromPin().getPtr();
 //    const QString& desc = from->getName();
 //    QGraphicsTextItem* item = this->addText(desc);
@@ -160,6 +161,9 @@ void PipelineScene::handleRemove(plv::PipelineElement* e)
 
 void PipelineScene::handleRemove(plv::RefPtr<plv::PipelineElement> e)
 {
+    // disconnect all signals between e and this
+    disconnect(e, 0, this, 0);
+
     QGraphicsItem* item = this->getWidgetFor(e);
     if(item)
     {
@@ -314,7 +318,6 @@ void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* targe
 
 void PipelineScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
-    qDebug() << "Scene Enter";
     if(event->mimeData()->hasFormat("x-plv-element-name"))
     {
         event->accept();
@@ -331,8 +334,6 @@ void PipelineScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 
 void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
 {
-    qDebug() << "PipelineScene::dropEvent" << event->mimeData()->formats();
-
     if(event->mimeData()->hasFormat("x-plv-element-name"))
     {
     //    qDebug() << event->mimeData()->data("x-plv-element-name");
@@ -354,6 +355,11 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
             m_pipeline->addElement( pe );
         }
     }
+}
+
+void PipelineScene::setChanged()
+{
+    emit(contentsChanged());
 }
 
 MainWindow* PipelineScene::getMainWindow()

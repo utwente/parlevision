@@ -42,13 +42,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="utilityContainer">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetMinimumSize</enum>
-        </property>
-       </layout>
-      </item>
      </layout>
     </item>
    </layout>

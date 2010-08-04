@@ -35,7 +35,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
 
     // draw all inputpins
     const PipelineElement::InputPinMap& inPins = element->getInputPins();
-    int y = 30;
+    int y = 20;
     qreal leftColumnWidth = 0;
     for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
         ; itr!=inPins.end(); ++itr)
@@ -70,7 +70,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
         maxWidth = max(pw->boundingRect().width(), maxWidth);
     }
 
-    y = 30;
+    y = 20;
     foreach(PinWidget* pw, outWidgets)
     {
         qreal offset = leftColumnWidth + 20 + maxWidth - pw->boundingRect().width();

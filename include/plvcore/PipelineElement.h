@@ -183,6 +183,14 @@ namespace plv
 
         QString getClassProperty(const char* name) const;
 
+        /** Overridden from QObject::setProperty()
+          * @emits propertyChanged(QString name)
+          */
+        void setProperty(const char *name, const QVariant &value);
+
+    signals:
+        void propertyChanged(QString);
+
     protected:
         //RefPtr<Pipeline> m_parent;
 

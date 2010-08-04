@@ -293,3 +293,9 @@ QString PipelineElement::getClassProperty(const char* name) const
 
     return this->metaObject()->classInfo(idx).value();
 }
+
+void PipelineElement::setProperty(const char *name, const QVariant &value)
+{
+    QObject::setProperty(name, value);
+    emit(propertyChanged(QString(name)));
+}

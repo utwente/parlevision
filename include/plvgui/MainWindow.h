@@ -31,7 +31,7 @@ namespace plvgui {
     public:
         MainWindow(QWidget* parent = 0);
         ~MainWindow();
-        void addWidget(QWidget* widget);
+
         /** Set the pipeline for this window
           * This can only be done once for every MainWindow.
           * If you need to load another pipeline, make a new MainWindow.
@@ -74,6 +74,7 @@ namespace plvgui {
         void setCurrentFile(QString fileName);
         void offerToSave();
         void save();
+        void updateWindowTitle();
         // create a new window
         MainWindow* newWindow();
 
@@ -84,11 +85,12 @@ namespace plvgui {
         QAction* m_recentFilesSeparator;
         enum { MaxRecentFiles = 5 };
         QAction* recentFileActs[MaxRecentFiles];
+        QWidget* welcomeWidget;
 
     private slots:
-        // indicate the active document has changed
         void on_actionSaveAs_triggered();
         void on_actionSave_triggered();
+        // indicate the active document has changed
         void documentChanged();
         void openRecentFile();
         void on_actionDelete_triggered();
