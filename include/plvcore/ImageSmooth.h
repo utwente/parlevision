@@ -7,17 +7,20 @@
 namespace plv {
     class Pipeline;
     class OpenCVImage;
-    //FIXME: add Q_CLASSINFO with documentation on the processor, and the meaning of the pins!
 
     class ImageSmooth : public PipelineProcessor
     {
         Q_OBJECT
+        
+        Q_CLASSINFO("author", "Dennis & Wim")
+        Q_CLASSINFO("name", "Smooth")
+        Q_CLASSINFO("description", "Smoothing using cvSmooth."
+                    "See OpenCV reference for meaning of parameters."
+                    "<a href='http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsmooth#cvSmooth'>"
+                    "http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsmooth#cvSmooth"
+                    "</a>")
 
-
-        Q_CLASSINFO("name", "Smooth");
-        Q_CLASSINFO("description", "<a href='http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsmooth#cvSmooth'>"
-                                    "http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsmooth#cvSmooth"
-                                    "</a>")
+        Q_PROPERTY( plv::Enum method READ getMethod WRITE setMethod NOTIFY methodChanged )
 
         Q_PROPERTY( int one READ getOne WRITE setOne NOTIFY oneChanged )
         Q_PROPERTY( int two READ getTwo WRITE setTwo NOTIFY twoChanged )
@@ -34,6 +37,7 @@ namespace plv {
         virtual void process();
 
         /** propery methods */
+        plv::Enum getMethod() const { return m_method; }
         int getOne() { return m_one; }
         int getTwo() { return m_two; }
         double getThree() { return m_three; }
@@ -44,18 +48,21 @@ namespace plv {
         void twoChanged(int newValue);
         void threeChanged(double newValue);
         void fourChanged(double newValue);
+        void methodChanged( plv::Enum m );
 
     public slots:
-        void setOne(int i) { m_one = i; emit(oneChanged(i)); }
-        void setTwo(int i) { m_two = i; emit(twoChanged(i)); }
+        void setOne(int i);
+        void setTwo(int i);
         void setThree(double i) { m_three = i; emit(threeChanged(i)); }
         void setFour(double i) { m_four = i; emit(fourChanged(i)); }
+        void setMethod( plv::Enum m ) { m_method = m; emit(methodChanged(m_method));}
 
     private:
 
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
 
+        plv::Enum m_method;
         int m_one;
         int m_two;
         double m_three;
