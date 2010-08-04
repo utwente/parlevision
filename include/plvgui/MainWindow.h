@@ -50,6 +50,7 @@ namespace plvgui {
     public slots:
         void showViewersForElement(plv::RefPtr<plv::PipelineElement>);
         void showViewerForPin(plv::RefPtr<plv::IOutputPin> targetPin);
+        void showWelcomeScreen();
 
     protected:
         void changeEvent(QEvent* e);
@@ -66,6 +67,7 @@ namespace plvgui {
 
     private:
         void initGUI();
+        void createWelcomeWidget();
         void createLibraryWidget();
         void createInspectorWidget();
         void createRecentFileActs();

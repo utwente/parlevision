@@ -25,6 +25,7 @@ int main(int argc, char **argv)
     MainWindow* mainWin = new MainWindow();
 
     mainWin->show();
+    mainWin->showWelcomeScreen();
 
     int retval = app.exec();
 

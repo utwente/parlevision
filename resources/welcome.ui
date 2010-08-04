@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>640</width>
+    <width>186</width>
     <height>460</height>
    </size>
   </property>
@@ -32,14 +32,146 @@
    <string>Welcome</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget[windowTitle=&quot;Welcome&quot;] {background-image: url(:images/welcome.png) };</string>
+   <string notr="true">#leftHeader, #rightHeader {
+	font-size: 36px;
+}
+
+#WelcomeWidget {
+	/*background-image: url(:images/welcome.png); */ 
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                  stop: 0 #EEEEEE, stop: 0.4 #DDDDDD,
+                                  stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: white;
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+}
+
+#WelcomeWidget QLabel {
+	color: black;
+}
+
+#scrollArea, #scrollAreaWidgetContents {
+	background: transparent;
+}
+
+QPushButton[flat=&quot;true&quot;] {
+	color: black;
+	text-align: right;
+	border: none;
+	margin: 0;
+	padding: 5px;
+}
+
+QPushButton[flat=&quot;true&quot;]:hover {
+	text-decoration: underline;
+	color: blue;
+}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>PushButton</string>
+   <item row="1" column="0">
+    <widget class="QLabel" name="title">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>64</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>ParleVision</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignHCenter|Qt::AlignTop</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <layout class="QVBoxLayout" name="actionsColumn">
+     <item>
+      <widget class="QPushButton" name="newButton">
+       <property name="text">
+        <string>Create new pipeline</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="openButton">
+       <property name="text">
+        <string>Open existing pipeline</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="rightHeader">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Actions</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="leftHeader">
+     <property name="text">
+      <string>Open Recent File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>342</width>
+        <height>297</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="recentFilesColumn"/>
+     </widget>
     </widget>
    </item>
   </layout>
