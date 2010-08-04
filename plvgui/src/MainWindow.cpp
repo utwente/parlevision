@@ -275,6 +275,7 @@ void MainWindow::createWelcomeWidget()
 
     ui->topContainer->insertWidget(0, this->welcomeWidget);
     w->recentFilesColumn->addStretch();
+    w->scrollArea->horizontalScrollBar()->setValue(w->scrollArea->horizontalScrollBar()->maximum());
 }
 
 void MainWindow::openRecentFile()
