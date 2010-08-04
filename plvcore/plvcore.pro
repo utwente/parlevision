@@ -60,7 +60,6 @@ SOURCES += \
     src/ImageFlip.cpp \
     src/ImageCornerHarris.cpp \
     src/ImageColorConvert.cpp \
-    src/AddSub.cpp \
     src/EdgeDetectorCanny.cpp \
     src/Add.cpp \
     src/Sub.cpp
