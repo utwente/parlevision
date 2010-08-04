@@ -7,7 +7,7 @@
 namespace plv {
     class Pipeline;
     class OpenCVImage;
-
+    //FIXME: add Q_CLASSINFO with documentation on the processor, and the meaning of the pins!
     class ImageSmooth : public PipelineProcessor
     {
         Q_OBJECT
@@ -44,7 +44,6 @@ namespace plv {
         void setFour(double i) { m_four = i; emit(fourChanged(i)); }
 
     private:
-        int nearestOdd(int i);
 
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;

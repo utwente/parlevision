@@ -10,6 +10,8 @@ using namespace plv;
 #define INPUT_PIN_NAME "input"
 #define OUTPUT_PIN_NAME "output"
 
+
+//FIXME: [DR] all properties must be validated
 ImageCornerHarris::ImageCornerHarris() :
         m_apertureSize(3),
         m_blockSize(3),
