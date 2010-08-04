@@ -267,11 +267,14 @@ void MainWindow::createWelcomeWidget()
         QAction* recentFileAct = recentFileActs[i];
         assert(recentFileAct != 0);
         QPushButton* fileLink = new QPushButton(recentFileAct->data().toString(), this->welcomeWidget);
+        fileLink->setFlat(true);
+        fileLink->setCursor(Qt::PointingHandCursor);
         connect(fileLink, SIGNAL(clicked()), recentFileAct, SIGNAL(triggered()));
         w->recentFilesColumn->addWidget(fileLink);
     }
 
     ui->topContainer->insertWidget(0, this->welcomeWidget);
+    w->recentFilesColumn->addStretch();
 }
 
 void MainWindow::openRecentFile()
