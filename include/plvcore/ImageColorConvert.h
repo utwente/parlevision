@@ -11,7 +11,8 @@ namespace plv {
     class ImageColorConvert : public PipelineProcessor
     {
         Q_OBJECT
-        Q_PROPERTY( int conversionType READ getConversionType WRITE setConversionType NOTIFY conversionType )
+        //Q_PROPERTY( int conversionType READ getConversionType WRITE setConversionType NOTIFY conversionType )
+        Q_PROPERTY( plv::Enum conversionType READ getConversionType WRITE setConversionType NOTIFY conversionTypeChanged )
 
     public:
         ImageColorConvert();
@@ -23,13 +24,13 @@ namespace plv {
         virtual void process();
 
         /** propery methods */
-        int getConversionType() { return m_conversionType; }
+        plv::Enum getConversionType() { return m_conversionType; }
 
     signals:
-        void conversionTypeChanged(int newValue);
+        void conversionTypeChanged(plv::Enum newValue);
 
     public slots:
-        void setConversionType(int i) { m_conversionType = i; emit(conversionTypeChanged(i)); }
+        void setConversionType(plv::Enum e) { m_conversionType = e; emit(conversionTypeChanged(e)); }
 
     private:
         int nearestOdd(int i);
@@ -37,7 +38,7 @@ namespace plv {
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
 
-        int m_conversionType;
+        plv::Enum m_conversionType;
     };
 }
 #endif // IMAGECOLORCONVERT_H

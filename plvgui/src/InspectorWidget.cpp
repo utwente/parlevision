@@ -6,10 +6,11 @@
 #include <assert.h>
 
 #include "PipelineElement.h"
+#include "Types.h"
 #include "CameraProducer.h"
+
 #include "CameraConfigFormBuilder.h"
 #include "ElementConfigFormBuilder.h"
-#include "Types.h"
 
 using namespace plvgui;
 using namespace plv;
@@ -26,6 +27,11 @@ InspectorWidget::InspectorWidget(QWidget *parent) :
 InspectorWidget::~InspectorWidget()
 {
     delete ui;
+    foreach( PlvEnumProxy* proxy, m_enumProxies )
+    {
+        delete proxy;
+    }
+    m_enumProxies.clear();
 }
 
 void InspectorWidget::changeEvent(QEvent *e)
@@ -70,7 +76,50 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
         {
             QString propertyName = *itr;
             QVariant value = element->property(propertyName.toAscii());
-            addRow(form, element, &propertyName, &value);
+
+            int propIndex = element->metaObject()->indexOfProperty( propertyName.toAscii() );
+            QMetaProperty property = element->metaObject()->property( propIndex );
+            if( property.isEnumType() )
+            {
+                QMetaEnum metaEnum = property.enumerator();
+                qDebug() << "Found enumerator with name " << metaEnum.name();
+                for( int i=0; i < metaEnum.keyCount(); ++i )
+                {
+                    qDebug() << metaEnum.key( i );
+                }
+                //addRow( form, element, propertyName, metaEnum );
+            }
+            else
+            {
+                switch(value.type())
+                {
+                case QVariant::Int:
+                    addRow(form, element, propertyName, value.toInt());
+                    break;
+                case QVariant::Double:
+                    addRow(form, element, propertyName, value.toDouble());
+                    break;
+                case QVariant::Bool:
+                    addRow(form, element, propertyName, value.toBool());
+                    break;
+                case QVariant::String:
+                    addRow(form, element, propertyName, value.toString(), true);
+                    break;
+                case QVariant::UserType:
+                    if( value.canConvert<plv::Enum>() )
+                    {
+                        plv::Enum e = value.value<plv::Enum>();
+                        addRow( form, element, propertyName, e );
+                        qDebug() << "Custom enum type " << propertyName << " found ";
+                        qDebug() << e.toString();
+                    }
+                    break;
+                default:
+                    // substitute a non-editable string
+                    addRow(form, element, propertyName, value.toString(), false);
+                    break;
+                }
+            }
         }
     }
 
@@ -103,38 +152,115 @@ void InspectorWidget::clearSelection()
         delete this->formContainer;
     }
     this->formContainer = 0;
-}
 
-void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QVariant* value)
-{
-    switch(value->type())
+    foreach( PlvEnumProxy* proxy, m_enumProxies )
     {
-    case QVariant::Int:
-        addRow(form, element, name, value->toInt());
-        break;
-    case QVariant::Double:
-        addRow(form, element, name, value->toDouble());
-        break;
-    case QVariant::Bool:
-        addRow(form, element, name, value->toBool());
-        break;
-    case QVariant::String:
-        addRow(form, element, name, value->toString(), true);
-        break;
-    case QVariant::UserType:
-        if(value->canConvert<plv::PlvEnum>() )
-        {
-            qDebug() << "Works!";
-        }
-        break;
-    default:
-        // substitute a non-editable string
-        addRow(form, element, name, value->toString(), false);
-        break;
+        delete proxy;
     }
+    m_enumProxies.clear();
 }
 
-void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, int value)
+//void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QVariant* value)
+//{
+//    switch(value->type())
+//    {
+//    case QVariant::Int:
+//        addRow(form, element, name, value->toInt());
+//        break;
+//    case QVariant::Double:
+//        addRow(form, element, name, value->toDouble());
+//        break;
+//    case QVariant::Bool:
+//        addRow(form, element, name, value->toBool());
+//        break;
+//    case QVariant::String:
+//        addRow(form, element, name, value->toString(), true);
+//        break;
+//    default:
+//        // substitute a non-editable string
+//        addRow(form, element, name, value->toString(), false);
+//        break;
+//    }
+//}
+
+//void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, QMetaEnum metaEnum )
+//{
+//    QComboBox* comboBox = new QComboBox( form->parentWidget() );
+//    QStringList items;
+//    for( int i=0; i < metaEnum.keyCount(); ++i )
+//    {
+//        items.append( metaEnum.key( i ) );
+//    }
+
+//    comboBox->addItems( items );
+//    comboBox->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
+//    form->addRow(new QLabel( name, form->parentWidget()), comboBox);
+
+//    QMetaProperty prop = element->metaObject()->property(
+//                    element->metaObject()->indexOfProperty(name.toAscii()));
+
+//    if( prop.hasNotifySignal() )
+//    {
+//        QString signature = prop.notifySignal().signature();
+//        qDebug() << "connecting signal " << signature;
+////        priorityChanged(Priority)
+////        signature.replace( QRegExp("\\([^)]*\\)"), "(QString)" );
+////        qDebug() << signature;
+////        connect( element, QByteArray::number(QSIGNAL_CODE) + signature,
+////                 comboBox, SLOT( setCurrentIndex(QString) ));
+//    }
+//    else
+//    {
+//        qWarning() << "WARNING: Property " << name << " does not nave NOTIFY signal!";
+//    }
+
+//    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, name, "QString");
+//    comboBox->setEnabled( connect(comboBox, SIGNAL( currentIndexChanged(QString) ), element, slot.toAscii()));
+//}
+
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, plv::Enum plvEnum )
+{
+    QComboBox* comboBox = new QComboBox( form->parentWidget() );
+    comboBox->addItems( plvEnum.getItemNames() );
+    comboBox->setCurrentIndex( plvEnum.getSelectedIndex() );
+    comboBox->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
+    form->addRow(new QLabel( name, form->parentWidget()), comboBox);
+
+    QMetaProperty prop = element->metaObject()->property(
+                    element->metaObject()->indexOfProperty(name.toAscii()));
+
+    // make a proxy object
+    PlvEnumProxy* proxy = new PlvEnumProxy( plvEnum );
+    m_enumProxies.insert( name, proxy );
+
+    if( prop.hasNotifySignal() )
+    {
+        // connect the element and use this as proxy object to translate from
+        // plv::Enum to
+        connect( element.getPtr(), QByteArray::number(QSIGNAL_CODE) + prop.notifySignal().signature(),
+                    proxy, SLOT( enumToInt( plv::Enum ) ));
+
+        // connect this to the combo box for translation
+        connect( proxy, SIGNAL( indexSet( int ) ),
+                 comboBox, SLOT( setCurrentIndex( int ) ) );
+    }
+    else
+    {
+        qWarning() << "WARNING: Property " << name << " does not nave NOTIFY signal!";
+    }
+
+    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature( element, name );
+
+    connect( comboBox, SIGNAL( currentIndexChanged(int) ),
+             proxy, SLOT( intToEnum(int) ) );
+
+    connect( proxy, SIGNAL( indexSet(plv::Enum) ),
+             element.getPtr(), slot.toAscii() );
+
+    comboBox->setEnabled( true );
+}
+
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, int value)
 {
     QSpinBox* spinBox = new QSpinBox(form->parentWidget());
     spinBox->setRange(-2147483647,2147483647);
@@ -142,7 +268,7 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     spinBox->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
     QMetaProperty prop = element->metaObject()->property(
-                    element->metaObject()->indexOfProperty(name->toAscii()));
+                    element->metaObject()->indexOfProperty(name.toAscii()));
 
     if(prop.hasNotifySignal())
     {
@@ -152,17 +278,17 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     }
     else
     {
-        qWarning() << "WARNING: Property " << *name << " does not nave NOTIFY signal!";
+        qWarning() << "WARNING: Property " << name << " does not nave NOTIFY signal!";
     }
 
-    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
+    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, name);
     spinBox->setEnabled(connect(spinBox, SIGNAL(valueChanged(int)),
                         element, slot.toAscii()));
 
-    form->addRow(new QLabel(*name, form->parentWidget()), spinBox);
+    form->addRow(new QLabel( name, form->parentWidget()), spinBox);
 }
 
-void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, double value)
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, double value)
 {
     QDoubleSpinBox* spinBox = new QDoubleSpinBox(form->parentWidget());
     spinBox->setRange(-10000000.0,100000000.0);
@@ -172,7 +298,7 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     spinBox->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
     QMetaProperty prop = element->metaObject()->property(
-                    element->metaObject()->indexOfProperty(name->toAscii()));
+                    element->metaObject()->indexOfProperty(name.toAscii()));
 
     if(prop.hasNotifySignal())
     {
@@ -182,24 +308,24 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     }
     else
     {
-        qWarning() << "WARNING: Property " << *name << " does not nave NOTIFY signal!";
+        qWarning() << "WARNING: Property " << name << " does not nave NOTIFY signal!";
     }
 
-    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
+    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, name);
     spinBox->setEnabled(connect(spinBox, SIGNAL(valueChanged(double)),
                         element, slot.toAscii()));
 
-    form->addRow(new QLabel(*name, form->parentWidget()), spinBox);
+    form->addRow(new QLabel( name, form->parentWidget()), spinBox);
 }
 
 
-void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, bool value)
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, bool value)
 {
     QCheckBox* checkBox = new QCheckBox(this->formContainer);
     checkBox->setChecked(value);
 
     QMetaProperty prop = element->metaObject()->property(
-                    element->metaObject()->indexOfProperty(name->toAscii()));
+                    element->metaObject()->indexOfProperty(name.toAscii()));
 
     if(prop.hasNotifySignal())
     {
@@ -209,21 +335,22 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
     }
     else
     {
-        qWarning() << "WARNING: Property " << *name << " does not nave NOTIFY signal!";
+        qWarning() << "WARNING: Property " << name << " does not nave NOTIFY signal!";
     }
 
-    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
+    QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, name);
     checkBox->setEnabled(connect(checkBox, SIGNAL(toggled(bool)),
                         element, slot.toAscii()));
 
-    form->addRow(new QLabel(*name, form->parentWidget()), checkBox);
+    form->addRow(new QLabel( name, form->parentWidget()), checkBox);
 }
 
-void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QString value, bool editable)
+void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name,
+                             const QString& value, bool editable)
 {
     if(!editable)
     {
-        form->addRow(new QLabel(*name, form->parentWidget()), new QLabel(value, form->parentWidget()));
+        form->addRow(new QLabel( name, form->parentWidget()), new QLabel(value, form->parentWidget()));
     }
     else
     {
@@ -231,7 +358,7 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
         textField->setText(value);
 
         QMetaProperty prop = element->metaObject()->property(
-                        element->metaObject()->indexOfProperty(name->toAscii()));
+                        element->metaObject()->indexOfProperty(name.toAscii()));
 
         if(prop.hasNotifySignal())
         {
@@ -241,26 +368,37 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
         }
         else
         {
-            qWarning() << "WARNING: Property " << *name << " does not nave NOTIFY signal!";
+            qWarning() << "WARNING: Property " << name << " does not nave NOTIFY signal!";
         }
 
-        QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, *name);
+        QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, name);
         textField->setEnabled(connect(textField, SIGNAL(textChanged(QString)),
                             element, slot.toAscii()));
 
-        form->addRow(new QLabel(*name, form->parentWidget()), textField);
+        form->addRow(new QLabel( name, form->parentWidget()), textField);
     }
 }
 
-const QString InspectorWidget::propertySlotSignature(QObject* obj, QString propertyName)
+QString InspectorWidget::propertySlotSignature(QObject* obj, QString propertyName, QString signature )
 {
     assert(propertyName.length() > 0);
     if(! propertyName.length() > 0)
         return "UNKNOWN()";
 
     QVariant value = obj->property(propertyName.toAscii());
-    QString methodName = "set"
+    QString methodName;
+
+    if( !signature.isEmpty() )
+    {
+        methodName = "set"
+                         + propertyName.replace(0, 1, propertyName.at(0).toUpper())
+                         + "(" + signature + ")";
+    }
+    else
+    {
+        methodName = "set"
                          + propertyName.replace(0, 1, propertyName.at(0).toUpper())
                          + "(" + QString(value.typeName()) + ")";
+    }
     return methodName;
 }
