@@ -18,7 +18,8 @@ namespace plv {
 
         Q_CLASSINFO("author", "Michel & Richard")
         Q_CLASSINFO("name", "Dummy")
-        Q_CLASSINFO("description", "A simple processor to demonstrate how to implement your own processors. It doesn't do much, but flip your images.");
+        Q_CLASSINFO("description", "A simple processor to demonstrate how to implement your own processors. "
+                    "It doesn't do much, but flip your images.");
 
         Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt NOTIFY someIntChanged  )
         Q_PROPERTY( double someDouble READ getSomeDouble WRITE setSomeDouble NOTIFY someDoubleChanged  )
