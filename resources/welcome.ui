@@ -96,14 +96,14 @@ QPushButton[flat=&quot;true&quot;]:hover {
    <item row="4" column="1">
     <layout class="QVBoxLayout" name="actionsColumn">
      <item>
-      <widget class="QPushButton" name="openButton">
+      <widget class="QPushButton" name="newButton">
        <property name="text">
         <string>Create new pipeline</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="newButton">
+      <widget class="QPushButton" name="openButton">
        <property name="text">
         <string>Open existing pipeline</string>
        </property>
