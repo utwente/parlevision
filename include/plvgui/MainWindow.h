@@ -66,6 +66,7 @@ namespace plvgui {
 
     private:
         void initGUI();
+        void createWelcomeWidget();
         void createLibraryWidget();
         void createInspectorWidget();
         void createRecentFileActs();

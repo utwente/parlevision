@@ -47,9 +47,6 @@ void MainWindow::initGUI()
     // Load design from Form mainwindow.ui
     ui->setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
-    Ui::WelcomeWidget* w = new Ui::WelcomeWidget();
-    this->welcomeWidget = new QWidget(this);
-    w->setupUi(this->welcomeWidget);
 
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
@@ -59,7 +56,6 @@ void MainWindow::initGUI()
     ui->view->setAcceptDrops(true);
     ui->view->setEnabled(false);
     ui->view->hide();
-    ui->topContainer->insertWidget(0, this->welcomeWidget);
     ui->actionSave->setEnabled(false);
     ui->actionSaveAs->setEnabled(false);
     ui->actionStart->setEnabled(false);
@@ -69,13 +65,15 @@ void MainWindow::initGUI()
     QShortcut* shortcut = new QShortcut(QKeySequence(tr("Backspace")),this);
     connect(shortcut, SIGNAL(activated()), ui->actionDelete, SLOT(trigger()));
 
+    createRecentFileActs();
+    // the welcome widget needs the recent file actions
+    createWelcomeWidget();
     createLibraryWidget();
     createInspectorWidget();
 
     // Restore window geometry and state
     loadSettings();
 
-    createRecentFileActs();
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -251,6 +249,29 @@ void MainWindow::createRecentFileActs()
     }
 
     updateRecentFileActions();
+}
+
+void MainWindow::createWelcomeWidget()
+{
+    Ui::WelcomeWidget* w = new Ui::WelcomeWidget();
+    this->welcomeWidget = new QWidget(this);
+    w->setupUi(this->welcomeWidget);
+
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+
+    int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
+
+    for (int i = 0; i < numRecentFiles; ++i)
+    {
+        QAction* recentFileAct = recentFileActs[i];
+        assert(recentFileAct != 0);
+        QPushButton* fileLink = new QPushButton(recentFileAct->data().toString(), this->welcomeWidget);
+        connect(fileLink, SIGNAL(clicked()), recentFileAct, SIGNAL(triggered()));
+        w->recentFilesColumn->addWidget(fileLink);
+    }
+
+    ui->topContainer->insertWidget(0, this->welcomeWidget);
 }
 
 void MainWindow::openRecentFile()
