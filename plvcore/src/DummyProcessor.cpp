@@ -16,13 +16,19 @@ DummyProcessor::DummyProcessor() :
         m_someBool(true),
         m_someString("hello"),
         m_someVarWithNr1(0),
-        m_someVarWithNr2(0)
+        m_someVarWithNr2(0),
+        m_priority( VeryHigh )
 {
 
 
     m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
     m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::OPTIONAL );
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+
+    m_customEnum.add( "Very Low" );
+    m_customEnum.add( "Low" );
+    m_customEnum.add( "High" );
+    m_customEnum.add( "Very High" );
 }
 
 DummyProcessor::~DummyProcessor()

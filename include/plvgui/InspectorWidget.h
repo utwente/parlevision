@@ -2,9 +2,10 @@
 #define INSPECTORWIDGET_H
 
 #include <QDockWidget>
+
 #include "RefPtr.h"
 #include "PipelineElement.h"
-
+#include "Types.h"
 
 class QFormLayout;
 
@@ -22,6 +23,35 @@ using namespace plv;
 
 namespace plvgui
 {
+    class PlvEnumProxy : public QObject
+    {
+        Q_OBJECT
+    protected:
+        plv::Enum m_enum;
+
+    public:
+        PlvEnumProxy( plv::Enum e ) : m_enum( e )
+        {
+        }
+
+    signals:
+        void indexSet( int );
+        void indexSet( plv::Enum );
+
+    public slots:
+        void enumToInt( plv::Enum e )
+        {
+            int index = e.getSelectedIndex();
+            emit( indexSet( index ));
+        }
+
+        void intToEnum( int i )
+        {
+            m_enum.setSelectedIndex( i );
+            emit( indexSet( m_enum ));
+        }
+    };
+
     class InspectorWidget : public QDockWidget
     {
         Q_OBJECT
@@ -43,16 +73,18 @@ namespace plvgui
 
     private:
         void clearSelection();
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QVariant* value);
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, int value);
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, double value);
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, bool value);
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, QString* name, QString value, bool editable=true);
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, int value);
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, double value);
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, bool value);
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, const QString& value, bool editable=true);
+        //void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, QMetaEnum metaEnum );
+        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, plv::Enum plvEnum );
         Ui::InspectorWidget *ui;
         RefPtr<PipelineElement> element;
         QWidget* formContainer;
 
-        const QString propertySlotSignature(QObject* obj, QString property);
+        QString propertySlotSignature(QObject* obj, QString property, QString signature = "");
+        QMap<QString, PlvEnumProxy*> m_enumProxies;
     };
 }
 #endif // INSPECTORWIDGET_H

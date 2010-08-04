@@ -1,6 +1,8 @@
 #ifndef DUMMYPROCESSOR_H
 #define DUMMYPROCESSOR_H
 
+#include <QVariant>
+
 #include "PipelineProcessor.h"
 #include "Pin.h"
 #include "Types.h"
@@ -24,15 +26,44 @@ namespace plv {
         Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString NOTIFY someStringChanged )
         Q_PROPERTY( int someVarWithNr1 READ getSomeVarWithNr1 WRITE setSomeVarWithNr1 NOTIFY someVarWithNr1Changed )
         Q_PROPERTY( int someVarWithNr2 READ getSomeVarWithNr2 WRITE setSomeVarWithNr2 NOTIFY someVarWithNr2Changed )
+        Q_PROPERTY( plv::Enum customEnum READ getCustomEnum WRITE setCustomEnum NOTIFY customEnumChanged )
 
-        //Q_PROPERTY(Priority priority READ getPriority WRITE setPriority NOTIFY priorityChanged )
-        //Q_ENUMS(Priority)
-
-        Q_PROPERTY( plv::PlvEnum priority READ getPriority WRITE setPriority NOTIFY priorityChanged )
+/******************************************************************************************/
+        Q_PROPERTY( Priority priority READ getPriority WRITE setPriority NOTIFY priorityChanged )
+        Q_ENUMS( Priority )
 
     public:
-        //enum Priority { High, Low, VeryHigh, VeryLow };
+        enum Priority { High, Low, VeryHigh, VeryLow };
+        Priority getPriority() const { return m_priority; }
 
+    signals:
+        void priorityChanged( Priority p );
+
+    public slots:
+        void setPriority( Priority p )
+        {
+            m_priority = p;
+            emit( priorityChanged( p ) );
+        }
+
+/******************************************************************************************/
+
+    public:
+        plv::Enum getCustomEnum() const { return m_customEnum; }
+
+    signals:
+        void customEnumChanged( plv::Enum p );
+
+    public slots:
+        void setCustomEnum( plv::Enum c )
+        {
+            m_customEnum = c;
+            emit( customEnumChanged( c ) );
+            qDebug() << c.toString();
+        }
+
+/******************************************************************************************/
+    public:
         DummyProcessor();
         ~DummyProcessor();
 
@@ -50,11 +81,6 @@ namespace plv {
         int getSomeVarWithNr1() { return m_someVarWithNr1; }
         int getSomeVarWithNr2() { return m_someVarWithNr2; }
 
-        plv::PlvEnum getPriority() const
-        {
-            return m_priority;
-        }
-
     signals:
         void someIntChanged(int newValue);
         void someDoubleChanged(double newValue);
@@ -62,7 +88,6 @@ namespace plv {
         void someStringChanged(QString newValue);
         void someVarWithNr1Changed(int var);
         void someVarWithNr2Changed(int var);
-        void priorityChanged( plv::PlvEnum p );
 
     public slots:
         void setSomeInt(int i) {m_someInt = i; emit(someIntChanged(i));}
@@ -71,12 +96,6 @@ namespace plv {
         void setSomeString(QString s) {m_someString = s; emit(someStringChanged(s));}
         void setSomeVarWithNr1(int var) { m_someVarWithNr1 = var; emit( someVarWithNr1Changed(var) ); }
         void setSomeVarWithNr2(int var) { m_someVarWithNr2 = var; emit( someVarWithNr2Changed(var) ); }
-
-        void setPriority( plv::PlvEnum e )
-        {
-            m_priority = e;
-            emit( priorityChanged( m_priority ) );
-        }
 
     private:
         InputPin<OpenCVImage>* m_inputPin;
@@ -89,7 +108,8 @@ namespace plv {
         QString m_someString;
         int m_someVarWithNr1;
         int m_someVarWithNr2;
-        plv::PlvEnum m_priority;
+        Priority m_priority;
+        plv::Enum m_customEnum;
     };
 
 }

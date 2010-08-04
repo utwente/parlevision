@@ -60,7 +60,8 @@ SOURCES += \
     src/ImageCornerHarris.cpp \
     src/ImageColorConvert.cpp \
     src/ImageCanny.cpp \
-    src/AddSub.cpp
+    src/AddSub.cpp \
+    src/Types.cpp
 
 HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Application.h \

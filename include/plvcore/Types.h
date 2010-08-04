@@ -1,63 +1,15 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <QMap>
+#include <QStringList>
 #include <QMetaType>
+
 #include "RefPtr.h"
 #include "assert.h"
 
 namespace plv 
 {
-    class PlvEnum
-    {
-    public:
-        PlvEnum() : m_selected( 0 ) {}
-        ~PlvEnum() {}
-
-        PlvEnum( const PlvEnum& other ) :
-            m_selected( other.m_selected ),
-            m_items( other.m_items )
-        {
-        }
-
-        void setSelected( int i )
-        {
-            assert( m_items.contains( i ) );
-            m_selected = i;
-        }
-
-        void setSelected( const QString& selected )
-        {
-            int i = 0;
-            foreach( const QString& str , m_items.values() )
-            {
-                if( str.compare( selected ) == 0 )
-                {
-                    m_selected = i;
-                    break;
-                }
-                ++i;
-            }
-        }
-
-        int getSelected() const
-        {
-            return m_selected;
-        }
-
-        QString getString( int i )
-        {
-            if( m_items.contains(i) )
-                return m_items[i];
-            else
-                return "INVALID";
-        }
-
-    protected:
-        int m_selected;
-        QMap<int, QString> m_items;
-    };
-
-
     /** Base class for data resources.
       *
       */
@@ -112,11 +64,58 @@ namespace plv
         virtual ~Data() {}
     };
 
+    /** private class used to store enum information in Enum class */
+    class EnumPair
+    {
+    public:
+        EnumPair( const QString& s="", int v=-1 ) :
+                m_name(s), m_value(v) {}
+
+        inline QString name() const { return m_name; }
+        inline int value() const { return m_value; }
+
+    protected:
+        QString m_name;
+        int m_value;
+    };
+
+    /** Class for configurable enum properties with introspection support. Useful in GUI code */
+    class Enum
+    {
+    public:
+        Enum( int selected = 0 );
+
+        ~Enum();
+
+        Enum( const Enum& other );
+
+        void setSelectedIndex( int i );
+
+        void setSelected( const QString& selected );
+
+        void add( const QString& str );
+
+        void add( const QString& str, int value );
+
+        int getSelectedIndex() const;
+
+        int getSelectedValue() const;
+
+        QString getItemName( int i ) const;
+
+        int getItemValue( int i ) const;
+
+        QStringList getItemNames() const;
+
+        QString toString() const;
+
+    protected:
+        int m_selectedIndex;
+        QMap<int, EnumPair> m_items;
+    };
 }
-/** declare the RefPtr template instantiated with the Data class as a Qt Metatype 
-  *  so we can pass RefPtr<Data> along with signals and slots across thread boundaries
-  */
+/** Declare as Qt Metatype so we can pass RefPtr<Data> along with signals and slots */
 Q_DECLARE_METATYPE( plv::RefPtr<plv::Data> )
-Q_DECLARE_METATYPE( plv::PlvEnum )
+Q_DECLARE_METATYPE( plv::Enum )
 
 #endif // TYPES_H
