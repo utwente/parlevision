@@ -65,6 +65,9 @@ void MainWindow::initGUI()
     QShortcut* shortcut = new QShortcut(QKeySequence(tr("Backspace")),this);
     connect(shortcut, SIGNAL(activated()), ui->actionDelete, SLOT(trigger()));
 
+    QShortcut* closeShortcut = new QShortcut(QKeySequence(tr("Ctrl+W")),this);
+    connect(closeShortcut, SIGNAL(activated()), this, SLOT(close()));
+
     createRecentFileActs();
     // the welcome widget needs the recent file actions
     createWelcomeWidget();
