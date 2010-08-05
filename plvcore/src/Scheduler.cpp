@@ -53,9 +53,6 @@ Scheduler::Scheduler( Pipeline* pipeline )
             this,
             SLOT(connectionRemoved(plv::RefPtr<plv::PinConnection>))
             );
-
-    // for error reporting to GUI
-    connect( this, SIGNAL( errorOccurred(QString)), pipeline, SIGNAL( errorOccurred(QString)));
 }
 
 Scheduler::~Scheduler()
@@ -129,12 +126,14 @@ bool Scheduler::schedule()
         {
         case ScheduleInfo::READY:
             si->dispatch();
+            break;
         case ScheduleInfo::ERROR:
-            {
-                QString errStr = si->getErrorString();
-                emit( errorOccurred( errStr ) );
-                return false;
-            }
+        {
+            QString errStr = si->getErrorString();
+            emit( errorOccurred( si->getElement()->getName() + ": "
+                                 + errStr ) );
+            return false;
+        }
         case ScheduleInfo::UNDEFINED:
         case ScheduleInfo::WAITING:
         case ScheduleInfo::RUNNING:
@@ -228,6 +227,15 @@ void ScheduleInfo::run()
         stopTimer();
         setState( ERROR );
         setErrorString( e.what() );
+        return;
+    }
+    catch( std::runtime_error& err )
+    {
+        qDebug() << "Uncaught exception in PipelineElement::process()"
+                 << "of type PlvException with message: " << err.what();
+        stopTimer();
+        setState( ERROR );
+        setErrorString( err.what() );
         return;
     }
     catch( ... )

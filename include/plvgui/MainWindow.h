@@ -101,6 +101,9 @@ namespace plvgui {
         void on_actionNew_triggered();
         void on_actionLoad_triggered();
         void sceneSelectionChanged();
+
+        void pipelineStarted();
+        void pipelineStopped();
 };
 
 } // namespace plvgui

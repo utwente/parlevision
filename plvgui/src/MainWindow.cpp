@@ -320,14 +320,20 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     ui->actionSave->setEnabled(true);
     ui->actionSaveAs->setEnabled(true);
     ui->actionStart->setEnabled(true);
-    ui->actionPause->setEnabled(true);
-    ui->actionStop->setEnabled(true);
+    ui->actionPause->setEnabled(false);
+    ui->actionStop->setEnabled(false);
 
     connect(ui->actionStop, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
 
     connect(ui->actionStart, SIGNAL(triggered()),
             pipeline, SLOT(start()));
+
+    connect(pipeline, SIGNAL(started()),
+            this, SLOT(pipelineStarted()));
+
+    connect(pipeline, SIGNAL(stopped()),
+            this, SLOT(pipelineStopped()));
 
     connect(pipeline, SIGNAL(errorOccurred(QString)),
             this, SLOT(criticalError(QString)));
@@ -350,6 +356,20 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
 
     qDebug() << "setting documentChanged to false #1";
     m_documentChanged = false;
+}
+
+void MainWindow::pipelineStarted()
+{
+    ui->actionStart->setDisabled(true);
+    ui->actionStop->setEnabled(true);
+    ui->statusbar->showMessage("Running");
+}
+
+void MainWindow::pipelineStopped()
+{
+    ui->actionStart->setEnabled(true);
+    ui->actionStop->setDisabled(true);
+    ui->statusbar->showMessage("Stopped.");
 }
 
 void MainWindow::loadFile(QString fileName)

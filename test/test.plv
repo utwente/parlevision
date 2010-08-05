@@ -10,10 +10,27 @@
     <someVarWithNr2>0</someVarWithNr2>
     <customEnum></customEnum>
     <priority>2</priority>
-    <sceneCoordX>195</sceneCoordX>
-    <sceneCoordY>327</sceneCoordY>
+    <sceneCoordX>233</sceneCoordX>
+    <sceneCoordY>396</sceneCoordY>
+   </properties>
+  </element>
+  <element id="1" name="plv::CameraProducer">
+   <properties>
+    <sceneCoordX>55</sceneCoordX>
+    <sceneCoordY>400</sceneCoordY>
    </properties>
   </element>
  </elements>
- <connections/>
+ <connections>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>0</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>1</processorId>
+   </source>
+  </connection>
+ </connections>
 </pipeline>

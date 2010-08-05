@@ -140,6 +140,9 @@ namespace plv
 
         void errorOccurred( QString errorStr );
 
+        void started();
+        void stopped();
+
     public slots:
         void start();
         void stop();

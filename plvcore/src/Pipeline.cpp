@@ -22,6 +22,9 @@ Pipeline::Pipeline() :
         m_running( false ),
         m_scheduler( new Scheduler( this ) )
 {
+    // for error reporting to GUI
+    connect(m_scheduler, SIGNAL(errorOccurred(QString)),
+            this, SIGNAL(errorOccurred(QString)));
 }
 
 Pipeline::~Pipeline()
@@ -279,21 +282,22 @@ void Pipeline::stop()
     {
         usleep(100);
     }
+    emit(stopped());
 }
 
 void Pipeline::run()
 {
     m_running = true;
+    emit(started());
 
     while( !m_stopRequested )
     {
         if( !m_scheduler->schedule() )
         {
+            m_running = false;
             stop();
         }
     }
 
     m_running = false;
 }
-
-
