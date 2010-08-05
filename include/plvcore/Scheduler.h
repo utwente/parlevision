@@ -22,7 +22,7 @@ namespace plv
         Scheduler( Pipeline* pipeline );
         ~Scheduler();
 
-        void schedule();
+        bool schedule();
 
         void setActiveThreadCount(int num);
         int getActiveThreadCount();
@@ -38,6 +38,9 @@ namespace plv
         void connectionAdded(plv::RefPtr<plv::PinConnection>);
         void connectionRemoved(plv::RefPtr<plv::PinConnection>);
         void connectionChanged(plv::RefPtr<plv::PinConnection>);
+
+    signals:
+        void errorOccurred( QString errorString );
     };
 
     class ScheduleInfo
@@ -70,6 +73,7 @@ namespace plv
         QFuture<void> m_result;
         QMutex m_mutex;
         QTime m_timer;
+        QString m_errorString;
 
     public:
         ScheduleInfo( PipelineElement* pl, PipelineElementType type, int priority = 0 );
@@ -104,7 +108,10 @@ namespace plv
         /** sets the state of this processor. This method is thread safe. */
         void setState( ScheduleState state );
 
+        QString getErrorString() const { return m_errorString; }
+
     private:
+        void setErrorString( const QString& error );
         ScheduleInfo( const ScheduleInfo&);
         void setDynamicPriority( int priority ) { m_dynamicPriority = priority; }
         void startTimer();

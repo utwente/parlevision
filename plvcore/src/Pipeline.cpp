@@ -285,71 +285,15 @@ void Pipeline::run()
 {
     m_running = true;
 
-    while(!m_stopRequested)
+    while( !m_stopRequested )
     {
-        m_scheduler->schedule();
+        if( !m_scheduler->schedule() )
+        {
+            stop();
+        }
     }
 
     m_running = false;
-
-//        if( !schedule.isEmpty() )
-//        {
-//            QSet<ScheduleInfo*> scheduled;
-//            QMapIterator< int, ScheduleInfo* > itr( schedule );
-//            while( itr.hasNext() )
-//            {
-//                try
-//                {
-//                    itr.next();
-//                    ScheduleInfo* si = itr.value();
-//                    RefPtr<PipelineElement> element = si->getElement();
-//                    int id = element->getId();
-
-//                    QMutexLocker lock( &m_schedulerMutex );
-//                    if( si->updateAndGetState() == ScheduleInfo::READY )
-//                    {
-//                        m_processing.insert( id );
-//                        scheduled.insert( si );
-////                        //int activeThreads = QThreadPool::globalInstance()->activeThreadCount();
-////                        while( QThreadPool::globalInstance()->activeThreadCount() == QThreadPool::globalInstance()->maxThreadCount() )
-////                        {
-////                            qDebug() << "Max thread count reached ("
-////                                    << QThreadPool::globalInstance()->activeThreadCount()
-////                                    << "), sleeping.";
-////                            usleep( 100 );
-////                        }
-//                        QFuture<ScheduleInfo*> info = QtConcurrent::run( this, &Pipeline::runProcessor, si );
-//                    }
-//                }
-//                catch( PipelineException& pe )
-//                {
-//                    qDebug() << "Uncaught exception in PipelineElement::process()"
-//                             << "of type PipelineException with message: " << pe.what();
-//                }
-//                catch( IllegalAccessException& iae )
-//                {
-//                    qDebug() << "Uncaught exception in PipelineElement::process()"
-//                             << "of type IllegalAccessException with message: " << iae.what();
-//                }
-//                catch( ... )
-//                {
-//                    qDebug() << "Uncaught exception in PipelineElement::process()"
-//                             << "of unknown type.";
-//                }
-//            }
-
-//            foreach( ScheduleInfo* si, scheduled )
-//            {
-//                qDebug(" Executed processor %i, avg time elapsed: %d ms, maxQueueSize %i",
-//                       si->getElement()->getId(), si->getAvgProcessingTime(), si->maxQueueSize() );
-//            }
-//        }
-//        else
-//        {
-//            // nothing to do, sleep a little while
-//            usleep( 0 );
-//        }
-//    }
 }
 
 

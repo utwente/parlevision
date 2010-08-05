@@ -53,6 +53,9 @@ Scheduler::Scheduler( Pipeline* pipeline )
             this,
             SLOT(connectionRemoved(plv::RefPtr<plv::PinConnection>))
             );
+
+    // for error reporting to GUI
+    connect( this, SIGNAL( errorOccurred(QString)), pipeline, SIGNAL( errorOccurred(QString)));
 }
 
 Scheduler::~Scheduler()
@@ -103,31 +106,41 @@ void Scheduler::elementChanged(plv::RefPtr<plv::PipelineElement> ple )
 
 void Scheduler::connectionAdded(plv::RefPtr<plv::PinConnection> connection )
 {
-        // TODO not implemented yet
+    // TODO not implemented yet
 }
 
 void Scheduler::connectionRemoved(plv::RefPtr<plv::PinConnection>)
 {
-        // TODO not implemented yet
+    // TODO not implemented yet
 }
 
 void Scheduler::connectionChanged(plv::RefPtr<plv::PinConnection>)
 {
-        // TODO not implemented yet
+    // TODO not implemented yet
 }
 
-void Scheduler::schedule()
+bool Scheduler::schedule()
 {
-//    ScheduleInfo* si;
-
-//    const PipelineElement::OutputPinMap& outputs = si->getElement()->getOutputPins();
-
-//    const PipelineElement::InputPinMap& inputs = si->getElement()->getInputPins();
-
     foreach( ScheduleInfo* si, m_scheduleInfo )
     {
-        if( si->updateAndGetState() == ScheduleInfo::READY )
+        ScheduleInfo::ScheduleState state = si->updateAndGetState();
+
+        switch( state )
+        {
+        case ScheduleInfo::READY:
             si->dispatch();
+        case ScheduleInfo::ERROR:
+            {
+                QString errStr = si->getErrorString();
+                emit( errorOccurred( errStr ) );
+            }
+        case ScheduleInfo::UNDEFINED:
+        case ScheduleInfo::WAITING:
+        case ScheduleInfo::RUNNING:
+        case ScheduleInfo::DONE:
+        default:
+            break;
+        }
     }
 
     int numBusy;
@@ -144,6 +157,8 @@ void Scheduler::schedule()
         usleep( 0 );
     }
     while( numBusy > 0 );
+
+    return true;
 }
 
 void Scheduler::setActiveThreadCount( int num )
@@ -193,6 +208,7 @@ void ScheduleInfo::run()
                  << "of type PipelineException with message: " << pe.what();
         stopTimer();
         setState( ERROR );
+        setErrorString( pe.what() );
         return;
     }
     catch( IllegalAccessException& iae )
@@ -201,6 +217,16 @@ void ScheduleInfo::run()
                  << "of type IllegalAccessException with message: " << iae.what();
         stopTimer();
         setState( ERROR );
+        setErrorString( iae.what() );
+        return;
+    }
+    catch( PlvException& e )
+    {
+        qDebug() << "Uncaught exception in PipelineElement::process()"
+                 << "of type PlvException with message: " << e.what();
+        stopTimer();
+        setState( ERROR );
+        setErrorString( e.what() );
         return;
     }
     catch( ... )
@@ -209,6 +235,7 @@ void ScheduleInfo::run()
                  << "of unknown type.";
         stopTimer();
         setState( ERROR );
+        setErrorString( "Unknown exception caught" );
         return;
     }
     stopTimer();
@@ -219,6 +246,12 @@ void ScheduleInfo::setState( ScheduleState state )
 {
     QMutexLocker lock( &m_mutex );
     m_state = state;
+}
+
+void ScheduleInfo::setErrorString( const QString& error )
+{
+    QMutexLocker lock( &m_mutex );
+    m_errorString = error;
 }
 
 ScheduleInfo::ScheduleState ScheduleInfo::getState()

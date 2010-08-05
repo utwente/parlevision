@@ -138,6 +138,8 @@ namespace plv
         void connectionRemoved(plv::RefPtr<plv::PinConnection>);
         void connectionChanged(plv::RefPtr<plv::PinConnection>);
 
+        void errorOccurred( QString errorStr );
+
     public slots:
         void start();
         void stop();
