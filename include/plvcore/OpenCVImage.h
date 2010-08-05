@@ -90,10 +90,10 @@ namespace plv
         friend class OpenCVImageWriter;
 
     public:
-        inline int getWidth() { return m_img->width; }
-        inline int getHeight() { return m_img->height; }
-        inline int getNumChannels() { return m_img->nChannels; }
-        inline int getDepth() { return m_img->depth; }
+        inline int getWidth() const { return m_img->width; }
+        inline int getHeight() const { return m_img->height; }
+        inline int getNumChannels() const { return m_img->nChannels; }
+        inline int getDepth() const { return m_img->depth; }
 
 
         /** returns a const pointer to the internal IplImage.
@@ -110,8 +110,11 @@ namespace plv
           */
         OpenCVImage* deepCopy() const;
 
+        /** Compare this opencv images for type equality to parameters */
+        bool isCompatible( int width, int height, int depth, int channels ) const;
+
         /** Compare two opencv images for type equality */
-        bool isCompatible( int width, int height, int depth, int channels );
+        bool isCompatible( const OpenCVImage& other ) const;
 
         /** @returns the size of the contained IplImage image data in bytes */
         int size()const;

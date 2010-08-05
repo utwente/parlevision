@@ -209,7 +209,13 @@ int OpenCVImage::size() const
     return m_img->imageSize;
 }
 
-bool OpenCVImage::isCompatible( int width, int height, int depth, int channels )
+bool OpenCVImage::isCompatible( const OpenCVImage& other ) const
+{
+    if( m_img == 0 ) return false;
+    return other.isCompatible( getWidth(), getHeight(), getDepth(), getNumChannels() );
+}
+
+bool OpenCVImage::isCompatible( int width, int height, int depth, int channels ) const
 {
     QMutexLocker lock( &m_imgLock );
 
