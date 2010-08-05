@@ -209,10 +209,44 @@ int OpenCVImage::size() const
     return m_img->imageSize;
 }
 
-bool OpenCVImage::isCompatible( const OpenCVImage& other ) const
+bool OpenCVImage::isCompatibleDimensions( const OpenCVImage* other ) const
 {
-    if( m_img == 0 ) return false;
-    return other.isCompatible( getWidth(), getHeight(), getDepth(), getNumChannels() );
+    return getWidth() == other->getWidth() && getHeight() == other->getHeight();
+}
+
+bool OpenCVImage::isCompatibleDepth( const OpenCVImage* other ) const
+{
+    return getDepth() == other->getDepth();
+}
+
+bool OpenCVImage::isCompatibleSize( const OpenCVImage* other ) const
+{
+    return getNumChannels() == other->getNumChannels();
+}
+
+bool OpenCVImage::isCompatible( const OpenCVImage* other, ImageCompare flags ) const
+{
+    if( this->isNull() || other->isNull() ) return false;
+
+    bool equals = false;
+
+    if( flags != 0 )
+    {
+        equals = true;
+        if((flags & DEPTH) == DEPTH )
+        {
+            equals = isCompatibleDepth( other );
+        }
+        if( equals && ((flags & DIMENSIONS) == DIMENSIONS))
+        {
+            equals = isCompatibleDimensions( other );
+        }
+        if( equals && ((flags & CHANNELS) == CHANNELS))
+        {
+            equals = isCompatibleSize( other );
+        }
+    }
+    return equals;
 }
 
 bool OpenCVImage::isCompatible( int width, int height, int depth, int channels ) const

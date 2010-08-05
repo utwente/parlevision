@@ -51,6 +51,7 @@ namespace plv
 
         inline bool isMutable() const
         {
+            QMutexLocker( &this->m_refMutex );
             return m_mutable;
         }
 

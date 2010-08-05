@@ -39,14 +39,9 @@ void Sub::process()
     // open input images for reading
     const IplImage* iplImgIn1 = img1->getImage();
     const IplImage* iplImgIn2 = img2->getImage();
-    CvSize size1 = cvGetSize(iplImgIn1);
-    CvSize size2 = cvGetSize(iplImgIn2);
 
     //check format of images?
-    if( img1->getDepth() != img2->getDepth() ||
-        img1->getNumChannels() != img2->getNumChannels() ||
-        size1.height != size2.height ||
-        size1.width != size2.width )
+    if( !img1->isCompatible( img2.getPtr() ))
     {
         // TODO: we could use some modifications when the images do not match --
         // e.g., copy one of the mismatching images into a duplicate that DOES match (stretch? shrink? Sub depth?)

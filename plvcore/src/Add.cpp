@@ -7,16 +7,12 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME1 "input 1"
-#define INPUT_PIN_NAME2 "input 2"
-#define OUTPUT_PIN_NAME "output"
-
 Add::Add() :
-        m_normalize ( false )
+    m_normalize ( false )
 {
-    m_inputPin1 = createInputPin<OpenCVImage>( INPUT_PIN_NAME1, this );
-    m_inputPin2 = createInputPin<OpenCVImage>( INPUT_PIN_NAME2, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin1 = createInputPin<OpenCVImage>( "input 1", this );
+    m_inputPin2 = createInputPin<OpenCVImage>( "input 2", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 Add::~Add()
@@ -40,28 +36,22 @@ void Add::process()
 
     RefPtr<OpenCVImage> img1 = m_inputPin1->get();
     RefPtr<OpenCVImage> img2 = m_inputPin2->get();
-    // open input images for reading
-    const IplImage* iplImgIn1 = img1->getImage();
-    const IplImage* iplImgIn2 = img2->getImage();
-    CvSize size1=cvGetSize(iplImgIn1);
-    CvSize size2=cvGetSize(iplImgIn2);
+
     //check format of images?
-    if(   img1->getDepth() != img2->getDepth()
-       ||
-          img1->getNumChannels() != img2->getNumChannels()
-        ||
-           size1.height != size2.height
-        ||
-           size1.width != size2.width
-       )
+    if( img1->isCompatible( img2.getPtr() ) )
     {
         //TODO: we could use some modifications when the images do not match -- e.g., copy one of the mismatching images into a duplicate that DOES match (stretch? shrink? add depth?)
         throw std::runtime_error("The two images need to be the same in depth, size and nr of channels");
     }
 
+    // open input images for reading
+    const IplImage* iplImgIn1 = img1->getImage();
+    const IplImage* iplImgIn2 = img2->getImage();
+
     //need this because I need to scale down input for adding, otherwise I get too many white areas
     RefPtr<OpenCVImage> imgTempIn1 = OpenCVImageFactory::instance()->get(
             img1->getWidth(), img1->getHeight(), img1->getDepth(), img1->getNumChannels() );
+
     RefPtr<OpenCVImage> imgTempIn2 = OpenCVImageFactory::instance()->get(
             img2->getWidth(), img2->getHeight(), img2->getDepth(), img2->getNumChannels() );
 
@@ -80,6 +70,7 @@ void Add::process()
     cvConvertScale(iplImgIn1,iplImgTempIn1, 0.5, 0);
     cvConvertScale(iplImgIn2,iplImgTempIn2, 0.5, 0);
     cvAdd(iplImgTempIn1,iplImgTempIn2,iplImgOut, NULL);
+
     //scale back up again
     if (!m_normalize)cvConvertScale(iplImgOut,iplImgOut, 2, 0);
 

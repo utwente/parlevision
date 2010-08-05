@@ -90,11 +90,19 @@ namespace plv
         friend class OpenCVImageWriter;
 
     public:
+        typedef enum ImageCompare {
+            DIMENSIONS = 1,
+            DEPTH = 2,
+            CHANNELS = 4,
+            ALL = 7
+        } ImageCompare;
+
         inline int getWidth() const { return m_img->width; }
         inline int getHeight() const { return m_img->height; }
         inline int getNumChannels() const { return m_img->nChannels; }
         inline int getDepth() const { return m_img->depth; }
 
+        inline bool isNull() const { return m_img == 0; }
 
         /** returns a const pointer to the internal IplImage.
           * TODO fix documentation
@@ -110,11 +118,15 @@ namespace plv
           */
         OpenCVImage* deepCopy() const;
 
-        /** Compare this opencv images for type equality to parameters */
-        bool isCompatible( int width, int height, int depth, int channels ) const;
+        bool isCompatibleDimensions( const OpenCVImage* other ) const;
+        bool isCompatibleDepth( const OpenCVImage* other ) const;
+        bool isCompatibleSize( const OpenCVImage* other ) const;
 
         /** Compare two opencv images for type equality */
-        bool isCompatible( const OpenCVImage& other ) const;
+        bool isCompatible( const OpenCVImage* other, ImageCompare compareType = ALL ) const;
+
+        /** Compare this opencv images for type equality to parameters */
+        bool isCompatible( int width, int height, int depth, int channels ) const;
 
         /** @returns the size of the contained IplImage image data in bytes */
         int size()const;

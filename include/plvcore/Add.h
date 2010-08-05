@@ -4,12 +4,13 @@
 #include "PipelineProcessor.h"
 #include "Pin.h"
 
-namespace plv {
+namespace plv
+{
     class Pipeline;
     class OpenCVImage;
 
     /**
-      * Addtwo images.
+      * Add two images.
       */
     class Add : public PipelineProcessor
     {
@@ -33,7 +34,6 @@ namespace plv {
         /** propery methods */
         bool getNormalizeAfterAdd() { return m_normalize; }
 
-
     signals:
         void normalizeAfterAddChanged(bool newValue);
 
@@ -41,17 +41,10 @@ namespace plv {
         void setNormalizeAfterAdd(bool b) {m_normalize = b; emit(normalizeAfterAddChanged(b));}
 
     private:
-
         InputPin<OpenCVImage>* m_inputPin1;
         InputPin<OpenCVImage>* m_inputPin2;
         OutputPin<OpenCVImage>* m_outputPin;
-
         bool m_normalize;
-
-
-
-
-
     };
 }
 #endif // ADD_H

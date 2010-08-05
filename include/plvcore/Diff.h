@@ -4,7 +4,8 @@
 #include "PipelineProcessor.h"
 #include "Pin.h"
 
-namespace plv {
+namespace plv
+{
     class Pipeline;
     class OpenCVImage;
 
@@ -19,7 +20,6 @@ namespace plv {
         Q_CLASSINFO("name", "AbsDiff(A, B)")
         Q_CLASSINFO("description", "Calculate absolute difference of two images.");
 
-
     public:
         Diff();
         ~Diff();
@@ -29,15 +29,7 @@ namespace plv {
         virtual bool isReadyForProcessing() const;
         virtual void process();
 
-        /** propery methods */
-
-
-    signals:
-
-    public slots:
-
     private:
-
         InputPin<OpenCVImage>* m_inputPin1;
         InputPin<OpenCVImage>* m_inputPin2;
         OutputPin<OpenCVImage>* m_outputPin;
