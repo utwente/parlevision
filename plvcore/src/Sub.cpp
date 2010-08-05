@@ -7,15 +7,11 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME1 "input 1"
-#define INPUT_PIN_NAME2 "input 2"
-#define OUTPUT_PIN_NAME "output"
-
 Sub::Sub()
 {
-    m_inputPin1 = createInputPin<OpenCVImage>( INPUT_PIN_NAME1, this );
-    m_inputPin2 = createInputPin<OpenCVImage>( INPUT_PIN_NAME2, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin1 = createInputPin<OpenCVImage>( "input 1", this );
+    m_inputPin2 = createInputPin<OpenCVImage>( "input 2", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 Sub::~Sub()
@@ -39,25 +35,23 @@ void Sub::process()
 
     RefPtr<OpenCVImage> img1 = m_inputPin1->get();
     RefPtr<OpenCVImage> img2 = m_inputPin2->get();
+
     // open input images for reading
     const IplImage* iplImgIn1 = img1->getImage();
     const IplImage* iplImgIn2 = img2->getImage();
-    CvSize size1=cvGetSize(iplImgIn1);
-    CvSize size2=cvGetSize(iplImgIn2);
+    CvSize size1 = cvGetSize(iplImgIn1);
+    CvSize size2 = cvGetSize(iplImgIn2);
+
     //check format of images?
-    if(   img1->getDepth() != img2->getDepth()
-       ||
-          img1->getNumChannels() != img2->getNumChannels()
-        ||
-           size1.height != size2.height
-        ||
-           size1.width != size2.width
-       )
+    if( img1->getDepth() != img2->getDepth() ||
+        img1->getNumChannels() != img2->getNumChannels() ||
+        size1.height != size2.height ||
+        size1.width != size2.width )
     {
-        //TODO: we could use some modifications when the images do not match -- e.g., copy one of the mismatching images into a duplicate that DOES match (stretch? shrink? Sub depth?)
+        // TODO: we could use some modifications when the images do not match --
+        // e.g., copy one of the mismatching images into a duplicate that DOES match (stretch? shrink? Sub depth?)
         throw std::runtime_error("The two images need to be the same in depth, size and nr of channels");
     }
-
 
     //get a new output image of same depth and size as input image
     RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
@@ -65,7 +59,6 @@ void Sub::process()
 
     // open output image for writing
     IplImage* iplImgOut = imgOut->getImageForWriting();
-
 
     //subtract 2nd source image from 1st. Store in iplImgOut.
     cvSub(iplImgIn1,iplImgIn2,iplImgOut);
