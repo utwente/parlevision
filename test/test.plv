@@ -1,12 +1,17 @@
 <pipeline>
  <elements>
-  <element id="0" name="plv::ImageFlip">
+  <element id="0" name="plv::DummyProcessor">
    <properties>
-    <apertureSize>3</apertureSize>
-    <someInt>0</someInt>
+    <someInt>1337</someInt>
+    <someDouble>1.23456</someDouble>
     <someBool>true</someBool>
-    <sceneCoordX>115</sceneCoordX>
-    <sceneCoordY>325</sceneCoordY>
+    <someString>hello</someString>
+    <someVarWithNr1>0</someVarWithNr1>
+    <someVarWithNr2>0</someVarWithNr2>
+    <customEnum></customEnum>
+    <priority>2</priority>
+    <sceneCoordX>195</sceneCoordX>
+    <sceneCoordY>327</sceneCoordY>
    </properties>
   </element>
  </elements>

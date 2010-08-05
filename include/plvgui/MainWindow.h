@@ -98,7 +98,6 @@ namespace plvgui {
         void on_actionDelete_triggered();
         void on_actionNew_triggered();
         void on_actionLoad_triggered();
-        void on_actionShow_Library_toggled(bool);
         void sceneSelectionChanged();
 };
 

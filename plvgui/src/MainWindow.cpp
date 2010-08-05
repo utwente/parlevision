@@ -65,6 +65,9 @@ void MainWindow::initGUI()
     QShortcut* shortcut = new QShortcut(QKeySequence(tr("Backspace")),this);
     connect(shortcut, SIGNAL(activated()), ui->actionDelete, SLOT(trigger()));
 
+    QShortcut* closeShortcut = new QShortcut(QKeySequence(tr("Ctrl+W")),this);
+    connect(closeShortcut, SIGNAL(activated()), this, SLOT(close()));
+
     createRecentFileActs();
     // the welcome widget needs the recent file actions
     createWelcomeWidget();
@@ -370,11 +373,13 @@ void MainWindow::loadFile(QString fileName)
     catch( std::runtime_error& e )
     {
         qDebug() << "Pipeline loading failed with: " << e.what();
+        this->handleMessage(QtCriticalMsg, "Failed to load load pipeline from "+fileName+":\n" + QString(e.what()));
         return;
     }
     catch( ... )
     {
         qDebug() << "Caught unknown exception.";
+        this->handleMessage(QtFatalMsg, "An unknown error occured while loading " + fileName + ".");
         return;
     }
 }
@@ -469,18 +474,6 @@ void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
 //    connect(this->m_pauseAction, SIGNAL(triggered()),
 //            camera, SLOT(pause()));
 //}
-
-void plvgui::MainWindow::on_actionShow_Library_toggled(bool on)
-{
-    if(on)
-    {
-        this->m_libraryWidget->show();
-    }
-    else
-    {
-        this->m_libraryWidget->hide();
-    }
-}
 
 void plvgui::MainWindow::on_actionLoad_triggered()
 {
@@ -627,6 +620,8 @@ void MainWindow::save()
     catch( std::runtime_error& e )
     {
         qCritical() << "Pipeline saving failed with " << e.what();
+        this->handleMessage(QtCriticalMsg, "Could not save pipeline: "
+                            + QString(e.what()));
     }
 
 }

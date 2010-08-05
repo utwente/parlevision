@@ -53,9 +53,11 @@ SOURCES += \
     src/ViewerWidget.cpp \
     src/CameraConfigFormBuilder.cpp \
     src/ElementConfigFormBuilder.cpp \
-    src/ImageWidget.cpp
+    src/ImageWidget.cpp \
+    src/utils.cpp
 
 HEADERS += \
+    ../include/plvgui/utils.h \
     ../include/plvgui/MainWindow.h \
     ../include/plvgui/OpenCVImageRenderer.h \
     ../include/plvgui/RendererFactory.h \

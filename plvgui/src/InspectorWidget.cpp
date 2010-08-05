@@ -8,6 +8,7 @@
 #include "PipelineElement.h"
 #include "Types.h"
 #include "CameraProducer.h"
+#include "utils.h"
 
 #include "CameraConfigFormBuilder.h"
 #include "ElementConfigFormBuilder.h"
@@ -125,7 +126,9 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
 
     //ui->statusMsg->setText(element->getName());
     //this->setWindowTitle(element->getName());
-    ui->verticalLayout->addWidget(formContainer);
+    ui->propertiesTab->layout()->addWidget(formContainer);
+    ui->tabWidget->show();
+    ui->infoBox->setText(Utils::elementInfoText(element));
 }
 
 void InspectorWidget::nothingSelected()
@@ -133,6 +136,8 @@ void InspectorWidget::nothingSelected()
     clearSelection();
     ui->statusMsg->setText(tr("Nothing selected"));
     ui->statusMsg->show();
+    ui->tabWidget->hide();
+    ui->infoBox->setText("");
 }
 
 void InspectorWidget::multipleSelected()
@@ -140,6 +145,8 @@ void InspectorWidget::multipleSelected()
     clearSelection();
     ui->statusMsg->setText(tr("Multiple items selected"));
     ui->statusMsg->show();
+    ui->tabWidget->hide();
+    ui->infoBox->setText("");
 }
 
 void InspectorWidget::clearSelection()
@@ -148,7 +155,7 @@ void InspectorWidget::clearSelection()
     this->element = 0;
     if(this->formContainer != 0)
     {
-        ui->verticalLayout->removeWidget(this->formContainer);
+        ui->propertiesTab->layout()->removeWidget(this->formContainer);
         delete this->formContainer;
     }
     this->formContainer = 0;
