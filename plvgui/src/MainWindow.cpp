@@ -473,18 +473,6 @@ void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
 //            camera, SLOT(pause()));
 //}
 
-void plvgui::MainWindow::on_actionShow_Library_toggled(bool on)
-{
-    if(on)
-    {
-        this->m_libraryWidget->show();
-    }
-    else
-    {
-        this->m_libraryWidget->hide();
-    }
-}
-
 void plvgui::MainWindow::on_actionLoad_triggered()
 {
     /*
