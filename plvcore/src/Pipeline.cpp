@@ -282,6 +282,14 @@ void Pipeline::stop()
     {
         usleep(100);
     }
+
+    foreach(RefPtr<PinConnection> conn, m_connections)
+    {
+        qDebug() << "flushing " << conn;
+        conn->flush();
+        assert(!conn->hasData());
+    }
+
     emit(stopped());
 }
 

@@ -64,6 +64,16 @@ void PinConnection::connect()
     assert( m_consumer->isConnected() );
 }
 
+void PinConnection::flush()
+{
+    QMutexLocker lock(&m_mutex);
+    // clear queue
+    while (!m_queue.empty())
+    {
+        m_queue.pop();
+    }
+}
+
 void PinConnection::disconnect()
 {
     QMutexLocker lock( &m_mutex );
@@ -77,7 +87,7 @@ void PinConnection::disconnect()
     m_consumer.set( 0 );
 
     // clear queue
-    for( unsigned int i = 0; i < m_queue.size(); ++i )
+    while (!m_queue.empty())
     {
         m_queue.pop();
     }

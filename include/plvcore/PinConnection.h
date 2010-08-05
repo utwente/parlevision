@@ -34,6 +34,10 @@ namespace plv
         inline ConnectionType getType();
         RefPtr<Data> get() throw ( PipelineException );
         void put( RefPtr<Data> data );
+
+        /** Throw away any data in this connection.
+          */
+        void flush();
         RefPtr<const IOutputPin> fromPin() const;
         RefPtr<const IInputPin>  toPin() const;
 
