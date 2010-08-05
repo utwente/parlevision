@@ -620,6 +620,8 @@ void MainWindow::save()
     catch( std::runtime_error& e )
     {
         qCritical() << "Pipeline saving failed with " << e.what();
+        this->handleMessage(QtCriticalMsg, "Could not save pipeline: "
+                            + QString(e.what()));
     }
 
 }
