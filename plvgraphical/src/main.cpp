@@ -4,9 +4,11 @@
 
 #include <Application.h>
 
-#include "MainWindow.h"
-#include "ElementConfigFormBuilder.h"
-#include "CameraConfigFormBuilder.h"
+#include <MainWindow.h>
+#include <ElementConfigFormBuilder.h>
+#include <CameraConfigFormBuilder.h>
+
+#include "openeventhandler.h"
 
 using namespace plv;
 using namespace plvgui;
@@ -21,6 +23,7 @@ int main(int argc, char **argv)
 
     Application parlevision(&app);
     parlevision.init();
+    app.installEventFilter(new OpenEventHandler());
 
     MainWindow* mainWin = new MainWindow();
 

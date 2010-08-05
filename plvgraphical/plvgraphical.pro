@@ -45,4 +45,8 @@ QT      += xml
 INCLUDEPATH +=  ../include/plvcore \
                 ../include/plvgui
                 
-SOURCES += src/main.cpp
+SOURCES += src/main.cpp \
+    src/openeventhandler.cpp
+
+HEADERS += \
+    src/openeventhandler.h
