@@ -373,11 +373,13 @@ void MainWindow::loadFile(QString fileName)
     catch( std::runtime_error& e )
     {
         qDebug() << "Pipeline loading failed with: " << e.what();
+        this->handleMessage(QtCriticalMsg, "Failed to load load pipeline from "+fileName+":\n" + QString(e.what()));
         return;
     }
     catch( ... )
     {
         qDebug() << "Caught unknown exception.";
+        this->handleMessage(QtFatalMsg, "An unknown error occured while loading " + fileName + ".");
         return;
     }
 }
