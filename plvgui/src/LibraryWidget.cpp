@@ -4,7 +4,9 @@
 #include "LibraryElement.h"
 #include "RefPtr.h"
 #include "Pin.h"
+#include "MainWindow.h"
 #include "utils.h"
+
 #include <QDebug>
 #include <QtGui>
 #include <QStringBuilder>
@@ -12,11 +14,14 @@
 using namespace plvgui;
 using namespace plv;
 
-LibraryWidget::LibraryWidget(QWidget *parent) :
+LibraryWidget::LibraryWidget(MainWindow* parent) :
     QDockWidget(parent),
     ui(new Ui::LibraryWidget),
     draggedElement(0)
 {
+    connect(this, SIGNAL(errorOccurred(QString)),
+            parent, SLOT(criticalError(QString)));
+
     ui->setupUi(this);
 
     std::list<QString> types = plv::PipelineElement::types();
@@ -40,21 +45,51 @@ LibraryWidget::~LibraryWidget()
 
 void LibraryWidget::createItem(QString typeName)
 {
-    int id = QMetaType::type(typeName.toAscii());
-    if(!QMetaType::isRegistered(id))
+    try
     {
-        qWarning() << "Ignoring unknown element " << typeName;
+        int id = QMetaType::type(typeName.toAscii());
+        if(!QMetaType::isRegistered(id))
+        {
+            qWarning() << "Ignoring unknown element " << typeName;
+            return;
+        }
+
+        RefPtr<PipelineElement> element = static_cast<PipelineElement*>(QMetaType::construct(id));
+
+        LibraryElement* w = new LibraryElement(element, this);
+        connect(w, SIGNAL(pressed()), this, SLOT(elementPressed()));
+        connect(w, SIGNAL(moved()), this, SLOT(elementMoved()));
+        connect(w, SIGNAL(released()), this, SLOT(elementReleased()));
+    //    ui->container->addWidget(w);
+        this->allElements.insert(w->getElement()->getName().toLower(), w);
+    }
+    catch( PipelineException& pe )
+    {
+        emit(errorOccurred(typeName + ": " + pe.what()));
         return;
     }
-
-    RefPtr<PipelineElement> element = static_cast<PipelineElement*>(QMetaType::construct(id));
-
-    LibraryElement* w = new LibraryElement(element, this);
-    connect(w, SIGNAL(pressed()), this, SLOT(elementPressed()));
-    connect(w, SIGNAL(moved()), this, SLOT(elementMoved()));
-    connect(w, SIGNAL(released()), this, SLOT(elementReleased()));
-//    ui->container->addWidget(w);
-    this->allElements.insert(w->getElement()->getName().toLower(), w);
+    catch( IllegalAccessException& iae )
+    {
+        emit(errorOccurred(typeName + ": " + iae.what()));
+        return;
+    }
+    catch( PlvException& e )
+    {
+        emit(errorOccurred(typeName + ": " + e.what()));
+        return;
+    }
+    catch( std::runtime_error& err )
+    {
+        emit(errorOccurred(typeName + ": " + err.what()));
+        return;
+    }
+    catch( ... )
+    {
+        qDebug() << "Uncaught exception in LibraryWidget"
+                 << "of unknown type.";
+        emit(errorOccurred(typeName + ": failed to load processor"));
+        return;
+    }
 }
 
 void LibraryWidget::mousePressEvent(QMouseEvent *event)

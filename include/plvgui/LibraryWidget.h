@@ -16,14 +16,18 @@ namespace plv
 namespace plvgui
 {
     class LibraryElement;
+    class MainWindow;
 
     class LibraryWidget : public QDockWidget
     {
         Q_OBJECT
 
     public:
-        explicit LibraryWidget(QWidget *parent = 0);
+        explicit LibraryWidget(MainWindow* parent = 0);
         ~LibraryWidget();
+
+    signals:
+        void errorOccurred(QString);
 
     protected:
 //         void dragEnterEvent(QDragEnterEvent *event);
