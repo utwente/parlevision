@@ -52,6 +52,8 @@ namespace plvgui {
         void showViewerForPin(plv::RefPtr<plv::IOutputPin> targetPin);
         void showWelcomeScreen();
 
+        void criticalError(QString msg);
+
     protected:
         void changeEvent(QEvent* e);
         void closeEvent(QCloseEvent *event);

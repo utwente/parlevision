@@ -133,6 +133,7 @@ bool Scheduler::schedule()
             {
                 QString errStr = si->getErrorString();
                 emit( errorOccurred( errStr ) );
+                return false;
             }
         case ScheduleInfo::UNDEFINED:
         case ScheduleInfo::WAITING:

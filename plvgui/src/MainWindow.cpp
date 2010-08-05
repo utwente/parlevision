@@ -329,6 +329,9 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(ui->actionStart, SIGNAL(triggered()),
             pipeline, SLOT(start()));
 
+    connect(pipeline, SIGNAL(errorOccurred(QString)),
+            this, SLOT(criticalError(QString)));
+
     connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(documentChanged()));
     connect(pipeline, SIGNAL(elementChanged(plv::RefPtr<plv::PipelineElement>)),
@@ -624,6 +627,12 @@ void MainWindow::save()
                             + QString(e.what()));
     }
 
+}
+
+
+void MainWindow::criticalError(QString msg)
+{
+    handleMessage(QtCriticalMsg, msg);
 }
 
 void MainWindow::handleMessage(QtMsgType type, const char* msg)

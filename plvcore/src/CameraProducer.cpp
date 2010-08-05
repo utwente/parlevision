@@ -73,7 +73,7 @@ void CameraProducer::start() throw (PipelineException)
 {
     if( !m_camera->init() )
     {
-        throw std::runtime_error("Camera failed to initialise");
+        throw PipelineException("Camera failed to initialise");
     }
 
     m_camera->setDimensions( 640, 480 );

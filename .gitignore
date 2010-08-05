@@ -5,7 +5,6 @@ object_script*
 *.app
 .DS_Store
 build
-Info.plist
 *.xcodeproj
 ParleVision.sln
 ParleVision.vcproj*

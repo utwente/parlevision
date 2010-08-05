@@ -39,6 +39,8 @@ LIBS += -L../libs -lplvcore -lplvgui
 CONFIG(debug, debug|release):DEFINES += DEBUG
 QT      += xml
 
+QMAKE_INFO_PLIST = ../resources/Info.plist
+
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
 # -Wunused-variable
