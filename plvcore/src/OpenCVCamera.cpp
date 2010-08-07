@@ -10,8 +10,6 @@ using namespace plv;
 OpenCVCamera::OpenCVCamera( int id ) :
     m_id( id ),
     m_state( CAM_UNINITIALIZED ),
-    m_width( 0 ),
-    m_height( 0 ),
     m_captureDevice( 0 )
 {
 }
@@ -34,14 +32,20 @@ bool OpenCVCamera::init()
         return false;
     }
 
-    // get width and height
-    m_width  = (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH );
-    m_height = (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_HEIGHT );
-
     m_state = CAM_INITIALIZED;
     qDebug() << "OpenCV camera initialised with initial resolution of "
-            << m_width << "," << m_height;
+            << width() << "," << height();
     return true;
+}
+
+int OpenCVCamera::width() const
+{
+    return (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH );
+}
+
+int OpenCVCamera::height() const
+{
+    return (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_HEIGHT );
 }
 
 void OpenCVCamera::run()
@@ -172,38 +176,36 @@ void OpenCVCamera::release()
     }
 }
 
-bool OpenCVCamera::setDimensions( int width, int height )
+bool OpenCVCamera::setDimensions( int w, int h )
 {
-    assert( width > 0 );
-    assert( height > 0 );
+    assert( w > 0 );
+    assert( h > 0 );
 
-    double dwidth = (double) width;
-
+    // we to convert to double for opencv
+    double dw = (double)w;
     // check for 4:3 dimensions
     // OpenCV only support 4:3 camera resolutions right now
-    if( ((int)(dwidth * (3.0/4.0))) != height )
+    if(((int)(dw * (3.0/4.0) )) != h)
     {
-        qDebug()<< "Camera resolution failed to change to " << width << "x" << height
-                << " and is at " << m_width << "x" << m_height << " because OpenCV "
+        qDebug()<< "Camera resolution failed to change to " << w << "x" << h
+                << " and is at " << width() << "x" << height() << " because OpenCV "
                 "only supports a 4:3 aspect ratio.";
         return false;
     }
     else
     {
-        cvSetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH, dwidth );
+        cvSetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH, dw );
 
-        // update width and height
-        m_width  = (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH );
-        m_height = (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_HEIGHT );
-
-        if( m_width == width && m_height == height )
+        int nwidth = width();
+        int nheight = height();
+        if( nwidth == w && nheight == h )
         {
-            qDebug() << "Camera resolution changed to " << width << "x" << height;
+            qDebug() << "Camera resolution changed to " << nwidth << "x" << nheight;
             return true;
         }
 
-        qDebug()<< "Camera resolution failed to change to " << width << "x" << height
-                << " and is at " << m_width << "x" << m_height;
+        qDebug()<< "Camera resolution failed to change to " << w << "x" << h
+                << " and is at " << nwidth << "x" << nheight;
 
         return false;
     }
