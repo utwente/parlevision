@@ -59,8 +59,8 @@ namespace plv
           */
         bool setDimensions( int width, int height );
 
-        inline int getWidth() const { return m_width; }
-        inline int getHeight() const { return m_height; }
+        int width() const;
+        int height() const;
 
         /** Returns the number of available cameras.
           * Note that this needs to be run while no cameras are in use
@@ -78,10 +78,6 @@ namespace plv
     private:
         int         m_id;
         CameraState m_state;
-
-        /** camera dimensions */
-        int    m_width;
-        int    m_height;
 
         QMutex          m_mutex;
         QMutex          m_opencv_mutex;

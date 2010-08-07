@@ -182,21 +182,28 @@ bool OpenCVCamera::setDimensions( int width, int height )
     // check for 4:3 dimensions
     // OpenCV only support 4:3 camera resolutions right now
     if( ((int)(dwidth * (3.0/4.0))) != height )
+    {
+        qDebug()<< "Camera resolution failed to change to " << width << "x" << height
+                << " and is at " << m_width << "x" << m_height << " because OpenCV "
+                "only supports a 4:3 aspect ratio.";
         return false;
+    }
     else
     {
         cvSetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH, dwidth );
-        int nwidth = getWidth();
-        int nheight = getHeight();
 
-        if( nwidth == width && nheight == height )
+        // update width and height
+        m_width  = (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH );
+        m_height = (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_HEIGHT );
+
+        if( m_width == width && m_height == height )
         {
-            qDebug() << "Camera resolution changed to " << nwidth << "x" << nheight;
+            qDebug() << "Camera resolution changed to " << width << "x" << height;
             return true;
         }
 
         qDebug()<< "Camera resolution failed to change to " << width << "x" << height
-                << " and is at " << nwidth << "x" << nheight;
+                << " and is at " << m_width << "x" << m_height;
 
         return false;
     }
