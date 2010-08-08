@@ -62,7 +62,7 @@ void Diff::process()
     RefPtr<OpenCVImage> img2 = m_inputPin2->get();
 
     //check format of images?
-    if( img1->isCompatible( img2.getPtr() ))
+    if( !img1->isCompatible( img2.getPtr() ))
     {
         //TODO: we could use some modifications when the images do not match -- e.g., copy one of the mismatching images into a duplicate that DOES match (stretch? shrink? Diff depth?)
         throw std::runtime_error("The two images need to be the same in depth, size and nr of channels");
