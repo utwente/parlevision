@@ -23,7 +23,7 @@
 #define RENDERERFACTORY_H
 
 #include <stdexcept>
-#include <QString.h>
+#include <QString>
 
 class QWidget;
 

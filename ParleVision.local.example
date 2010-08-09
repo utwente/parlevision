@@ -8,3 +8,7 @@ win32 {
     LIBPATH += c:\OpenCV2.0\lib
     INCLUDEPATH += c:\OpenCV2.0\include
 }
+
+unix { 
+    LIBS += -lcv -lhighgui
+}

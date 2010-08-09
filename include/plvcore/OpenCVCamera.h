@@ -22,7 +22,6 @@
 #ifndef OPENCVCAMERA_H
 #define OPENCVCAMERA_H
 
-#include <QString.h>
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
