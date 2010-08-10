@@ -32,8 +32,6 @@ using namespace plv;
 #define OUTPUT_PIN_NAME "output"
 
 
-//FIXME: [DR] properties must be validated on change, see e.g. laplace edge detector for example
-
 #define PLV_ENUM_ADD( plvEnum, type ) plvEnum.add( #type, type )
 
 ImageSmooth::ImageSmooth() :
