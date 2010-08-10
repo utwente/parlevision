@@ -31,53 +31,56 @@ namespace plv
     {
     public:
         PlvException( const QString& str ) : std::runtime_error( str.toStdString() ) {}
-        PlvException( const std::string& str ) : std::runtime_error( str ) {}
+        //PlvException( const std::string& str ) : std::runtime_error( str ) {}
     };
 
     class PipelineException : public PlvException
     {
     public:
-        PipelineException( const std::string& str ) : PlvException( str ) {}
+        //PipelineException( const std::string& str ) : PlvException( str ) {}
+        PipelineException( const QString& str ) : PlvException( str ) {}
     };
 
     class IllegalAccessException : public PlvException
     {
     public:
-        IllegalAccessException( const std::string& str ) : PlvException( str ) {}
+        //IllegalAccessException( const std::string& str ) : PlvException( str ) {}
+        IllegalAccessException( const QString& str ) : PlvException( str ) {}
     };
 
    class IllegalArgumentException : public PlvException
     {
     public:
-        IllegalArgumentException( const std::string& str ) : PlvException( str ) {}
+        IllegalArgumentException( const QString& str ) : PlvException( str ) {}
+        //IllegalArgumentException( const std::string& str ) : PlvException( str ) {}
     };
 
     class ElementCreationException : public PlvException
     {
     public:
-        ElementCreationException(std::string msg)
-            : PlvException(msg) {}
+        ElementCreationException(const QString& msg) : PlvException(msg) {}
+        //ElementCreationException(const std::string& msg) : PlvException(msg) {}
     };
 
     class InstantiationException : public PlvException
     {
     public:
-        InstantiationException(std::string msg)
-            : PlvException(msg) {}
+        InstantiationException(const QString& msg) : PlvException(msg) {}
+        //InstantiationException(const std::string& msg) : PlvException(msg) {}
     };
 
     class IncompatibleTypeException : public PlvException
     {
     public:
-        IncompatibleTypeException(std::string msg)
-            : PlvException(msg) {}
+        IncompatibleTypeException(const QString& msg) : PlvException(msg) {}
+        //IncompatibleTypeException(const std::string& msg) : PlvException(msg) {}
     };
 
     class DuplicateConnectionException : public PlvException
     {
     public:
-        DuplicateConnectionException(std::string msg)
-            : PlvException(msg) {}
+        DuplicateConnectionException(const QString& msg) : PlvException(msg) {}
+        //DuplicateConnectionException(const std::string& msg) : PlvException(msg) {}
     };
 
 //    class DataFormatException : public PipelineException

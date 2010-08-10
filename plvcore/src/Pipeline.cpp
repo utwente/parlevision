@@ -60,7 +60,7 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
     {
         QString msg = "Tried to add PipelineElement " % child->getName()
                       % " to pipeline with an id which is already in use.";
-        throw IllegalArgumentException( msg.toStdString() );
+        throw IllegalArgumentException( msg );
     }
 
     RefPtr<PipelineElement> element = child;

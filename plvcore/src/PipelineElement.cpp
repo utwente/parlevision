@@ -86,7 +86,7 @@ void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentExcept
     {
         QString err = "Tried to add input pin with name which already exists";
         err += pin->getName();
-        throw IllegalArgumentException( err.toStdString() );
+        throw IllegalArgumentException( err );
     }
     RefPtr<IInputPin> rpin( pin );
     m_inputPins.insert( std::make_pair( pin->getName(), rpin ));
@@ -101,7 +101,7 @@ void PipelineElement::addOutputPin( IOutputPin* pin ) throw (IllegalArgumentExce
     {
         QString err = "Tried to add output pin with name which already exists";
         err += pin->getName();
-        throw IllegalArgumentException( err.toStdString() );
+        throw IllegalArgumentException( err );
     }
     RefPtr<IOutputPin> rpin( pin );
     m_outputPins.insert( std::make_pair( pin->getName(), rpin ));
