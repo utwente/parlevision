@@ -24,6 +24,7 @@ namespace plv {
         Q_PROPERTY( bool useCannyPruning READ getUseCannyPruning WRITE setUseCannyPruning NOTIFY useCannyPruningChanged  )
         Q_PROPERTY( int minWidth READ getMinWidth WRITE setMinWidth NOTIFY minWidthChanged )
         Q_PROPERTY( int minHeight READ getMinHeight WRITE setMinHeight NOTIFY minHeightChanged )
+        Q_PROPERTY( QString haarCascadeFile READ getHaarCascadeFile WRITE setHaarCascadeFile NOTIFY haarCascadeFileChanged )
 
 
     public:
@@ -43,6 +44,7 @@ namespace plv {
         bool getUseCannyPruning() { return m_useCannyPruning; }
         int getMinWidth() { return m_minWidth; }
         int getMinHeight() { return m_minHeight; }
+        QString getHaarCascadeFile() { return m_haarCascadeFile; }
 
 
     signals:
@@ -51,6 +53,7 @@ namespace plv {
         void useCannyPruningChanged(bool newValue);
         void minWidthChanged(int val);
         void minHeightChanged(int val);
+        void haarCascadeFileChanged( QString filename );
 
     public slots:
         void setMinNeighbours(int i) {if (i>0) m_minNeighbours = i; emit(minNeighboursChanged(m_minNeighbours));}
@@ -58,21 +61,23 @@ namespace plv {
         void setUseCannyPruning(bool b) {m_useCannyPruning = b; emit(useCannyPruningChanged(m_useCannyPruning));}
         void setMinWidth(int val) {if(val>=0) m_minWidth = val; emit( minWidthChanged(m_minWidth) ); }
         void setMinHeight(int val) {if(val>=0) m_minHeight = val; emit( minHeightChanged(m_minHeight) ); }
-
+        void setHaarCascadeFile(QString filename) { m_haarCascadeFile = filename; emit( haarCascadeFileChanged(filename)); }
 
     private:
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
-
-        CvHaarClassifierCascade* m_pCascade;
-        CvMemStorage* m_pStorage;
-        CvSeq* m_pFaceRectSeq;
 
         int m_minNeighbours;
         double m_scaleFactor;
         bool m_useCannyPruning;
         int m_minWidth;
         int m_minHeight;
+        QString m_haarCascadeFile;
+
+        CvHaarClassifierCascade* m_pCascade;
+        CvMemStorage* m_pStorage;
+
+
     };
 
 }
