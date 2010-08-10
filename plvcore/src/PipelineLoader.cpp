@@ -87,18 +87,42 @@ QString PipelineLoader::serialize( Pipeline* pl )
         QDomElement xmlProperties = doc.createElement( "properties" );
         xmlElement.appendChild( xmlProperties );
 
+        // first do static properties
         const QMetaObject* metaObject = ple->metaObject();
         for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i)
         {
             QMetaProperty property = metaObject->property(i);
             QString propertyName = QString::fromLatin1( property.name() );
-            QString propertyValue = property.read( ple ).toString();
+
+            QString propertyValue;
+            QVariant::Type propertyType = property.type();
+
+            // custom types are saved here
+            if( propertyType == QVariant::UserType )
+            {
+                // TODO: pass control here to pipeline element
+                // to parse custom types?
+
+                QVariant value = property.read( ple );
+                if( value.canConvert<plv::Enum>() )
+                {
+                    plv::Enum e = value.value<plv::Enum>();
+                    propertyValue = e.getSelectedItemName();
+                }
+            }
+            // all other QVariant can easily be converted to string
+            else
+            {
+                propertyValue = property.read( ple ).toString();
+            }
             QDomElement xmlProperty = doc.createElement( propertyName );
             QDomText text = doc.createTextNode( propertyValue );
             xmlProperty.appendChild( text );
             xmlProperties.appendChild( xmlProperty );
         }
 
+        // now dynamic properties
+        // these are not used by processor definitions
         {
             QVariant xVal = ple->property("sceneCoordX");
             QVariant yVal = ple->property("sceneCoordY");
@@ -260,17 +284,36 @@ void PipelineLoader::parseElements( QDomNodeList* list, Pipeline* pipeline )
                     //error
                 }
 
-                QString propertyName = element.nodeName();
-                QString propertyValue = element.text();
+                QString propNameXml = element.nodeName();
+                QString propValueXml = element.text();
 
                 // convert the data to a known QVariant datatype
                 // if the property is unknown it will add the property
                 // as string
-                QVariant data = convertData( propertyType(ple, propertyName), propertyValue );
 
-                qDebug() << "Found property with name: " << propertyName << " and value: " << data;
+                const QMetaObject* metaObject = ple->metaObject();
+                int index = metaObject->indexOfProperty( propNameXml.toAscii() );
+                QMetaProperty property = metaObject->property(index);
+                QVariant propValue;
+                if( property.type() == QVariant::UserType )
+                {
+                    propValue = ple->property( propNameXml.toAscii() );
+                    if( propValue.canConvert<plv::Enum>() )
+                    {
+                        plv::Enum e = propValue.value<plv::Enum>();
+                        e.setSelected( propValueXml );
+                        propValue.setValue( e );
 
-                ple->setProperty( propertyName.toAscii().constData(), data );
+                    }
+                }
+                else
+                {
+                    propValue = convertData( property.type(), propValueXml );
+                }
+                ple->setProperty( propNameXml.toAscii(), propValue );
+
+                qDebug() << "Found property with name: " << propNameXml << " and value: " << propValue;
+
             }
         }
     }
@@ -435,6 +478,7 @@ QVariant PipelineLoader::convertData( QVariant::Type type, const QString& data )
     {
         return(QUrl(data));
     }
+    case QVariant::UserType:
     default:
         // unknown, just return as string
         return(data);

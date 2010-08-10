@@ -73,6 +73,11 @@ int Enum::getSelectedIndex() const
     return m_selectedIndex;
 }
 
+QString Enum::getSelectedItemName() const
+{
+    return getItemName( getSelectedIndex() );
+}
+
 int Enum::getSelectedValue() const
 {
     return getItemValue( m_selectedIndex );

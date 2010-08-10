@@ -125,6 +125,8 @@ namespace plv
 
         QString getItemName( int i ) const;
 
+        QString getSelectedItemName() const;
+
         int getItemValue( int i ) const;
 
         QStringList getItemNames() const;
