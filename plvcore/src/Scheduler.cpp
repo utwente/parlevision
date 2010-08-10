@@ -109,11 +109,14 @@ void Scheduler::elementAdded(plv::RefPtr<plv::PipelineElement> ple )
     }
 
     ScheduleInfo* si = new ScheduleInfo( ple.getPtr(), type, 0 );
+
+    QMutexLocker lock( &m_schedulerMutex );
     m_scheduleInfo.insert( ple->getId(), si );
 }
 
 void Scheduler::elementRemoved(plv::RefPtr<plv::PipelineElement> ple )
 {
+    QMutexLocker lock( &m_schedulerMutex );
     m_scheduleInfo.remove( ple->getId() );
 }
 
@@ -139,6 +142,8 @@ void Scheduler::connectionChanged(plv::RefPtr<plv::PinConnection>)
 
 bool Scheduler::schedule()
 {
+    m_schedulerMutex.lock();
+
     foreach( ScheduleInfo* si, m_scheduleInfo )
     {
         ScheduleInfo::ScheduleState state = si->updateAndGetState();
@@ -153,6 +158,7 @@ bool Scheduler::schedule()
             QString errStr = si->getErrorString();
             emit( errorOccurred( si->getElement()->getName() + ": "
                                  + errStr ) );
+            m_schedulerMutex.unlock();
             return false;
         }
         case ScheduleInfo::UNDEFINED:
@@ -163,6 +169,10 @@ bool Scheduler::schedule()
             break;
         }
     }
+
+    // give other functions a go
+    m_schedulerMutex.unlock();
+    m_schedulerMutex.lock();
 
     int numBusy;
     do
@@ -179,6 +189,7 @@ bool Scheduler::schedule()
     }
     while( numBusy > 0 );
 
+    m_schedulerMutex.unlock();
     return true;
 }
 

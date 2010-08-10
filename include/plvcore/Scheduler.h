@@ -38,6 +38,7 @@ namespace plv
 
     protected:
         QMap< int, ScheduleInfo* > m_scheduleInfo;
+        QMutex m_schedulerMutex;
 
     public:
         Scheduler( Pipeline* pipeline );
