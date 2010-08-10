@@ -86,12 +86,11 @@ void DelayImage::process()
     m_latestFrameIndex = (m_latestFrameIndex+1)%(MAX_STEPS+1);
     //check if we have an image there
     if (m_delayedImgs[m_latestFrameIndex] != 0)
-    {   // if so, dec!
+    {   // if so, kill through refptr destruct. If I'm not wrong, this should put refcount to zero, and image will be destroyed.
         m_delayedImgs[m_latestFrameIndex]->~RefPtr();
     }
     //store the buffer image
-    m_delayedImgs[m_latestFrameIndex] = new RefPtr<OpenCVImage>(imgBuf);
-    //m_delayedImgs[m_latestFrameIndex]->getPtr()->inc(); //otherwise,
+    m_delayedImgs[m_latestFrameIndex] = new RefPtr<OpenCVImage>(imgBuf); //in a RefPtr, so we'll not lose the image when this process() ends :)
     //determine index of buffered image to show, and get image.
     //note that if not enough images, we use the oldest available
     int prevImgToShowIndex = m_latestFrameIndex;

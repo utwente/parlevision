@@ -47,6 +47,7 @@
 #include "ImageFlip.h"
 #include "ImageSmooth.h"
 #include "Snapshot.h"
+#include "ViolaJonesFaceDetector.h"
 
 using namespace plv;
 
@@ -77,7 +78,7 @@ void Application::loadBuiltins()
     //processors
     plvRegisterPipelineElement<plv::Add>("plv::Add", "A add B");
     plvRegisterPipelineElement<plv::Sub>("plv::Sub", "A sub B");
-    plvRegisterPipelineElement<plv::Diff>("plv::Diff", "AbsDiff(A, B");
+    plvRegisterPipelineElement<plv::Diff>("plv::Diff", "AbsDiff(A, B)");
     plvRegisterPipelineElement<plv::DelayImage>("plv::DelayImage", "Delay");
     plvRegisterPipelineElement<plv::DummyProcessor>("plv::DummyProcessor", "Dummy");
     plvRegisterPipelineElement<plv::EdgeDetectorCanny>("plv::EdgeDetectorCanny", "Edge Canny");
@@ -88,6 +89,8 @@ void Application::loadBuiltins()
     plvRegisterPipelineElement<plv::ImageFlip>("plv::ImageFlip", "Flip Image");
     plvRegisterPipelineElement<plv::ImageSmooth>("plv::ImageSmooth", "Smooth");
     plvRegisterPipelineElement<plv::Snapshot>("plv::Snapshot", "Snapshot");
+    plvRegisterPipelineElement<plv::ViolaJonesFaceDetector>("plv::ViolaJonesFaceDetector", "Face Detect V.-J.");
+
     //consumers
 }
 
