@@ -54,7 +54,6 @@ namespace plv {
         void setConversionType(plv::Enum e) { m_conversionType = e; emit(conversionTypeChanged(e)); }
 
     private:
-        int nearestOdd(int i);
 
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
