@@ -61,7 +61,7 @@ void Snapshot::process()
     assert(m_outputPin != 0);
     RefPtr<OpenCVImage> imgIn = m_inputPin->get();
 
-    //enforce snapshot on firt frame, when we don't have a snapshot yet
+    //enforce snapshot on first frame, when we don't have a snapshot yet
     if ((!m_makeSnapshot) && m_imgSnapshot.isNull())setMakeSnapshot(true);
 
     RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
