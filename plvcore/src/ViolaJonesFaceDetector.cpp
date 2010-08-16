@@ -20,7 +20,7 @@ ViolaJonesFaceDetector::ViolaJonesFaceDetector() :
         m_pCascade( 0 ),
         m_pStorage( 0 )
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
+    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::INPUT_REQUIRED );
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
 }
 

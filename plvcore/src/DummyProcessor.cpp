@@ -25,6 +25,7 @@
 #include "Pin.h"
 #include "OpenCVImage.h"
 #include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 using namespace plv;
 
@@ -42,10 +43,8 @@ DummyProcessor::DummyProcessor() :
         m_someVarWithNr2(0),
         m_priority( VeryHigh )
 {
-
-
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
-    m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::OPTIONAL );
+    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::INPUT_REQUIRED );
+    m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::INPUT_OPTIONAL );
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
 
     m_customEnum.add( "Very Low" );

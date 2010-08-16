@@ -75,12 +75,12 @@ namespace plv
     class IInputPin : public Pin
     {
     public:
-        enum InputPinType {
-            OPTIONAL,
-            REQUIRED
-        };
+        typedef enum InputPinType {
+            INPUT_OPTIONAL,
+            INPUT_REQUIRED
+        } InputPinType;
 
-        IInputPin( const QString& name, PipelineElement* owner, InputPinType type = REQUIRED ) :
+        IInputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :
                 Pin( name, owner ), m_type( type )
         {
         }
@@ -245,7 +245,7 @@ namespace plv
     class InputPin : public IInputPin
     {
     public:
-        InputPin( const QString& name, PipelineElement* owner, InputPinType type = REQUIRED ) :
+        InputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :
                 IInputPin( name, owner, type ) {}
 
         virtual void scope()
@@ -364,7 +364,7 @@ namespace plv
     }
 
     template<typename T>
-    InputPin<T> * createInputPin( const QString& name, PipelineElement* owner, IInputPin::InputPinType type = IInputPin::REQUIRED )
+    InputPin<T> * createInputPin( const QString& name, PipelineElement* owner, IInputPin::InputPinType type = IInputPin::INPUT_REQUIRED )
     throw (IllegalArgumentException)
     {
         // if add fails pin is automatically deleted and exception is thrown
