@@ -19,19 +19,14 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#include <QDebug>
-
 #include "DummyProcessor.h"
+
 #include "Pin.h"
 #include "OpenCVImage.h"
-#include <opencv/highgui.h>
-#include <opencv/cv.h>
 
+#include <QDebug>
 
 using namespace plv;
-
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
 
 /**
   * This processor is mainly for showing the code with which one creates pins and properties and such */
@@ -43,9 +38,9 @@ DummyProcessor::DummyProcessor() :
         m_someVarWithNr1(0),
         m_someVarWithNr2(0)
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
-    m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::OPTIONAL );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::INPUT_OPTIONAL );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 
     m_customEnum.add( "Very Low" );
     m_customEnum.add( "Low" );
@@ -86,8 +81,6 @@ void DummyProcessor::process()
 
     // open for reading
     const IplImage* iplImg1 = img->getImage();
-
-    //cv::imwrite( "test", iplImg1 );
 
     // open image for writing
     IplImage* iplImg2 = img2->getImageForWriting();
