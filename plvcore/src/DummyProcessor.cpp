@@ -24,7 +24,9 @@
 #include "DummyProcessor.h"
 #include "Pin.h"
 #include "OpenCVImage.h"
+#include <opencv/highgui.h>
 #include <opencv/cv.h>
+
 
 using namespace plv;
 
@@ -39,11 +41,8 @@ DummyProcessor::DummyProcessor() :
         m_someBool(true),
         m_someString("hello"),
         m_someVarWithNr1(0),
-        m_someVarWithNr2(0),
-        m_priority( VeryHigh )
+        m_someVarWithNr2(0)
 {
-
-
     m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
     m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::OPTIONAL );
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
@@ -87,6 +86,8 @@ void DummyProcessor::process()
 
     // open for reading
     const IplImage* iplImg1 = img->getImage();
+
+    //cv::imwrite( "test", iplImg1 );
 
     // open image for writing
     IplImage* iplImg2 = img2->getImageForWriting();

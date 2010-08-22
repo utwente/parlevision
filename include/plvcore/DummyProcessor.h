@@ -50,26 +50,6 @@ namespace plv {
         Q_PROPERTY( int someVarWithNr2 READ getSomeVarWithNr2 WRITE setSomeVarWithNr2 NOTIFY someVarWithNr2Changed )
         Q_PROPERTY( plv::Enum customEnum READ getCustomEnum WRITE setCustomEnum NOTIFY customEnumChanged )
 
-/******************************************************************************************/
-        Q_PROPERTY( Priority priority READ getPriority WRITE setPriority NOTIFY priorityChanged )
-        Q_ENUMS( Priority )
-
-    public:
-        enum Priority { High, Low, VeryHigh, VeryLow };
-        Priority getPriority() const { return m_priority; }
-
-    signals:
-        void priorityChanged( Priority p );
-
-    public slots:
-        void setPriority( Priority p )
-        {
-            m_priority = p;
-            emit( priorityChanged( p ) );
-        }
-
-/******************************************************************************************/
-
     public:
         plv::Enum getCustomEnum() const { return m_customEnum; }
 
@@ -120,8 +100,8 @@ namespace plv {
         void setSomeVarWithNr2(int var) { m_someVarWithNr2 = var; emit( someVarWithNr2Changed(var) ); }
 
     private:
-        InputPin<OpenCVImage>* m_inputPin;
-        InputPin<OpenCVImage>* m_inputPinOptional;
+        InputPin<OpenCVImage>*  m_inputPin;
+        InputPin<OpenCVImage>*  m_inputPinOptional;
         OutputPin<OpenCVImage>* m_outputPin;
 
         int m_someInt;
@@ -130,7 +110,6 @@ namespace plv {
         QString m_someString;
         int m_someVarWithNr1;
         int m_someVarWithNr2;
-        Priority m_priority;
         plv::Enum m_customEnum;
     };
 
