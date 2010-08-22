@@ -22,13 +22,15 @@
 #ifndef DELAYIMAGE_H
 #define DELAYIMAGE_H
 
-#include <QMutex>
-#include <QMutexLocker>
 #include "PipelineProcessor.h"
 #include "Pin.h"
 
-namespace plv {
+#include <QMutex>
+#include <QMutexLocker>
+#include <QList>
 
+namespace plv
+{
     class Pipeline;
     class OpenCVImage;
 
@@ -42,22 +44,22 @@ namespace plv {
 
         Q_PROPERTY( int steps READ getSteps WRITE setSteps NOTIFY stepsChanged )
 
-
     public:
+        static const int MAX_STEPS = 1000;
+
         DelayImage();
         ~DelayImage();
 
         virtual void init() throw (PipelineException);
-        /**override: every start, the buffer must be cleared */
+        /** override: every start, the buffer must be cleared */
         virtual void start() throw (PipelineException);
+        virtual void stop() throw (PipelineException);
         //virtual bool isBootstrapped() const;
         virtual bool isReadyForProcessing() const;
         virtual void process();
 
         /** propery methods */
         int getSteps() { return m_steps; }
-
-        static const int MAX_STEPS = 10;
 
     signals:
         void stepsChanged(int newValue);
@@ -66,22 +68,14 @@ namespace plv {
         void setSteps(int i);
 
     private:
-        /** Clear contents of buffer; clear m_latestFrameIndex */
-        void clearBuffer();
-
-        InputPin<OpenCVImage>* m_inputPin;
+        InputPin<OpenCVImage>*  m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
 
-        /** CIrcular buffer of delayed images.
-          Latest image at [m_latestFrameIndex]; one frame older at [m_latestFrameIndex-1] etc. */
-        RefPtr<OpenCVImage>* m_delayedImgs[MAX_STEPS+1];
+        /** List of delayed images. */
+        QList< RefPtr<OpenCVImage> > m_images;
 
-        /** How many steps are images delayed? */
+        /** Number of steps images are delayed */
         int m_steps;
-        /** Index of most recent frame in buffer */
-        int m_latestFrameIndex;
-
-
     };
 
 }
