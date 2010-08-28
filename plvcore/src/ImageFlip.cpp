@@ -48,6 +48,14 @@ void ImageFlip::init() throw (PipelineException)
 {
 }
 
+void ImageFlip::start() throw (PipelineException)
+{
+}
+
+void ImageFlip::stop() throw (PipelineException)
+{
+}
+
 bool ImageFlip::isReadyForProcessing() const
 {
     return m_inputPin->hasData();

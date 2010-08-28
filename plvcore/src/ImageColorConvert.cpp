@@ -147,6 +147,15 @@ void ImageColorConvert::init() throw (PipelineException)
 {
 }
 
+void ImageColorConvert::start() throw (PipelineException)
+{
+}
+
+void ImageColorConvert::stop() throw (PipelineException)
+{
+}
+
+
 bool ImageColorConvert::isReadyForProcessing() const
 {
     return m_inputPin->hasData();

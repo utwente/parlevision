@@ -87,10 +87,10 @@ namespace plv
           * You must expect that a start() call
           * may occur again after every stop().
           */
-        virtual void start() throw (PipelineException) {}
-        virtual void stop() throw (PipelineException) {}
-        //virtual void start() throw (PipelineException) = 0;
-        //virtual void stop() throw (PipelineException) = 0;
+        //virtual void start() throw (PipelineException) {}
+        //virtual void stop() throw (PipelineException) {}
+        virtual void start() throw (PipelineException) = 0;
+        virtual void stop() throw (PipelineException) = 0;
 
         /** @returns true when this PipelineElement is ready for procesing,
           * which is when the process method is allowed to be called by the scheduler.
@@ -104,8 +104,6 @@ namespace plv
           * connected by a normal processor connection.
           */
         virtual bool isReadyForProcessing() const = 0;
-
-        bool __isReadyForProcessing() const;
 
         /** @returns true when bootstrapping of this processor is complete.
           * Some pipelines need to be bootstrapped before they generate valid output.
@@ -236,6 +234,14 @@ namespace plv
          * and sets m_parent to the new pipeline
          */
         virtual void setPipeline(Pipeline* parent);
+
+        /** check if required pins are connected and if data is available
+          * on required pins. Calls isReadyForProcessing function of super
+          * class if this is indeed the case.
+          * @returns true when all conditions have been met and isReadyForProcessing()
+          * of super also returns true.
+          */
+        bool __isReadyForProcessing() const;
 
         /**
           * private process function which handles scoping of input and output pins

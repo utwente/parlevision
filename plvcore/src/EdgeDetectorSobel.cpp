@@ -46,6 +46,14 @@ void EdgeDetectorSobel::init() throw (PipelineException)
 {
 }
 
+void EdgeDetectorSobel::start() throw (PipelineException)
+{
+}
+
+void EdgeDetectorSobel::stop() throw (PipelineException)
+{
+}
+
 bool EdgeDetectorSobel::isReadyForProcessing() const
 {
     return m_inputPin->hasData();

@@ -56,6 +56,10 @@ void ViolaJonesFaceDetector::start() throw (PipelineException)
     }
 }
 
+void ViolaJonesFaceDetector::stop() throw (PipelineException)
+{
+}
+
 bool ViolaJonesFaceDetector::isReadyForProcessing() const
 {
     return m_inputPin->hasData() && m_pCascade!=0 && m_pStorage!=0;

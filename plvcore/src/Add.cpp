@@ -44,6 +44,14 @@ void Add::init() throw (PipelineException)
 {
 }
 
+void Add::start() throw (PipelineException)
+{
+}
+
+void Add::stop() throw (PipelineException)
+{
+}
+
 bool Add::isReadyForProcessing() const
 {
     return (m_inputPin1->hasData() && m_inputPin2->hasData());

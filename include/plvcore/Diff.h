@@ -46,6 +46,8 @@ namespace plv
         ~Diff();
 
         virtual void init() throw (PipelineException);
+        virtual void start() throw (PipelineException);
+        virtual void stop() throw (PipelineException);
         //virtual bool isBootstrapped() const;
         virtual bool isReadyForProcessing() const;
         virtual void process();

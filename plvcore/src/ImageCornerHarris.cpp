@@ -50,6 +50,14 @@ void ImageCornerHarris::init() throw (PipelineException)
 {
 }
 
+void ImageCornerHarris::start() throw (PipelineException)
+{
+}
+
+void ImageCornerHarris::stop() throw (PipelineException)
+{
+}
+
 bool ImageCornerHarris::isReadyForProcessing() const
 {
     return m_inputPin->hasData();

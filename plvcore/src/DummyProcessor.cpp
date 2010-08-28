@@ -56,6 +56,14 @@ void DummyProcessor::init() throw (PipelineException)
 {
 }
 
+void DummyProcessor::start() throw (PipelineException)
+{
+}
+
+void DummyProcessor::stop() throw (PipelineException)
+{
+}
+
 bool DummyProcessor::isReadyForProcessing() const
 {
     if( m_inputPin->isConnected() )
