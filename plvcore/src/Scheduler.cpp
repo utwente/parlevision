@@ -325,7 +325,7 @@ ScheduleInfo::ScheduleState ScheduleInfo::updateAndGetState()
 
     case UNDEFINED:
     case DONE:
-        if( m_element->isReadyForProcessing() )
+        if( m_element->__isReadyForProcessing() )
         {
             m_state = READY;
         }

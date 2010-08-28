@@ -162,10 +162,67 @@ void PipelineElement::getConfigurablePropertyNames(std::list<QString>& list)
     }
 }
 
+bool PipelineElement::requiredPinsConnected() const
+{
+    QMutexLocker lock( &m_pleMutex );
+    for( InputPinMap::const_iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end(); ++itr )
+    {
+        RefPtr<IInputPin> in = itr->second;
+        if( in->isRequired() )
+            if( !in->isConnected() )
+                return false;
+    }
+    return true;
+}
+
+bool PipelineElement::dataAvailableOnRequiredPins() const
+{
+    QMutexLocker lock( &m_pleMutex );
+    for( InputPinMap::const_iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end(); ++itr )
+    {
+        RefPtr<IInputPin> in = itr->second;
+        if( in->isRequired() )
+            if( !in->hasData() )
+                return false;
+    }
+    return true;
+}
+
+bool PipelineElement::__isReadyForProcessing() const
+{
+    // see if pins are connected, data is available and the
+    // processor is ready for processing
+    // TODO these function can be collapsed into one
+    // as possible speed optimization
+    if( !requiredPinsConnected() )
+    {
+        // not ready to process, throw flush data on incomming connections
+        QMutexLocker lock( &m_pleMutex );
+        for( InputPinMap::const_iterator itr = m_inputPins.begin();
+             itr != m_inputPins.end(); ++itr )
+        {
+            RefPtr<IInputPin> in = itr->second;
+            if( in->isConnected() && in->hasData() )
+            {
+                in->flush();
+            }
+        }
+        return false;
+    }
+
+    return( dataAvailableOnRequiredPins() && isReadyForProcessing() );
+}
+
 void PipelineElement::__process()
 {
     QMutexLocker lock( &m_pleMutex );
 
+    // prepares stack to receive objects
+    // for current scope
+    // extra saveguard against faulty processors which
+    // do not use wrappers for proper reference counting
     for( InputPinMap::iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
@@ -173,13 +230,14 @@ void PipelineElement::__process()
         in->scope();
     }
 
+    // call process function which does the actual work
     try
     {
         this->process();
     }
     catch( ... )
     {
-        // TODO do in method
+        // decrease refcount before we re-throw
         for( InputPinMap::iterator itr = m_inputPins.begin();
              itr != m_inputPins.end(); ++itr )
         {
@@ -189,6 +247,7 @@ void PipelineElement::__process()
         throw;
     }
 
+    // decrease refcount
     for( InputPinMap::iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {

@@ -89,6 +89,8 @@ namespace plv
           */
         virtual void start() throw (PipelineException) {}
         virtual void stop() throw (PipelineException) {}
+        //virtual void start() throw (PipelineException) = 0;
+        //virtual void stop() throw (PipelineException) = 0;
 
         /** @returns true when this PipelineElement is ready for procesing,
           * which is when the process method is allowed to be called by the scheduler.
@@ -103,6 +105,8 @@ namespace plv
           */
         virtual bool isReadyForProcessing() const = 0;
 
+        bool __isReadyForProcessing() const;
+
         /** @returns true when bootstrapping of this processor is complete.
           * Some pipelines need to be bootstrapped before they generate valid output.
           * For example, a processor which calculates the history over 5 consecutive
@@ -111,6 +115,13 @@ namespace plv
           * for valid output have been met.
           */
         //virtual bool isBootstrapped() const = 0;
+
+        /** @returns true when input pins which are required by this processor to
+          * be connected are connected. */
+        bool requiredPinsConnected() const;
+
+        /** @returns true if input pins which are required have data available */
+        bool dataAvailableOnRequiredPins() const;
 
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor

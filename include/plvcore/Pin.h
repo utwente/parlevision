@@ -89,6 +89,7 @@ namespace plv
         virtual void unscope() = 0;
         virtual bool isConnected() const = 0;
         virtual bool hasData() const = 0;
+        virtual void flush() = 0;
 
         /** @returns the std::type_info struct belonging to the type
           * this pin is initialized with. Is implemented by
@@ -285,6 +286,11 @@ namespace plv
                 return this->m_connection->hasData();
             }
             return false;
+        }
+
+        virtual void flush()
+        {
+            m_connection->flush();
         }
 
         RefPtr<T> get() throw ( PipelineException )
