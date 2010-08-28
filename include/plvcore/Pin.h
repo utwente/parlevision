@@ -101,6 +101,8 @@ namespace plv
         virtual PinConnection* getConnection() const = 0;
 
         InputPinType getType() const { return m_type; }
+        bool isRequired() const { return m_type == INPUT_REQUIRED; }
+        bool isOptional() const { return m_type == INPUT_OPTIONAL; }
 
     protected:
         InputPinType m_type;
