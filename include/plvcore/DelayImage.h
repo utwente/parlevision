@@ -70,6 +70,7 @@ namespace plv
     private:
         InputPin<OpenCVImage>*  m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;
+        OutputPin<OpenCVImage>* m_delayedOutputPin;
 
         /** List of delayed images. */
         QList< RefPtr<OpenCVImage> > m_images;

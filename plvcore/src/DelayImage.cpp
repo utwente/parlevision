@@ -32,6 +32,7 @@ DelayImage::DelayImage():
 {
     m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
     m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_delayedOutputPin = createOutputPin<OpenCVImage>( "delayed", this );
 }
 
 DelayImage::~DelayImage()
@@ -54,7 +55,7 @@ void DelayImage::stop() throw (PipelineException)
 
 bool DelayImage::isReadyForProcessing() const
 {
-    return m_inputPin->hasData();
+    return true;
 }
 
 void DelayImage::process()
@@ -68,10 +69,13 @@ void DelayImage::process()
     m_images.append( imgIn );
 
     // propagate image if we have an history of m_steps images
-    if( m_images.size() == m_steps )
+    while( m_images.size() >= m_steps )
     {
-        m_outputPin->put( m_images.first().getPtr() );
+        m_delayedOutputPin->put( m_images.first().getPtr() );
         m_images.removeFirst();
+
+        // and propagate non delayed output
+        m_outputPin->put( imgIn.getPtr() );
     }
     // not enough in buffer, do not propagate anything
 }
