@@ -58,6 +58,10 @@ void ViolaJonesFaceDetector::start() throw (PipelineException)
 
 void ViolaJonesFaceDetector::stop() throw (PipelineException)
 {
+    if (m_pCascade != 0)
+        cvReleaseHaarClassifierCascade(&m_pCascade);
+
+    m_pCascade = 0;
 }
 
 bool ViolaJonesFaceDetector::isReadyForProcessing() const
