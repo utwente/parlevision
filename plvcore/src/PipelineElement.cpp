@@ -162,6 +162,51 @@ void PipelineElement::getConfigurablePropertyNames(std::list<QString>& list)
     }
 }
 
+QSet<PipelineElement*> PipelineElement::getConnectedElementsToOutputs() const
+{
+    QMutexLocker lock( &m_pleMutex );
+
+    QSet<PipelineElement*> elements;
+    for( OutputPinMap::const_iterator itr = m_outputPins.begin();
+        itr != m_outputPins.end(); ++itr )
+    {
+        RefPtr<IOutputPin> out = itr->second;
+        if( out->isConnected() )
+        {
+            std::list< RefPtr<PinConnection> > connections = out->getConnections();
+            for( std::list< RefPtr<PinConnection> >::const_iterator connItr = connections.begin();
+                 connItr != connections.end(); ++connItr )
+            {
+                RefPtr<PinConnection> connection = *connItr;
+                RefPtr<const IInputPin> toPin = connection->toPin();
+                PipelineElement* pinOwner = toPin->getOwner();
+                elements.insert( pinOwner );
+            }
+        }
+    }
+    return elements;
+}
+
+QSet<PipelineElement*> PipelineElement::getConnectedElementsToInputs() const
+{
+    QMutexLocker lock( &m_pleMutex );
+
+    QSet<PipelineElement*> elements;
+    for( InputPinMap::const_iterator itr = m_inputPins.begin();
+        itr != m_inputPins.end(); ++itr )
+    {
+        RefPtr<IInputPin> in = itr->second;
+        if( in->isConnected() )
+        {
+            RefPtr<PinConnection> connection = in->getConnection();
+            RefPtr<const IOutputPin> fromPin = connection->fromPin();
+            PipelineElement* pinOwner = fromPin->getOwner();
+            elements.insert( pinOwner );
+        }
+    }
+    return elements;
+}
+
 bool PipelineElement::requiredPinsConnected() const
 {
     QMutexLocker lock( &m_pleMutex );

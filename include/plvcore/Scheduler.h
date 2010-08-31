@@ -37,8 +37,19 @@ namespace plv
         Q_OBJECT
 
     protected:
-        QMap< int, ScheduleInfo* > m_scheduleInfo;
         QMutex m_schedulerMutex;
+
+        /** contains a map of schedule info nodes which are used to wrap
+          * pipeline elements and provide extra functionality for scheduling
+          */
+        QMap< int, ScheduleInfo* > m_scheduleInfo;
+
+        /** contains a topological ordering of the pipeline graph */
+        QList<ScheduleInfo*> m_ordering;
+
+        /** indicates if anything has changed in the pipeline graph. If
+          * dirty is true the topological ordering is regenerated */
+        bool m_dirty;
 
     public:
         Scheduler( Pipeline* pipeline );
@@ -48,6 +59,11 @@ namespace plv
 
         void setActiveThreadCount(int num);
         int getActiveThreadCount();
+
+        inline ScheduleInfo* getScheduleNode( int id ) const
+        {
+            return m_scheduleInfo.value( id );
+        }
 
     public slots:
         void start();
@@ -63,6 +79,9 @@ namespace plv
 
     signals:
         void errorOccurred( QString errorString );
+
+    private:
+        bool generateGraphOrdering( QList<ScheduleInfo*>& ordering );
     };
 
     class ScheduleInfo
@@ -84,6 +103,7 @@ namespace plv
         } PipelineElementType;
 
     protected:
+        Scheduler* m_scheduler;
         RefPtr<PipelineElement> m_element;
         PipelineElementType m_type;
         int m_staticPriority;
@@ -91,14 +111,15 @@ namespace plv
         int m_avgProcessingTime;
         int m_lastProcesingTime;
         ScheduleState m_state;
-        QMap<int, ScheduleInfo*> m_connectedTo;
         QFuture<void> m_result;
         QMutex m_mutex;
         QTime m_timer;
         QString m_errorString;
+        QSet<ScheduleInfo*> m_outgoingNodes;
+        QSet<ScheduleInfo*> m_incomingNodes;
 
     public:
-        ScheduleInfo( PipelineElement* pl, PipelineElementType type, int priority = 0 );
+        ScheduleInfo( Scheduler* scheduler, PipelineElement* pl, PipelineElementType type, int priority = 0 );
 
         void setStaticPriority( int priority ) { m_staticPriority = priority; }
 
@@ -109,6 +130,8 @@ namespace plv
         PipelineElement* getElement() const { return m_element.getPtr(); }
 
         int getAvgProcessingTime() const { return m_avgProcessingTime; }
+
+        PipelineElementType getType() const { return m_type; }
 
         /** Dispatches the pipeline element. This does not mean it will be
           * executed right away. The processor state will go into WAITING
@@ -130,7 +153,15 @@ namespace plv
         /** sets the state of this processor. This method is thread safe. */
         void setState( ScheduleState state );
 
+        void updateConnections();
+
+        bool isEndNode() const { return m_outgoingNodes.empty(); }
+        bool isStartNode() const { return m_incomingNodes.empty(); }
+
         QString getErrorString() const { return m_errorString; }
+
+        bool visit( QList<ScheduleInfo*>& ordering,
+                    QSet<ScheduleInfo*>& visited );
 
     private:
         void setErrorString( const QString& error );

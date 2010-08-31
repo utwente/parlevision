@@ -30,6 +30,8 @@
 #include <QtConcurrentRun>
 #include <QTime>
 #include <QFuture>
+#include <QMultiMap>
+#include <QStringBuilder>
 
 #include <unistd.h>
 
@@ -37,7 +39,7 @@ using namespace plv;
 
 /********** SCHEDULER *********************************************/
 
-Scheduler::Scheduler( Pipeline* pipeline )
+Scheduler::Scheduler( Pipeline* pipeline ) : m_dirty( true )
 {
     connect(pipeline,
             SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
@@ -86,10 +88,12 @@ Scheduler::~Scheduler()
 
 void Scheduler::start()
 {
+    m_dirty = true;
 }
 
 void Scheduler::stop()
 {
+
 }
 
 void Scheduler::elementAdded(plv::RefPtr<plv::PipelineElement> ple )
@@ -108,7 +112,7 @@ void Scheduler::elementAdded(plv::RefPtr<plv::PipelineElement> ple )
         type = ScheduleInfo::PROCESSOR;
     }
 
-    ScheduleInfo* si = new ScheduleInfo( ple.getPtr(), type, 0 );
+    ScheduleInfo* si = new ScheduleInfo( this, ple.getPtr(), type, 0 );
 
     QMutexLocker lock( &m_schedulerMutex );
     m_scheduleInfo.insert( ple->getId(), si );
@@ -118,31 +122,47 @@ void Scheduler::elementRemoved(plv::RefPtr<plv::PipelineElement> ple )
 {
     QMutexLocker lock( &m_schedulerMutex );
     m_scheduleInfo.remove( ple->getId() );
+    m_dirty = true;
 }
 
 void Scheduler::elementChanged(plv::RefPtr<plv::PipelineElement> ple )
 {
-    // TODO not implemented yet
 }
 
 void Scheduler::connectionAdded(plv::RefPtr<plv::PinConnection> connection )
 {
-    // TODO not implemented yet
+    QMutexLocker lock( &m_schedulerMutex );
+    m_dirty = true;
 }
 
 void Scheduler::connectionRemoved(plv::RefPtr<plv::PinConnection>)
 {
-    // TODO not implemented yet
+    QMutexLocker lock( &m_schedulerMutex );
+    m_dirty = true;
 }
 
 void Scheduler::connectionChanged(plv::RefPtr<plv::PinConnection>)
 {
-    // TODO not implemented yet
+    QMutexLocker lock( &m_schedulerMutex );
+    m_dirty = true;
 }
 
 bool Scheduler::schedule()
 {
     m_schedulerMutex.lock();
+
+    if( m_dirty )
+    {
+        m_ordering.clear();
+        if( !generateGraphOrdering( m_ordering ) )
+        {
+            QString errStr = "Cycle detected in pipeline graph";
+            emit( errorOccurred( errStr ) );
+            m_schedulerMutex.unlock();
+            return false;
+        }
+        m_dirty = false;
+    }
 
     foreach( ScheduleInfo* si, m_scheduleInfo )
     {
@@ -193,6 +213,46 @@ bool Scheduler::schedule()
     return true;
 }
 
+bool Scheduler::generateGraphOrdering( QList<ScheduleInfo*>& ordering )
+{
+    QSet<ScheduleInfo*> endNodes;
+    // find nodes with no outgoing connections
+    foreach( ScheduleInfo* si, m_scheduleInfo )
+    {
+        si->updateConnections();
+        if( si->isEndNode() )
+        {
+            endNodes.insert( si );
+        }
+    }
+
+    if( endNodes.empty() )
+    {
+        // at least one cycle detected
+        return false;
+    }
+
+    QSet<ScheduleInfo*> visited;
+    foreach( ScheduleInfo* node, endNodes )
+    {
+        if( !node->visit( ordering, visited ) )
+        {
+            // cycle detected
+            return false;
+        }
+    }
+
+    // TODO shall we check if all nodes are visited?
+    QString out;
+    foreach( ScheduleInfo* si, ordering )
+    {
+        out.append( si->getElement()->getName() % "\n" );
+    }
+    qDebug() << out;
+
+    return true;
+}
+
 void Scheduler::setActiveThreadCount( int num )
 {
     QThreadPool::globalInstance()->setMaxThreadCount( num );
@@ -206,7 +266,8 @@ int Scheduler::getActiveThreadCount()
 
 /********** SCHEDULE INFO *****************************************/
 
-ScheduleInfo::ScheduleInfo( PipelineElement* pl, PipelineElementType type, int priority ) :
+ScheduleInfo::ScheduleInfo( Scheduler* scheduler, PipelineElement* pl, PipelineElementType type, int priority ) :
+    m_scheduler( scheduler ),
     m_element( pl ),
     m_type( type ),
     m_staticPriority( priority ),
@@ -335,6 +396,56 @@ ScheduleInfo::ScheduleState ScheduleInfo::updateAndGetState()
     return m_state;
 }
 
+void ScheduleInfo::updateConnections()
+{
+    m_incomingNodes.clear();
+    m_outgoingNodes.clear();
+
+    QSet<PipelineElement*> outgoing = m_element->getConnectedElementsToOutputs();
+    foreach( PipelineElement* ple, outgoing )
+    {
+        ScheduleInfo* node = m_scheduler->getScheduleNode( ple->getId() );
+        m_outgoingNodes.insert( node );
+    }
+
+    QSet<PipelineElement*> incoming = m_element->getConnectedElementsToInputs();
+    foreach( PipelineElement* ple, incoming )
+    {
+        ScheduleInfo* node = m_scheduler->getScheduleNode( ple->getId() );
+        m_incomingNodes.insert( node );
+    }
+}
+
+bool ScheduleInfo::visit( QList<ScheduleInfo*>& ordering,
+                          QSet<ScheduleInfo*>& visited )
+{
+    // check if this node is already in partial ordering
+    if( ordering.contains( this ))
+        return true;
+
+    // check for cycles
+    if( visited.contains( this ))
+    {
+        // cycle detected
+        ordering.append( this );
+        return false;
+    }
+    visited.insert( this );
+
+    // visit all incoming connections
+    foreach( ScheduleInfo* node, m_incomingNodes )
+    {
+        // directly quit if cycle detected
+        if( !node->visit( ordering, visited ) )
+            return false;
+    }
+
+    // go up in call stack
+    visited.remove( this );
+    ordering.append( this );
+    return true;
+}
+
 ScheduleInfo::ScheduleInfo( const ScheduleInfo& )
 {
 }
@@ -348,7 +459,8 @@ void ScheduleInfo::stopTimer()
 {
     int elapsed = m_timer.elapsed();
     m_avgProcessingTime = m_avgProcessingTime > 0 ?
-                          (int) (( elapsed * 0.01f ) + ( m_avgProcessingTime * 0.99f )) : elapsed;
+                          (int) (( elapsed * 0.01f ) + ( m_avgProcessingTime * 0.99f ))
+                              : elapsed;
     m_lastProcesingTime = elapsed;
 }
 

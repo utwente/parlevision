@@ -52,6 +52,9 @@ namespace plv
         /** processor id */
         int m_id;
 
+        /** true if this element has been successfuly initialized */
+        bool m_initialized;
+
         /** map which contains the input pins identified and indexed by their name */
         InputPinMap  m_inputPins;
 
@@ -117,6 +120,16 @@ namespace plv
         /** @returns true when input pins which are required by this processor to
           * be connected are connected. */
         bool requiredPinsConnected() const;
+
+        /** @returns the set of pipeline elements which are connected to
+          * this element via the output pins.
+          */
+        QSet<PipelineElement*> getConnectedElementsToOutputs() const;
+
+        /** @returns the set of pipeline elements which are connected to
+          * this element via the input pins.
+          */
+        QSet<PipelineElement*> getConnectedElementsToInputs() const;
 
         /** @returns true if input pins which are required have data available */
         bool dataAvailableOnRequiredPins() const;
@@ -234,6 +247,8 @@ namespace plv
          * and sets m_parent to the new pipeline
          */
         virtual void setPipeline(Pipeline* parent);
+
+        bool __init() throw (PipelineException);
 
         /** check if required pins are connected and if data is available
           * on required pins. Calls isReadyForProcessing function of super
