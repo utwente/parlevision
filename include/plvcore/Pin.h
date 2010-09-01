@@ -75,12 +75,12 @@ namespace plv
     class IInputPin : public Pin
     {
     public:
-        enum InputPinType {
-            OPTIONAL,
-            REQUIRED
-        };
+        typedef enum InputPinType {
+            INPUT_OPTIONAL,
+            INPUT_REQUIRED
+        } InputPinType;
 
-        IInputPin( const QString& name, PipelineElement* owner, InputPinType type = REQUIRED ) :
+        IInputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :
                 Pin( name, owner ), m_type( type )
         {
         }
@@ -89,6 +89,7 @@ namespace plv
         virtual void unscope() = 0;
         virtual bool isConnected() const = 0;
         virtual bool hasData() const = 0;
+        virtual void flush() = 0;
 
         /** @returns the std::type_info struct belonging to the type
           * this pin is initialized with. Is implemented by
@@ -101,6 +102,8 @@ namespace plv
         virtual PinConnection* getConnection() const = 0;
 
         InputPinType getType() const { return m_type; }
+        bool isRequired() const { return m_type == INPUT_REQUIRED; }
+        bool isOptional() const { return m_type == INPUT_OPTIONAL; }
 
     protected:
         InputPinType m_type;
@@ -245,7 +248,7 @@ namespace plv
     class InputPin : public IInputPin
     {
     public:
-        InputPin( const QString& name, PipelineElement* owner, InputPinType type = REQUIRED ) :
+        InputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :
                 IInputPin( name, owner, type ) {}
 
         virtual void scope()
@@ -283,6 +286,11 @@ namespace plv
                 return this->m_connection->hasData();
             }
             return false;
+        }
+
+        virtual void flush()
+        {
+            m_connection->flush();
         }
 
         RefPtr<T> get() throw ( PipelineException )
@@ -364,7 +372,7 @@ namespace plv
     }
 
     template<typename T>
-    InputPin<T> * createInputPin( const QString& name, PipelineElement* owner, IInputPin::InputPinType type = IInputPin::REQUIRED )
+    InputPin<T> * createInputPin( const QString& name, PipelineElement* owner, IInputPin::InputPinType type = IInputPin::INPUT_REQUIRED )
     throw (IllegalArgumentException)
     {
         // if add fails pin is automatically deleted and exception is thrown

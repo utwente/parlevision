@@ -46,6 +46,14 @@ void EdgeDetectorLaplace::init() throw (PipelineException)
 {
 }
 
+void EdgeDetectorLaplace::start() throw (PipelineException)
+{
+}
+
+void EdgeDetectorLaplace::stop() throw (PipelineException)
+{
+}
+
 bool EdgeDetectorLaplace::isReadyForProcessing() const
 {
     return m_inputPin->hasData();

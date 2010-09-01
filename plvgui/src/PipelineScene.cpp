@@ -364,8 +364,7 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
         int typeId = QMetaType::type(elementName.toAscii());
 
         if(typeId == 0)
-            throw new ElementCreationException(
-                    QString("Tried to create unknown element "+elementName).toStdString());
+            throw new ElementCreationException( "Tried to create unknown element " + elementName );
 
         RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(QMetaType::construct(typeId));
         pe->setProperty("sceneCoordX", event->scenePos().x());

@@ -19,17 +19,14 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#include <QDebug>
-
 #include "DummyProcessor.h"
+
 #include "Pin.h"
 #include "OpenCVImage.h"
-#include <opencv/cv.h>
+
+#include <QDebug>
 
 using namespace plv;
-
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
 
 /**
   * This processor is mainly for showing the code with which one creates pins and properties and such */
@@ -39,14 +36,11 @@ DummyProcessor::DummyProcessor() :
         m_someBool(true),
         m_someString("hello"),
         m_someVarWithNr1(0),
-        m_someVarWithNr2(0),
-        m_priority( VeryHigh )
+        m_someVarWithNr2(0)
 {
-
-
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
-    m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::OPTIONAL );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::INPUT_OPTIONAL );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 
     m_customEnum.add( "Very Low" );
     m_customEnum.add( "Low" );
@@ -59,6 +53,14 @@ DummyProcessor::~DummyProcessor()
 }
 
 void DummyProcessor::init() throw (PipelineException)
+{
+}
+
+void DummyProcessor::start() throw (PipelineException)
+{
+}
+
+void DummyProcessor::stop() throw (PipelineException)
 {
 }
 

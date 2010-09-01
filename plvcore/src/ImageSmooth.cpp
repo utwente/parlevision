@@ -59,6 +59,14 @@ void ImageSmooth::init() throw (PipelineException)
 {
 }
 
+void ImageSmooth::start() throw (PipelineException)
+{
+}
+
+void ImageSmooth::stop() throw (PipelineException)
+{
+}
+
 bool ImageSmooth::isReadyForProcessing() const
 {
     return m_inputPin->hasData();

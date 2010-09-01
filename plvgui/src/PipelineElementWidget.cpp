@@ -121,9 +121,11 @@ QRectF PipelineElementWidget::boundingRect() const
 QVariant PipelineElementWidget::itemChange(GraphicsItemChange change,
                      const QVariant &value)
 {
-    if (change == QGraphicsItem::ItemPositionChange) {
+    if (change == QGraphicsItem::ItemPositionChange)
+    {
 //        qDebug() << "Element changed " << change;
-        foreach (ConnectionLine* line, lines) {
+        foreach (ConnectionLine* line, lines)
+        {
             line->updatePosition();
         }
     }
@@ -150,7 +152,6 @@ void PipelineElementWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* even
         }
     }
 }
-
 
 bool PipelineElementWidget::event(QEvent * event)
 {
@@ -184,7 +185,16 @@ void PipelineElementWidget::paint(QPainter *painter, const QStyleOptionGraphicsI
         painter->setPen(Qt::black);
     }
 
-    painter->setBrush(Qt::green);
+    // use different colors to show user if processor is connected
+    // or if required connections are missing.
+    if( element->requiredPinsConnected() )
+    {
+        painter->setBrush(Qt::green);
+    }
+    else
+    {
+        painter->setBrush(Qt::red);
+    }
     painter->drawRoundedRect(this->boundingRect(),8,8, Qt::AbsoluteSize);
 }
 

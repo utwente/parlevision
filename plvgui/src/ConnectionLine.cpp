@@ -74,8 +74,18 @@ void ConnectionLine::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem* style,
                            QWidget * w)
 {
-    QLineF line(fromPin->getCircle()->mapToScene(fromPin->getCircle()->getCenter()),
-                toPin->getCircle()->mapToScene(toPin->getCircle()->getCenter()));
+    const PinCircle* fromCircle = fromPin->getCircle();
+    const PinCircle* toCircle = toPin->getCircle();
+
+    QLineF line(fromCircle->mapToScene( fromCircle->getCenter() ),
+                toCircle->mapToScene( toCircle->getCenter() ));
+
+    // draw queue length at middle of line position
+    QPointF middle = line.pointAt( 0.5 );
+    int size = connection->size();
+    QString sizeStr;
+    sizeStr.setNum( size );
+    painter->drawText( middle, sizeStr );
 
     setLine(line);
 

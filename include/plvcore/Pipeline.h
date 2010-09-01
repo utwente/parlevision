@@ -61,7 +61,7 @@ namespace plv
 
         /** Initialise this Pipeline. Not yet reentrant
           */
-        bool init();
+        //bool init();
 
         /** Removes all PipelineElements and Connections from this pipeline */
         void clear();
@@ -131,8 +131,7 @@ namespace plv
     protected:
         PipelineElementMap m_children;
         PipelineConnectionsList m_connections;
-        QSet<int> m_processing;
-        QMutex m_schedulerMutex;
+        QMutex m_pipelineMutex;
 
         /**
           * The QThread run loop
@@ -141,14 +140,11 @@ namespace plv
 
         int getNewPipelineElementId();
 
-        void schedule( QMap< int, ScheduleInfo* >& schedule );
-        ScheduleInfo* runProcessor( ScheduleInfo* info );
-
     private:
         bool m_stopRequested;
         bool m_running;
         Scheduler* m_scheduler;
-        QSet<int> m_initialized;
+        //QSet<int> m_initialized;
 
     signals:
         void elementAdded(plv::RefPtr<plv::PipelineElement>);

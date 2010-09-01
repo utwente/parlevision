@@ -60,7 +60,7 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
     {
         QString msg = "Tried to add PipelineElement " % child->getName()
                       % " to pipeline with an id which is already in use.";
-        throw IllegalArgumentException( msg.toStdString() );
+        throw IllegalArgumentException( msg );
     }
 
     RefPtr<PipelineElement> element = child;
@@ -71,6 +71,18 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
         element->setId( id );
     }
     element->setPipeline(this);
+
+    try
+    {
+        element->init();
+    }
+    catch( PipelineException& e )
+    {
+        QString msg = element->getName() + ": " + e.what();
+        errorOccurred( msg );
+    }
+
+    QMutexLocker lock( &m_pipelineMutex );
     m_children.insert( id, element );
     emit( elementAdded(element) );
     return id;
@@ -78,6 +90,8 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
 
 bool Pipeline::canAddElement( PipelineElement* child )
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
     RefPtr<PipelineElement> element = child;
     int id = element->getId();
     if( id != -1 )
@@ -87,14 +101,10 @@ bool Pipeline::canAddElement( PipelineElement* child )
     return true;
 }
 
-//void Pipeline::removeElement( PipelineElement* child )
-//{
-//    int id = child->getId();
-//    m_children.remove( id );
-//}
-
 int Pipeline::getNewPipelineElementId()
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
     int id = 0;
 
     QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
@@ -112,6 +122,8 @@ int Pipeline::getNewPipelineElementId()
 
 PipelineElement* Pipeline::getElement( int id )
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
     if( m_children.contains( id ) )
     {
         return m_children.value( id );
@@ -121,6 +133,8 @@ PipelineElement* Pipeline::getElement( int id )
 
 void Pipeline::removeElement( int id )
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
     if( m_children.contains( id ) )
     {
         // preserve the element so we can send it over the signal later
@@ -133,6 +147,8 @@ void Pipeline::removeElement( int id )
 
 void Pipeline::removeAllElements()
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
     foreach( RefPtr<PipelineElement> element, m_children )
     {
         removeConnectionsForElement( element );
@@ -188,6 +204,8 @@ const Pipeline::PipelineConnectionsList& Pipeline::getConnections() const
 void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
         throw (IncompatibleTypeException, DuplicateConnectionException)
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
     RefPtr<PinConnection> connection = new PinConnection(outputPin, inputPin);
     m_connections.push_back(connection);
     emit( connectionAdded(connection) );
@@ -195,6 +213,8 @@ void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
 
 void Pipeline::removeAllConnections()
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
     assert( !m_running );
 
     foreach( RefPtr<PinConnection> connection, m_connections )
@@ -215,6 +235,7 @@ void Pipeline::disconnect( PinConnection* connection )
     RefPtr<PinConnection> con( connection );
     con->disconnect();
 
+    QMutexLocker lock( &m_pipelineMutex );
     for( PipelineConnectionsList::iterator itr = m_connections.begin();
             itr != m_connections.end(); ++itr )
     {
@@ -228,37 +249,44 @@ void Pipeline::disconnect( PinConnection* connection )
     }
 }
 
-// TODO maybe refactor so we can report the processor which fails to initialize
-bool Pipeline::init()
-{
-    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+//bool Pipeline::init()
+//{
+//    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
 
-    // TODO make initialisation proper with exceptions and reporting of
-    // processor which fails to initialize
-    // and not return true all the time
-    try
-    {
-        if( itr.hasNext() )
-        {
-            itr.next();
-            RefPtr<PipelineElement> element = itr.value();
-            if( !m_initialized.contains(element->getId()) )
-            {
-                element->init();
-                m_initialized.insert(element->getId());
-            }
-        }
-    }
-    catch( PipelineException& e )
-    {
-        qDebug() << "FIXME: Exception caught in Pipeline::init()" << e.what();
-    }
+//    QList<QString> errors;
+//    if( itr.hasNext() )
+//    {
+//        itr.next();
+//        RefPtr<PipelineElement> element = itr.value();
+//        if( !m_initialized.contains( element->getId() ) )
+//        {
+//            try
+//            {
+//                element->init();
+//                m_initialized.insert(element->getId());
+//            }
+//            catch( PipelineException& e )
+//            {
+//                errors.append( element->getName() + ": " + e.what() );
+//            }
+//        }
+//    }
 
-    return true;
-}
+//    if( !errors.empty() )
+//    {
+//        foreach( const QString& str, errors )
+//        {
+//            errorOccurred( str );
+//        }
+//        return false;
+//    }
+//    return true;
+//}
 
 void Pipeline::clear()
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
     assert( !m_running );
 
     // we need to explicitly remove the connections
@@ -270,38 +298,60 @@ void Pipeline::clear()
 
 void Pipeline::start()
 {
-    // TODO this is a hack to test
-    init();
+    m_pipelineMutex.lock();
 
-    // TODO formalize this procedure (starting of pipeline) more!
+    bool error = false;
+
     QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
     while( itr.hasNext() )
     {
         itr.next();
-        itr.value()->start();
+        RefPtr<PipelineElement> element = itr.value();
+        try
+        {
+            element->start();
+        }
+        catch( PipelineException& e )
+        {
+            QString msg = element->getName() % ": " % e.what();
+            errorOccurred(msg);
+            error = true;
+        }
     }
 
     // TODO make thread safe
     // and ensure that pipeline cannot be started twice
     m_stopRequested = false;
-    QThread::start();
+
+    if( !error )
+    {
+        // start scheduler
+        m_scheduler->start();
+
+        m_pipelineMutex.unlock();
+
+        // calls run method
+        QThread::start();
+    }
 }
 
 void Pipeline::stop()
 {
-    // TODO formalize this procedure (s of pipeline) more!
-    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
-    while( itr.hasNext() )
-    {
-        itr.next();
-        itr.value()->stop();
-    }
+    m_scheduler->stop();
 
     //TODO more elegant solution here with QTimer
     m_stopRequested = true;
     while( m_running )
     {
         usleep(100);
+    }
+
+    // TODO formalize this procedure (s of pipeline) more!
+    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+    while( itr.hasNext() )
+    {
+        itr.next();
+        itr.value()->stop();
     }
 
     foreach(RefPtr<PinConnection> conn, m_connections)

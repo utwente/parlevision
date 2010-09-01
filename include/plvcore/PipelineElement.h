@@ -52,6 +52,9 @@ namespace plv
         /** processor id */
         int m_id;
 
+        /** true if this element has been successfuly initialized */
+        bool m_initialized;
+
         /** map which contains the input pins identified and indexed by their name */
         InputPinMap  m_inputPins;
 
@@ -87,8 +90,10 @@ namespace plv
           * You must expect that a start() call
           * may occur again after every stop().
           */
-        virtual void start() throw (PipelineException) {}
-        virtual void stop() throw (PipelineException) {}
+        //virtual void start() throw (PipelineException) {}
+        //virtual void stop() throw (PipelineException) {}
+        virtual void start() throw (PipelineException) = 0;
+        virtual void stop() throw (PipelineException) = 0;
 
         /** @returns true when this PipelineElement is ready for procesing,
           * which is when the process method is allowed to be called by the scheduler.
@@ -111,6 +116,23 @@ namespace plv
           * for valid output have been met.
           */
         //virtual bool isBootstrapped() const = 0;
+
+        /** @returns true when input pins which are required by this processor to
+          * be connected are connected. */
+        bool requiredPinsConnected() const;
+
+        /** @returns the set of pipeline elements which are connected to
+          * this element via the output pins.
+          */
+        QSet<PipelineElement*> getConnectedElementsToOutputs() const;
+
+        /** @returns the set of pipeline elements which are connected to
+          * this element via the input pins.
+          */
+        QSet<PipelineElement*> getConnectedElementsToInputs() const;
+
+        /** @returns true if input pins which are required have data available */
+        bool dataAvailableOnRequiredPins() const;
 
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor
@@ -225,6 +247,16 @@ namespace plv
          * and sets m_parent to the new pipeline
          */
         virtual void setPipeline(Pipeline* parent);
+
+        bool __init() throw (PipelineException);
+
+        /** check if required pins are connected and if data is available
+          * on required pins. Calls isReadyForProcessing function of super
+          * class if this is indeed the case.
+          * @returns true when all conditions have been met and isReadyForProcessing()
+          * of super also returns true.
+          */
+        bool __isReadyForProcessing() const;
 
         /**
           * private process function which handles scoping of input and output pins

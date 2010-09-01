@@ -53,6 +53,14 @@ void EdgeDetectorCanny::init() throw (PipelineException)
 {
 }
 
+void EdgeDetectorCanny::start() throw (PipelineException)
+{
+}
+
+void EdgeDetectorCanny::stop() throw (PipelineException)
+{
+}
+
 bool EdgeDetectorCanny::isReadyForProcessing() const
 {
     return m_inputPin->hasData();

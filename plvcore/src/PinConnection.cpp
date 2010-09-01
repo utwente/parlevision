@@ -57,8 +57,7 @@ void PinConnection::connect()
     assert(m_producer.isNotNull());
 
     if(m_consumer->isConnected())
-        throw DuplicateConnectionException(
-                QString(m_consumer->getName() + " is already connected").toStdString());
+        throw DuplicateConnectionException( m_consumer->getName() + " is already connected" );
 
     const std::type_info& producerTypeInfo = m_producer->getTypeInfo();
     const std::type_info& consumerTypeInfo = m_consumer->getTypeInfo();
@@ -76,7 +75,7 @@ void PinConnection::connect()
                          " with types " % producerTypeName %
                          " and " % consumerTypeName;
 
-        throw IncompatibleTypeException( errStr.toStdString() );
+        throw IncompatibleTypeException( errStr );
     }
 
     m_producer->addConnection(this);

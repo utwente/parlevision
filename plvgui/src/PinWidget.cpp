@@ -62,8 +62,19 @@ void PinWidget::init(bool isInput=true)
     assert(m_pin.isNotNull());
     QGraphicsTextItem* label = new QGraphicsTextItem(m_pin->getName());
 
-    this->circle = new PinCircle(0,0,20,20,this);
+    // TODO this is ugly, make PinWidget for each pin type?
+    if( isInput )
+    {
+        RefPtr<IInputPin> ipin = ref_ptr_static_cast<IInputPin>( m_pin );
+        if( ipin->isRequired() )
+        {
+            QFont font = label->font();
+            font.setUnderline(true);
+            label->setFont( font );
+        }
+    }
 
+    this->circle = new PinCircle(0,0,20,20,this);
     this->circle->translate(0, 4.0);
 
     if(isInput)

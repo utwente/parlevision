@@ -35,12 +35,10 @@ using namespace plv;
 
 PipelineLoader::PipelineLoader()
 {
-
 }
 
 PipelineLoader::~PipelineLoader()
 {
-
 }
 
 void PipelineLoader::serialize( const QString& filename, Pipeline* pipeline )
@@ -264,7 +262,8 @@ void PipelineLoader::parseElements( QDomNodeList* list, Pipeline* pipeline )
         // check if it is valid
         if( !pipeline->canAddElement( ple ) )
         {
-            QString msg = "XML parsing failed. PipelineElement with name " % name % " has invalid or used id " + id;
+            QString msg = "XML parsing failed. PipelineElement with name "
+                          % name % " has invalid or used id " + id;
             throw std::runtime_error( msg.toStdString() );
         }
         pipeline->addElement( ple );
@@ -312,7 +311,8 @@ void PipelineLoader::parseElements( QDomNodeList* list, Pipeline* pipeline )
                 }
                 ple->setProperty( propNameXml.toAscii(), propValue );
 
-                qDebug() << "Found property with name: " << propNameXml << " and value: " << propValue;
+                qDebug()<< "Found property with name: " << propNameXml
+                        << " and value: " << propValue;
 
             }
         }
@@ -365,8 +365,9 @@ void PipelineLoader::parseConnections( QDomNodeList* list, Pipeline* pipeline )
         int sourceProcId = sourceProcIdNode.text().toInt();
         QString sourcePinName = sourcePinNameNode.text();
 
-        qDebug() << "Found connection with source( " << sourceProcId << "," << sourcePinName << ") and sink( "
-                << sinkProcId << "," << sinkPinName << ")";
+        qDebug() << "Found connection with source( " << sourceProcId << ","
+                 << sourcePinName << ") and sink( " << sinkProcId << ","
+                 << sinkPinName << ")";
 
         PipelineElement* sourceElement = pipeline->getElement( sourceProcId );
         PipelineElement* sinkElement = pipeline->getElement( sinkProcId );

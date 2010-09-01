@@ -47,6 +47,14 @@ void Diff::init() throw (PipelineException)
 {
 }
 
+void Diff::start() throw (PipelineException)
+{
+}
+
+void Diff::stop() throw (PipelineException)
+{
+}
+
 bool Diff::isReadyForProcessing() const
 {
     return (m_inputPin1->hasData() && m_inputPin2->hasData());
