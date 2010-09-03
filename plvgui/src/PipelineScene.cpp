@@ -354,6 +354,10 @@ void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* targe
     {
         throw NonFatalException(e.what());
     }
+    catch( IllegalConnectionException e )
+    {
+        throw NonFatalException(e.what());
+    }
 }
 
 void PipelineScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)

@@ -29,7 +29,7 @@
 using namespace plv;
 
 PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer )
-    throw ( IncompatibleTypeException, DuplicateConnectionException ) :
+    throw ( IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException ) :
         m_producer( producer ),
         m_consumer( consumer ),
         m_type( LOSSLESS )
@@ -49,12 +49,17 @@ PinConnection::~PinConnection()
 }
 
 void PinConnection::connect()
-        throw (IncompatibleTypeException, DuplicateConnectionException)
+        throw (IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException)
 {
     QMutexLocker lock( &m_mutex );
 
     assert(m_consumer.isNotNull());
     assert(m_producer.isNotNull());
+
+    if( m_consumer->getOwner() == m_producer->getOwner() )
+        throw IllegalConnectionException( "It is not allowed to connect " +
+                                          m_consumer->getOwner()->getName() +
+                                          " to itself" );
 
     if(m_consumer->isConnected())
         throw DuplicateConnectionException( m_consumer->getName() + " is already connected" );

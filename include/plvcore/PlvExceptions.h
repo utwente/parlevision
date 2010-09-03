@@ -69,6 +69,13 @@ namespace plv
         //InstantiationException(const std::string& msg) : PlvException(msg) {}
     };
 
+    class IllegalConnectionException : public PlvException
+    {
+    public:
+        IllegalConnectionException(const QString& msg) : PlvException(msg) {}
+        //DuplicateConnectionException(const std::string& msg) : PlvException(msg) {}
+    };
+
     class IncompatibleTypeException : public PlvException
     {
     public:

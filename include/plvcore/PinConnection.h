@@ -47,7 +47,7 @@ namespace plv
         friend class Pipeline;
     public:
         PinConnection( IOutputPin* producer, IInputPin* consumer )
-                throw ( IncompatibleTypeException, DuplicateConnectionException );
+                throw ( IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException );
         ~PinConnection();
 
         bool hasData();
@@ -63,7 +63,7 @@ namespace plv
         RefPtr<const IInputPin>  toPin() const;
 
     protected:
-        void connect() throw ( IncompatibleTypeException, DuplicateConnectionException );
+        void connect() throw ( IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException );
 
         /** Disconnect this connection from its pins
           * this makes it a "floating" connection that can safely be removed.

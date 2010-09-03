@@ -170,7 +170,7 @@ const Pipeline::PipelineConnectionsList& Pipeline::getConnections() const
 }
 
 void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
-        throw (IncompatibleTypeException, DuplicateConnectionException)
+        throw (IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException)
 {
     QMutexLocker lock( &m_pipelineMutex );
 
