@@ -48,7 +48,7 @@ namespace plvgui
 
         PinWidget* getSource() { return source; }
 
-        /** returns the type of this event, for use in handilng switches */
+        /** returns the type of this event, for use in handling switches */
         static QEvent::Type user_type() {return QEvent::Type(getPinClickedEventType());}
 
     private:
