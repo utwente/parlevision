@@ -44,6 +44,8 @@ PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
         m_pipeline(pipeline),
         line(0)
 {
+    assert( pipeline != 0 );
+
     // add renderers for all elements in the pipeline
     const Pipeline::PipelineElementMap& elements = pipeline->getChildren();
 
@@ -137,6 +139,19 @@ void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
 
 void PipelineScene::deleteSelected()
 {
+    if( m_pipeline->isRunning() )
+    {
+        QString msg = "You are not allowed to edit the pipeline while it is running.";
+        MainWindow* mw = getMainWindow();
+
+        if(mw)
+            mw->handleMessage(QtWarningMsg, msg );
+        else
+            qCritical() << msg;
+
+        return;
+    }
+
     foreach(QGraphicsItem* selectedItem, this->selectedItems())
     {
         ConnectionLine* connectionLine = dynamic_cast<ConnectionLine*> (selectedItem);
@@ -206,8 +221,6 @@ void PipelineScene::handleRemove(plv::RefPtr<plv::PinConnection> c)
     }
 }
 
-
-
 PipelineElementWidget* PipelineScene::getWidgetFor(PipelineElement* e) const
 {
     return elementWidgets[e];
@@ -223,12 +236,12 @@ ConnectionLine* PipelineScene::getWidgetFor(PinConnection* c) const
     return connectionLines[c];
 }
 
-
-
 bool PipelineScene::event(QEvent* event)
 {
-//    qDebug() << "Scene got event " << event << " ut=" << PinClickedEvent::user_type();
-//    return QObject::event(event);
+    qDebug() << "Scene got event " << event << " ut=" << PinClickedEvent::user_type();
+    // return QObject::event(event);
+    assert( m_pipeline != 0 );
+
     if(event->type() == PinClickedEvent::user_type())
     {
         PinClickedEvent* pce = static_cast<PinClickedEvent*>(event);
@@ -308,6 +321,12 @@ void PipelineScene::clearLine()
 void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* target)
            throw (NonFatalException)
 {
+    if( m_pipeline->isRunning() )
+    {
+        throw NonFatalException( "Cannot make new connections while pipeline is "
+                                 "running. Stop the pipeline first. ");
+    }
+
     RefPtr<IOutputPin> fromPin = ref_ptr_dynamic_cast<IOutputPin>(source->getPin());
 
     if(fromPin.isNull())
@@ -355,7 +374,19 @@ void PipelineScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 
 void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
 {
-    if(event->mimeData()->hasFormat("x-plv-element-name"))
+    assert( m_pipeline != 0 );
+
+    if( m_pipeline->isRunning() )
+    {
+        QString msg = "You are not allowed to edit the pipeline while it is running.";
+        MainWindow* mw = getMainWindow();
+
+        if(mw)
+            mw->handleMessage(QtWarningMsg, msg );
+        else
+            qCritical() << msg;
+    }
+    else if(event->mimeData()->hasFormat("x-plv-element-name"))
     {
     //    qDebug() << event->mimeData()->data("x-plv-element-name");
         QString elementName = QString(event->mimeData()->data("x-plv-element-name"));
@@ -370,10 +401,7 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
         pe->setProperty("sceneCoordX", event->scenePos().x());
         pe->setProperty("sceneCoordY", event->scenePos().y());
 
-        if(m_pipeline.isNotNull())
-        {
-            m_pipeline->addElement( pe );
-        }
+        m_pipeline->addElement( pe );
     }
 }
 
