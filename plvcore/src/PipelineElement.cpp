@@ -237,31 +237,18 @@ bool PipelineElement::dataAvailableOnRequiredPins() const
 
 bool PipelineElement::__isReadyForProcessing() const
 {
-    // see if pins are connected, data is available and the
-    // processor is ready for processing
-    // TODO these function can be collapsed into one
-    // as possible speed optimization
-    if( !requiredPinsConnected() )
-    {
-        // not ready to process, throw flush data on incomming connections
-        QMutexLocker lock( &m_pleMutex );
-        for( InputPinMap::const_iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end(); ++itr )
-        {
-            RefPtr<IInputPin> in = itr->second;
-            if( in->isConnected() && in->hasData() )
-            {
-                in->flush();
-            }
-        }
-        return false;
-    }
+    assert( requiredPinsConnected() );
 
+    // see if data is available and the processor is ready for processing
     return( dataAvailableOnRequiredPins() && isReadyForProcessing() );
 }
 
 void PipelineElement::__process()
 {
+    assert( requiredPinsConnected() );
+    assert( dataAvailableOnRequiredPins() );
+    assert( isReadyForProcessing() );
+
     QMutexLocker lock( &m_pleMutex );
 
     // prepares stack to receive objects

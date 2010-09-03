@@ -157,39 +157,7 @@ void Pipeline::removeAllElements()
     m_children.clear();
 }
 
-void Pipeline::removeConnectionsForElement( PipelineElement* element )
-{
-    RefPtr<PipelineElement> ple( element );
 
-    // get a copy of the input pin map
-    PipelineElement::InputPinMap inputPins = ple->getInputPins();
-    for( PipelineElement::InputPinMap::const_iterator itr = inputPins.begin()
-        ; itr!=inputPins.end(); ++itr)
-    {
-        RefPtr<IInputPin> ipp = itr->second;
-        if( ipp->isConnected() )
-        {
-            RefPtr<PinConnection> connection = ipp->getConnection();
-            disconnect( connection.getPtr() );
-        }
-    }
-
-    // get a copy of the output pin map
-    PipelineElement::OutputPinMap outputPins = ple->getOutputPins();
-    for( PipelineElement::OutputPinMap::const_iterator outputPinItr = outputPins.begin()
-        ; outputPinItr!=outputPins.end(); ++outputPinItr)
-    {
-        RefPtr<IOutputPin> opp = outputPinItr->second;
-
-        std::list< RefPtr<PinConnection> > connections = opp->getConnections();
-        for( std::list< RefPtr<PinConnection> >::const_iterator connItr = connections.begin();
-             connItr!= connections.end(); ++connItr )
-        {
-            RefPtr<PinConnection> connection = *connItr;
-            disconnect( connection.getPtr() );
-        }
-    }
-}
 
 const Pipeline::PipelineElementMap& Pipeline::getChildren() const
 {
@@ -211,42 +179,11 @@ void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
     emit( connectionAdded(connection) );
 }
 
-void Pipeline::removeAllConnections()
-{
-    QMutexLocker lock( &m_pipelineMutex );
-
-    assert( !m_running );
-
-    foreach( RefPtr<PinConnection> connection, m_connections )
-    {
-        connection->disconnect();
-        emit( connectionRemoved( connection ) );
-    }
-    m_connections.clear();
-}
-
 void Pipeline::disconnect( PinConnection* connection )
 {
-    if( connection == 0 )
-    {
-        qWarning() << "Ignoring disconnect of null connection";
-        return;
-    }
-    RefPtr<PinConnection> con( connection );
-    con->disconnect();
-
+    assert( connection != 0 );
     QMutexLocker lock( &m_pipelineMutex );
-    for( PipelineConnectionsList::iterator itr = m_connections.begin();
-            itr != m_connections.end(); ++itr )
-    {
-        RefPtr<PinConnection> con2 = *itr;
-        if( con.getPtr() == con2.getPtr() )
-        {
-            m_connections.erase( itr );
-            emit( connectionRemoved( con ) );
-            break;
-        }
-    }
+    threadUnsafeDisconnect( connection );
 }
 
 //bool Pipeline::init()
@@ -285,8 +222,6 @@ void Pipeline::disconnect( PinConnection* connection )
 
 void Pipeline::clear()
 {
-    QMutexLocker lock( &m_pipelineMutex );
-
     assert( !m_running );
 
     // we need to explicitly remove the connections
@@ -298,18 +233,30 @@ void Pipeline::clear()
 
 void Pipeline::start()
 {
-    m_pipelineMutex.lock();
+    QMutexLocker lock( &m_pipelineMutex );
+
+    // check if all required pins of all elements are connected
+    foreach( RefPtr<PipelineElement> element, m_children )
+    {
+        if( !element->requiredPinsConnected() )
+        {
+            QString msg = element->getName() % " required pins are not all connected.";
+            errorOccurred(msg);
+            return;
+        }
+    }
 
     bool error = false;
-
     QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
-    while( itr.hasNext() )
+    QSet<PipelineElement*> started;
+    while( itr.hasNext() && !error )
     {
         itr.next();
         RefPtr<PipelineElement> element = itr.value();
         try
         {
             element->start();
+            started.insert( element.getPtr() );
         }
         catch( PipelineException& e )
         {
@@ -319,20 +266,21 @@ void Pipeline::start()
         }
     }
 
-    // TODO make thread safe
-    // and ensure that pipeline cannot be started twice
-    m_stopRequested = false;
-
-    if( !error )
+    // cleanup after error
+    if( error )
     {
-        // start scheduler
-        m_scheduler->start();
-
-        m_pipelineMutex.unlock();
-
-        // calls run method
-        QThread::start();
+        foreach( PipelineElement* element, started )
+        {
+            element->stop();
+        }
+        return;
     }
+
+    // start scheduler
+    m_scheduler->start();
+
+    // calls run method
+    QThread::start();
 }
 
 void Pipeline::stop()
@@ -367,8 +315,9 @@ void Pipeline::stop()
 void Pipeline::run()
 {
     m_running = true;
-    emit(started());
+    emit( started() );
 
+    m_stopRequested = false;
     while( !m_stopRequested )
     {
         if( !m_scheduler->schedule() )
@@ -377,6 +326,79 @@ void Pipeline::run()
             stop();
         }
     }
-
     m_running = false;
 }
+
+/****************************************************************************/
+/* PRIVATE FUNCTIONS                                                        */
+/****************************************************************************/
+
+// private function, relies on another function
+// to lock mutex
+void Pipeline::removeAllConnections()
+{
+    assert( !m_running );
+
+    foreach( RefPtr<PinConnection> connection, m_connections )
+    {
+        connection->disconnect();
+        emit( connectionRemoved( connection ) );
+    }
+    m_connections.clear();
+}
+
+void Pipeline::threadUnsafeDisconnect( PinConnection* connection )
+{
+    RefPtr<PinConnection> con( connection );
+    con->disconnect();
+
+    PipelineConnectionsList::iterator itr;
+    for(itr = m_connections.begin();
+        itr != m_connections.end(); ++itr)
+    {
+        RefPtr<PinConnection> con2 = *itr;
+        if(con.getPtr() == con2.getPtr())
+        {
+            m_connections.erase(itr);
+            emit( connectionRemoved(con) );
+            break;
+        }
+    }
+}
+
+// private function, relies on another function
+// to lock mutex
+void Pipeline::removeConnectionsForElement( PipelineElement* element )
+{
+    RefPtr<PipelineElement> ple( element );
+
+    // get a copy of the input pin map
+    PipelineElement::InputPinMap inputPins = ple->getInputPins();
+    for( PipelineElement::InputPinMap::const_iterator itr = inputPins.begin()
+        ; itr!=inputPins.end(); ++itr)
+    {
+        RefPtr<IInputPin> ipp = itr->second;
+        if( ipp->isConnected() )
+        {
+            RefPtr<PinConnection> connection = ipp->getConnection();
+            threadUnsafeDisconnect( connection.getPtr() );
+        }
+    }
+
+    // get a copy of the output pin map
+    PipelineElement::OutputPinMap outputPins = ple->getOutputPins();
+    for( PipelineElement::OutputPinMap::const_iterator outputPinItr = outputPins.begin()
+        ; outputPinItr!=outputPins.end(); ++outputPinItr)
+    {
+        RefPtr<IOutputPin> opp = outputPinItr->second;
+
+        std::list< RefPtr<PinConnection> > connections = opp->getConnections();
+        for( std::list< RefPtr<PinConnection> >::const_iterator connItr = connections.begin();
+             connItr!= connections.end(); ++connItr )
+        {
+            RefPtr<PinConnection> connection = *connItr;
+            threadUnsafeDisconnect( connection.getPtr() );
+        }
+    }
+}
+
