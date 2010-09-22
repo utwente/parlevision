@@ -28,15 +28,11 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME1 "input 1"
-#define INPUT_PIN_NAME2 "input 2"
-#define OUTPUT_PIN_NAME "output"
-
 Diff::Diff()
 {
-    m_inputPin1 = createInputPin<OpenCVImage>( INPUT_PIN_NAME1, this );
-    m_inputPin2 = createInputPin<OpenCVImage>( INPUT_PIN_NAME2, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin1 = createInputPin<OpenCVImage>( "input 1", this );
+    m_inputPin2 = createInputPin<OpenCVImage>( "input 2", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 Diff::~Diff()
@@ -47,17 +43,16 @@ void Diff::init() throw (PipelineException)
 {
 }
 
+void Diff::deinit() throw ()
+{
+}
+
 void Diff::start() throw (PipelineException)
 {
 }
 
 void Diff::stop() throw (PipelineException)
 {
-}
-
-bool Diff::isReadyForProcessing() const
-{
-    return (m_inputPin1->hasData() && m_inputPin2->hasData());
 }
 
 void Diff::process()

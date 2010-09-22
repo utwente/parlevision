@@ -44,19 +44,14 @@ namespace plv
 
         Q_PROPERTY( int steps READ getSteps WRITE setSteps NOTIFY stepsChanged )
 
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
+
     public:
         static const int MAX_STEPS = 1000;
 
         DelayImage();
         ~DelayImage();
-
-        virtual void init() throw (PipelineException);
-        /** override: every start, the buffer must be cleared */
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
 
         /** propery methods */
         int getSteps() { return m_steps; }

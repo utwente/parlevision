@@ -57,8 +57,8 @@ PipelineElement::PipelineElement(const PipelineElement &other)
 {
 }
 
-void PipelineElement::setPipeline( Pipeline* parent )
-{
+//void PipelineElement::setPipeline( Pipeline* parent )
+//{
 //    QMutexLocker lock( &m_pleMutex );
 
 //    if( m_parent.getPtr() == parent )
@@ -75,7 +75,7 @@ void PipelineElement::setPipeline( Pipeline* parent )
 //    }
 
 //    m_parent = parent;
-}
+//}
 
 void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentException)
 {
@@ -240,14 +240,17 @@ bool PipelineElement::__isReadyForProcessing() const
     assert( requiredPinsConnected() );
 
     // see if data is available and the processor is ready for processing
-    return( dataAvailableOnRequiredPins() && isReadyForProcessing() );
+    if( dataAvailableOnRequiredPins() )
+    {
+        return isReadyForProcessing();
+    }
+    return false;
 }
 
 void PipelineElement::__process()
 {
     assert( requiredPinsConnected() );
     assert( dataAvailableOnRequiredPins() );
-    assert( isReadyForProcessing() );
 
     QMutexLocker lock( &m_pleMutex );
 

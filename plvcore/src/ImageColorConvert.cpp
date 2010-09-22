@@ -124,15 +124,12 @@ CV_HLS2BGR
 CV_HLS2RGB
 */
 
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
-
 #define PLV_ENUM_ADD( plvEnum, type ) plvEnum.add( #type, type )
 
 ImageColorConvert::ImageColorConvert()
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 
     // first one added is default
     PLV_ENUM_ADD( m_conversionType, CV_RGB2GRAY );
@@ -147,18 +144,16 @@ void ImageColorConvert::init() throw (PipelineException)
 {
 }
 
+void ImageColorConvert::deinit() throw ()
+{
+}
+
 void ImageColorConvert::start() throw (PipelineException)
 {
 }
 
 void ImageColorConvert::stop() throw (PipelineException)
 {
-}
-
-
-bool ImageColorConvert::isReadyForProcessing() const
-{
-    return m_inputPin->hasData();
 }
 
 void ImageColorConvert::process()

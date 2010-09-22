@@ -41,23 +41,15 @@ namespace plv
         Q_CLASSINFO("name", "AbsDiff(A, B)")
         Q_CLASSINFO("description", "Calculate absolute difference of two images.");
 
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
     public:
         Diff();
         ~Diff();
-
-        virtual void init() throw (PipelineException);
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
-
     private:
         InputPin<OpenCVImage>* m_inputPin1;
         InputPin<OpenCVImage>* m_inputPin2;
         OutputPin<OpenCVImage>* m_outputPin;
-
-
     };
 }
 #endif // DIFF_H

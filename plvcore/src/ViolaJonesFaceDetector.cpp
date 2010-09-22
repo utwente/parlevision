@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QFile>
 
 #include "ViolaJonesFaceDetector.h"
 #include "Pin.h"
@@ -7,24 +8,63 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
-
 ViolaJonesFaceDetector::ViolaJonesFaceDetector() :
         m_minNeighbours(3),
         m_scaleFactor(1.1),
         m_useCannyPruning(true),
         m_minWidth(20),
         m_minHeight(20),
+        //TODO this should be stored somewhere else maybe?
         m_haarCascadeFile( "C://OpenCV2.0/data/haarcascades/haarcascade_frontalface_alt.xml" ),
         m_pCascade( 0 ),
         m_pStorage( 0 )
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 ViolaJonesFaceDetector::~ViolaJonesFaceDetector()
+{
+    deinit();
+}
+
+void ViolaJonesFaceDetector::init() throw (PipelineException)
+{
+    // should not be initialized yet
+    assert( m_pStorage == 0 );
+    assert( m_pCascade == 0 );
+
+
+    // we expect this to always succeed
+    m_pStorage = cvCreateMemStorage(0);
+    if( m_pStorage == 0 )
+    {
+        throw PipelineException( "Failed to allocate temporary storage in OpenCV for "
+                                 "Viola Jones Facedetector processor");
+    }
+
+    QFile file( m_haarCascadeFile );
+    if( !file.exists() )
+    {
+        throw PipelineException( "Failed to load haar cascade file " +
+                                 m_haarCascadeFile + ". File does not exist." );
+    }
+    if( !file.isReadable() )
+    {
+        throw PipelineException( "Failed to load haar cascade file " +
+                                 m_haarCascadeFile + ". File is not readable." );
+    }
+    void* cascade = cvLoad( m_haarCascadeFile.toAscii(),0,0,0 );
+    if( cascade == 0 )
+    {
+
+        throw PipelineException( "Failed to load haar cascade file "
+                                 + m_haarCascadeFile );
+    }
+    m_pCascade = (CvHaarClassifierCascade*) cascade;
+}
+
+void ViolaJonesFaceDetector::deinit() throw()
 {
     if (m_pCascade != 0)
         cvReleaseHaarClassifierCascade(&m_pCascade);
@@ -33,40 +73,12 @@ ViolaJonesFaceDetector::~ViolaJonesFaceDetector()
         cvReleaseMemStorage(&m_pStorage);
 }
 
-void ViolaJonesFaceDetector::init() throw (PipelineException)
-{
-    // we expect this to always succeed
-    m_pStorage = cvCreateMemStorage(0);
-    if( m_pStorage == 0 )
-    {
-        throw PipelineException( "Failed to allocate temporary storage in OpenCV for "
-                                 "Viola Jones Facedetector processor");
-    }
-}
-
 void ViolaJonesFaceDetector::start() throw (PipelineException)
 {
-    if( m_pCascade == 0 )
-    {
-        void* cascade = cvLoad( m_haarCascadeFile.toAscii(),0,0,0 );
-        if( cascade == 0 )
-            throw PipelineException( "Failed to load haar cascade file " + m_haarCascadeFile );
-
-        m_pCascade = (CvHaarClassifierCascade*) cascade;
-    }
 }
 
 void ViolaJonesFaceDetector::stop() throw (PipelineException)
 {
-    if (m_pCascade != 0)
-        cvReleaseHaarClassifierCascade(&m_pCascade);
-
-    m_pCascade = 0;
-}
-
-bool ViolaJonesFaceDetector::isReadyForProcessing() const
-{
-    return m_inputPin->hasData() && m_pCascade!=0 && m_pStorage!=0;
 }
 
 void ViolaJonesFaceDetector::process()

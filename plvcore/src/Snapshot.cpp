@@ -28,14 +28,11 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
-
 Snapshot::Snapshot() :
         m_makeSnapshot(true)
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 Snapshot::~Snapshot()
@@ -44,23 +41,18 @@ Snapshot::~Snapshot()
 
 void Snapshot::init() throw (PipelineException)
 {
-    m_imgSnapshot = RefPtr<OpenCVImage>();
+}
+
+void Snapshot::deinit() throw ()
+{
 }
 
 void Snapshot::start() throw (PipelineException)
 {
-    m_imgSnapshot = RefPtr<OpenCVImage>();
 }
 
 void Snapshot::stop() throw (PipelineException)
 {
-    m_imgSnapshot = RefPtr<OpenCVImage>();
-}
-
-
-bool Snapshot::isReadyForProcessing() const
-{
-    return m_inputPin->hasData();
 }
 
 void Snapshot::process()

@@ -32,6 +32,15 @@
 #include "RefPtr.h"
 #include "PlvExceptions.h"
 
+/** Utility macro for implemented pure abstract methods in sub classes */
+#define PLV_PIPELINE_ELEMENT \
+public: \
+    virtual void init() throw (PipelineException); \
+    virtual void deinit() throw (); \
+    virtual void start() throw (PipelineException); \
+    virtual void stop() throw (PipelineException); \
+    virtual void process();
+
 namespace plv
 {
     class IInputPin;
@@ -76,22 +85,23 @@ namespace plv
         PipelineElement( const PipelineElement& other );
         virtual ~PipelineElement();
 
-        /** Initialise the element so it is ready to receive
-          * process() calls.
-          * This will only be called once by the pipeline
-          * and allows for late initialization.
+        /** Initialise the element so it is ready to receive process() calls.
+          * This will only be called once by the pipeline and allows for late
+          * initialization. It however can be called again after a call to deinit()
+          * Note: when this method throws an exception, deinit() is called right after.
           */
         virtual void init() throw (PipelineException) = 0;
 
-        /** Start() and stop() are called when the pipeline
-          * is started and stopped by the user.
-          * This is useful for opening required input devices,
-          * starting threads etc.
-          * You must expect that a start() call
-          * may occur again after every stop().
+        /** Deinitalizes an element and frees resources. This method is not
+          * allowed to throw an exception. It is called on PipelineElement
+          * destruction and directly after init() throws an exception.
           */
-        //virtual void start() throw (PipelineException) {}
-        //virtual void stop() throw (PipelineException) {}
+        virtual void deinit() throw() = 0;
+
+        /** Start() and stop() are called when the pipeline is started and stopped
+          * by the user. This is useful for opening required input devices,
+          * starting threads etc. A start() call may occur again after every stop().
+          */
         virtual void start() throw (PipelineException) = 0;
         virtual void stop() throw (PipelineException) = 0;
 
@@ -107,15 +117,6 @@ namespace plv
           * connected by a normal processor connection.
           */
         virtual bool isReadyForProcessing() const = 0;
-
-        /** @returns true when bootstrapping of this processor is complete.
-          * Some pipelines need to be bootstrapped before they generate valid output.
-          * For example, a processor which calculates the history over 5 consecutive
-          * frames needs to have seen at least 5 frames for its output to be valid.
-          * This method should return true when the requirements which are needed
-          * for valid output have been met.
-          */
-        //virtual bool isBootstrapped() const = 0;
 
         /** @returns true when input pins which are required by this processor to
           * be connected are connected. */
@@ -246,7 +247,7 @@ namespace plv
          * Handles removing ourself from any previous pipeline we were part of
          * and sets m_parent to the new pipeline
          */
-        virtual void setPipeline(Pipeline* parent);
+        //virtual void setPipeline(Pipeline* parent);
 
         bool __init() throw (PipelineException);
 

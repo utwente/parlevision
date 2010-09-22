@@ -40,18 +40,12 @@ namespace plv {
 
         Q_PROPERTY( bool makeSnapshot READ getMakeSnapshot WRITE setMakeSnapshot NOTIFY makeSnapshotChanged  )
 
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
 
     public:
         Snapshot();
         ~Snapshot();
-
-        virtual void init() throw (PipelineException);
-        /** every start, a new snapshot must be enforced */
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
 
         /** propery methods */
         bool getMakeSnapshot() { return m_makeSnapshot; }

@@ -28,10 +28,6 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
-
-
 #define PLV_ENUM_ADD( plvEnum, type ) plvEnum.add( #type, type )
 
 ImageSmooth::ImageSmooth() :
@@ -40,8 +36,8 @@ ImageSmooth::ImageSmooth() :
         m_three(0.0),
         m_four(0.0)
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 
     PLV_ENUM_ADD( m_method, CV_BLUR_NO_SCALE );
     PLV_ENUM_ADD( m_method, CV_BLUR );
@@ -59,17 +55,16 @@ void ImageSmooth::init() throw (PipelineException)
 {
 }
 
+void ImageSmooth::deinit() throw ()
+{
+}
+
 void ImageSmooth::start() throw (PipelineException)
 {
 }
 
 void ImageSmooth::stop() throw (PipelineException)
 {
-}
-
-bool ImageSmooth::isReadyForProcessing() const
-{
-    return m_inputPin->hasData();
 }
 
 void ImageSmooth::process()

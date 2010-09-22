@@ -40,16 +40,12 @@ namespace plv {
 
         Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
 
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
+
     public:
         EdgeDetectorLaplace();
         ~EdgeDetectorLaplace();
-
-        virtual void init() throw (PipelineException);
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
 
         /** propery methods */
         int getApertureSize() { return m_apertureSize; }

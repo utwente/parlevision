@@ -28,16 +28,13 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
-
 ImageFlip::ImageFlip() :
         m_flipX(true),
         m_flipY(true),
         m_method(-1)
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 ImageFlip::~ImageFlip()
@@ -48,17 +45,16 @@ void ImageFlip::init() throw (PipelineException)
 {
 }
 
+void ImageFlip::deinit() throw ()
+{
+}
+
 void ImageFlip::start() throw (PipelineException)
 {
 }
 
 void ImageFlip::stop() throw (PipelineException)
 {
-}
-
-bool ImageFlip::isReadyForProcessing() const
-{
-    return m_inputPin->hasData();
 }
 
 void ImageFlip::process()

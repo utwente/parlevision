@@ -28,14 +28,11 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
-
 EdgeDetectorLaplace::EdgeDetectorLaplace() :
         m_apertureSize(3)
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 EdgeDetectorLaplace::~EdgeDetectorLaplace()
@@ -46,17 +43,16 @@ void EdgeDetectorLaplace::init() throw (PipelineException)
 {
 }
 
+void EdgeDetectorLaplace::deinit() throw ()
+{
+}
+
 void EdgeDetectorLaplace::start() throw (PipelineException)
 {
 }
 
 void EdgeDetectorLaplace::stop() throw (PipelineException)
 {
-}
-
-bool EdgeDetectorLaplace::isReadyForProcessing() const
-{
-    return m_inputPin->hasData();
 }
 
 void EdgeDetectorLaplace::process()
@@ -86,7 +82,7 @@ void EdgeDetectorLaplace::process()
 
     //FIXME: it seems that this is a openCV2.0 function; the 2.1 function looks different
     //see http://opencv.willowgarage.com/documentation/cpp/image_filtering.html
-    cvLaplace( iplImg1, tmpImg, this->m_apertureSize);
+    cvLaplace( iplImg1, tmpImg, this->m_apertureSize );
 
     // scale back to output format
     IplImage* iplImg2 = img2->getImageForWriting();

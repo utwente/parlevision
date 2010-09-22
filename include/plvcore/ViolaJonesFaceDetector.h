@@ -26,18 +26,13 @@ namespace plv {
         Q_PROPERTY( int minHeight READ getMinHeight WRITE setMinHeight NOTIFY minHeightChanged )
         Q_PROPERTY( QString haarCascadeFile READ getHaarCascadeFile WRITE setHaarCascadeFile NOTIFY haarCascadeFileChanged )
 
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
+
 
     public:
-
         ViolaJonesFaceDetector();
         ~ViolaJonesFaceDetector();
-
-        virtual void init() throw (PipelineException);
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
 
         /** propery methods */
         int getMinNeighbours() { return m_minNeighbours; }
@@ -46,7 +41,6 @@ namespace plv {
         int getMinWidth() { return m_minWidth; }
         int getMinHeight() { return m_minHeight; }
         QString getHaarCascadeFile() { return m_haarCascadeFile; }
-
 
     signals:
         void minNeighboursChanged(int newValue);

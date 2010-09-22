@@ -28,14 +28,11 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
-
 EdgeDetectorSobel::EdgeDetectorSobel():
         m_apertureSize(3)
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 EdgeDetectorSobel::~EdgeDetectorSobel()
@@ -46,17 +43,16 @@ void EdgeDetectorSobel::init() throw (PipelineException)
 {
 }
 
+void EdgeDetectorSobel::deinit() throw ()
+{
+}
+
 void EdgeDetectorSobel::start() throw (PipelineException)
 {
 }
 
 void EdgeDetectorSobel::stop() throw (PipelineException)
 {
-}
-
-bool EdgeDetectorSobel::isReadyForProcessing() const
-{
-    return m_inputPin->hasData();
 }
 
 void EdgeDetectorSobel::process()

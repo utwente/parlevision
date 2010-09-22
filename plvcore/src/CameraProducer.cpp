@@ -90,6 +90,10 @@ void CameraProducer::init() throw (PipelineException)
 {
 }
 
+void CameraProducer::deinit() throw()
+{
+}
+
 void CameraProducer::start() throw (PipelineException)
 {
     if( !m_camera->init() )
@@ -98,33 +102,13 @@ void CameraProducer::start() throw (PipelineException)
     }
 
     m_camera->setDimensions( 640, 480 );
-
-    m_frameMutex.lock();
-
     m_camera->start();
-
-    // Block until we receive the first frame from the camera,
-    // indicating it has finished starting up.
-    // this will let this thread wait on the event
-    // and unlocks the mutex so no deadlock is created
-    //m_frameReady.wait(&m_frameMutex);
-
-    // we have woken up
-    // mutex was relocked by the condition
-    // unlock it here
-    m_frameMutex.unlock();
 }
 
 void CameraProducer::stop() throw (PipelineException)
 {
     m_camera->release();
 }
-
-//bool CameraProducer::isBootstrapped() const
-//{
-//    // TODO
-//    return true;
-//}
 
 bool CameraProducer::isReadyForProcessing() const
 {

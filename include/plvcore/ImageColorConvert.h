@@ -32,19 +32,14 @@ namespace plv {
     class ImageColorConvert : public PipelineProcessor
     {
         Q_OBJECT
-        //Q_PROPERTY( int conversionType READ getConversionType WRITE setConversionType NOTIFY conversionType )
         Q_PROPERTY( plv::Enum conversionType READ getConversionType WRITE setConversionType NOTIFY conversionTypeChanged )
+
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
 
     public:
         ImageColorConvert();
         ~ImageColorConvert();
-
-        virtual void init() throw (PipelineException);
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
 
         /** propery methods */
         plv::Enum getConversionType() { return m_conversionType; }

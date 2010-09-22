@@ -47,23 +47,30 @@ namespace plv
         friend class Pipeline;
     public:
         PinConnection( IOutputPin* producer, IInputPin* consumer )
-                throw ( IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException );
+                throw ( IllegalConnectionException,
+                        IncompatibleTypeException,
+                        DuplicateConnectionException );
         ~PinConnection();
 
         bool hasData();
         int size();
         inline ConnectionType getType();
         RefPtr<Data> get() throw ( PipelineException );
-        void put( RefPtr<Data> data );
+        void put( Data* data );
 
-        /** Throw away any data in this connection.
-          */
+        /** Throw away all data in this connection. */
         void flush();
-        RefPtr<const IOutputPin> fromPin() const;
-        RefPtr<const IInputPin>  toPin() const;
+
+        /** @return the output pin which provides the input to this connection */
+        const IOutputPin* fromPin() const;
+
+        /** @return the input pin which provides output from connection */
+        const IInputPin*  toPin() const;
 
     protected:
-        void connect() throw ( IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException );
+        void connect() throw ( IllegalConnectionException,
+                               IncompatibleTypeException,
+                               DuplicateConnectionException );
 
         /** Disconnect this connection from its pins
           * this makes it a "floating" connection that can safely be removed.
@@ -73,11 +80,11 @@ namespace plv
           */
         void disconnect();
 
-        RefPtr<IOutputPin> m_producer;
-        RefPtr<IInputPin>  m_consumer;
+        IOutputPin* m_producer;
+        IInputPin*  m_consumer;
         std::queue< RefPtr<Data> > m_queue;
         ConnectionType m_type;
-        QMutex m_mutex;
+        QMutex m_connectionMutex;
     };
 }
 

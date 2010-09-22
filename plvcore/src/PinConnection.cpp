@@ -34,8 +34,8 @@ PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer )
         m_consumer( consumer ),
         m_type( LOSSLESS )
 {
-    assert(m_consumer.isNotNull());
-    assert(m_producer.isNotNull());
+    assert(m_consumer != 0);
+    assert(m_producer != 0);
 
     connect();
 }
@@ -44,17 +44,14 @@ PinConnection::~PinConnection()
 {
     // on deletion there should not be a connection left
     // disconnection should be called before deletion
-    assert( m_consumer.isNull() );
-    assert( m_producer.isNull() );
+    assert(m_consumer == 0);
+    assert(m_producer == 0);
 }
 
 void PinConnection::connect()
         throw (IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException)
 {
-    QMutexLocker lock( &m_mutex );
-
-    assert(m_consumer.isNotNull());
-    assert(m_producer.isNotNull());
+    QMutexLocker lock( &m_connectionMutex );
 
     if( m_consumer->getOwner() == m_producer->getOwner() )
         throw IllegalConnectionException( "It is not allowed to connect " +
@@ -82,16 +79,14 @@ void PinConnection::connect()
 
         throw IncompatibleTypeException( errStr );
     }
-
     m_producer->addConnection(this);
-
     m_consumer->setConnection(this);
     assert( m_consumer->isConnected() );
 }
 
 void PinConnection::flush()
 {
-    QMutexLocker lock(&m_mutex);
+    QMutexLocker lock(&m_connectionMutex);
     // clear queue
     while (!m_queue.empty())
     {
@@ -101,15 +96,15 @@ void PinConnection::flush()
 
 void PinConnection::disconnect()
 {
-    QMutexLocker lock( &m_mutex );
+    QMutexLocker lock( &m_connectionMutex );
 
     // remove connections
     m_producer->removeConnection( this );
     m_consumer->removeConnection();
 
-    // clear and free producer and consumer
-    m_producer.set( 0 );
-    m_consumer.set( 0 );
+    // clear producer and consumer
+    m_producer = 0;
+    m_consumer = 0;
 
     // clear queue
     while (!m_queue.empty())
@@ -120,22 +115,23 @@ void PinConnection::disconnect()
 
 bool PinConnection::hasData()
 {
-    QMutexLocker lock( &m_mutex );
+    QMutexLocker lock( &m_connectionMutex );
     return !m_queue.empty();
 }
 
 int PinConnection::size()
 {
-    QMutexLocker lock( &m_mutex );
+    QMutexLocker lock( &m_connectionMutex );
     return static_cast<int>( m_queue.size() );
 }
 
 RefPtr<Data> PinConnection::get() throw ( PipelineException )
 {
-    QMutexLocker lock( &m_mutex );
+    QMutexLocker lock( &m_connectionMutex );
     if( m_queue.empty() )
     {
-        throw PipelineException( "Illegal: method get() called on PinConnection which has no data available" );
+        throw PipelineException( "Illegal: method get() called on PinConnection "
+                                 "which has no data available" );
     }
 
     RefPtr<Data> data = m_queue.front();
@@ -143,18 +139,18 @@ RefPtr<Data> PinConnection::get() throw ( PipelineException )
     return data;
 }
 
-void PinConnection::put( RefPtr<Data> data )
+void PinConnection::put( Data* data )
 {
-    QMutexLocker lock( &m_mutex );
+    QMutexLocker lock( &m_connectionMutex );
     m_queue.push( data );
 }
 
-RefPtr<const IOutputPin> PinConnection::fromPin() const
+const IOutputPin* PinConnection::fromPin() const
 {
-    return RefPtr<const IOutputPin>(m_producer);
+    return m_producer;
 }
 
-RefPtr<const IInputPin>  PinConnection::toPin() const
+const IInputPin*  PinConnection::toPin() const
 {
-    return RefPtr<const IInputPin>(m_consumer);
+    return m_consumer;
 }

@@ -25,7 +25,8 @@
 #include "PipelineProcessor.h"
 #include "Pin.h"
 
-namespace plv {
+namespace plv
+{
     class Pipeline;
     class OpenCVImage;
 
@@ -48,16 +49,12 @@ namespace plv {
         Q_PROPERTY( double three READ getThree WRITE setThree NOTIFY threeChanged )
         Q_PROPERTY( double four READ getFour WRITE setFour NOTIFY fourChanged )
 
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
+
     public:
         ImageSmooth();
         ~ImageSmooth();
-
-        virtual void init() throw (PipelineException);
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
 
         /** propery methods */
         plv::Enum getMethod() const { return m_method; }

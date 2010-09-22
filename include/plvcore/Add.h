@@ -36,23 +36,17 @@ namespace plv
     class Add : public PipelineProcessor
     {
         Q_OBJECT
-
         Q_CLASSINFO("author", "Ported from old version by Dennis")
         Q_CLASSINFO("name", "A add B")
         Q_CLASSINFO("description", "A simple processor to add two images. Optionally, the result is normalized.");
-
         Q_PROPERTY( bool normalizeAfterAdd READ getNormalizeAfterAdd WRITE setNormalizeAfterAdd NOTIFY normalizeAfterAddChanged  )
+
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
 
     public:
         Add();
         ~Add();
-
-        virtual void init() throw (PipelineException);
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
 
         /** propery methods */
         bool getNormalizeAfterAdd() { return m_normalize; }

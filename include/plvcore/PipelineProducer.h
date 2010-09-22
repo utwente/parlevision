@@ -26,14 +26,18 @@
 #include "RefPtr.h"
 #include "PipelineElement.h"
 
-namespace plv {
-
+namespace plv
+{
     class PipelineProducer : public PipelineElement
     {
     public:
         PipelineProducer();
         virtual ~PipelineProducer();
-        PipelineProducer(const PipelineProducer&);
+
+        /** inherited from PipelineElement.
+          * returns true if producer has new output available
+          */
+        virtual bool isReadyForProcessing() const = 0;
     };
 
 }

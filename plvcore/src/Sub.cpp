@@ -43,17 +43,16 @@ void Sub::init() throw (PipelineException)
 {
 }
 
+void Sub::deinit() throw ()
+{
+}
+
 void Sub::start() throw (PipelineException)
 {
 }
 
 void Sub::stop() throw (PipelineException)
 {
-}
-
-bool Sub::isReadyForProcessing() const
-{
-    return (m_inputPin1->hasData() && m_inputPin2->hasData());
 }
 
 void Sub::process()

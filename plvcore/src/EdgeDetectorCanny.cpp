@@ -28,10 +28,6 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
-
-
 //FIXME:
 //why do we need to do all this complicated conversion up and down in process()? Better to just do a simple Canny,
 //but refuse to process (i.e., throw away all frames) when input is not proper grayscale.
@@ -41,8 +37,8 @@ EdgeDetectorCanny::EdgeDetectorCanny() :
         m_thresholdLow(0.1),
         m_thresholdHigh(1.0)
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 EdgeDetectorCanny::~EdgeDetectorCanny()
@@ -53,17 +49,16 @@ void EdgeDetectorCanny::init() throw (PipelineException)
 {
 }
 
+void EdgeDetectorCanny::deinit() throw ()
+{
+}
+
 void EdgeDetectorCanny::start() throw (PipelineException)
 {
 }
 
 void EdgeDetectorCanny::stop() throw (PipelineException)
 {
-}
-
-bool EdgeDetectorCanny::isReadyForProcessing() const
-{
-    return m_inputPin->hasData();
 }
 
 void EdgeDetectorCanny::process()

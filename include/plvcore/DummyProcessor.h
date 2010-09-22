@@ -22,21 +22,18 @@
 #ifndef DUMMYPROCESSOR_H
 #define DUMMYPROCESSOR_H
 
-#include <QVariant>
-
 #include "PipelineProcessor.h"
 #include "Pin.h"
 #include "Types.h"
 
-namespace plv {
-
+namespace plv
+{
     class Pipeline;
     class OpenCVImage;
 
     class DummyProcessor : public PipelineProcessor
     {
         Q_OBJECT
-
         Q_CLASSINFO("author", "Michel & Richard")
         Q_CLASSINFO("name", "Dummy")
         Q_CLASSINFO("description", "A simple processor to demonstrate how to implement your own processors. "
@@ -50,37 +47,19 @@ namespace plv {
         Q_PROPERTY( int someVarWithNr2 READ getSomeVarWithNr2 WRITE setSomeVarWithNr2 NOTIFY someVarWithNr2Changed )
         Q_PROPERTY( plv::Enum customEnum READ getCustomEnum WRITE setCustomEnum NOTIFY customEnumChanged )
 
-    public:
-        plv::Enum getCustomEnum() const { return m_customEnum; }
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
 
-    signals:
-        void customEnumChanged( plv::Enum p );
-
-    public slots:
-        void setCustomEnum( plv::Enum c )
-        {
-            m_customEnum = c;
-            emit( customEnumChanged( c ) );
-            qDebug() << c.toString();
-        }
-
-/******************************************************************************************/
     public:
         DummyProcessor();
         ~DummyProcessor();
-
-        virtual void init() throw (PipelineException);
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
 
         /** propery methods */
         int getSomeInt() { return m_someInt; }
         double getSomeDouble() { return m_someDouble; }
         bool getSomeBool() { return m_someBool; }
         QString getSomeString() { return m_someString; }
+        plv::Enum getCustomEnum() const { return m_customEnum; }
 
         int getSomeVarWithNr1() { return m_someVarWithNr1; }
         int getSomeVarWithNr2() { return m_someVarWithNr2; }
@@ -92,6 +71,7 @@ namespace plv {
         void someStringChanged(QString newValue);
         void someVarWithNr1Changed(int var);
         void someVarWithNr2Changed(int var);
+        void customEnumChanged( plv::Enum p );
 
     public slots:
         void setSomeInt(int i) {m_someInt = i; emit(someIntChanged(i));}
@@ -100,6 +80,7 @@ namespace plv {
         void setSomeString(QString s) {m_someString = s; emit(someStringChanged(s));}
         void setSomeVarWithNr1(int var) { m_someVarWithNr1 = var; emit( someVarWithNr1Changed(var) ); }
         void setSomeVarWithNr2(int var) { m_someVarWithNr2 = var; emit( someVarWithNr2Changed(var) ); }
+        void setCustomEnum( plv::Enum c ) { m_customEnum = c; emit( customEnumChanged( c ) ); }
 
     private:
         InputPin<OpenCVImage>*  m_inputPin;

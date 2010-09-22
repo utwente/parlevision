@@ -70,7 +70,6 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
         id = getNewPipelineElementId();
         element->setId( id );
     }
-    element->setPipeline(this);
 
     try
     {
@@ -255,6 +254,7 @@ void Pipeline::start()
         RefPtr<PipelineElement> element = itr.value();
         try
         {
+            element->init();
             element->start();
             started.insert( element.getPtr() );
         }
@@ -272,6 +272,7 @@ void Pipeline::start()
         foreach( PipelineElement* element, started )
         {
             element->stop();
+            element->deinit();
         }
         return;
     }

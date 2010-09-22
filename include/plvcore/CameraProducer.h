@@ -36,25 +36,20 @@ namespace plv {
     {
         Q_OBJECT
 
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
+
     public:
         CameraProducer();
         virtual ~CameraProducer();
         CameraProducer(const CameraProducer&);
 
-        /** inherited by PipelineProducer */
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
+        /** @returns true if a new frame is available */
+        bool isReadyForProcessing() const;
 
-        /** inherited by PipelineElement */
-        virtual void init() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
-
-        RefPtr<OpenCVCamera> getCamera() const { return m_camera; }
+        inline RefPtr<OpenCVCamera> getCamera() const { return m_camera; }
 
     protected:
-
         RefPtr<OpenCVCamera> m_camera;
         RefPtr<OpenCVImage> m_lastFrame;
         RefPtr< OutputPin<OpenCVImage> > m_outputPin;

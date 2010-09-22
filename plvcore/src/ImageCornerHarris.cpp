@@ -28,18 +28,14 @@
 
 using namespace plv;
 
-#define INPUT_PIN_NAME "input"
-#define OUTPUT_PIN_NAME "output"
-
-
 //FIXME: [DR] all properties must be validated
 ImageCornerHarris::ImageCornerHarris() :
         m_apertureSize(3),
         m_blockSize(3),
         m_k(0.04)
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this );
-    m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
+    m_inputPin = createInputPin<OpenCVImage>( "input", this );
+    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 }
 
 ImageCornerHarris::~ImageCornerHarris()
@@ -50,17 +46,16 @@ void ImageCornerHarris::init() throw (PipelineException)
 {
 }
 
+void ImageCornerHarris::deinit() throw ()
+{
+}
+
 void ImageCornerHarris::start() throw (PipelineException)
 {
 }
 
 void ImageCornerHarris::stop() throw (PipelineException)
 {
-}
-
-bool ImageCornerHarris::isReadyForProcessing() const
-{
-    return m_inputPin->hasData();
 }
 
 void ImageCornerHarris::process()

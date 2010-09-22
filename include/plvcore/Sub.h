@@ -41,16 +41,12 @@ namespace plv
         Q_CLASSINFO("name", "A sub B")
         Q_CLASSINFO("description", "A simple processor to subtract two images.");
 
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
+
     public:
         Sub();
         ~Sub();
-
-        virtual void init() throw (PipelineException);
-        virtual void start() throw (PipelineException);
-        virtual void stop() throw (PipelineException);
-        //virtual bool isBootstrapped() const;
-        virtual bool isReadyForProcessing() const;
-        virtual void process();
 
     private:
         InputPin<OpenCVImage>* m_inputPin1;

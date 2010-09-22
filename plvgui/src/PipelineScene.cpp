@@ -123,11 +123,11 @@ void PipelineScene::add(plv::PinConnection* c)
 
 void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
 {
-    RefPtr<const Pin> from = c->fromPin().getPtr();
+    RefPtr<const Pin> from = c->fromPin();
 //    const QString& desc = from->getName();
 //    QGraphicsTextItem* item = this->addText(desc);
-    ConnectionLine* item = new ConnectionLine(getWidgetFor(c->fromPin().getPtr()),
-                                              getWidgetFor(c->toPin().getPtr()),
+    ConnectionLine* item = new ConnectionLine(getWidgetFor(c->fromPin()),
+                                              getWidgetFor(c->toPin()),
                                               c.getPtr(),
                                               0,
                                               this);
@@ -238,7 +238,7 @@ ConnectionLine* PipelineScene::getWidgetFor(PinConnection* c) const
 
 bool PipelineScene::event(QEvent* event)
 {
-    qDebug() << "Scene got event " << event << " ut=" << PinClickedEvent::user_type();
+    // qDebug() << "Scene got event " << event << " ut=" << PinClickedEvent::user_type();
     // return QObject::event(event);
     assert( m_pipeline != 0 );
 
