@@ -25,11 +25,12 @@
 #include <algorithm>
 #include <QtGui>
 
-#include "PipelineElement.h"
+#include <plvcore/PipelineElement.h>
+#include <plvcore/Pin.h>
+#include <plvcore/RefPtr.h>
+
 #include "ConnectionLine.h"
 #include "PinWidget.h"
-#include "Pin.h"
-#include "RefPtr.h"
 
 using namespace plvgui;
 using namespace plv;

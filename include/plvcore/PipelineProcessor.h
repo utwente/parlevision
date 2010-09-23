@@ -26,7 +26,7 @@
 
 namespace plv
 {
-    class PipelineProcessor : public PipelineElement
+    class PLVCORE_EXPORT PipelineProcessor : public PipelineElement
     {
     public:
         PipelineProcessor();

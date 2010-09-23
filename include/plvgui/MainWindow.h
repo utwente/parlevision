@@ -22,32 +22,37 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QSettings>
-#include <QHash>
-#include "PipelineElement.h"
-#include "Pin.h"
-#include "RefPtr.h"
+#include <QtGui/QMainWindow>
+#include <QtCore/QSettings>
+#include <QtCore/QHash>
+
+#include <plvcore/PipelineElement.h>
+#include <plvcore/Pin.h>
+#include <plvcore/RefPtr.h>
 
 class QToolbar;
 class QGraphicsView;
 
-namespace Ui {
+namespace Ui
+{
     class MainWindow;
 }
 
-namespace plv {
+namespace plv
+{
     class Pipeline;
 }
 
-namespace plvgui {
+namespace plvgui
+{
     class LibraryWidget;
     class InspectorWidget;
     class PipelineScene;
     class NonFatalException;
     class FatalError;
 
-    class MainWindow : public QMainWindow {
+    class PLVGUI_EXPORT MainWindow : public QMainWindow
+    {
         Q_OBJECT
     public:
         MainWindow(QWidget* parent = 0);
@@ -125,7 +130,7 @@ namespace plvgui {
 
         void pipelineStarted();
         void pipelineStopped();
-};
+    };
 
 } // namespace plvgui
 

@@ -22,9 +22,10 @@
 #include "CameraConfigFormBuilder.h"
 #include "ui_cameraconfigform.h"
 
-#include "PipelineElement.h"
-#include "CameraProducer.h"
-#include "OpenCVCamera.h"
+#include <plvcore/PipelineElement.h>
+#include <plvcore/CameraProducer.h>
+
+//#include "OpenCVCamera.h"
 
 using namespace plvgui;
 using namespace plv;

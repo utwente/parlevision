@@ -35,7 +35,7 @@ namespace plv
     class IOutputPin;
     class IInputPin;
 
-    class PinConnection : public RefCounted
+    class PLVCORE_EXPORT PinConnection : public RefCounted
     {
         enum ConnectionType {
             LOSSLESS,

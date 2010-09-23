@@ -25,8 +25,8 @@
 #include <QGraphicsObject>
 #include <QString>
 
-#include "RefPtr.h"
-#include "PipelineElement.h"
+#include <plvcore/RefPtr.h>
+#include <plvcore/PipelineElement.h>
 
 class QGraphicsSceneDragDropEvent;
 class QVariant;

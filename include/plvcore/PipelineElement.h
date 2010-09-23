@@ -31,6 +31,7 @@
 
 #include "RefPtr.h"
 #include "PlvExceptions.h"
+#include "plvglobal.h"
 
 /** Utility macro for implemented pure abstract methods in sub classes */
 #define PLV_PIPELINE_ELEMENT \
@@ -48,7 +49,7 @@ namespace plv
     class Pipeline;
     class ScheduleInfo;
 
-    class PipelineElement : public QObject, public RefCounted
+    class PLVCORE_EXPORT PipelineElement : public QObject, public RefCounted
     {
         Q_OBJECT
 
@@ -261,7 +262,7 @@ namespace plv
 
         /**
           * private process function which handles scoping of input and output pins
-          * and class the process() function of the super class.
+          * and calls the process() function of the super class.
           */
         void __process();
     };

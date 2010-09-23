@@ -44,7 +44,8 @@ QMAKE_INFO_PLIST = ../resources/Info.plist
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
 # -Wunused-variable
-INCLUDEPATH +=  ../include/plvcore \
+INCLUDEPATH +=  ../include \
+                ../include/plvcore \
                 ../include/plvgui
                 
 SOURCES += src/main.cpp \

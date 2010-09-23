@@ -24,7 +24,7 @@
 
 #include <QGraphicsLineItem>
 
-#include "RefPtr.h"
+#include <plvcore/RefPtr.h>
 
 using namespace plv;
 

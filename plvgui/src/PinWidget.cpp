@@ -20,9 +20,11 @@
   */
 
 #include "PinWidget.h"
+
 #include <QtGui>
+#include <plvcore/Pin.h>
+
 #include "PipelineElementWidget.h"
-#include "Pin.h"
 #include "PinClickedEvent.h"
 #include "MainWindow.h"
 

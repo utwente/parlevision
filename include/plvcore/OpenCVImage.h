@@ -108,7 +108,6 @@ namespace plv
     class OpenCVImage : public Data
     {
         friend class OpenCVImageFactory;
-        friend class OpenCVImageWriter;
 
     public:
         typedef enum ImageCompare {

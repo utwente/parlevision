@@ -26,6 +26,8 @@
 #include <QMetaType>
 #include <QHash>
 
+#include "plvcore/plvglobal.h"
+
 class QString;
 class QWidget;
 
@@ -44,7 +46,7 @@ namespace plvgui
       * and call plvRegisterConfigFormBuilder<YourElement,YourFormBuilder>("YourFormBuilder");
       * Don't forget to include the Q_OBJECT macro in your subclass!
       */
-    class ElementConfigFormBuilder : public QObject
+    class PLVGUI_EXPORT ElementConfigFormBuilder : public QObject
     {
         Q_OBJECT
 

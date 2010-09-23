@@ -22,17 +22,17 @@
 #include "InspectorWidget.h"
 #include "ui_inspectorwidget.h"
 
+#include "CameraConfigFormBuilder.h"
+#include "ElementConfigFormBuilder.h"
+#include "utils.h"
+
 #include <QtGui>
 #include <list>
 #include <assert.h>
 
-#include "PipelineElement.h"
-#include "Types.h"
-#include "CameraProducer.h"
-#include "utils.h"
-
-#include "CameraConfigFormBuilder.h"
-#include "ElementConfigFormBuilder.h"
+#include <plvcore/PipelineElement.h>
+#include <plvcore/Types.h>
+#include <plvcore/CameraProducer.h>
 
 using namespace plvgui;
 using namespace plv;

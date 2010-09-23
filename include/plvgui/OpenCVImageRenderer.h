@@ -25,11 +25,11 @@
 #include <QMutex>
 #include <QLabel>
 
-#include "OpenCVImage.h"
-#include "RefPtr.h"
+#include <plvcore/OpenCVImage.h>
+#include <plvcore/RefPtr.h>
+
 #include "ImageConverter.h"
 #include "DataRenderer.h"
-
 
 class QPixmap;
 class QLabel;

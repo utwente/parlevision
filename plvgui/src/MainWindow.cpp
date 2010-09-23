@@ -19,25 +19,25 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#include "MainWindow.h"
 #include "ui_mainwindow.h"
 #include "ui_welcome.h"
 
-#include "LibraryWidget.h"
-#include "InspectorWidget.h"
-#include "ViewerWidget.h"
-#include "DataRenderer.h"
-#include "RendererFactory.h"
-#include "PinClickedEvent.h"
-#include "PinWidget.h"
-#include "PipelineElementWidget.h"
+#include <plvgui/MainWindow.h>
+#include <plvgui/LibraryWidget.h>
+#include <plvgui/InspectorWidget.h>
+#include <plvgui/ViewerWidget.h>
+#include <plvgui/DataRenderer.h>
+#include <plvgui/RendererFactory.h>
+#include <plvgui/PinClickedEvent.h>
+#include <plvgui/PinWidget.h>
+#include <plvgui/PipelineElementWidget.h>
+#include <plvgui/PipelineScene.h>
 
-#include "Pipeline.h"
-#include "PipelineScene.h"
-#include "PipelineElement.h"
-#include "Pin.h"
-#include "PinConnection.h"
-#include "PipelineLoader.h"
+#include <plvcore/Pipeline.h>
+#include <plvcore/PipelineElement.h>
+#include <plvcore/Pin.h>
+#include <plvcore/PinConnection.h>
+#include <plvcore/PipelineLoader.h>
 
 #include <QDebug>
 #include <QSettings>

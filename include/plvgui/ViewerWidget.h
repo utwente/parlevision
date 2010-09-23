@@ -22,8 +22,8 @@
 #ifndef VIEWERWIDGET_H
 #define VIEWERWIDGET_H
 
-#include <QDockWidget>
-#include "RefPtr.h"
+#include <QtGui/QDockWidget>
+#include <plvcore/RefPtr.h>
 
 namespace Ui
 {

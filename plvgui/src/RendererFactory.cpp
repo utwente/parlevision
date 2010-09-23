@@ -26,7 +26,8 @@
 
 #include "OpenCVImageRenderer.h"
 #include "DataRenderer.h"
-#include "OpenCVImage.h"
+
+#include <plvcore/OpenCVImage.h>
 
 using namespace plvgui;
 

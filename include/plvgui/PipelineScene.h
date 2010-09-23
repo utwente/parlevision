@@ -25,9 +25,10 @@
 #include <QGraphicsScene>
 #include <QHash>
 
-#include "RefPtr.h"
-#include "Pipeline.h"
-#include "PinConnection.h"
+#include <plvcore/RefPtr.h>
+#include <plvcore/Pipeline.h>
+#include <plvcore/PinConnection.h>
+
 #include "Exceptions.h"
 
 class QObject;

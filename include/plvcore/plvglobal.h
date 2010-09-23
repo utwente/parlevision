@@ -31,36 +31,41 @@
 
 // Generic helper definitions for shared library support
 // Adapted from http://gcc.gnu.org/wiki/Visibility
-#if defined PLVCORE_LIBRARY || defined _WIN32 || defined __CYGWIN__
-  #define PLVCORE_HELPER_DLL_IMPORT __declspec(dllimport)
-  #define PLVCORE_HELPER_DLL_EXPORT __declspec(dllexport)
-  #define PLVCORE_HELPER_DLL_LOCAL
+#if defined _WIN32 || defined __CYGWIN__
+  #define PLV_DECL_IMPORT __declspec(dllimport)
+  #define PLV_DECL_EXPORT __declspec(dllexport)
+  #define PLV_DECL_LOCAL
 #else
   #if __GNUC__ >= 4
-    #define PLVCORE_HELPER_DLL_IMPORT __attribute__ ((visibility("default")))
-    #define PLVCORE_HELPER_DLL_EXPORT __attribute__ ((visibility("default")))
-    #define PLVCORE_HELPER_DLL_LOCAL  __attribute__ ((visibility("hidden")))
+    #define PLV_DECL_IMPORT __attribute__ ((visibility("default")))
+    #define PLV_DECL_EXPORT __attribute__ ((visibility("default")))
+    #define PLV_DECL_LOCAL  __attribute__ ((visibility("hidden")))
   #else
-    #define PLVCORE_HELPER_DLL_IMPORT
-    #define PLVCORE_HELPER_DLL_EXPORT
-    #define PLVCORE_HELPER_DLL_LOCAL
+    #define PLV_DECL_IMPORT
+    #define PLV_DECL_EXPORT
+    #define PLV_DECL_LOCAL
   #endif
 #endif
 
 // Now we use the generic helper definitions above to define PLVCORE_API and PLVCORE_LOCAL.
-// PLVCORE_API is used for the public API symbols. It either DLL imports or DLL exports (or does nothing for static build)
+// PLVCORE_API is used for the public API symbols. It either DLL imports or
+// DLL exports (or does nothing for static build)
 // PLVCORE_LOCAL is used for non-api symbols.
-
-#ifdef PLVCORE_DLL // defined if PLVCORE is compiled as a DLL
-  #ifdef PLVCORE_DLL_EXPORTS // defined if we are building the PLVCORE DLL (instead of using it)
-    #define PLVCORE_API PLVCORE_HELPER_DLL_EXPORT
+#ifdef PLV_DLL // defined if PLV is compiled as a DLL or shared object
+  #ifdef PLV_DLL_EXPORTS // defined if we are building the PLVx DLLs (instead of using it)
+    #define PLVCORE_EXPORT PLV_DECL_EXPORT
+    #define PLVGUI_EXPORT PLV_DECL_EXPORT
   #else
-    #define PLVCORE_API PLVCORE_HELPER_DLL_IMPORT
-  #endif // PLVCORE_DLL_EXPORTS
-  #define PLVCORE_LOCAL PLVCORE_HELPER_DLL_LOCAL
-#else // PLVCORE_DLL is not defined: this means PLVCORE is a static lib.
-  #define PLVCORE_API
+    #define PLVCORE_EXPORT PLV_DECL_IMPORT
+    #define PLVGUI_EXPORT PLV_DECL_IMPORT
+  #endif // PLV_DLL_EXPORTS
+  #define PLVCORE_LOCAL PLV_DECL_LOCAL
+  #define PLVGUI_LOCAL PLV_DECL_LOCAL
+#else // PLV_DLL is not defined: this means PLV is a static lib.
+  #define PLVCORE_EXPORT
+  #define PLVGUI_EXPORT
   #define PLVCORE_LOCAL
+  #define PLVGUI_LOCAL
 #endif // PLVCORE_DLL
 
 #endif // PLVCORE_GLOBAL_H

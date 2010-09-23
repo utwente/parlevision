@@ -28,16 +28,16 @@
 
 namespace plv
 {
-    class PipelineProducer : public PipelineElement
+    class PLVCORE_EXPORT PipelineProducer : public PipelineElement
     {
     public:
         PipelineProducer();
         virtual ~PipelineProducer();
 
-        /** inherited from PipelineElement.
-          * returns true if producer has new output available
-          */
-        virtual bool isReadyForProcessing() const = 0;
+//        /** inherited from PipelineElement.
+//          * returns true if producer has new output available
+//          */
+//        virtual bool isReadyForProcessing() const = 0;
     };
 
 }

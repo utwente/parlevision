@@ -22,11 +22,11 @@
 #ifndef INSPECTORWIDGET_H
 #define INSPECTORWIDGET_H
 
-#include <QDockWidget>
+#include <QtGui/QDockWidget>
 
-#include "RefPtr.h"
-#include "PipelineElement.h"
-#include "Types.h"
+#include <plvcore/RefPtr.h>
+#include <plvcore/PipelineElement.h>
+#include <plvcore/Types.h>
 
 class QFormLayout;
 

@@ -28,13 +28,14 @@
 
 #include "RefPtr.h"
 #include "assert.h"
+#include "plvglobal.h"
 
 namespace plv 
 {
     /** Base class for data resources.
       *
       */
-    class Data : public RefCounted
+    class PLVCORE_EXPORT Data : public RefCounted
     {
     protected:
         /** mutable flag used for determining if data resource can be
@@ -102,7 +103,7 @@ namespace plv
     };
 
     /** Class for configurable enum properties with introspection support. Useful in GUI code */
-    class Enum
+    class PLVCORE_EXPORT Enum
     {
     public:
         Enum( int selected = 0 );

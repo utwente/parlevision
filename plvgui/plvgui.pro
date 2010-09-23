@@ -1,6 +1,6 @@
 TARGET = plvgui
 TEMPLATE = lib
-CONFIG += plugin
+CONFIG += dll
 
 DESTDIR= ../libs/
 
@@ -33,8 +33,7 @@ QT      += xml
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
 # -Wunused-variable
-INCLUDEPATH +=  ../include/plvcore \
-                ../include/plvgui
+INCLUDEPATH +=  ../include/ ../include/plvgui
                 
 SOURCES += \
     src/MainWindow.cpp \

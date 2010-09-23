@@ -24,7 +24,7 @@
 
 #include "ElementConfigFormBuilder.h"
 #include <QWidget>
-#include "RefPtr.h"
+#include "plvcore/RefPtr.h"
 
 namespace Ui
 {
@@ -46,8 +46,6 @@ namespace plvgui
         Ui::CameraConfigForm* ui;
         RefPtr<CameraProducer> producer;
     };
-
-
 
     class CameraConfigFormBuilder : public ElementConfigFormBuilder
     {

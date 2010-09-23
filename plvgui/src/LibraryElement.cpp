@@ -23,9 +23,9 @@
 
 #include <QtGui>
 
-#include "RefPtr.h"
-#include "PipelineElement.h"
-#include "Pin.h"
+#include <plvcore/PipelineElement.h>
+#include <plvcore/Pin.h>
+#include <plvcore/RefPtr.h>
 
 using namespace plv;
 using namespace plvgui;

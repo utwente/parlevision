@@ -24,11 +24,12 @@
 #include <QDebug>
 #include <QtGui>
 
-#include "Types.h"
-#include "OpenCVImage.h"
-#include "RefPtr.h"
-#include "ImageConverter.h"
-#include "ImageWidget.h"
+#include <plvcore/Types.h>
+#include <plvcore/OpenCVImage.h>
+#include <plvcore/RefPtr.h>
+
+#include <plvgui/ImageConverter.h>
+#include <plvgui/ImageWidget.h>
 
 using namespace plvgui;
 using namespace plv;

@@ -35,7 +35,7 @@
 
 namespace plv
 {
-    class Pin : public QObject, public RefCounted
+    class PLVCORE_EXPORT Pin : public QObject, public RefCounted
     {
         Q_OBJECT
 

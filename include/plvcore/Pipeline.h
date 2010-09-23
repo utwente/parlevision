@@ -45,7 +45,7 @@ namespace plv
     class IOutputPin;
     class Scheduler;
 
-    class Pipeline : public QThread, public RefCounted
+    class PLVCORE_EXPORT Pipeline : public QThread, public RefCounted
     {
         Q_OBJECT
     public:

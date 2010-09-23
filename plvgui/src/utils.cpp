@@ -23,8 +23,8 @@
 
 #include <QStringBuilder>
 
-#include "PipelineElement.h"
-#include "Pin.h"
+#include <plvcore/PipelineElement.h>
+#include <plvcore/Pin.h>
 
 using namespace plvgui;
 using namespace plv;

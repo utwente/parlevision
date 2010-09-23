@@ -25,65 +25,67 @@
 #include <stdexcept>
 #include <QString>
 
+#include "plvglobal.h"
+
 namespace plv
 {
-    class PlvException : public std::runtime_error
+    class PLVCORE_EXPORT PlvException : public std::runtime_error
     {
     public:
         PlvException( const QString& str ) : std::runtime_error( str.toStdString() ) {}
         //PlvException( const std::string& str ) : std::runtime_error( str ) {}
     };
 
-    class PipelineException : public PlvException
+    class PLVCORE_EXPORT PipelineException : public PlvException
     {
     public:
         //PipelineException( const std::string& str ) : PlvException( str ) {}
         PipelineException( const QString& str ) : PlvException( str ) {}
     };
 
-    class IllegalAccessException : public PlvException
+    class PLVCORE_EXPORT IllegalAccessException : public PlvException
     {
     public:
         //IllegalAccessException( const std::string& str ) : PlvException( str ) {}
         IllegalAccessException( const QString& str ) : PlvException( str ) {}
     };
 
-   class IllegalArgumentException : public PlvException
+   class PLVCORE_EXPORT IllegalArgumentException : public PlvException
     {
     public:
         IllegalArgumentException( const QString& str ) : PlvException( str ) {}
         //IllegalArgumentException( const std::string& str ) : PlvException( str ) {}
     };
 
-    class ElementCreationException : public PlvException
+    class PLVCORE_EXPORT ElementCreationException : public PlvException
     {
     public:
         ElementCreationException(const QString& msg) : PlvException(msg) {}
         //ElementCreationException(const std::string& msg) : PlvException(msg) {}
     };
 
-    class InstantiationException : public PlvException
+    class PLVCORE_EXPORT InstantiationException : public PlvException
     {
     public:
         InstantiationException(const QString& msg) : PlvException(msg) {}
         //InstantiationException(const std::string& msg) : PlvException(msg) {}
     };
 
-    class IllegalConnectionException : public PlvException
+    class PLVCORE_EXPORT IllegalConnectionException : public PlvException
     {
     public:
         IllegalConnectionException(const QString& msg) : PlvException(msg) {}
         //DuplicateConnectionException(const std::string& msg) : PlvException(msg) {}
     };
 
-    class IncompatibleTypeException : public PlvException
+    class PLVCORE_EXPORT IncompatibleTypeException : public PlvException
     {
     public:
         IncompatibleTypeException(const QString& msg) : PlvException(msg) {}
         //IncompatibleTypeException(const std::string& msg) : PlvException(msg) {}
     };
 
-    class DuplicateConnectionException : public PlvException
+    class PLVCORE_EXPORT DuplicateConnectionException : public PlvException
     {
     public:
         DuplicateConnectionException(const QString& msg) : PlvException(msg) {}

@@ -1,6 +1,6 @@
 TARGET = plvcore
 TEMPLATE = lib
-CONFIG += plugin
+CONFIG += dll
 
 DEPENDPATH +=   .\
                 ..
@@ -36,7 +36,7 @@ QT += xml
 
 INCLUDEPATH += ../include/plvcore
 
-DEFINES += PLVCORE_LIBRARY
+DEFINES += PLV_DLL PLV_DLL_EXPORTS
 
 SOURCES += \
     src/Types.cpp \
@@ -68,7 +68,7 @@ SOURCES += \
     src/DelayImage.cpp \
     src/ViolaJonesFaceDetector.cpp
 
-HEADERS += ../include/plvcore/plvcore_global.h \
+HEADERS += ../include/plvcore/plvglobal.h \
     ../include/plvcore/Application.h \
     ../include/plvcore/Plugin.h \
     ../include/plvcore/CameraProducer.h \

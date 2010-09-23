@@ -22,9 +22,9 @@
 #ifndef PINWIDGET_H
 #define PINWIDGET_H
 
-#include <QGraphicsItemGroup>
-#include "RefPtr.h"
-#include "Pin.h"
+#include <QtGui/QGraphicsItemGroup>
+#include <plvcore/RefPtr.h>
+#include <plvcore/Pin.h>
 
 
 class QGraphicsItem;

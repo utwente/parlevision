@@ -22,11 +22,11 @@
 #include "ViewerWidget.h"
 #include "ui_viewerwidget.h"
 
-#include <QtGui>
+//#include <QtGui>
 
-#include "assert.h"
+#include <assert.h>
+#include <plvcore/Pin.h>
 
-#include "Pin.h"
 #include "DataRenderer.h"
 #include "RendererFactory.h"
 

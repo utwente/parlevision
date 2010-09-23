@@ -25,10 +25,14 @@
 #include <QObject>
 #include <QtPlugin>
 
+#include "plvglobal.h"
+
 namespace plv
 {
-    class Plugin
+    class PLVCORE_EXPORT Plugin : public QObject
     {
+        Q_OBJECT
+
     public:
         virtual void onLoad()=0;
     };

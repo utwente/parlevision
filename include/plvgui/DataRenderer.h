@@ -22,11 +22,11 @@
 #ifndef DATARENDERER_H
 #define DATARENDERER_H
 
-#include <QWidget>
-#include <QObject>
+#include <QtGui/QWidget>
+#include <QtCore/QObject>
 
-#include "RefPtr.h"
-#include "Types.h"
+#include <plvcore/RefPtr.h>
+#include <plvcore/Types.h>
 
 namespace plv
 {

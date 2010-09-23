@@ -21,12 +21,13 @@
 
 #include "LibraryWidget.h"
 #include "ui_librarywidget.h"
-#include "PipelineElement.h"
 #include "LibraryElement.h"
-#include "RefPtr.h"
-#include "Pin.h"
 #include "MainWindow.h"
 #include "utils.h"
+
+#include <plvcore/PipelineElement.h>
+#include <plvcore/RefPtr.h>
+#include <plvcore/Pin.h>
 
 #include <QDebug>
 #include <QtGui>

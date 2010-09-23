@@ -22,7 +22,7 @@
 #ifndef IMAGECONVERTER_H
 #define IMAGECONVERTER_H
 
-#include "RefPtr.h"
+#include <plvcore/RefPtr.h>
 
 #include <QObject>
 #include <opencv/cv.h>

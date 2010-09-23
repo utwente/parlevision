@@ -20,7 +20,8 @@
   */
 
 #include "ImageConverter.h"
-#include "OpenCVImage.h"
+
+#include <plvcore/OpenCVImage.h>
 
 #include <QImage>
 #include <QString>

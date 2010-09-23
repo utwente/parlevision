@@ -25,13 +25,14 @@
 #include <QtGlobal>
 #include <QDebug>
 
-#include "Pipeline.h"
-#include "Pin.h"
-#include "PinConnection.h"
+#include <plvcore/Pipeline.h>
+#include <plvcore/Pin.h>
+#include <plvcore/PinConnection.h>
+#include <plvcore/PlvExceptions.h>
+
 #include "PipelineElementWidget.h"
 #include "ConnectionLine.h"
 #include "InteractiveLine.h"
-#include "PlvExceptions.h"
 #include "PinClickedEvent.h"
 #include "PinWidget.h"
 #include "MainWindow.h"

@@ -23,7 +23,7 @@
 
 #include <QDebug>
 
-#include "Pin.h"
+#include <plvcore/Pin.h>
 
 using namespace plvgui;
 using namespace plv;

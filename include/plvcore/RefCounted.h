@@ -26,9 +26,12 @@
 #include <QMutexLocker>
 #include <QDebug>
 
-namespace plv {
+#include "plvglobal.h"
 
-class RefCounted
+namespace plv
+{
+
+class PLVCORE_EXPORT RefCounted
 {
 protected:
     mutable int m_referenceCount;
