@@ -37,7 +37,7 @@ namespace plv
 {
     class OpenCVImage;
 
-    class OpenCVImageFactory
+    class PLVCORE_EXPORT OpenCVImageFactory
     {
     public:
 
@@ -105,7 +105,7 @@ namespace plv
         QMutex m_factoryMutex;
     };
 
-    class OpenCVImage : public Data
+    class PLVCORE_EXPORT OpenCVImage : public Data
     {
         friend class OpenCVImageFactory;
 

@@ -125,7 +125,7 @@ void Application::loadPlugins()
         QObject *plugin = pluginLoader.instance();
         if (plugin)
         {
-            Plugin* thePlugin = qobject_cast<Plugin*>(plugin);
+            Plugin* thePlugin = qobject_cast<plv::Plugin*>(plugin);
             if (thePlugin)
             {
                 thePlugin->onLoad();

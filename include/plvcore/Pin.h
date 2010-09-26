@@ -72,7 +72,7 @@ namespace plv
         virtual const std::type_info& getTypeInfo() const = 0;
     };
 
-    class IInputPin : public Pin
+    class PLVCORE_EXPORT IInputPin : public Pin
     {
     public:
         typedef enum InputPinType {
@@ -110,7 +110,7 @@ namespace plv
         std::stack< RefPtr<Data> > m_scope;
     };
 
-    class IOutputPin : public Pin
+    class PLVCORE_EXPORT IOutputPin : public Pin
     {
         Q_OBJECT
 
@@ -150,7 +150,7 @@ namespace plv
     };
 
     template< class T >
-    class OutputPin : public IOutputPin
+    class PLVCORE_EXPORT OutputPin : public IOutputPin
     {
     public:
         OutputPin( const QString& name, PipelineElement* owner ) :
@@ -245,7 +245,7 @@ namespace plv
     };
 
     template< class T >
-    class InputPin : public IInputPin
+    class PLVCORE_EXPORT InputPin : public IInputPin
     {
     public:
         InputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :

@@ -66,7 +66,8 @@ SOURCES += \
     src/Snapshot.cpp \
     src/Diff.cpp \
     src/DelayImage.cpp \
-    src/ViolaJonesFaceDetector.cpp
+    src/ViolaJonesFaceDetector.cpp \
+    src/Plugin.cpp
 
 HEADERS += ../include/plvcore/plvglobal.h \
     ../include/plvcore/Application.h \
