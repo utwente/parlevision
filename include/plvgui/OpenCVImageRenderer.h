@@ -25,7 +25,7 @@
 #include <QMutex>
 #include <QLabel>
 
-#include <plvcore/OpenCVImage.h>
+#include <plvopencv/OpenCVImage.h>
 #include <plvcore/RefPtr.h>
 
 #include "ImageConverter.h"

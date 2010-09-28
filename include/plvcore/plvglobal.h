@@ -22,13 +22,6 @@
 #ifndef PLVCORE_GLOBAL_H
 #define PLVCORE_GLOBAL_H
 
-//#include <QtCore/QtGlobal>
-//#if defined(PLVCORE_LIBRARY)
-//#  define PLVCORE_EXPORT Q_DECL_EXPORT
-//#else
-//#  define PLVCORE_EXPORT Q_DECL_IMPORT
-//#endif
-
 // Generic helper definitions for shared library support
 // Adapted from http://gcc.gnu.org/wiki/Visibility
 #if defined _WIN32 || defined __CYGWIN__
@@ -55,17 +48,22 @@
   #ifdef PLV_DLL_EXPORTS // defined if we are building the PLVx DLLs (instead of using it)
     #define PLVCORE_EXPORT PLV_DECL_EXPORT
     #define PLVGUI_EXPORT PLV_DECL_EXPORT
+    #define PLVOPENCV_EXPORT PLV_DECL_EXPORT
   #else
     #define PLVCORE_EXPORT PLV_DECL_IMPORT
     #define PLVGUI_EXPORT PLV_DECL_IMPORT
+    #define PLVOPENCV_EXPORT PLV_DECL_IMPORT
   #endif // PLV_DLL_EXPORTS
   #define PLVCORE_LOCAL PLV_DECL_LOCAL
   #define PLVGUI_LOCAL PLV_DECL_LOCAL
+  #define PLVOPENCV_LOCAL PLV_DECL_LOCAL
 #else // PLV_DLL is not defined: this means PLV is a static lib.
   #define PLVCORE_EXPORT
   #define PLVGUI_EXPORT
   #define PLVCORE_LOCAL
   #define PLVGUI_LOCAL
+  #define PLVOPENCV_EXPORT
+  #define PLVOPENCV_LOCAL
 #endif // PLVCORE_DLL
 
 #endif // PLVCORE_GLOBAL_H

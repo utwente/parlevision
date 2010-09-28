@@ -19,37 +19,30 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef CAMERACONFIGFORMBUILDER_H
-#define CAMERACONFIGFORMBUILDER_H
+#include "RendererFactory.h"
 
-#include "ElementConfigFormBuilder.h"
-#include <QWidget>
-#include <plvcore/RefPtr.h>
-#include <plvopencv/CameraProducer.h>
+#include <QDebug>
+#include <typeinfo>
 
-namespace Ui
+#include "OpenCVImageRenderer.h"
+#include "DataRenderer.h"
+
+#include <plvopencv/OpenCVImage.h>
+
+using namespace plvgui;
+
+DataRenderer* RendererFactory::create(QString dataType, QWidget *parent)
+        throw(RendererCreationException)
 {
-    class CameraConfigForm;
-}
-
-namespace plvgui
-{
-    class CameraForm : public QWidget
+    //TODO make this dynamic
+    qDebug() << "RendererFactory creating "<<dataType;
+    if(dataType == typeid(plvopencv::OpenCVImage).name())
     {
-    public:
-        CameraForm(plvopencv::CameraProducer* producer, QWidget* parent=0);
-    private:
-        Ui::CameraConfigForm* ui;
-        RefPtr<plvopencv::CameraProducer> producer;
-    };
-
-    class CameraConfigFormBuilder : public ElementConfigFormBuilder
+        return new OpenCVImageRenderer(parent);
+    }
+    else
     {
-        Q_OBJECT
-
-    public:
-        virtual QWidget* buildForm(PipelineElement* element, QWidget* parent=0);
-    };
+        QString msg = "Unsupported type '" + dataType + "'";
+        throw RendererCreationException( msg.toStdString() );
+    }
 }
-
-#endif // CAMERACONFIGFORMBUILDER_H

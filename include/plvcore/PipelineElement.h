@@ -36,10 +36,10 @@
 /** Utility macro for implemented pure abstract methods in sub classes */
 #define PLV_PIPELINE_ELEMENT \
 public: \
-    virtual void init() throw (PipelineException); \
+    virtual void init() throw (plv::PipelineException); \
     virtual void deinit() throw (); \
-    virtual void start() throw (PipelineException); \
-    virtual void stop() throw (PipelineException); \
+    virtual void start() throw (plv::PipelineException); \
+    virtual void stop() throw (plv::PipelineException); \
     virtual void process();
 
 namespace plv

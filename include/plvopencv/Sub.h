@@ -2,7 +2,7 @@
   * Copyright (C)2010 by Michel Jansen and Richard Loos
   * All rights reserved.
   *
-  * This file is part of the plvgui module of ParleVision.
+  * This file is part of the plvcore module of ParleVision.
   *
   * ParleVision is free software: you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -19,37 +19,37 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef CAMERACONFIGFORMBUILDER_H
-#define CAMERACONFIGFORMBUILDER_H
+#ifndef SUB_H
+#define SUB_H
 
-#include "ElementConfigFormBuilder.h"
-#include <QWidget>
-#include <plvcore/RefPtr.h>
-#include <plvopencv/CameraProducer.h>
+#include <plvcore/PipelineProcessor.h>
+#include <plvcore/Pin.h>
 
-namespace Ui
+namespace plvopencv
 {
-    class CameraConfigForm;
-}
-
-namespace plvgui
-{
-    class CameraForm : public QWidget
-    {
-    public:
-        CameraForm(plvopencv::CameraProducer* producer, QWidget* parent=0);
-    private:
-        Ui::CameraConfigForm* ui;
-        RefPtr<plvopencv::CameraProducer> producer;
-    };
-
-    class CameraConfigFormBuilder : public ElementConfigFormBuilder
+    class OpenCVImage;
+    /**
+      * Sub of two images.
+      */
+    class Sub : public plv::PipelineProcessor
     {
         Q_OBJECT
 
+        Q_CLASSINFO("author", "Ported from old version by Dennis")
+        Q_CLASSINFO("name", "A sub B")
+        Q_CLASSINFO("description", "A simple processor to subtract two images.");
+
+        /** required standard method declaration for plv::PipelineElement */
+        PLV_PIPELINE_ELEMENT
+
     public:
-        virtual QWidget* buildForm(PipelineElement* element, QWidget* parent=0);
+        Sub();
+        ~Sub();
+
+    private:
+        plv::InputPin<OpenCVImage>* m_inputPin1;
+        plv::InputPin<OpenCVImage>* m_inputPin2;
+        plv::OutputPin<OpenCVImage>* m_outputPin;
     };
 }
-
-#endif // CAMERACONFIGFORMBUILDER_H
+#endif // SUB_H

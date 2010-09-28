@@ -30,7 +30,7 @@
 
 #include <QImage>
 
-namespace plv {
+namespace plvopencv {
     class OpenCVImage;
 }
 
@@ -56,11 +56,11 @@ namespace plvgui
           * as converting is done asynchronously.
           * @emits converted(QImage*) when converting has finished;
           */
-        void convert_OpenCVImage( plv::RefPtr<plv::OpenCVImage> img );
+        void convert_OpenCVImage( plv::RefPtr<plvopencv::OpenCVImage> img );
 
     private:
         static ImageConverter* m_instance;
-        void convert(plv::RefPtr<plv::OpenCVImage> img);
+        void convert(plv::RefPtr<plvopencv::OpenCVImage> img);
 
         /** Converts an OpenCV iplImage to a QImage.
           * @throw ImageConversionException when conversion fails.

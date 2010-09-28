@@ -2,8 +2,8 @@
 # Builds all libraries and applications.
 TARGET = parlevision-all
 TEMPLATE = subdirs
-SUBDIRS =   plvcore plvgui \            # libraries
-            plvheadless plvgraphical    # applications
+SUBDIRS =   src # libraries
+            #app   # applications
 
 DESTDIR = dist
 
