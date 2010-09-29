@@ -1,14 +1,23 @@
+#Include path relative to where source is located
+INCLUDEPATH += ../../include
+
+#Library path relative to where source is located
+#Do NOT use trailing slashes in the libdir, this will make the linker choke
+QMAKE_LIBDIR += ../../libs
+
+#Windows specific libraries, library paths and include paths
 win32 { 
-    LIBS += -lcv200 \
-        -lcxcore200 \
-        -lcvaux200 \
-        -lhighgui200 \
-        -lcxts200 \
-        -lml200
-    LIBPATH += c:\OpenCV2.0\lib
-    INCLUDEPATH += c:\OpenCV2.0\include
+    LIBS += -lcv200d \
+        -lcxcore200d \
+        -lcvaux200d \
+        -lhighgui200d \
+        -lcxts200d \
+        -lml200d
+    QMAKE_LIBDIR += c:/OpenCV2.0/lib/Debug
+    INCLUDEPATH += c:/OpenCV2.0/include
 }
 
+#Unix specific libraries
 unix { 
     LIBS += -lcv -lhighgui
 }
