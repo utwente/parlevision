@@ -51,10 +51,11 @@ void Application::init()
 
 void Application::loadBuiltins()
 {
-    //FIXME: [DR] can we, instead of using the 2nd name arguments, get this information within plvRegisterPipelineElement from Q_CLASSINFO"name"? And use actual classname if this Q_CLASSINFO was not set?
-
     // register classes with Qt so they can be used in signals and slots
     qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
+    qRegisterMetaType< plv::RefPtr<plv::Data> >("plv::RefPtr<plv::Data>");
+
+    qRegisterMetaType< Enum >( "Enum" );
     qRegisterMetaType< plv::Enum >( "plv::Enum" );
 }
 

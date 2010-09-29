@@ -268,6 +268,9 @@ namespace plv
     };
 }
 
+// FIXME: [DR] can we, instead of using the 2nd name arguments,
+// get this information within plvRegisterPipelineElement from Q_CLASSINFO"name"?
+// And use actual classname if this Q_CLASSINFO was not set?
 template<typename PET>
 int plvRegisterPipelineElement(const char* typeName, const char* humanName)
 {

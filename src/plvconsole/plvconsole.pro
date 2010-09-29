@@ -33,7 +33,7 @@ macx {
 }
 
 
-TARGET = plvheadless
+TARGET = plvconsole
 CONFIG   += console
 CONFIG   -= app_bundle
 

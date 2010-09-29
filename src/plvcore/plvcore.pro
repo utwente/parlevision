@@ -62,7 +62,6 @@ HEADERS += ../../include/plvcore/plvglobal.h \
     ../../include/plvcore/RefPtr.h \
     ../../include/plvcore/RefCounted.h \
     ../../include/plvcore/Types.h \
-    ../../include/plvcore/DummyProcessor.h \
     ../../include/plvcore/PipelineProcessor.h \
     ../../include/plvcore/Pipeline.h \
     ../../include/plvcore/PlvExceptions.h \
