@@ -42,40 +42,15 @@ PipelineElement::PipelineElement() :
 
 PipelineElement::~PipelineElement()
 {
-//    if( m_parent != 0 )
-//    {
-//        m_parent->removeElement( this );
-//    }
 }
 
 PipelineElement::PipelineElement(const PipelineElement &other)
     : QObject(),
         RefCounted(other),
         m_inputPins(other.m_inputPins),
-        m_outputPins(other.m_outputPins)//,
-//        m_parent(other.m_parent)
+        m_outputPins(other.m_outputPins)
 {
 }
-
-//void PipelineElement::setPipeline( Pipeline* parent )
-//{
-//    QMutexLocker lock( &m_pleMutex );
-
-//    if( m_parent.getPtr() == parent )
-//    {
-//        // no effect
-//        return;
-//    }
-
-//    if( m_parent.getPtr() != 0 )
-//    {
-//        // switching pipelines.
-//        // remove ourself from the old pipeline first
-//        m_parent->removeElement( m_id );
-//    }
-
-//    m_parent = parent;
-//}
 
 void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentException)
 {

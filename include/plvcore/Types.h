@@ -38,13 +38,14 @@ namespace plv
     class PLVCORE_EXPORT Data : public RefCounted
     {
     protected:
-        /** mutable flag used for determining if data resource can be
-          * written to
-          */
+        /** serial number, used for synchronisation */
+        unsigned int m_serial;
+
+        /** mutable flag used for determining if data resource can be written to */
         bool m_mutable;
 
     public:
-        Data() : m_mutable( true ) {}
+        Data( unsigned int serial = 0 ) : m_serial( serial), m_mutable( true ) {}
 
         /** Copy constructor needs to be implemented by super classes
           * to allow the copying of a data resources when the Pin
@@ -85,6 +86,32 @@ namespace plv
           * resources delete themselves.
           */
         virtual ~Data() {}
+    };
+
+    /** Template class to make the implementation of primitive data types
+      * trivial. Do not use for pointer types!
+      */
+    template< class T >
+    class PLVCORE_EXPORT PrimitiveData : public Data
+    {
+    protected:
+        mutable QMutex m_sdMutex;
+        T m_value;
+
+    public:
+        PrimitiveData( T value ) : m_value( value ) {}
+
+        inline T getValue() const
+        {
+            QMutexLocker lock( &m_sdMutex );
+            return m_value;
+        }
+
+        inline T setValue(T value)
+        {
+            QMutexLocker lock( &m_sdMutex );
+            m_value = value;
+        }
     };
 
     /** private class used to store enum information in Enum class */
@@ -139,8 +166,22 @@ namespace plv
         QMap<int, EnumPair> m_items;
     };
 }
+
+/** primitive types */
+typedef plv::PrimitiveData<bool> plvBoolean;
+typedef plv::PrimitiveData<int> plvInteger;
+typedef plv::PrimitiveData<float> plvFloat;
+typedef plv::PrimitiveData<double> plvDouble;
+typedef plv::PrimitiveData<QString> plvString;
+
 /** Declare as Qt Metatype so we can pass RefPtr<Data> along with signals and slots */
 Q_DECLARE_METATYPE( plv::RefPtr<plv::Data> )
+Q_DECLARE_METATYPE( plv::RefPtr<plvBoolean> )
+Q_DECLARE_METATYPE( plv::RefPtr<plvInteger> )
+Q_DECLARE_METATYPE( plv::RefPtr<plvFloat> )
+Q_DECLARE_METATYPE( plv::RefPtr<plvDouble> )
+Q_DECLARE_METATYPE( plv::RefPtr<plvString> )
+
 Q_DECLARE_METATYPE( plv::Enum )
 
 #endif // TYPES_H

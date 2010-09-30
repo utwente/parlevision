@@ -54,6 +54,11 @@ void Application::loadBuiltins()
     // register classes with Qt so they can be used in signals and slots
     qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
     qRegisterMetaType< plv::RefPtr<plv::Data> >("plv::RefPtr<plv::Data>");
+    qRegisterMetaType< plv::RefPtr<plvBoolean> >("plv::RefPtr<plvBoolean>");
+    qRegisterMetaType< plv::RefPtr<plvInteger> >("plv::RefPtr<plvInteger>");
+    qRegisterMetaType< plv::RefPtr<plvFloat> >("plv::RefPtr<plvFloat>");
+    qRegisterMetaType< plv::RefPtr<plvDouble> >("plv::RefPtr<plvDouble>");
+    qRegisterMetaType< plv::RefPtr<plvString> >("plv::RefPtr<plvString>");
 
     qRegisterMetaType< Enum >( "Enum" );
     qRegisterMetaType< plv::Enum >( "plv::Enum" );

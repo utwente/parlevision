@@ -49,7 +49,10 @@ public:
     {
     }
 
-    /** RefCounted objects should generally not explicitely be destructed */
+    /** RefCounted objects should generally not explicitely be destructed.
+      * However, the Qt meta object system requires the destructor to be
+      * public.
+      */
     virtual ~RefCounted();
 
     /** increases reference count by one */
@@ -76,11 +79,7 @@ public:
     }
 
     /** @return number of references to this object */
-    inline int getRefCount() const
-    {
-        QMutexLocker lock( &m_refMutex );
-        return m_referenceCount;
-    }
+    inline int getRefCount() const { return m_referenceCount; }
 };
 
 }

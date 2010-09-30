@@ -251,11 +251,11 @@ namespace plv
         InputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :
                 IInputPin( name, owner, type ) {}
 
+        // prepares stack to receive objects
+        // for current scope
         virtual void scope()
         {
             assert( m_scope.empty() );
-            // prepares stack to receive objects
-            // for current scope
         }
 
         virtual void unscope()
@@ -265,15 +265,6 @@ namespace plv
             {
                 m_scope.pop();
             }
-        }
-
-        inline void push( RefPtr<Data> d )
-        {
-            assert( d.isNotNull() );
-
-            // increase ref count and store on stack
-            //d->inc();
-            m_scope.push( d );
         }
 
         /** @returns true if there is a connection and that connection has data
@@ -301,7 +292,7 @@ namespace plv
             }
 
             RefPtr<Data> data = this->m_connection->get();
-            push( data );
+            m_scope.push( data );
 #ifdef DEBUG
             // we use a dynamic cast in debug mode
             // so we can check for correct casting
