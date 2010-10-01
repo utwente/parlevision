@@ -44,7 +44,9 @@ SOURCES += plvopencvplugin.cpp \
     Snapshot.cpp \
     Diff.cpp \
     DelayImage.cpp \
-    ViolaJonesFaceDetector.cpp
+    ViolaJonesFaceDetector.cpp \
+    SaveImageToFile.cpp \
+    Trigger.cpp
 	
 HEADERS += ../../include/plvopencv/plvopencvplugin.h \
 	../../include/plvopencv/plvopencv_global.h \
@@ -64,5 +66,7 @@ HEADERS += ../../include/plvopencv/plvopencvplugin.h \
     ../../include/plvopencv/Snapshot.h \
     ../../include/plvopencv/Diff.h \
     ../../include/plvopencv/DelayImage.h \
-    ../../include/plvopencv/ViolaJonesFaceDetector.h        
+    ../../include/plvopencv/ViolaJonesFaceDetector.h  \
+    ../../include/plvopencv/SaveImageToFile.h  \
+    ../../include/plvopencv/Trigger.h
     

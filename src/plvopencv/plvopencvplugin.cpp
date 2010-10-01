@@ -17,6 +17,8 @@
 #include "ImageSmooth.h"
 #include "Snapshot.h"
 #include "ViolaJonesFaceDetector.h"
+#include "Trigger.h"
+#include "SaveImageToFile.h"
 
 PlvOpenCVPlugin::PlvOpenCVPlugin()
 {
@@ -50,9 +52,10 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::ImageSmooth>("plvopencv::ImageSmooth", "Smooth");
     plvRegisterPipelineElement<plvopencv::Snapshot>("plvopencv::Snapshot", "Snapshot");
     plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>("plvopencv::ViolaJonesFaceDetector", "Face Detect V.-J.");
+    plvRegisterPipelineElement<plvopencv::Trigger>("plvopencv::Trigger", "Trigger");
+    plvRegisterPipelineElement<plvopencv::SaveImageToFile>("plvopencv::SaveImageToFile", "Save Image To File");
 
     //consumers
-
 }
 
 Q_EXPORT_PLUGIN2(plv_opencv_plugin, PlvOpenCVPlugin)
