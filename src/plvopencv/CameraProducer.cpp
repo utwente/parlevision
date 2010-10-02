@@ -51,7 +51,7 @@ CameraProducer::CameraProducer() :
 
 CameraProducer::~CameraProducer()
 {
-    m_camera->release();
+
 }
 
 CameraProducer::CameraProducer(const CameraProducer& other):
@@ -90,26 +90,26 @@ void CameraProducer::newFrame( plv::RefPtr<plv::Data> frame )
 
 void CameraProducer::init() throw (PipelineException)
 {
-}
-
-void CameraProducer::deinit() throw()
-{
-}
-
-void CameraProducer::start() throw (PipelineException)
-{
     if( !m_camera->init() )
     {
         throw PipelineException("Camera failed to initialise");
     }
-
     m_camera->setDimensions( 640, 480 );
+}
+
+void CameraProducer::deinit() throw()
+{
+    m_camera->release();
+}
+
+void CameraProducer::start() throw (PipelineException)
+{
     m_camera->start();
 }
 
 void CameraProducer::stop() throw (PipelineException)
 {
-    m_camera->release();
+    m_camera->pause();
 }
 
 bool CameraProducer::isReadyForProcessing() const
