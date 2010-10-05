@@ -36,20 +36,22 @@ Trigger::Trigger() :
         m_activate(false),
         m_continuous(false)
 {
-    m_inputPin  = createInputPin<OpenCVImage>("image", this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOutputPin<plvBoolean>( "trigger", this );
+    m_inputPin  = createInputPin<plv::Data>("input", this, IInputPin::INPUT_REQUIRED );
+    m_outputPin = createOutputPin<PlvBoolean>( "trigger", this );
 }
 
 /**
  * Destructor.
  */
-Trigger::~Trigger(){}
+Trigger::~Trigger()
+{
+}
 
 /** Mandatory methods. Has nothing to do here. Yet? */
-void Trigger::init() throw (PipelineException){}
+void Trigger::init()  {}
 void Trigger::deinit() throw(){}
-void Trigger::start() throw (PipelineException){}
-void Trigger::stop() throw (PipelineException){}
+void Trigger::start()  {}
+void Trigger::stop()  {}
 
 /**
  * Check if the image isn't NULL. Get a new activation trigger data, with
@@ -59,14 +61,13 @@ void Trigger::stop() throw (PipelineException){}
 void Trigger::process()
 {
     assert(m_inputPin != 0);
-    RefPtr<OpenCVImage> img = m_inputPin->get();
 
-    if(!img->isNull())
-    {
-        //send a trigger to the output with the value of activate
-        m_outputPin->put( new plvBoolean(true) );
+    // do this to decrease queue at input pin
+    m_inputPin->get();
 
-        //check if it is continuous or not
-        if(m_activate && !m_continuous) setActivate(false);
-    }
+    //send a trigger to the output with the value of activate
+    m_outputPin->put( new PlvBoolean(true) );
+
+    //check if it is continuous or not
+    if(m_activate && !m_continuous) setActivate(false);
 }

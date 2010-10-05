@@ -19,8 +19,8 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef TOIMAGEFILE_H
-#define TOIMAGEFILE_H
+#ifndef SAVEIMAGETOFILE_H
+#define SAVEIMAGETOFILE_H
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
@@ -97,7 +97,7 @@ namespace plvopencv
 
     private:
         plv::InputPin<OpenCVImage>* m_inputImage;
-        plv::InputPin<plvBoolean>* m_inputTrigger;
+        plv::InputPin<PlvBoolean>* m_inputTrigger;
 
         bool        m_doSave;    //Determines if the input has to be saved. Mostly false.
         QString     m_filename;  //The filename to save the image to.
@@ -114,4 +114,4 @@ namespace plvopencv
 }
 
 
-#endif // TOIMAGEFILE_H
+#endif // SAVEIMAGETOFILE_H

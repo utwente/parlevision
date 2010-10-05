@@ -98,8 +98,10 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
 //    item->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
     if(this->elementWidgets.contains(e))
-        throw PipelineException("Cannot add duplicate pipeline element to the scene.");
-
+    {
+        throw PlvRuntimeException("Cannot add duplicate pipeline element to the scene.",
+                                  __FILE__, __LINE__);
+    }
 
     PipelineElementWidget* pew = new PipelineElementWidget(e.getPtr());
     this->addItem(pew);
@@ -347,15 +349,15 @@ void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* targe
     {
         this->m_pipeline->connectPins(fromPin,toPin);
     }
-    catch(IncompatibleTypeException e)
+    catch( PinConnection::IncompatibleTypeException e)
     {
         throw NonFatalException(e.what());
     }
-    catch(DuplicateConnectionException e)
+    catch( PinConnection::DuplicateConnectionException e)
     {
         throw NonFatalException(e.what());
     }
-    catch( IllegalConnectionException e )
+    catch( PinConnection::IllegalConnectionException e )
     {
         throw NonFatalException(e.what());
     }
@@ -400,7 +402,10 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
         int typeId = QMetaType::type(elementName.toAscii());
 
         if(typeId == 0)
-            throw new ElementCreationException( "Tried to create unknown element " + elementName );
+        {
+            throw PlvRuntimeException( "Tried to create unknown element " + elementName,
+                                       __FILE__, __LINE__ );
+        }
 
         RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(QMetaType::construct(typeId));
         pe->setProperty("sceneCoordX", event->scenePos().x());

@@ -44,7 +44,7 @@ ImageCornerHarris::~ImageCornerHarris()
 {
 }
 
-void ImageCornerHarris::init() throw (PipelineException)
+void ImageCornerHarris::init()
 {
 }
 
@@ -52,11 +52,11 @@ void ImageCornerHarris::deinit() throw ()
 {
 }
 
-void ImageCornerHarris::start() throw (PipelineException)
+void ImageCornerHarris::start()
 {
 }
 
-void ImageCornerHarris::stop() throw (PipelineException)
+void ImageCornerHarris::stop()
 {
 }
 
@@ -68,7 +68,7 @@ void ImageCornerHarris::process()
     RefPtr<OpenCVImage> img = m_inputPin->get();
     if(img->getDepth() != IPL_DEPTH_8U)
     {
-        throw std::runtime_error("format not yet supported");
+        throw plv::PlvRuntimeException("Format not supported", __FILE__, __LINE__);
     }
 
     // temporary image with extra room (depth)

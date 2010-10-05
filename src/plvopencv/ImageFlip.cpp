@@ -43,7 +43,7 @@ ImageFlip::~ImageFlip()
 {
 }
 
-void ImageFlip::init() throw (PipelineException)
+void ImageFlip::init()
 {
 }
 
@@ -51,11 +51,11 @@ void ImageFlip::deinit() throw ()
 {
 }
 
-void ImageFlip::start() throw (PipelineException)
+void ImageFlip::start()
 {
 }
 
-void ImageFlip::stop() throw (PipelineException)
+void ImageFlip::stop()
 {
 }
 
@@ -82,10 +82,7 @@ void ImageFlip::process()
 
     // publish the new image
     m_outputPin->put( imgOut.getPtr() );
-
 }
-
-
 
 void ImageFlip::setFlipX(bool b)
 {

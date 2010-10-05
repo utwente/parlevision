@@ -64,7 +64,7 @@ namespace plvopencv
     public:
         /** Constructor/Destructor */
         Trigger();
-        ~Trigger();
+        virtual ~Trigger();
 
         /** propery methods */
         bool getActivate(){ return m_activate; }
@@ -79,8 +79,8 @@ namespace plvopencv
         void setContinuous(bool b) {m_continuous = b; emit(continuousChanged(b));}
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<plvBoolean>* m_outputPin;
+        plv::InputPin<plv::Data>* m_inputPin;
+        plv::OutputPin<PlvBoolean>* m_outputPin;
 
         bool m_activate;   /** Determines if an activation (true) trigger has to be send. Mostly false. */
         bool m_continuous; /** Determines if the activation trigger automatically has to be switched off (false). */

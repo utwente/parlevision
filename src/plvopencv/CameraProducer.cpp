@@ -88,11 +88,11 @@ void CameraProducer::newFrame( plv::RefPtr<plv::Data> frame )
     //m_frameReady.wakeAll();
 }
 
-void CameraProducer::init() throw (PipelineException)
+void CameraProducer::init()
 {
     if( !m_camera->init() )
     {
-        throw PipelineException("Camera failed to initialise");
+        throw PlvException("Camera failed to initialise");
     }
     m_camera->setDimensions( 640, 480 );
 }
@@ -102,12 +102,12 @@ void CameraProducer::deinit() throw()
     m_camera->release();
 }
 
-void CameraProducer::start() throw (PipelineException)
+void CameraProducer::start()
 {
     m_camera->start();
 }
 
-void CameraProducer::stop() throw (PipelineException)
+void CameraProducer::stop()
 {
     m_camera->pause();
 }

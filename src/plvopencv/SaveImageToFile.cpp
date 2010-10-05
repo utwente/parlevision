@@ -31,18 +31,28 @@
 using namespace plv;
 using namespace plvopencv;
 
+/** default directory for saving data to */
+//TODO replace with global config
+#ifdef Q_OS_WIN
+#   define SAVEIMAGETOFILE_DEFAULT_DIR "c:/tmp/"
+#elif defined(Q_OS_DARWIN)
+#   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp/"
+#elif defined(Q_OS_UNIX)
+#   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp"
+#endif
+
 /**
  * Constructor.
  */
 SaveImageToFile::SaveImageToFile() :
         m_doSave(false),
         m_filename("img"),
-        m_directory("c:/"),
+        m_directory(SAVEIMAGETOFILE_DEFAULT_DIR),
         m_suffixNr(1001),
         m_autoIncSuf(true)
 {
-    m_inputImage = createInputPin<OpenCVImage>("image_input", this, IInputPin::INPUT_REQUIRED );
-    m_inputTrigger = createInputPin<plvBoolean>("trigger_input", this, IInputPin::INPUT_OPTIONAL );
+    m_inputImage = createInputPin<OpenCVImage>("image", this, IInputPin::INPUT_REQUIRED );
+    m_inputTrigger = createInputPin<PlvBoolean>("trigger", this, IInputPin::INPUT_OPTIONAL );
 
     m_fileFormat.add("Windows Bitmap - *.bmp");
     m_fileFormat.add("JPEG Files - *.jpg");
@@ -53,7 +63,6 @@ SaveImageToFile::SaveImageToFile() :
 
     m_fileExt.clear();
     m_fileExt = ".bmp";
-
 }
 
 /**
@@ -64,15 +73,13 @@ SaveImageToFile::~SaveImageToFile(){}
 /**
  * Deals with the change of the directory property.
  */
-void SaveImageToFile::setDirectory(QString s){
+void SaveImageToFile::setDirectory(QString s)
+{
     //Clear the string before assigning a new value to it.
     m_directory.clear();
     //replace all '\' characters with '/' characters
     m_directory = s.replace('\\','/');
-
-    //qDebug() << "New directory selected:" << m_directory;
-
-    emit( directoryChanged(m_directory));
+    emit( directoryChanged(m_directory) );
 }
 
 /**
@@ -103,17 +110,14 @@ void SaveImageToFile::setFileFormat(plv::Enum e){
         m_fileExt = ".bmp";
         break;
     }
-
-    //qDebug() << "File format has changed to: " << m_fileExt;
-
     emit( fileFormatChanged(m_fileFormat) );
 }
 
 /** Mandatory methods. Has nothing to do here. Yet? */
-void SaveImageToFile::init() throw (PipelineException){}
+void SaveImageToFile::init()  {}
 void SaveImageToFile::deinit() throw(){}
-void SaveImageToFile::start() throw (PipelineException){}
-void SaveImageToFile::stop() throw (PipelineException){}
+void SaveImageToFile::start()  {}
+void SaveImageToFile::stop()  {}
 
 /**
  * The method in steps:
@@ -137,7 +141,7 @@ void SaveImageToFile::process()
         }
 
         //If the trigger has been connected check if the trigger sent an activation.
-        RefPtr<plvBoolean> trig = m_inputTrigger->get();
+        RefPtr<PlvBoolean> trig = m_inputTrigger->get();
         if( trig->getValue() )
             setDoSave(true);
     }
@@ -151,10 +155,9 @@ void SaveImageToFile::process()
         fn.append(m_filename);
         fn.append(QString::number(m_suffixNr));
         fn.append(m_fileExt);
-        std::string save = fn.toStdString();
 
         const IplImage* saveImg = img->getImage();
-        if(!cvSaveImage(save.c_str(), saveImg))
+        if(!cvSaveImage(fn.toAscii(), saveImg))
         {
             qDebug() << "Something went wrong with writing to a file: " << fn;
         }

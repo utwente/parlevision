@@ -29,38 +29,37 @@ ViolaJonesFaceDetector::~ViolaJonesFaceDetector()
     deinit();
 }
 
-void ViolaJonesFaceDetector::init() throw (PipelineException)
+void ViolaJonesFaceDetector::init()
 {
     // should not be initialized yet
     assert( m_pStorage == 0 );
     assert( m_pCascade == 0 );
 
-
     // we expect this to always succeed
     m_pStorage = cvCreateMemStorage(0);
     if( m_pStorage == 0 )
     {
-        throw PipelineException( "Failed to allocate temporary storage in OpenCV for "
-                                 "Viola Jones Facedetector processor");
+        throw PlvInitialisationException( "Failed to allocate temporary storage in OpenCV for "
+                                          "Viola Jones Facedetector processor");
     }
 
     QFile file( m_haarCascadeFile );
     if( !file.exists() )
     {
-        throw PipelineException( "Failed to load haar cascade file " +
-                                 m_haarCascadeFile + ". File does not exist." );
+        throw PlvInitialisationException( "Failed to load haar cascade file " +
+                                           m_haarCascadeFile + ". File does not exist." );
     }
     if( !file.isReadable() )
     {
-        throw PipelineException( "Failed to load haar cascade file " +
-                                 m_haarCascadeFile + ". File is not readable." );
+        throw PlvInitialisationException( "Failed to load haar cascade file " +
+                                           m_haarCascadeFile + ". File is not readable." );
     }
     void* cascade = cvLoad( m_haarCascadeFile.toAscii(),0,0,0 );
     if( cascade == 0 )
     {
 
-        throw PipelineException( "Failed to load haar cascade file "
-                                 + m_haarCascadeFile );
+        throw PlvInitialisationException( "Failed to load haar cascade file "
+                                            + m_haarCascadeFile );
     }
     m_pCascade = (CvHaarClassifierCascade*) cascade;
 }
@@ -74,11 +73,11 @@ void ViolaJonesFaceDetector::deinit() throw()
         cvReleaseMemStorage(&m_pStorage);
 }
 
-void ViolaJonesFaceDetector::start() throw (PipelineException)
+void ViolaJonesFaceDetector::start()
 {
 }
 
-void ViolaJonesFaceDetector::stop() throw (PipelineException)
+void ViolaJonesFaceDetector::stop()
 {
 }
 

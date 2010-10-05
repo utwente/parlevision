@@ -41,7 +41,7 @@ Diff::~Diff()
 {
 }
 
-void Diff::init() throw (PipelineException)
+void Diff::init()
 {
 }
 
@@ -49,11 +49,11 @@ void Diff::deinit() throw ()
 {
 }
 
-void Diff::start() throw (PipelineException)
+void Diff::start()
 {
 }
 
-void Diff::stop() throw (PipelineException)
+void Diff::stop()
 {
 }
 

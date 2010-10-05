@@ -168,19 +168,19 @@ namespace plv
 }
 
 /** primitive types */
-typedef plv::PrimitiveData<bool> plvBoolean;
-typedef plv::PrimitiveData<int> plvInteger;
-typedef plv::PrimitiveData<float> plvFloat;
-typedef plv::PrimitiveData<double> plvDouble;
-typedef plv::PrimitiveData<QString> plvString;
+typedef plv::PrimitiveData<bool> PlvBoolean;
+typedef plv::PrimitiveData<int> PlvInteger;
+typedef plv::PrimitiveData<float> PlvFloat;
+typedef plv::PrimitiveData<double> PlvDouble;
+typedef plv::PrimitiveData<QString> PlvString;
 
 /** Declare as Qt Metatype so we can pass RefPtr<Data> along with signals and slots */
 Q_DECLARE_METATYPE( plv::RefPtr<plv::Data> )
-Q_DECLARE_METATYPE( plv::RefPtr<plvBoolean> )
-Q_DECLARE_METATYPE( plv::RefPtr<plvInteger> )
-Q_DECLARE_METATYPE( plv::RefPtr<plvFloat> )
-Q_DECLARE_METATYPE( plv::RefPtr<plvDouble> )
-Q_DECLARE_METATYPE( plv::RefPtr<plvString> )
+Q_DECLARE_METATYPE( plv::RefPtr<PlvBoolean> )
+Q_DECLARE_METATYPE( plv::RefPtr<PlvInteger> )
+Q_DECLARE_METATYPE( plv::RefPtr<PlvFloat> )
+Q_DECLARE_METATYPE( plv::RefPtr<PlvDouble> )
+Q_DECLARE_METATYPE( plv::RefPtr<PlvString> )
 
 Q_DECLARE_METATYPE( plv::Enum )
 

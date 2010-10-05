@@ -143,7 +143,7 @@ ImageColorConvert::~ImageColorConvert()
 {
 }
 
-void ImageColorConvert::init() throw (PipelineException)
+void ImageColorConvert::init()
 {
 }
 
@@ -151,11 +151,11 @@ void ImageColorConvert::deinit() throw ()
 {
 }
 
-void ImageColorConvert::start() throw (PipelineException)
+void ImageColorConvert::start()
 {
 }
 
-void ImageColorConvert::stop() throw (PipelineException)
+void ImageColorConvert::stop()
 {
 }
 

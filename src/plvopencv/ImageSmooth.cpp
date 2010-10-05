@@ -46,14 +46,13 @@ ImageSmooth::ImageSmooth() :
     PLV_ENUM_ADD( m_method, CV_GAUSSIAN );
     PLV_ENUM_ADD( m_method, CV_MEDIAN );
     PLV_ENUM_ADD( m_method, CV_BILATERAL );
-
 }
 
 ImageSmooth::~ImageSmooth()
 {
 }
 
-void ImageSmooth::init() throw (PipelineException)
+void ImageSmooth::init()
 {
 }
 
@@ -61,11 +60,11 @@ void ImageSmooth::deinit() throw ()
 {
 }
 
-void ImageSmooth::start() throw (PipelineException)
+void ImageSmooth::start()
 {
 }
 
-void ImageSmooth::stop() throw (PipelineException)
+void ImageSmooth::stop()
 {
 }
 

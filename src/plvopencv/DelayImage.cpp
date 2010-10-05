@@ -41,7 +41,7 @@ DelayImage::~DelayImage()
 {
 }
 
-void DelayImage::init() throw (PipelineException)
+void DelayImage::init()
 {
 }
 
@@ -49,20 +49,15 @@ void DelayImage::deinit() throw ()
 {
 }
 
-void DelayImage::start() throw (PipelineException)
+void DelayImage::start()
 {
     assert( m_images.isEmpty() );
 }
 
-void DelayImage::stop() throw (PipelineException)
+void DelayImage::stop()
 {
     m_images.clear();
 }
-
-//bool DelayImage::isReadyForProcessing() const
-//{
-//    return true;
-//}
 
 void DelayImage::process()
 {

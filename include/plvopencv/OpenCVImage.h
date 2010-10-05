@@ -119,6 +119,13 @@ namespace plvopencv
             ALL = 7
         } ImageCompare;
 
+        class PLVCORE_EXPORT IllegalAccessException : public plv::PlvException
+        {
+        public:
+            IllegalAccessException(const QString& str ) : plv::PlvException(str) {}
+            virtual ~IllegalAccessException() throw() {}
+        };
+
         inline int getWidth() const { return m_img->width; }
         inline int getHeight() const { return m_img->height; }
         inline int getNumChannels() const { return m_img->nChannels; }
@@ -133,7 +140,7 @@ namespace plvopencv
           */
         const IplImage* getImage() const { return m_img; }
 
-        IplImage* getImageForWriting() throw ( plv::IllegalAccessException );
+        IplImage* getImageForWriting() throw ( IllegalAccessException );
 
         /** @returns a deep copy of this OpenCVImage, including a copy of the internal
           * IplImage.

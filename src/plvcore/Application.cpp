@@ -54,11 +54,11 @@ void Application::loadBuiltins()
     // register classes with Qt so they can be used in signals and slots
     qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
     qRegisterMetaType< plv::RefPtr<plv::Data> >("plv::RefPtr<plv::Data>");
-    qRegisterMetaType< plv::RefPtr<plvBoolean> >("plv::RefPtr<plvBoolean>");
-    qRegisterMetaType< plv::RefPtr<plvInteger> >("plv::RefPtr<plvInteger>");
-    qRegisterMetaType< plv::RefPtr<plvFloat> >("plv::RefPtr<plvFloat>");
-    qRegisterMetaType< plv::RefPtr<plvDouble> >("plv::RefPtr<plvDouble>");
-    qRegisterMetaType< plv::RefPtr<plvString> >("plv::RefPtr<plvString>");
+    qRegisterMetaType< plv::RefPtr<PlvBoolean> >("plv::RefPtr<PlvBoolean>");
+    qRegisterMetaType< plv::RefPtr<PlvInteger> >("plv::RefPtr<PlvInteger>");
+    qRegisterMetaType< plv::RefPtr<PlvFloat> >("plv::RefPtr<PlvFloat>");
+    qRegisterMetaType< plv::RefPtr<PlvDouble> >("plv::RefPtr<PlvDouble>");
+    qRegisterMetaType< plv::RefPtr<PlvString> >("plv::RefPtr<PlvString>");
 
     qRegisterMetaType< Enum >( "Enum" );
     qRegisterMetaType< plv::Enum >( "plv::Enum" );

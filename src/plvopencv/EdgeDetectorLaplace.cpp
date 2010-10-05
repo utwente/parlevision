@@ -41,7 +41,7 @@ EdgeDetectorLaplace::~EdgeDetectorLaplace()
 {
 }
 
-void EdgeDetectorLaplace::init() throw (PipelineException)
+void EdgeDetectorLaplace::init()
 {
 }
 
@@ -49,11 +49,11 @@ void EdgeDetectorLaplace::deinit() throw ()
 {
 }
 
-void EdgeDetectorLaplace::start() throw (PipelineException)
+void EdgeDetectorLaplace::start()
 {
 }
 
-void EdgeDetectorLaplace::stop() throw (PipelineException)
+void EdgeDetectorLaplace::stop()
 {
 }
 
@@ -65,10 +65,11 @@ void EdgeDetectorLaplace::process()
     RefPtr<OpenCVImage> img = m_inputPin->get();
     if(img->getDepth() != IPL_DEPTH_8U)
     {
-        throw std::runtime_error("format not yet supported");
+        throw plv::PlvRuntimeException("Format not supported", __FILE__, __LINE__);
     }
 
-    // temporary image with extra room (depth), see e.g. http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
+    // temporary image with extra room (depth)
+    // see e.g. http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
     RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
 

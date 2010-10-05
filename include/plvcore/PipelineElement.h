@@ -36,10 +36,10 @@
 /** Utility macro for implemented pure abstract methods in sub classes */
 #define PLV_PIPELINE_ELEMENT \
 public: \
-    virtual void init() throw (plv::PipelineException); \
+    virtual void init(); \
     virtual void deinit() throw (); \
-    virtual void start() throw (plv::PipelineException); \
-    virtual void stop() throw (plv::PipelineException); \
+    virtual void start(); \
+    virtual void stop(); \
     virtual void process();
 
 namespace plv
@@ -91,7 +91,7 @@ namespace plv
           * initialization. It however can be called again after a call to deinit()
           * Note: when this method throws an exception, deinit() is called right after.
           */
-        virtual void init() throw (PipelineException) = 0;
+        virtual void init() = 0;
 
         /** Deinitalizes an element and frees resources. This method is not
           * allowed to throw an exception. It is called on PipelineElement
@@ -103,8 +103,8 @@ namespace plv
           * by the user. This is useful for opening required input devices,
           * starting threads etc. A start() call may occur again after every stop().
           */
-        virtual void start() throw (PipelineException) = 0;
-        virtual void stop() throw (PipelineException) = 0;
+        virtual void start() = 0;
+        virtual void stop() = 0;
 
         /** @returns true when this PipelineElement is ready for procesing,
           * which is when the process method is allowed to be called by the scheduler.
@@ -250,7 +250,7 @@ namespace plv
          */
         //virtual void setPipeline(Pipeline* parent);
 
-        bool __init() throw (PipelineException);
+        bool __init();
 
         /** check if required pins are connected and if data is available
           * on required pins. Calls isReadyForProcessing function of super

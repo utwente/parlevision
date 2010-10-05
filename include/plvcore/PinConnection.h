@@ -42,10 +42,29 @@ namespace plv
             LOSSY_FIFO,
             LOSSY_LIFO
         };
-
-
         friend class Pipeline;
     public:
+        class PLVCORE_EXPORT IllegalConnectionException : public PlvException
+        {
+        public:
+            IllegalConnectionException(const QString& str) : PlvException(str) {}
+            virtual ~IllegalConnectionException() throw() {}
+        };
+
+        class PLVCORE_EXPORT IncompatibleTypeException : public PlvException
+        {
+        public:
+            IncompatibleTypeException(const QString& str) : PlvException(str) {}
+            virtual ~IncompatibleTypeException() throw() {}
+        };
+
+        class PLVCORE_EXPORT DuplicateConnectionException : public PlvException
+        {
+        public:
+            DuplicateConnectionException(const QString& str) : PlvException(str) {}
+            virtual ~DuplicateConnectionException() throw() {}
+        };
+
         PinConnection( IOutputPin* producer, IInputPin* consumer )
                 throw ( IllegalConnectionException,
                         IncompatibleTypeException,
@@ -55,7 +74,7 @@ namespace plv
         bool hasData();
         int size();
         inline ConnectionType getType();
-        RefPtr<Data> get() throw ( PipelineException );
+        RefPtr<Data> get() throw ( PlvRuntimeException );
         void put( Data* data );
 
         /** Throw away all data in this connection. */

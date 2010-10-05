@@ -31,79 +31,83 @@ namespace plv
 {
     class PLVCORE_EXPORT PlvException : public std::runtime_error
     {
+
     public:
-        PlvException( const QString& str ) : std::runtime_error( str.toStdString() ) {}
-        //PlvException( const std::string& str ) : std::runtime_error( str ) {}
+        PlvException(const QString& str) : std::runtime_error(str.toStdString()){}
+        virtual ~PlvException() throw() {}
     };
 
-    class PLVCORE_EXPORT PipelineException : public PlvException
+    class PLVCORE_EXPORT PlvRuntimeException : public PlvException
+    {
+    protected:
+        QString m_fileName;
+        int m_lineNumber;
+    public:
+        PlvRuntimeException(const QString& str, QString fileName, int lineNumber)
+            : PlvException(str),
+            m_fileName(fileName),
+            m_lineNumber(lineNumber)
+        {
+        }
+        virtual ~PlvRuntimeException() throw() {}
+
+        inline QString getFileName() const { return m_fileName; }
+        inline int getLineNumber() const { return m_lineNumber; }
+    };
+
+    class PLVCORE_EXPORT PlvFatalException : public PlvRuntimeException
     {
     public:
-        //PipelineException( const std::string& str ) : PlvException( str ) {}
-        PipelineException( const QString& str ) : PlvException( str ) {}
+        PlvFatalException(const QString& str, QString fileName, int lineNumber )
+            : PlvRuntimeException( str, fileName, lineNumber ) {}
+        virtual ~PlvFatalException() throw() {}
     };
 
-    class PLVCORE_EXPORT IllegalAccessException : public PlvException
+    class PLVCORE_EXPORT PlvInitialisationException : public PlvException
     {
     public:
-        //IllegalAccessException( const std::string& str ) : PlvException( str ) {}
-        IllegalAccessException( const QString& str ) : PlvException( str ) {}
+        PlvInitialisationException(const QString& str) : PlvException(str) {}
+        virtual ~PlvInitialisationException() throw() {}
     };
 
-   class PLVCORE_EXPORT IllegalArgumentException : public PlvException
+    class PLVCORE_EXPORT IllegalArgumentException : public PlvException
     {
     public:
-        IllegalArgumentException( const QString& str ) : PlvException( str ) {}
-        //IllegalArgumentException( const std::string& str ) : PlvException( str ) {}
+        IllegalArgumentException(const QString& str) : PlvException(str) {}
+        virtual ~IllegalArgumentException() throw() {}
     };
 
-    class PLVCORE_EXPORT ElementCreationException : public PlvException
-    {
-    public:
-        ElementCreationException(const QString& msg) : PlvException(msg) {}
-        //ElementCreationException(const std::string& msg) : PlvException(msg) {}
-    };
-
-    class PLVCORE_EXPORT InstantiationException : public PlvException
-    {
-    public:
-        InstantiationException(const QString& msg) : PlvException(msg) {}
-        //InstantiationException(const std::string& msg) : PlvException(msg) {}
-    };
-
-    class PLVCORE_EXPORT IllegalConnectionException : public PlvException
-    {
-    public:
-        IllegalConnectionException(const QString& msg) : PlvException(msg) {}
-        //DuplicateConnectionException(const std::string& msg) : PlvException(msg) {}
-    };
-
-    class PLVCORE_EXPORT IncompatibleTypeException : public PlvException
-    {
-    public:
-        IncompatibleTypeException(const QString& msg) : PlvException(msg) {}
-        //IncompatibleTypeException(const std::string& msg) : PlvException(msg) {}
-    };
-
-    class PLVCORE_EXPORT DuplicateConnectionException : public PlvException
-    {
-    public:
-        DuplicateConnectionException(const QString& msg) : PlvException(msg) {}
-        //DuplicateConnectionException(const std::string& msg) : PlvException(msg) {}
-    };
-
-//    class DataFormatException : public PipelineException
+//    class PLVCORE_EXPORT IllegalAccessException : public PlvException
 //    {
 //    public:
-//        RefPtr<Pin> pin;
-//        RefPtr<PipelineElement> source;
-//        DataFormatException( const std::string& msg, PipelineElement* source, Pin* p)
-//            : PipelineException( msg ),
-//            pin(p),
-//            source(source)
-//        {};
-//        ~DataFormatException() throw();
+//        IllegalAccessException(const QString& str, QString fileName, int lineNumber )
+//            : PlvException( str, fileName, lineNumber )
+//        {
+//        }
+//        virtual ~IllegalAccessException() throw() {}
 //    };
+
+//    class PLVCORE_EXPORT ElementCreationException : public PlvException
+//    {
+//    public:
+//        ElementCreationException(const QString& str, QString fileName, int lineNumber )
+//            : PlvException( str, fileName, lineNumber )
+//        {
+//        }
+//        virtual ~ElementCreationException() throw() {}
+//    };
+
+//    class PLVCORE_EXPORT InstantiationException : public PlvException
+//    {
+//    public:
+//        InstantiationException(const QString& str, QString fileName, int lineNumber )
+//            : PlvException( str, fileName, lineNumber )
+//        {
+//        }
+//        virtual ~InstantiationException() throw() {}
+//    };
+
+
 }
 
 

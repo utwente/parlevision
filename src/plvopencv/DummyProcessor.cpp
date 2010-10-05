@@ -53,7 +53,7 @@ DummyProcessor::~DummyProcessor()
 {
 }
 
-void DummyProcessor::init() throw (PipelineException)
+void DummyProcessor::init()
 {
 }
 
@@ -61,11 +61,11 @@ void DummyProcessor::deinit() throw()
 {
 }
 
-void DummyProcessor::start() throw (PipelineException)
+void DummyProcessor::start()
 {
 }
 
-void DummyProcessor::stop() throw (PipelineException)
+void DummyProcessor::stop()
 {
 }
 

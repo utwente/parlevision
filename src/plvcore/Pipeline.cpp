@@ -75,7 +75,7 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
     {
         element->init();
     }
-    catch( PipelineException& e )
+    catch( PlvException& e )
     {
         QString msg = element->getName() + ": " + e.what();
         errorOccurred( msg );
@@ -169,7 +169,9 @@ const Pipeline::PipelineConnectionsList& Pipeline::getConnections() const
 }
 
 void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
-        throw (IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException)
+        throw (PinConnection::IllegalConnectionException,
+               PinConnection::IncompatibleTypeException,
+               PinConnection::DuplicateConnectionException)
 {
     QMutexLocker lock( &m_pipelineMutex );
 
@@ -258,7 +260,7 @@ void Pipeline::start()
             element->start();
             started.insert( element.getPtr() );
         }
-        catch( PipelineException& e )
+        catch( PlvException& e )
         {
             QString msg = element->getName() % ": " % e.what();
             errorOccurred(msg);

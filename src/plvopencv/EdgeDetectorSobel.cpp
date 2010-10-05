@@ -41,7 +41,7 @@ EdgeDetectorSobel::~EdgeDetectorSobel()
 {
 }
 
-void EdgeDetectorSobel::init() throw (PipelineException)
+void EdgeDetectorSobel::init()
 {
 }
 
@@ -49,11 +49,11 @@ void EdgeDetectorSobel::deinit() throw ()
 {
 }
 
-void EdgeDetectorSobel::start() throw (PipelineException)
+void EdgeDetectorSobel::start()
 {
 }
 
-void EdgeDetectorSobel::stop() throw (PipelineException)
+void EdgeDetectorSobel::stop()
 {
 }
 

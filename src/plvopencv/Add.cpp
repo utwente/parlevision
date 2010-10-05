@@ -42,7 +42,7 @@ Add::~Add()
 {
 }
 
-void Add::init() throw (PipelineException)
+void Add::init()
 {
 }
 
@@ -50,11 +50,11 @@ void Add::deinit() throw ()
 {
 }
 
-void Add::start() throw (PipelineException)
+void Add::start()
 {
 }
 
-void Add::stop() throw (PipelineException)
+void Add::stop()
 {
 }
 
@@ -71,7 +71,7 @@ void Add::process()
     if( !img1->isCompatible( img2.getPtr() ) )
     {
         //TODO: we could use some modifications when the images do not match -- e.g., copy one of the mismatching images into a duplicate that DOES match (stretch? shrink? add depth?)
-        throw std::runtime_error("The two images need to be the same in depth, size and nr of channels");
+        throw plv::PlvRuntimeException("The two images need to be the same in depth, size and nr of channels", __FILE__, __LINE__);
     }
 
     // open input images for reading

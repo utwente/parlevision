@@ -85,24 +85,9 @@ void LibraryWidget::createItem(QString typeName)
     //    ui->container->addWidget(w);
         this->allElements.insert(w->getElement()->getName().toLower(), w);
     }
-    catch( PipelineException& pe )
-    {
-        emit(errorOccurred(typeName + ": " + pe.what()));
-        return;
-    }
-    catch( IllegalAccessException& iae )
-    {
-        emit(errorOccurred(typeName + ": " + iae.what()));
-        return;
-    }
     catch( PlvException& e )
     {
         emit(errorOccurred(typeName + ": " + e.what()));
-        return;
-    }
-    catch( std::runtime_error& err )
-    {
-        emit(errorOccurred(typeName + ": " + err.what()));
         return;
     }
     catch( ... )

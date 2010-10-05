@@ -295,22 +295,15 @@ void ScheduleInfo::run()
     {
         m_element->__process();
     }
-    catch( PipelineException& pe )
+    catch( PlvRuntimeException& re )
     {
         qDebug() << "Uncaught exception in PipelineElement::process()"
-                 << "of type PipelineException with message: " << pe.what();
+                 << " of file " << re.getFileName()
+                 << " on line " << re.getLineNumber()
+                 << " of type PlvRuntimeException with message: " << re.what();
         stopTimer();
         setState( ERROR );
-        setErrorString( pe.what() );
-        return;
-    }
-    catch( IllegalAccessException& iae )
-    {
-        qDebug() << "Uncaught exception in PipelineElement::process()"
-                 << "of type IllegalAccessException with message: " << iae.what();
-        stopTimer();
-        setState( ERROR );
-        setErrorString( iae.what() );
+        setErrorString( re.what() );
         return;
     }
     catch( PlvException& e )

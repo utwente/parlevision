@@ -49,7 +49,9 @@ PinConnection::~PinConnection()
 }
 
 void PinConnection::connect()
-        throw (IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException)
+        throw (IllegalConnectionException,
+               IncompatibleTypeException,
+               DuplicateConnectionException)
 {
     QMutexLocker lock( &m_connectionMutex );
 
@@ -59,12 +61,12 @@ void PinConnection::connect()
                                           " to itself" );
 
     if(m_consumer->isConnected())
-        throw DuplicateConnectionException( m_consumer->getName() + " is already connected" );
+        throw DuplicateConnectionException(m_consumer->getName() + " is already connected");
 
     const std::type_info& producerTypeInfo = m_producer->getTypeInfo();
     const std::type_info& consumerTypeInfo = m_consumer->getTypeInfo();
 
-    if( producerTypeInfo != consumerTypeInfo )
+    if(producerTypeInfo != consumerTypeInfo)
     {
         QString producerName = m_producer->getName();
         QString consumerName = m_consumer->getName();
@@ -77,7 +79,7 @@ void PinConnection::connect()
                          " with types " % producerTypeName %
                          " and " % consumerTypeName;
 
-        throw IncompatibleTypeException( errStr );
+        throw IncompatibleTypeException(errStr);
     }
     m_producer->addConnection(this);
     m_consumer->setConnection(this);
@@ -125,15 +127,21 @@ int PinConnection::size()
     return static_cast<int>( m_queue.size() );
 }
 
-RefPtr<Data> PinConnection::get() throw ( PipelineException )
+RefPtr<Data> PinConnection::get() throw ( PlvRuntimeException )
 {
     QMutexLocker lock( &m_connectionMutex );
     if( m_queue.empty() )
     {
-        throw PipelineException( "Illegal: method get() called on PinConnection "
-                                 "which has no data available" );
-    }
+        QString producerName = m_producer->getOwner()->getName();
+        QString consumerName = m_consumer->getOwner()->getName();
 
+        QString msg = "Illegal: method get() called on PinConnection"
+                      "which has no data available"
+                      " with producer owner " % producerName %
+                      " and consumer owner " % consumerName;
+
+        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+    }
     RefPtr<Data> data = m_queue.front();
     m_queue.pop();
     return data;

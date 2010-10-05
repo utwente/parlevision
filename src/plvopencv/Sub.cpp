@@ -41,7 +41,7 @@ Sub::~Sub()
 {
 }
 
-void Sub::init() throw (PipelineException)
+void Sub::init()
 {
 }
 
@@ -49,11 +49,11 @@ void Sub::deinit() throw ()
 {
 }
 
-void Sub::start() throw (PipelineException)
+void Sub::start()
 {
 }
 
-void Sub::stop() throw (PipelineException)
+void Sub::stop()
 {
 }
 

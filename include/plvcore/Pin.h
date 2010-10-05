@@ -284,11 +284,13 @@ namespace plv
             m_connection->flush();
         }
 
-        RefPtr<T> get() throw ( PipelineException )
+        RefPtr<T> get() throw ( PlvRuntimeException )
         {
             if( !(this->m_connection.isNotNull() && this->m_connection->hasData() ))
             {
-                throw PipelineException( "Illegal: method get() called on pin which has no data available" );
+                throw PlvRuntimeException( "Illegal: method get() called on pin "
+                                           "which has no data available",
+                                           __FILE__, __LINE__ );
             }
 
             RefPtr<Data> data = this->m_connection->get();
@@ -300,7 +302,8 @@ namespace plv
             RefPtr<T> typedData = ref_ptr_dynamic_cast<T>( data );
             if( typedData.isNull() )
             {
-               throw PipelineException( "Data delivered to pin of incomaptible type " );
+               throw PlvRuntimeException( "Data delivered to pin of incomaptible type ",
+                                          __FILE__, __LINE__ );
             }
 #else
             // We can safely do this because this Pin is
@@ -363,7 +366,8 @@ namespace plv
     }
 
     template<typename T>
-    InputPin<T> * createInputPin( const QString& name, PipelineElement* owner, IInputPin::InputPinType type = IInputPin::INPUT_REQUIRED )
+    InputPin<T> * createInputPin( const QString& name, PipelineElement* owner,
+                                  IInputPin::InputPinType type = IInputPin::INPUT_REQUIRED )
     throw (IllegalArgumentException)
     {
         // if add fails pin is automatically deleted and exception is thrown

@@ -103,7 +103,9 @@ namespace plv
           * @emits connectionAdded(connection)
           */
         void connectPins( IOutputPin* outputPin, IInputPin* inputPin )
-            throw ( IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException );
+            throw(PinConnection::IllegalConnectionException,
+                  PinConnection::IncompatibleTypeException,
+                  PinConnection::DuplicateConnectionException);
 
         /** Disconnects and removes a single connection.
           * Quite slow O(N) since it traverses a linked list.

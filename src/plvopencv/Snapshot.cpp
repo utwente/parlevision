@@ -41,7 +41,7 @@ Snapshot::~Snapshot()
 {
 }
 
-void Snapshot::init() throw (PipelineException)
+void Snapshot::init()
 {
 }
 
@@ -49,11 +49,11 @@ void Snapshot::deinit() throw ()
 {
 }
 
-void Snapshot::start() throw (PipelineException)
+void Snapshot::start()
 {
 }
 
-void Snapshot::stop() throw (PipelineException)
+void Snapshot::stop()
 {
 }
 
@@ -104,6 +104,5 @@ void Snapshot::process()
 
     // publish the new image
     m_outputPin->put( imgOut.getPtr() );
-
 }
 

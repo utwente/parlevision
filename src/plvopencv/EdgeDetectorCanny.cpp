@@ -47,7 +47,7 @@ EdgeDetectorCanny::~EdgeDetectorCanny()
 {
 }
 
-void EdgeDetectorCanny::init() throw (PipelineException)
+void EdgeDetectorCanny::init()
 {
 }
 
@@ -55,11 +55,11 @@ void EdgeDetectorCanny::deinit() throw ()
 {
 }
 
-void EdgeDetectorCanny::start() throw (PipelineException)
+void EdgeDetectorCanny::start()
 {
 }
 
-void EdgeDetectorCanny::stop() throw (PipelineException)
+void EdgeDetectorCanny::stop()
 {
 }
 
