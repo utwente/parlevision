@@ -53,7 +53,7 @@ namespace plvopencv
 
     public:
         ImageSmooth();
-        ~ImageSmooth();
+        virtual ~ImageSmooth();
 
         /** propery methods */
         plv::Enum getMethod() const { return m_method; }

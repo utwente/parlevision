@@ -45,7 +45,7 @@ namespace plvopencv
 
     public:
         ImageFlip();
-        ~ImageFlip();
+        virtual ~ImageFlip();
 
         /** propery methods */
         bool getFlipX() { return m_flipX; }

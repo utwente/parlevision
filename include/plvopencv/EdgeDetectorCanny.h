@@ -46,7 +46,7 @@ namespace plvopencv
 
     public:
         EdgeDetectorCanny();
-        ~EdgeDetectorCanny();
+        virtual ~EdgeDetectorCanny();
 
         /** propery methods */
         int getApertureSize() { return m_apertureSize; }

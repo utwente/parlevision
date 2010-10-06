@@ -39,7 +39,7 @@ namespace plvopencv
 
     public:
         ImageColorConvert();
-        ~ImageColorConvert();
+        virtual ~ImageColorConvert();
 
         /** propery methods */
         plv::Enum getConversionType() { return m_conversionType; }

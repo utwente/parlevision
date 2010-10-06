@@ -44,7 +44,7 @@ namespace plvopencv
 
     public:
         EdgeDetectorLaplace();
-        ~EdgeDetectorLaplace();
+        virtual ~EdgeDetectorLaplace();
 
         /** propery methods */
         int getApertureSize() { return m_apertureSize; }

@@ -44,7 +44,7 @@ namespace plvopencv
 
     public:
         Sub();
-        ~Sub();
+        virtual ~Sub();
 
     private:
         plv::InputPin<OpenCVImage>* m_inputPin1;

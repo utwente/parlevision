@@ -44,7 +44,7 @@ namespace plvopencv
 
     public:
         EdgeDetectorSobel();
-        ~EdgeDetectorSobel();
+        virtual ~EdgeDetectorSobel();
 
         /** propery methods */
         int getApertureSize() { return m_apertureSize; }

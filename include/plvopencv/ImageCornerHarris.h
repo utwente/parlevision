@@ -42,7 +42,7 @@ namespace plvopencv
 
     public:
         ImageCornerHarris();
-        ~ImageCornerHarris();
+        virtual ~ImageCornerHarris();
 
         /** propery methods */
         int getApertureSize() { return m_apertureSize; }

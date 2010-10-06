@@ -69,7 +69,7 @@ namespace plvopencv
     public:
         /** Constructor/Destructor */
         SaveImageToFile();
-        ~SaveImageToFile();
+        virtual ~SaveImageToFile();
 
         /** property methods */
         bool getDoSave(){ return m_doSave; }

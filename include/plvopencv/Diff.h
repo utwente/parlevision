@@ -44,7 +44,7 @@ namespace plvopencv
         PLV_PIPELINE_ELEMENT
     public:
         Diff();
-        ~Diff();
+        virtual ~Diff();
     private:
         plv::InputPin<OpenCVImage>* m_inputPin1;
         plv::InputPin<OpenCVImage>* m_inputPin2;

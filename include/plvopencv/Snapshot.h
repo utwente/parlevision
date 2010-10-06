@@ -44,7 +44,7 @@ namespace plvopencv
 
     public:
         Snapshot();
-        ~Snapshot();
+        virtual ~Snapshot();
 
         /** propery methods */
         bool getMakeSnapshot() { return m_makeSnapshot; }

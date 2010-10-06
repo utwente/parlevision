@@ -50,7 +50,7 @@ namespace plvopencv
         static const int MAX_STEPS = 1000;
 
         DelayImage();
-        ~DelayImage();
+        virtual ~DelayImage();
 
         /** propery methods */
         int getSteps() { return m_steps; }

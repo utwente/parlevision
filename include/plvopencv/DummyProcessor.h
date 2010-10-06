@@ -51,7 +51,7 @@ namespace plvopencv
 
     public:
         DummyProcessor();
-        ~DummyProcessor();
+        virtual ~DummyProcessor();
 
         /** propery methods */
         int getSomeInt() { return m_someInt; }

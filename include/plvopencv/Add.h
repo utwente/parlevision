@@ -45,7 +45,7 @@ namespace plvopencv
 
     public:
         Add();
-        ~Add();
+        virtual ~Add();
 
         /** propery methods */
         bool getNormalizeAfterAdd() { return m_normalize; }

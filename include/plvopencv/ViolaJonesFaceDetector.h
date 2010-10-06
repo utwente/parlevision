@@ -30,7 +30,7 @@ namespace plvopencv
 
     public:
         ViolaJonesFaceDetector();
-        ~ViolaJonesFaceDetector();
+        virtual ~ViolaJonesFaceDetector();
 
         /** propery methods */
         int getMinNeighbours() { return m_minNeighbours; }
