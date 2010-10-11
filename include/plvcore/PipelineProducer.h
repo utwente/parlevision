@@ -22,7 +22,6 @@
 #ifndef PIPELINEPRODUCER_H
 #define PIPELINEPRODUCER_H
 
-#include <map>
 #include "RefPtr.h"
 #include "PipelineElement.h"
 

@@ -21,13 +21,12 @@
 
 #include "ImageConverter.h"
 
-#include <plvopencv/OpenCVImage.h>
+#include <plvcore/OpenCVImage.h>
 
 #include <QImage>
 #include <QString>
 #include <QtConcurrentRun>
 
-using namespace plvopencv;
 using namespace plvgui;
 using namespace plv;
 

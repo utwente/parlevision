@@ -25,10 +25,13 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+}
 
+namespace plvopencv
+{
     class EdgeDetectorSobel : public plv::PipelineProcessor
     {
         Q_OBJECT
@@ -55,10 +58,8 @@ namespace plvopencv
         void setApertureSize(int i);
 
     private:
-
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
-
+        plv::InputPin<plv::OpenCVImage>* m_inputPin;
+        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
         int m_apertureSize;
 
     };

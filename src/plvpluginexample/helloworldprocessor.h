@@ -2,19 +2,16 @@
 #define HELLOWORLDPROCESSOR_H
 
 #include <QObject>
-#include <plvcore/PipelineElement.h>
+#include <plvcore/PipelineProcessor.h>
 #include <plvcore/RefPtr.h>
 #include <plvcore/Pin.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
 }
 
-using namespace plv;
-using namespace plvopencv;
-
-class HelloWorldProcessor : public PipelineElement
+class HelloWorldProcessor : public plv::PipelineProcessor
 {
     Q_OBJECT
     Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt NOTIFY someIntChanged  )
@@ -22,16 +19,11 @@ class HelloWorldProcessor : public PipelineElement
     Q_PROPERTY( bool someBool READ getSomeBool WRITE setSomeBool NOTIFY someBoolChanged  )
     Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString NOTIFY someStringChanged )
 
+    PLV_PIPELINE_ELEMENT
+
 public:
     HelloWorldProcessor();
     virtual ~HelloWorldProcessor();
-
-    virtual void init() throw (PipelineException);
-    virtual void deinit() throw ();
-    virtual void start() throw (PipelineException);
-    virtual void stop() throw (PipelineException);
-    virtual bool isReadyForProcessing() const;
-    virtual void process();
 
     /** propery methods */
     int getSomeInt() { return m_someInt; }
@@ -52,8 +44,8 @@ public slots:
     void setSomeString(QString s) {m_someString = s; emit(someStringChanged(s));}
 
 private:
-    RefPtr< InputPin<OpenCVImage> > m_inputPin;
-    RefPtr< OutputPin<OpenCVImage> > m_outputPin;
+    plv::RefPtr< plv::InputPin<plv::OpenCVImage> > m_inputPin;
+    plv::RefPtr< plv::OutputPin<plv::OpenCVImage> > m_outputPin;
 
     int m_someInt;
     double m_someDouble;

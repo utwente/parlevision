@@ -20,13 +20,12 @@
   */
 
 #include "OpenCVImage.h"
-#include <plvcore/RefPtr.h>
+#include "RefPtr.h"
 
 #include <opencv/cv.h>
 #include <QMutexLocker>
 
 using namespace plv;
-using namespace plvopencv;
 
 OpenCVImageFactory* OpenCVImageFactory::m_instance = 0;
 
@@ -205,11 +204,12 @@ OpenCVImage::~OpenCVImage()
     m_img = 0;
 }
 
-IplImage* OpenCVImage::getImageForWriting() throw ( IllegalAccessException )
+IplImage* OpenCVImage::getImageForWriting() throw ( plv::PlvRuntimeException )
 {
     if( !isMutable() )
     {
-        throw IllegalAccessException( "Tried to access image data on an immutable image." );
+        throw plv::PlvRuntimeException( "Tried to access image data on an immutable image.",
+                                        __FILE__, __LINE__ );
     }
     return m_img;
 }

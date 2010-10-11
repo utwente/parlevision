@@ -6,10 +6,13 @@
 #include <plvcore/Types.h>
 #include <opencv/cv.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+}
 
+namespace plvopencv
+{
     class ViolaJonesFaceDetector : public plv::PipelineProcessor
     {
         Q_OBJECT
@@ -57,8 +60,8 @@ namespace plvopencv
         void setHaarCascadeFile(QString filename) { m_haarCascadeFile = filename; emit( haarCascadeFileChanged(filename)); }
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::InputPin<plv::OpenCVImage>* m_inputPin;
+        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
 
         int m_minNeighbours;
         double m_scaleFactor;

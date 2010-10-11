@@ -26,10 +26,13 @@
 #include <plvcore/Pin.h>
 #include <plvcore/Types.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+}
 
+namespace plvopencv
+{
     /**
      * For every image this proccessor recieves it sends out a boolean signal.
      * This signal is of the same value as the processors activation property.

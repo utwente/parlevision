@@ -4,11 +4,10 @@
 
 #include "HelloWorldProcessor.h"
 #include <plvcore/Pin.h>
-#include <plvopencv/OpenCVImage.h>
+#include <plvcore/OpenCVImage.h>
 #include <opencv/cv.h>
 
 using namespace plv;
-using namespace plvopencv;
 
 HelloWorldProcessor::HelloWorldProcessor() :
         m_someInt(1337),
@@ -27,7 +26,7 @@ HelloWorldProcessor::~HelloWorldProcessor()
 {
 }
 
-void HelloWorldProcessor::init() throw (PipelineException)
+void HelloWorldProcessor::init()
 {
 }
 
@@ -35,21 +34,12 @@ void HelloWorldProcessor::deinit() throw ()
 {
 }
 
-void HelloWorldProcessor::start() throw (PipelineException)
+void HelloWorldProcessor::start()
 {
 }
 
-void HelloWorldProcessor::stop() throw (PipelineException)
+void HelloWorldProcessor::stop()
 {
-}
-
-bool HelloWorldProcessor::isReadyForProcessing() const
-{
-    if( m_inputPin->isConnected() )
-    {
-        return m_inputPin->getConnection()->hasData();
-    }
-    return false;
 }
 
 void HelloWorldProcessor::process()

@@ -25,7 +25,7 @@
 #include <QMutex>
 #include <QLabel>
 
-#include <plvopencv/OpenCVImage.h>
+#include <plvcore/OpenCVImage.h>
 #include <plvcore/RefPtr.h>
 
 #include "ImageConverter.h"
@@ -37,7 +37,8 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QImage;
 
-namespace plv {
+namespace plv
+{
     class Data;
 }
 

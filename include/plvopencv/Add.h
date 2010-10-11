@@ -25,10 +25,13 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+}
 
+namespace plvopencv
+{
     /**
       * Add two images.
       */
@@ -57,9 +60,9 @@ namespace plvopencv
         void setNormalizeAfterAdd(bool b) {m_normalize = b; emit(normalizeAfterAddChanged(b));}
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin1;
-        plv::InputPin<OpenCVImage>* m_inputPin2;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::InputPin<plv::OpenCVImage>* m_inputPin1;
+        plv::InputPin<plv::OpenCVImage>* m_inputPin2;
+        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
         bool m_normalize;
     };
 }

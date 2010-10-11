@@ -2,7 +2,7 @@
 #include <QFile>
 
 #include "ViolaJonesFaceDetector.h"
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
 #include <plvcore/Pin.h>
 

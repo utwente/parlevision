@@ -22,7 +22,7 @@
 #include <QDebug>
 
 #include "Diff.h"
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
 #include <plvcore/Pin.h>
 #include <opencv/cv.h>

@@ -22,7 +22,7 @@
 #include "DummyProcessor.h"
 
 #include <plvcore/Pin.h>
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
 #include <QDebug>
 

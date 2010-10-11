@@ -29,10 +29,13 @@
 #include <QMutexLocker>
 #include <QList>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+}
 
+namespace plvopencv
+{
     class DelayImage : public plv::PipelineProcessor
     {
         Q_OBJECT
@@ -62,12 +65,12 @@ namespace plvopencv
         void setSteps(int i);
 
     private:
-        plv::InputPin<OpenCVImage>*  m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
-        plv::OutputPin<OpenCVImage>* m_delayedOutputPin;
+        plv::InputPin<plv::OpenCVImage>*  m_inputPin;
+        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
+        plv::OutputPin<plv::OpenCVImage>* m_delayedOutputPin;
 
         /** List of delayed images. */
-        QList< plv::RefPtr<OpenCVImage> > m_images;
+        QList< plv::RefPtr<plv::OpenCVImage> > m_images;
 
         /** Number of steps images are delayed */
         int m_steps;

@@ -50,7 +50,8 @@ SOURCES += \
     Pipeline.cpp \
     PipelineLoader.cpp \
     Scheduler.cpp \
-    Plugin.cpp
+    Plugin.cpp \
+    OpenCVImage.cpp
 
 HEADERS += ../../include/plvcore/plvglobal.h \
     ../../include/plvcore/Application.h \
@@ -67,3 +68,5 @@ HEADERS += ../../include/plvcore/plvglobal.h \
     ../../include/plvcore/PlvExceptions.h \
     ../../include/plvcore/PipelineLoader.h \
     ../../include/plvcore/Scheduler.h \
+    ../../include/plvcore/OpenCVImage.h
+

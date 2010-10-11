@@ -26,10 +26,13 @@
 #include <plvcore/Pin.h>
 #include <plvcore/Types.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+}
 
+namespace plvopencv
+{
     /**
      * This proccessor allows a single camera image to be saved to the hard-
      * drive. The user is capable of providing the directory where the file has
@@ -96,7 +99,7 @@ namespace plvopencv
         void setAutoIncSuf(bool b) {m_autoIncSuf = b; emit(autoIncSufChanged(b));}
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputImage;
+        plv::InputPin<plv::OpenCVImage>* m_inputImage;
         plv::InputPin<PlvBoolean>* m_inputTrigger;
 
         bool        m_doSave;    //Determines if the input has to be saved. Mostly false.

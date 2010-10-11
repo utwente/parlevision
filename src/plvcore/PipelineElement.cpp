@@ -22,6 +22,7 @@
 #include "PipelineElement.h"
 
 #include <QString>
+#include <QStringBuilder>
 #include <QDebug>
 #include <QMetaObject>
 #include <QMetaProperty>
@@ -263,6 +264,15 @@ void PipelineElement::__process()
     {
         RefPtr<IInputPin> in = itr->second;
         in->unscope();
+
+        // check if get has been called on all input pins
+        if( !in->getCalled() )
+        {
+            QString processorName = in->getOwner()->getName();
+            QString msg = "Processor " % processorName % " did not call madatory get() "
+                " on input Pin " % this->getName();
+            throw PlvRuntimeException(msg, __FILE__, __LINE__);
+        }
     }
 }
 

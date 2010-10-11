@@ -28,7 +28,6 @@
 #include <plvcore/PipelineProducer.h>
 #include <plvcore/Pin.h>
 
-#include "OpenCVImage.h"
 #include "OpenCVCamera.h"
 
 namespace plvopencv
@@ -48,12 +47,12 @@ namespace plvopencv
         /** @returns true if a new frame is available */
         bool isReadyForProcessing() const;
 
-        inline plv::RefPtr<OpenCVCamera> getCamera() const { return m_camera; }
+        inline OpenCVCamera* getCamera() const { return m_camera.getPtr(); }
 
     protected:
         plv::RefPtr<OpenCVCamera> m_camera;
-        plv::RefPtr<OpenCVImage> m_lastFrame;
-        plv::RefPtr< plv::OutputPin<OpenCVImage> > m_outputPin;
+        plv::RefPtr<plv::OpenCVImage> m_lastFrame;
+        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
 
         int m_lastProcessedId;
 

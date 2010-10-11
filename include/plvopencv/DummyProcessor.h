@@ -26,10 +26,13 @@
 #include <plvcore/Pin.h>
 #include <plvcore/Types.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+}
 
+namespace plvopencv
+{
     class DummyProcessor : public plv::PipelineProcessor
     {
         Q_OBJECT
@@ -82,9 +85,9 @@ namespace plvopencv
         void setCustomEnum( plv::Enum c ) { m_customEnum = c; emit( customEnumChanged( c ) ); }
 
     private:
-        plv::InputPin<OpenCVImage>*  m_inputPin;
-        plv::InputPin<OpenCVImage>*  m_inputPinOptional;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::InputPin<plv::OpenCVImage>*  m_inputPin;
+        plv::InputPin<plv::OpenCVImage>*  m_inputPinOptional;
+        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
 
         int m_someInt;
         double m_someDouble;

@@ -22,7 +22,7 @@
 #include <QDebug>
 
 #include "SaveImageToFile.h"
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
 #include <plvcore/Pin.h>
 #include <opencv/cv.h>
@@ -38,7 +38,7 @@ using namespace plvopencv;
 #elif defined(Q_OS_DARWIN)
 #   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp/"
 #elif defined(Q_OS_UNIX)
-#   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp"
+#   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp/"
 #endif
 
 /**

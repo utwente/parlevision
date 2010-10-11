@@ -27,7 +27,7 @@
 #include "OpenCVImageRenderer.h"
 #include "DataRenderer.h"
 
-#include <plvopencv/OpenCVImage.h>
+#include <plvcore/OpenCVImage.h>
 
 using namespace plvgui;
 
@@ -36,7 +36,7 @@ DataRenderer* RendererFactory::create(QString dataType, QWidget *parent)
 {
     //TODO make this dynamic
     qDebug() << "RendererFactory creating "<<dataType;
-    if(dataType == typeid(plvopencv::OpenCVImage).name())
+    if(dataType == typeid(plv::OpenCVImage).name())
     {
         return new OpenCVImageRenderer(parent);
     }

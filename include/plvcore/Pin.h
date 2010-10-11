@@ -105,9 +105,13 @@ namespace plv
         bool isRequired() const { return m_type == INPUT_REQUIRED; }
         bool isOptional() const { return m_type == INPUT_OPTIONAL; }
 
+        /** returns wheter get() has been called since last scope() */
+        bool getCalled() const { return m_getCalled; }
+
     protected:
         InputPinType m_type;
         std::stack< RefPtr<Data> > m_scope;
+        bool m_getCalled;
     };
 
     class PLVCORE_EXPORT IOutputPin : public Pin
@@ -256,6 +260,7 @@ namespace plv
         virtual void scope()
         {
             assert( m_scope.empty() );
+            m_getCalled = false;
         }
 
         virtual void unscope()
@@ -286,7 +291,9 @@ namespace plv
 
         RefPtr<T> get() throw ( PlvRuntimeException )
         {
-            if( !(this->m_connection.isNotNull() && this->m_connection->hasData() ))
+            m_getCalled = true;
+            if( !(this->m_connection.isNotNull() &&
+                  this->m_connection->hasData() ))
             {
                 throw PlvRuntimeException( "Illegal: method get() called on pin "
                                            "which has no data available",

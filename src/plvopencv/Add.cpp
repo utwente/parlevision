@@ -18,13 +18,10 @@
   * of this software package directory in the file LICENSE.LGPL.
   * If not, see <http://www.gnu.org/licenses/>.
   */
+#include "Add.h"
 
 #include <QDebug>
-
-#include "Add.h"
-#include "OpenCVImage.h"
-
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImage.h>
 #include <opencv/cv.h>
 
 using namespace plv;

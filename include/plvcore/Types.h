@@ -33,7 +33,9 @@
 namespace plv 
 {
     /** Base class for data resources.
-      *
+      * Data resources are not allowed to be deleted explicitly since they can be
+      * shared. Explicit deletion could cause a crash. Reference counting
+      * is used to let data resources delete themselves.
       */
     class PLVCORE_EXPORT Data : public RefCounted
     {
@@ -45,14 +47,17 @@ namespace plv
         bool m_mutable;
 
     public:
-        Data( unsigned int serial = 0 ) : m_serial( serial), m_mutable( true ) {}
+        Data(unsigned int serial = 0) : m_serial(serial), m_mutable(true) {}
 
         /** Copy constructor needs to be implemented by super classes
           * to allow the copying of a data resources when the Pin
           * connection type is set to copy which can be faster with
           * simple types.
           */
-        Data( const Data& other );
+        Data(const Data& other): m_serial(other.m_serial), m_mutable(true) {}
+
+        /** Destructor, should not be called explicitly */
+        virtual ~Data() {}
 
         /** makes this data unit mutable again. Internal framework method.
           * Should normally not be called by client code
@@ -77,15 +82,6 @@ namespace plv
             QMutexLocker( &this->m_refMutex );
             return m_mutable;
         }
-
-    protected:
-        /** protected destructor, data resources are not allowed to be
-          * deleted by individual processor since they can be in use
-          * by other processors in other threads. Deletion in one processor
-          * could cause a crash. Reference counting is used to let data
-          * resources delete themselves.
-          */
-        virtual ~Data() {}
     };
 
     /** Template class to make the implementation of primitive data types

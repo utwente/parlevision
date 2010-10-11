@@ -22,10 +22,7 @@
 #include <QDebug>
 
 #include "ImageFlip.h"
-#include "OpenCVImage.h"
-
-#include <plvcore/Pin.h>
-#include <opencv/cv.h>
+#include <plvcore/OpenCVImage.h>
 
 using namespace plv;
 using namespace plvopencv;

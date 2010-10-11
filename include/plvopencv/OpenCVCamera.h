@@ -31,8 +31,7 @@
 
 #include <plvcore/RefCounted.h>
 #include <plvcore/RefPtr.h>
-
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
 namespace plvopencv
 {
@@ -114,7 +113,7 @@ namespace plvopencv
         /** Tries to get an image from OpenCV and copy it into an OpenCVImage.
           * \return 0 on failure, pointer to an OpenCVImage on success.
           */
-        OpenCVImage* getFrame();
+        plv::OpenCVImage* getFrame();
 
     signals:
         void newFrame( plv::RefPtr<plv::Data> frame );

@@ -27,19 +27,17 @@
 #include <QReadWriteLock>
 #include <opencv/cv.h>
 
-#include <plvcore/Types.h>
-#include <plvcore/PlvExceptions.h>
-
-#include "plvopencv_global.h"
+#include "Types.h"
+#include "PlvExceptions.h"
 
 #define OPENCVIMAGE_MAX_OBJECT_POOL_SIZE (1024 * 1024 * 8)
 #define OPENCVIMAGE_USE_POOL 0
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
 
-    class PLVOPENCV_EXPORT OpenCVImageFactory
+    class PLVCORE_EXPORT OpenCVImageFactory
     {
     public:
 
@@ -107,7 +105,7 @@ namespace plvopencv
         QMutex m_factoryMutex;
     };
 
-    class PLVOPENCV_EXPORT OpenCVImage : public plv::Data
+    class PLVCORE_EXPORT OpenCVImage : public Data
     {
         friend class OpenCVImageFactory;
 
@@ -118,13 +116,6 @@ namespace plvopencv
             CHANNELS = 4,
             ALL = 7
         } ImageCompare;
-
-        class PLVCORE_EXPORT IllegalAccessException : public plv::PlvException
-        {
-        public:
-            IllegalAccessException(const QString& str ) : plv::PlvException(str) {}
-            virtual ~IllegalAccessException() throw() {}
-        };
 
         inline int getWidth() const { return m_img->width; }
         inline int getHeight() const { return m_img->height; }
@@ -140,7 +131,7 @@ namespace plvopencv
           */
         const IplImage* getImage() const { return m_img; }
 
-        IplImage* getImageForWriting() throw ( IllegalAccessException );
+        IplImage* getImageForWriting() throw ( PlvRuntimeException );
 
         /** @returns a deep copy of this OpenCVImage, including a copy of the internal
           * IplImage.

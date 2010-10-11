@@ -25,10 +25,13 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+}
 
+namespace plvopencv
+{
     class EdgeDetectorCanny : public plv::PipelineProcessor
     {
         Q_OBJECT
@@ -66,8 +69,8 @@ namespace plvopencv
     private:
         int nearestOdd(int i);
 
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::InputPin<plv::OpenCVImage>* m_inputPin;
+        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
 
         int m_apertureSize;
         double m_thresholdLow;

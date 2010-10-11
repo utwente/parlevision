@@ -25,7 +25,7 @@
 #include <QtGui>
 
 #include <plvcore/Types.h>
-#include <plvopencv/OpenCVImage.h>
+#include <plvcore/OpenCVImage.h>
 #include <plvcore/RefPtr.h>
 
 #include <plvgui/ImageConverter.h>
@@ -33,7 +33,6 @@
 
 using namespace plv;
 using namespace plvgui;
-using namespace plvopencv;
 
 OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent) :
     DataRenderer(parent),

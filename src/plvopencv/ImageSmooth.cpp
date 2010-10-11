@@ -22,10 +22,9 @@
 #include <QDebug>
 
 #include "ImageSmooth.h"
-#include "OpenCVImage.h"
 
+#include <plvcore/OpenCVImage.h>
 #include <plvcore/Pin.h>
-#include <opencv/cv.h>
 
 using namespace plv;
 using namespace plvopencv;

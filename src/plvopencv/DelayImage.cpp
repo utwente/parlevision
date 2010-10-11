@@ -22,7 +22,7 @@
 #include <QDebug>
 
 #include "DelayImage.h"
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
 #include <plvcore/Pin.h>
 

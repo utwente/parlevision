@@ -22,8 +22,8 @@
 #include <QDebug>
 
 #include "EdgeDetectorCanny.h"
-#include "OpenCVImage.h"
 
+#include <plvcore/OpenCVImage.h>
 #include <plvcore/Pin.h>
 #include <opencv/cv.h>
 
