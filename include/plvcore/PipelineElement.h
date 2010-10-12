@@ -135,8 +135,10 @@ namespace plv
           */
         QSet<PipelineElement*> getConnectedElementsToInputs() const;
 
-        /** @returns true if input pins which are required have data available */
-        bool dataAvailableOnRequiredPins() const;
+        /** @returns true if input pins which are connected and synchronous
+          *  have data available
+          */
+        bool dataAvailableOnInputPins() const;
 
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor

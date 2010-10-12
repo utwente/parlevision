@@ -55,6 +55,15 @@ namespace plv
 
         virtual bool isConnected() const = 0;
 
+        /** this method is called before each call to process() in the owner */
+        virtual void pre() = 0;
+
+        /** this method is called after each call to process() in the owner */
+        virtual void post() = 0;
+
+        /** returns whether this pin has been used after the pre call */
+        virtual bool called() const = 0;
+
         /** @returns the std::type_info struct belonging to the type
           * this pin is initialized with. Is implemented by
           * the TypedPin sub class.
@@ -102,15 +111,6 @@ namespace plv
         virtual unsigned int getNextSerial() const;
         virtual void flushConnection();
         virtual bool fastforward( unsigned int target );
-
-        /** this method is called before each call to process() in the owner */
-        virtual void pre() = 0;
-
-        /** this method is called after each call to process() in the owner */
-        virtual void post() = 0;
-
-        /** returns whether this pin has been used after the pre call */
-        virtual bool called() const = 0;
 
     protected:
         InputPinType m_type;
@@ -173,8 +173,42 @@ namespace plv
         OutputPin( const QString& name, PipelineElement* owner ) :
                 IOutputPin( name, owner ) {}
 
+        virtual void pre()
+        {
+            m_called = false;
+        }
+
+        virtual void post()
+        {
+            // publish NULL data to all listeners
+            // this is to keep everything synchronized
+            if( !m_called )
+            {
+                //Data* d = new Data();
+                //put( d );
+            }
+        }
+
+        /** returns wheter get() has been called since last pre() */
+        virtual bool called() const
+        {
+            return m_called;
+        }
+
         inline void put( RefPtr<T> data )
         {
+            // check if get is not called twice during one process call
+            if( m_called )
+            {
+                QString processorName = this->m_owner->getName();
+                QString msg = "Illegal: method put() called twice "
+                              "during process() on OutputPin. Pin name is " %
+                              this->m_name %
+                              " of processor " % processorName;
+                throw PlvRuntimeException(msg,__FILE__, __LINE__);
+            }
+            m_called = true;
+
             RefPtr<Data> untypedData = data.getPtr();
 
             // this might be published to multiple processors which might run in
@@ -185,8 +219,9 @@ namespace plv
             // propagate the serial number
             untypedData->setSerial( m_owner->getProcessingSerial() );
 
-            // publish to viewers
-            emit( newData( untypedData ) );
+            // publish to viewers if data is not NULL
+            if( untypedData->getSerial() != 0  )
+                emit( newData( untypedData ) );
 
             // publish to all pin connections
             for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
@@ -201,6 +236,10 @@ namespace plv
         {
             return typeid( T );
         }
+
+    protected:
+        /** true when put() has been called */
+        bool m_called;
     };
 
     template< class T >
@@ -249,8 +288,7 @@ namespace plv
             {
                 QString processorName = this->m_owner->getName();
                 QString msg = "Illegal: method get() called twice "
-                              "during process() on pin which has "
-                              "no data available. Pin name is " %
+                              "during process() on InputPin. Pin name is " %
                               this->m_name %
                               " of processor " % processorName;
                 throw PlvRuntimeException(msg,__FILE__, __LINE__ );
@@ -261,7 +299,7 @@ namespace plv
             {
 
                 QString processorName = this->m_owner->getName();
-                QString msg = "Illegal: method get() called on pin "
+                QString msg = "Illegal: method get() called on InputPin "
                               "which has no data available. Pin name is " %
                               this->m_name %
                               " of processor " % processorName;

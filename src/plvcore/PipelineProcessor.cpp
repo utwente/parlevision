@@ -61,7 +61,7 @@ bool PipelineProcessor::__isReadyForProcessing() const
     assert( requiredPinsConnected() );
 
     // see if data is available and the processor is ready for processing
-    if( dataAvailableOnRequiredPins() )
+    if( dataAvailableOnInputPins() )
     {
         return isReadyForProcessing();
     }
@@ -71,7 +71,7 @@ bool PipelineProcessor::__isReadyForProcessing() const
 void PipelineProcessor::__process()
 {
     assert( requiredPinsConnected() );
-    assert( dataAvailableOnRequiredPins() );
+    assert( dataAvailableOnInputPins() );
 
     QMutexLocker lock( &m_pleMutex );
 
@@ -84,7 +84,8 @@ void PipelineProcessor::__process()
         in->pre();
         if( in->isConnected() && in->isSynchronous() )
         {
-            serials.push_back( in->getNextSerial() );
+            unsigned int serial = in->getNextSerial();
+            serials.push_back( serial );
         }
     }
 
@@ -104,26 +105,26 @@ void PipelineProcessor::__process()
         }
     }
 
-    bool fastforwardSucceeded = true;
+    //bool fastforwardSucceeded = true;
     if(fastforward)
     {
         qDebug() << "Fastforward needed on pin inputs of processor " << getName();
 
-        for( InputPinMap::iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end(); ++itr )
-        {
-            IInputPin* in = itr->second.getPtr();
-            if( in->isConnected() && in->isSynchronous() )
-            {
-                fastforwardSucceeded = in->fastforward( max ) && fastforwardSucceeded;
-            }
-        }
+//        for( InputPinMap::iterator itr = m_inputPins.begin();
+//             itr != m_inputPins.end(); ++itr )
+//        {
+//            IInputPin* in = itr->second.getPtr();
+//            if( in->isConnected() && in->isSynchronous() )
+//            {
+//                fastforwardSucceeded = in->fastforward( max ) && fastforwardSucceeded;
+//            }
+//        }
     }
 
     // call process function which does the actual work
     // if fastforward did not succeed we just exit
-    if( fastforwardSucceeded )
-    {
+//    if( fastforwardSucceeded )
+//    {
         try
         {
             // set the serial number for this processing run
@@ -143,7 +144,7 @@ void PipelineProcessor::__process()
             }
             throw;
         }
-    }
+//    }
 
     for( InputPinMap::iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
@@ -153,8 +154,10 @@ void PipelineProcessor::__process()
 
         // check if get() method has been called and
         // data has been removed from this pin
-        if( fastforwardSucceeded && in->isConnected() &&
-            in->isSynchronous() && !in->called() )
+        if( /*fastforwardSucceeded && */
+            in->isConnected() &&
+            in->isSynchronous() &&
+            !in->called() )
         {
             QString processorName = in->getOwner()->getName();
             QString msg = "Processor " % processorName %

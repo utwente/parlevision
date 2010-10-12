@@ -198,18 +198,43 @@ bool PipelineElement::requiredPinsConnected() const
     return true;
 }
 
-bool PipelineElement::dataAvailableOnRequiredPins() const
+bool PipelineElement::dataAvailableOnInputPins() const
 {
     QMutexLocker lock( &m_pleMutex );
-    for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
+
+    bool nullDetected = false;
+    bool pinWithNoData = false;
+
+    do
     {
-        IInputPin* in = itr->second.getPtr();
-        if( in->isRequired() )
-            if( !in->hasData() )
-                return false;
+        for( InputPinMap::const_iterator itr = m_inputPins.begin();
+             itr != m_inputPins.end() &&
+             !pinWithNoData &&
+             !nullDetected;
+             ++itr )
+        {
+            IInputPin* in = itr->second.getPtr();
+
+            // only automatically check synchronous connections
+            if( in->isConnected() &&
+                in->isSynchronous() )
+            {
+                // check for data
+                if( !in->hasData() )
+                {
+                    pinWithNoData = true;
+                }
+                // check for NULL data packets
+                else if( in->getNextSerial() == 0 )
+                {
+                    nullDetected = true;
+                }
+            }
+        }
     }
-    return true;
+    while( nullDetected && !pinWithNoData );
+
+    return !pinWithNoData;
 }
 
 std::list<QString> PipelineElement::getInputPinNames() const
