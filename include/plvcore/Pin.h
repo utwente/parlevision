@@ -26,6 +26,8 @@
 #include <typeinfo>
 #include <stack>
 
+#include <QStringBuilder>
+
 #include "RefPtr.h"
 #include "RefCounted.h"
 #include "PinConnection.h"
@@ -45,23 +47,11 @@ namespace plv
             m_name( name ),
             m_owner( owner )
         {
-            assert( m_owner.isNotNull() );
+            assert( m_owner != 0 );
         }
 
         const QString& getName() const { return m_name; }
-
-    protected:
-         /** the name of this Pin e.g. "BlackAndWhite" */
-        QString m_name;
-
-        /** data received from or delivered to this pipeline element */
-        RefPtr<PipelineElement> m_owner;
-
-        /** RefCounted objects have protected destructor */
-        ~Pin() {qDebug() << "Destroying Pin " << m_name;}
-
-    public:
-        inline PipelineElement* getOwner() const { return m_owner.getPtr(); }
+        inline PipelineElement* getOwner() const { return m_owner; }
 
         virtual bool isConnected() const = 0;
 
@@ -70,6 +60,13 @@ namespace plv
           * the TypedPin sub class.
           */
         virtual const std::type_info& getTypeInfo() const = 0;
+
+    protected:
+         /** the name of this Pin e.g. "BlackAndWhite" */
+        QString m_name;
+
+        /** data received from or delivered to this pipeline element */
+        PipelineElement* m_owner;
     };
 
     class PLVCORE_EXPORT IInputPin : public Pin
@@ -80,38 +77,46 @@ namespace plv
             INPUT_REQUIRED
         } InputPinType;
 
-        IInputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :
-                Pin( name, owner ), m_type( type )
+        IInputPin( const QString& name, PipelineElement* owner,
+                   InputPinType type = INPUT_REQUIRED ) :
+                Pin( name, owner ),
+                m_type( type )
         {
         }
 
-        virtual void scope() = 0;
-        virtual void unscope() = 0;
-        virtual bool isConnected() const = 0;
-        virtual bool hasData() const = 0;
-        virtual void flush() = 0;
-
-        /** @returns the std::type_info struct belonging to the type
-          * this pin is initialized with. Is implemented by
-          * the TypedPin sub class.
-          */
-        virtual const std::type_info& getTypeInfo() const = 0;
-
-        virtual void setConnection(PinConnection* connection) = 0;
-        virtual void removeConnection() = 0;
-        virtual PinConnection* getConnection() const = 0;
+        virtual ~IInputPin();
 
         InputPinType getType() const { return m_type; }
         bool isRequired() const { return m_type == INPUT_REQUIRED; }
         bool isOptional() const { return m_type == INPUT_OPTIONAL; }
 
-        /** returns wheter get() has been called since last scope() */
-        bool getCalled() const { return m_getCalled; }
+        // TODO
+        bool isSynchronous() const { return true; }
+        bool isAsynchronous() const { return false; }
+
+        virtual void setConnection(PinConnection* connection);
+        virtual void removeConnection();
+        virtual PinConnection* getConnection() const;
+        virtual bool isConnected() const;
+        virtual bool hasData() const;
+        virtual unsigned int getNextSerial() const;
+        virtual void flushConnection();
+        virtual bool fastforward( unsigned int target );
+
+        /** this method is called before each call to process() in the owner */
+        virtual void pre() = 0;
+
+        /** this method is called after each call to process() in the owner */
+        virtual void post() = 0;
+
+        /** returns whether this pin has been used after the pre call */
+        virtual bool called() const = 0;
 
     protected:
         InputPinType m_type;
-        std::stack< RefPtr<Data> > m_scope;
-        bool m_getCalled;
+
+        /** isNull() if there is no connection */
+        RefPtr<PinConnection> m_connection;
     };
 
     class PLVCORE_EXPORT IOutputPin : public Pin
@@ -124,33 +129,41 @@ namespace plv
         {
         }
 
-        virtual bool isConnected() const = 0;
-        virtual int connectionCount() const = 0;
-
-        /** @returns the std::type_info struct belonging to the type
-          * this pin is initialized with. Is implemented by
-          * the TypedPin sub class.
-          */
-        virtual const std::type_info& getTypeInfo() const = 0;
+        virtual ~IOutputPin();
 
         /** Adds a connection to the set of connections this pin outputs to
           * @ensure this->isConnected();
           */
-        virtual void addConnection(PinConnection* connection) = 0;
+        void addConnection( PinConnection* connection );
 
         /** Removes the connection from this pin.
           * Assumes it has been disconnect()'ed
           */
-        virtual void removeConnection( PinConnection* connection ) = 0;
+        void removeConnection( PinConnection* connection );
 
-        // TODO ugly hack to make things work ...
-        // TODO should all PinConnection stuff be moved to IOutputPin
-        // and should IOutputPin be called an interface then?
-        // returns a copy of the connections
-        virtual std::list< RefPtr<PinConnection> > getConnections() = 0;
+        void removeConnections();
+
+        virtual bool isConnected() const
+        {
+            return !m_connections.empty();
+        }
+
+        inline std::list< RefPtr<PinConnection > > getConnections()
+        {
+            // makes a copy
+            return m_connections;
+        }
+
+        inline int connectionCount() const
+        {
+            return m_connections.size();
+        }
 
     signals:
         void newData( RefPtr<Data> data );
+
+    protected:
+        std::list< RefPtr<PinConnection > > m_connections;
     };
 
     template< class T >
@@ -164,106 +177,57 @@ namespace plv
         {
             RefPtr<Data> untypedData = data.getPtr();
 
-            // this might be published to multiple processors which might be run in
+            // this might be published to multiple processors which might run in
             // multiple threads. Make immutable to prevent writes corrupting reads
             // in other threads.
             untypedData->makeImmutable();
 
+            // propagate the serial number
+            untypedData->setSerial( m_owner->getProcessingSerial() );
+
+            // publish to viewers
             emit( newData( untypedData ) );
 
+            // publish to all pin connections
             for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
                     itr != m_connections.end(); ++itr)
             {
-                RefPtr<PinConnection> connection = *itr;
-                assert(connection.isNotNull());
+                PinConnection* connection = (*itr).getPtr();
                 connection->put( untypedData );
             }
-        }
-
-        /** Adds a connection to the set of connections this pin outputs to
-          * @ensure this->isConnected();
-          */
-        virtual void addConnection( PinConnection* connection )
-        {
-            assert(connection != 0);
-
-            this->m_connections.push_back(connection);
-        }
-
-        virtual void removeConnection( PinConnection* connection )
-        {
-            assert( connection != 0 );
-
-            for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
-                    itr != m_connections.end(); ++itr)
-            {
-                RefPtr<PinConnection> current = *itr;
-                if( current.getPtr() == connection )
-                {
-                    m_connections.erase( itr );
-                    return;
-                }
-            }
-            // we should never be here
-            assert( false );
-        }
-
-        virtual void removeConnections()
-        {
-            for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
-                    itr != m_connections.end(); ++itr)
-            {
-                RefPtr<PinConnection> current = *itr;
-//                current->disconnect();
-                m_connections.erase( itr );
-            }
-        }
-
-        virtual bool isConnected() const
-        {
-            return !m_connections.empty();
-        }
-
-        virtual std::list< RefPtr<PinConnection > > getConnections()
-        {
-            // makes a copy
-            return m_connections;
-        }
-
-        virtual int connectionCount() const
-        {
-            return m_connections.size();
         }
 
         virtual const std::type_info& getTypeInfo() const
         {
             return typeid( T );
         }
-
-        ~OutputPin() {}
-
-    protected:
-        // empty list by default
-        std::list< RefPtr<PinConnection > > m_connections;
-
     };
 
     template< class T >
     class PLVCORE_EXPORT InputPin : public IInputPin
     {
     public:
-        InputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :
-                IInputPin( name, owner, type ) {}
-
-        // prepares stack to receive objects
-        // for current scope
-        virtual void scope()
+        InputPin( const QString& name, PipelineElement* owner,
+                  InputPinType type = INPUT_REQUIRED ) :
+                  IInputPin( name, owner, type )
         {
-            assert( m_scope.empty() );
-            m_getCalled = false;
         }
 
-        virtual void unscope()
+        virtual ~InputPin() {}
+
+        /**
+         * prepares stack to receive objects
+         * for current scope
+         * extra saveguard against faulty processors which
+         * do not use wrappers for proper reference counting
+         */
+        virtual void pre()
+        {
+            assert( m_scope.empty() );
+            m_called = false;
+        }
+
+        virtual void post()
         {
             // release all objects
             while( !m_scope.empty() )
@@ -272,82 +236,45 @@ namespace plv
             }
         }
 
-        /** @returns true if there is a connection and that connection has data
-          * available
-          */
-        virtual bool hasData() const
+        /** returns wheter get() has been called since last pre() */
+        virtual bool called() const
         {
-            if( m_connection.isNotNull() )
-            {
-                return this->m_connection->hasData();
-            }
-            return false;
-        }
-
-        virtual void flush()
-        {
-            m_connection->flush();
+            return m_called;
         }
 
         RefPtr<T> get() throw ( PlvRuntimeException )
         {
-            m_getCalled = true;
+            // check if get is not called twice during one process call
+            if( m_called )
+            {
+                QString processorName = this->m_owner->getName();
+                QString msg = "Illegal: method get() called twice "
+                              "during process() on pin which has "
+                              "no data available. Pin name is " %
+                              this->m_name %
+                              " of processor " % processorName;
+                throw PlvRuntimeException(msg,__FILE__, __LINE__ );
+            }
+            m_called = true;
             if( !(this->m_connection.isNotNull() &&
                   this->m_connection->hasData() ))
             {
-                throw PlvRuntimeException( "Illegal: method get() called on pin "
-                                           "which has no data available",
-                                           __FILE__, __LINE__ );
+
+                QString processorName = this->m_owner->getName();
+                QString msg = "Illegal: method get() called on pin "
+                              "which has no data available. Pin name is " %
+                              this->m_name %
+                              " of processor " % processorName;
+                throw PlvRuntimeException(msg, __FILE__, __LINE__);
             }
 
-            RefPtr<Data> data = this->m_connection->get();
-            m_scope.push( data );
-#ifdef DEBUG
-            // we use a dynamic cast in debug mode
-            // so we can check for correct casting
-            // at the cost of speed.
-            RefPtr<T> typedData = ref_ptr_dynamic_cast<T>( data );
-            if( typedData.isNull() )
-            {
-               throw PlvRuntimeException( "Data delivered to pin of incomaptible type ",
-                                          __FILE__, __LINE__ );
-            }
-#else
             // We can safely do this because this Pin is
             // guaranteed to be connected to a Pin of the
             // same type T.
-            RefPtr<T> typedData = ref_ptr_static_cast<T>( data );
-#endif
-            return typedData;
-        }
+            RefPtr<T> data = ref_ptr_static_cast<T>( this->m_connection->get() );
+            m_scope.push( data );
 
-        /** Connects this pin through the given connection.
-          * @require !this->isConnected()
-          * @ensure this->isConnected();
-          */
-        virtual void setConnection(PinConnection* connection)
-        {
-            assert(!this->isConnected());
-            assert(connection != 0);
-
-            this->m_connection = connection;
-        }
-
-        virtual void removeConnection()
-        {
-            assert( m_connection.isNotNull() );
-            m_connection.set( 0 );
-        }
-
-        virtual PinConnection* getConnection() const
-        {
-            assert( m_connection.isNotNull() );
-            return m_connection.getPtr();
-        }
-
-        virtual bool isConnected() const
-        {
-            return this->m_connection.isNotNull();
+            return data;
         }
 
         virtual const std::type_info& getTypeInfo() const
@@ -355,11 +282,14 @@ namespace plv
             return typeid( T );
         }
 
-        ~InputPin() {}
     protected:
+        /** temporarily holds data items in current scope to protect against
+          * faulty processors
+          */
+        std::stack< RefPtr<T> > m_scope;
 
-        /** isNull() if there is no connection */
-        RefPtr<PinConnection> m_connection;
+        /** true when get() has been called */
+        bool m_called;
     };
 
     template <class T>

@@ -49,7 +49,8 @@ PipelineElement::PipelineElement(const PipelineElement &other)
     : QObject(),
         RefCounted(other),
         m_inputPins(other.m_inputPins),
-        m_outputPins(other.m_outputPins)
+        m_outputPins(other.m_outputPins),
+        m_serial( 0 )
 {
 }
 
@@ -203,77 +204,12 @@ bool PipelineElement::dataAvailableOnRequiredPins() const
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
-        RefPtr<IInputPin> in = itr->second;
+        IInputPin* in = itr->second.getPtr();
         if( in->isRequired() )
             if( !in->hasData() )
                 return false;
     }
     return true;
-}
-
-bool PipelineElement::__isReadyForProcessing() const
-{
-    assert( requiredPinsConnected() );
-
-    // see if data is available and the processor is ready for processing
-    if( dataAvailableOnRequiredPins() )
-    {
-        return isReadyForProcessing();
-    }
-    return false;
-}
-
-void PipelineElement::__process()
-{
-    assert( requiredPinsConnected() );
-    assert( dataAvailableOnRequiredPins() );
-
-    QMutexLocker lock( &m_pleMutex );
-
-    // prepares stack to receive objects
-    // for current scope
-    // extra saveguard against faulty processors which
-    // do not use wrappers for proper reference counting
-    for( InputPinMap::iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        RefPtr<IInputPin> in = itr->second;
-        in->scope();
-    }
-
-    // call process function which does the actual work
-    try
-    {
-        this->process();
-    }
-    catch( ... )
-    {
-        // decrease refcount before we re-throw
-        for( InputPinMap::iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end(); ++itr )
-        {
-            RefPtr<IInputPin> in = itr->second;
-            in->unscope();
-        }
-        throw;
-    }
-
-    // decrease refcount
-    for( InputPinMap::iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        RefPtr<IInputPin> in = itr->second;
-        in->unscope();
-
-        // check if get has been called on all input pins
-        if( !in->getCalled() )
-        {
-            QString processorName = in->getOwner()->getName();
-            QString msg = "Processor " % processorName % " did not call madatory get() "
-                " on input Pin " % this->getName();
-            throw PlvRuntimeException(msg, __FILE__, __LINE__);
-        }
-    }
 }
 
 std::list<QString> PipelineElement::getInputPinNames() const

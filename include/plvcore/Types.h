@@ -82,6 +82,30 @@ namespace plv
             QMutexLocker( &this->m_refMutex );
             return m_mutable;
         }
+
+        inline unsigned int getSerial() const
+        {
+            QMutexLocker( &this->m_refMutex );
+            return m_serial;
+        }
+
+        inline void setSerial( unsigned int serial )
+        {
+            QMutexLocker( &this->m_refMutex );
+            m_serial = serial;
+        }
+
+        /** used to signal a NULL entry, generally there will be no
+          * data items sent with serial number 0. Null entries are ignored
+          * by viewers but used to synchronize the system. This is done
+          * automatically. Producer should never produce a Data item with serial
+          * number 0.
+          */
+        inline bool isNull() const
+        {
+            QMutexLocker( &this->m_refMutex );
+            return m_serial == 0;
+        }
     };
 
     /** Template class to make the implementation of primitive data types

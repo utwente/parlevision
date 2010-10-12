@@ -22,4 +22,108 @@
 #include "Pin.h"
 using namespace plv;
 
+IInputPin::~IInputPin()
+{
+}
 
+/** Connects this pin through the given connection.
+  * @require !this->isConnected()
+  * @ensure this->isConnected();
+  */
+void IInputPin::setConnection(PinConnection* connection)
+{
+    assert(!this->isConnected());
+    assert(connection != 0);
+
+    this->m_connection = connection;
+}
+
+void IInputPin::removeConnection()
+{
+    assert( m_connection.isNotNull() );
+    m_connection.set( 0 );
+}
+
+PinConnection* IInputPin::getConnection() const
+{
+    assert( m_connection.isNotNull() );
+    return m_connection.getPtr();
+}
+
+bool IInputPin::isConnected() const
+{
+    return this->m_connection.isNotNull();
+}
+
+/** @returns true if there is a connection and that connection has data
+  * available
+  */
+bool IInputPin::hasData() const
+{
+    if( m_connection.isNotNull() )
+    {
+        return this->m_connection->hasData();
+    }
+    return false;
+}
+
+bool IInputPin::fastforward( unsigned int target )
+{
+    return m_connection->fastforward( target );
+}
+
+void IInputPin::flushConnection()
+{
+    m_connection->flush();
+}
+
+unsigned int IInputPin::getNextSerial() const
+{
+    RefPtr<Data> data = m_connection->peek();
+    return data->getSerial();
+}
+
+IOutputPin::~IOutputPin()
+{
+    removeConnections();
+}
+
+/** Adds a connection to the set of connections this pin outputs to
+  * @ensure this->isConnected();
+  */
+void IOutputPin::addConnection( PinConnection* connection )
+{
+    assert(connection != 0);
+
+    this->m_connections.push_back(connection);
+}
+
+/** Removes the connection from this pin.
+  * Assumes it has been disconnect()'ed
+  */
+void IOutputPin::removeConnection( PinConnection* connection )
+{
+    assert( connection != 0 );
+
+    for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
+            itr != m_connections.end(); ++itr)
+    {
+        RefPtr<PinConnection> current = *itr;
+        if( current.getPtr() == connection )
+        {
+            m_connections.erase( itr );
+            return;
+        }
+    }
+    // we should never be here
+    assert( false );
+}
+
+void IOutputPin::removeConnections()
+{
+    for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
+            itr != m_connections.end(); ++itr)
+    {
+        m_connections.erase( itr );
+    }
+}

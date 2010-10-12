@@ -78,6 +78,8 @@ void DummyProcessor::process()
     RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
 
+    qDebug() << "Dummy: serial: " << img->getSerial();
+
     // open for reading
     const IplImage* iplImg1 = img->getImage();
 

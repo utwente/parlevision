@@ -22,12 +22,14 @@
 #ifndef PIPELINEELEMENT_H
 #define PIPELINEELEMENT_H
 
+#include <list>
 #include <map>
 #include <stdexcept>
+#include <assert.h>
+
 #include <QString>
 #include <QObject>
 #include <QMetaType>
-#include <assert.h>
 
 #include "RefPtr.h"
 #include "PlvExceptions.h"
@@ -233,24 +235,22 @@ namespace plv
           */
         void setProperty(const char *name, const QVariant &value);
 
+        inline void setProcessingSerial( unsigned int serial ) { m_serial = serial; }
+        inline unsigned int getProcessingSerial() const { return m_serial; }
+
     signals:
         void propertyChanged(QString);
 
     protected:
-        //RefPtr<Pipeline> m_parent;
-
-        // list to keep track of registered types
+        /** list to keep track of registered types */
         static std::list<QString> s_types;
         static std::map<QString,QString> s_names;
 
-        /**
-         * This gets called by Pipeline when we are added to it.
-         * Handles removing ourself from any previous pipeline we were part of
-         * and sets m_parent to the new pipeline
-         */
-        //virtual void setPipeline(Pipeline* parent);
+        /** serial number of current processing run. */
+        unsigned int m_serial;
 
-        bool __init();
+        // TODO should be called by the scheduler
+        virtual void __init() = 0;
 
         /** check if required pins are connected and if data is available
           * on required pins. Calls isReadyForProcessing function of super
@@ -258,13 +258,13 @@ namespace plv
           * @returns true when all conditions have been met and isReadyForProcessing()
           * of super also returns true.
           */
-        bool __isReadyForProcessing() const;
+        virtual bool __isReadyForProcessing() const = 0;
 
         /**
           * private process function which handles scoping of input and output pins
           * and calls the process() function of the super class.
           */
-        void __process();
+        virtual void __process() = 0;
     };
 }
 

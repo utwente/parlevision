@@ -75,7 +75,10 @@ namespace plv
         int size();
         inline ConnectionType getType();
         RefPtr<Data> get() throw ( PlvRuntimeException );
+        RefPtr<Data> peek() const throw ( PlvRuntimeException );
         void put( Data* data );
+
+        bool fastforward( unsigned int target );
 
         /** Throw away all data in this connection. */
         void flush();
@@ -103,7 +106,7 @@ namespace plv
         IInputPin*  m_consumer;
         std::queue< RefPtr<Data> > m_queue;
         ConnectionType m_type;
-        QMutex m_connectionMutex;
+        mutable QMutex m_connectionMutex;
     };
 }
 

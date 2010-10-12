@@ -71,16 +71,6 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
         element->setId( id );
     }
 
-    try
-    {
-        element->init();
-    }
-    catch( PlvException& e )
-    {
-        QString msg = element->getName() + ": " + e.what();
-        errorOccurred( msg );
-    }
-
     QMutexLocker lock( &m_pipelineMutex );
     m_children.insert( id, element );
     emit( elementAdded(element) );
@@ -264,6 +254,7 @@ void Pipeline::start()
         {
             QString msg = element->getName() % ": " % e.what();
             errorOccurred(msg);
+            element->deinit();
             error = true;
         }
     }
@@ -303,6 +294,7 @@ void Pipeline::stop()
     {
         itr.next();
         itr.value()->stop();
+        itr.value()->deinit();
     }
 
     foreach(RefPtr<PinConnection> conn, m_connections)

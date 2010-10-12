@@ -86,11 +86,31 @@ void PinConnection::connect()
     assert( m_consumer->isConnected() );
 }
 
+bool PinConnection::fastforward( unsigned int target )
+{
+    QMutexLocker lock(&m_connectionMutex);
+
+    bool success = false;
+    while( !success && !m_queue.empty())
+    {
+        RefPtr<Data> data = m_queue.front();
+        if( data->getSerial() == target )
+        {
+            success = true;
+        }
+        else
+        {
+            m_queue.pop();
+        }
+    }
+    return success;
+}
+
 void PinConnection::flush()
 {
     QMutexLocker lock(&m_connectionMutex);
     // clear queue
-    while (!m_queue.empty())
+    while(!m_queue.empty())
     {
         m_queue.pop();
     }
@@ -101,7 +121,7 @@ void PinConnection::disconnect()
     QMutexLocker lock( &m_connectionMutex );
 
     // remove connections
-    m_producer->removeConnection( this );
+    m_producer->removeConnection(this);
     m_consumer->removeConnection();
 
     // clear producer and consumer
@@ -144,6 +164,26 @@ RefPtr<Data> PinConnection::get() throw ( PlvRuntimeException )
     }
     RefPtr<Data> data = m_queue.front();
     m_queue.pop();
+    return data;
+}
+
+RefPtr<Data> PinConnection::peek() const
+        throw ( PlvRuntimeException )
+{
+    QMutexLocker lock( &m_connectionMutex );
+    if( m_queue.empty() )
+    {
+        QString producerName = m_producer->getOwner()->getName();
+        QString consumerName = m_consumer->getOwner()->getName();
+
+        QString msg = "Illegal: method peek() called on PinConnection"
+                      "which has no data available"
+                      " with producer owner " % producerName %
+                      " and consumer owner " % consumerName;
+
+        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+    }
+    RefPtr<Data> data = m_queue.front();
     return data;
 }
 
