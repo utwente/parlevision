@@ -188,8 +188,31 @@ namespace plv
         OutputPin( const QString& name, PipelineElement* owner ) :
                 IOutputPin( name, owner ) {}
 
+        virtual void pre()
+        {
+            m_called = false;
+        }
+
+        virtual void post()
+        {
+            // publish NULL data to all listeners
+            // this is to keep everything synchronized
+            if( !m_called )
+            {
+                //Data* d = new Data();
+                //put( d );
+            }
+        }
+
+        /** returns wheter get() has been called since last pre() */
+        virtual bool called() const
+        {
+            return m_called;
+        }
+
         inline void put( RefPtr<T> data )
         {
+
             putUntyped( data.getPtr() );
         }
 
@@ -197,6 +220,10 @@ namespace plv
         {
             return typeid( T );
         }
+
+    protected:
+        /** true when put() has been called */
+        bool m_called;
     };
 
     template< class T >

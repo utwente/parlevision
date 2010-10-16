@@ -92,6 +92,7 @@ void PipelineProcessor::__process()
             {
                 nullDetected = true;
             }
+
         }
     }
 

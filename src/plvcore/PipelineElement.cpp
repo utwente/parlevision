@@ -202,10 +202,8 @@ bool PipelineElement::dataAvailableOnInputPins() const
 {
     QMutexLocker lock( &m_pleMutex );
 
-    bool pinWithNoData = false;
-
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end() && !pinWithNoData;
+         itr != m_inputPins.end();
          ++itr )
     {
         IInputPin* in = itr->second.getPtr();
