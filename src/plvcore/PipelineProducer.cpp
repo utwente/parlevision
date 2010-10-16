@@ -20,6 +20,7 @@
   */
 
 #include "PipelineProducer.h"
+#include "Pin.h"
 
 using namespace plv;
 
@@ -62,6 +63,20 @@ void PipelineProducer::__process()
     // set the serial number for this processing run
     this->setProcessingSerial( getNextSerial() );
 
+    for( OutputPinMap::iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
+    {
+        IOutputPin* out = itr->second.getPtr();
+        out->pre();
+    }
+
     // do the actual processing
     this->process();
+
+    for( OutputPinMap::iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
+    {
+        IOutputPin* out = itr->second.getPtr();
+        out->post();
+    }
 }

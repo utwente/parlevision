@@ -198,16 +198,28 @@ bool PipelineElement::requiredPinsConnected() const
     return true;
 }
 
-bool PipelineElement::dataAvailableOnRequiredPins() const
+bool PipelineElement::dataAvailableOnInputPins() const
 {
     QMutexLocker lock( &m_pleMutex );
+
+    bool pinWithNoData = false;
+
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
+         itr != m_inputPins.end() && !pinWithNoData;
+         ++itr )
     {
         IInputPin* in = itr->second.getPtr();
-        if( in->isRequired() )
+
+        // only automatically check synchronous connections
+        if( in->isConnected() &&
+            in->isSynchronous() )
+        {
+            // check for data
             if( !in->hasData() )
+            {
                 return false;
+            }
+        }
     }
     return true;
 }

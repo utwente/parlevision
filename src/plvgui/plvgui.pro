@@ -48,6 +48,7 @@ SOURCES += \
     LibraryElement.cpp \
     ConnectionLine.cpp \
     PinWidget.cpp \
+    PinClickedEvent.cpp \
     InteractiveLine.cpp \
     ViewerWidget.cpp \
     CameraConfigFormBuilder.cpp \

@@ -77,11 +77,9 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
     return id;
 }
 
-bool Pipeline::canAddElement( PipelineElement* child )
+bool Pipeline::canAddElement( PipelineElement* element )
 {
     QMutexLocker lock( &m_pipelineMutex );
-
-    RefPtr<PipelineElement> element = child;
     int id = element->getId();
     if( id != -1 )
     {

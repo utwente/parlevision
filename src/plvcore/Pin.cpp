@@ -83,6 +83,77 @@ unsigned int IInputPin::getNextSerial() const
     return data->getSerial();
 }
 
+void IInputPin::pre()
+{
+    /**
+     * prepares stack to receive objects
+     * for current scope
+     * extra saveguard against faulty processors which
+     * do not use wrappers for proper reference counting
+     */
+    assert( m_scope.empty() );
+    m_called = false;
+}
+
+void IInputPin::post()
+{
+    // release all objects
+    while( !m_scope.empty() )
+    {
+        m_scope.pop();
+    }
+
+    // check if mandatory get() method has been called and
+    // data has been removed from this pin
+    if( this->isConnected() && this->isSynchronous() )
+    {
+        if( !m_called )
+        {
+            QString processorName = this->getOwner()->getName();
+            QString msg = "Processor " % processorName %
+                          " did not call mandatory get() "
+                          " on input Pin " %
+                          this->getName();
+            throw PlvRuntimeException(msg, __FILE__, __LINE__);
+        }
+    }
+}
+
+/** returns wheter get() has been called since last pre() */
+bool IInputPin::called() const
+{
+    return m_called;
+}
+
+RefPtr<Data> IInputPin::getUntyped() throw ( PlvRuntimeException )
+{
+    // check if get is not called twice during one process call
+    if( m_called )
+    {
+        QString processorName = this->m_owner->getName();
+        QString msg = "Illegal: method get() called twice "
+                      "during process() on InputPin. Pin name is \"" %
+                      this->m_name %
+                      "\" of processor \"" % processorName % "\"";
+        throw PlvRuntimeException(msg,__FILE__, __LINE__ );
+    }
+    m_called = true;
+    if( !(this->m_connection.isNotNull() &&
+          this->m_connection->hasData() ))
+    {
+
+        QString processorName = this->m_owner->getName();
+        QString msg = "Illegal: method get() called on InputPin "
+                      "which has no data available. Pin name is " %
+                      this->m_name %
+                      " of processor " % processorName;
+        throw PlvRuntimeException(msg, __FILE__, __LINE__);
+    }
+    RefPtr<Data> data = m_connection->get();
+    m_scope.push( data );
+    return data;
+}
+
 IOutputPin::~IOutputPin()
 {
     removeConnections();
@@ -125,5 +196,99 @@ void IOutputPin::removeConnections()
             itr != m_connections.end(); ++itr)
     {
         m_connections.erase( itr );
+    }
+}
+
+bool IOutputPin::isConnected() const
+{
+    return !m_connections.empty();
+}
+
+std::list< RefPtr<PinConnection > > IOutputPin::getConnections()
+{
+    // makes a copy
+    return m_connections;
+}
+
+int IOutputPin::connectionCount() const
+{
+    return m_connections.size();
+}
+
+void IOutputPin::pre()
+{
+    m_called = false;
+}
+
+void IOutputPin::post()
+{
+    // publish NULL data to all listeners
+    // this is to keep everything synchronized
+    if( this->isConnected() )
+    {
+        if( !m_called )
+        {
+            RefPtr<Data> nullData = new Data();
+            nullData->makeImmutable();
+
+            // publish to all pin connections
+            for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
+                    itr != m_connections.end(); ++itr)
+            {
+                PinConnection* connection = (*itr).getPtr();
+                connection->put( nullData );
+            }
+        }
+    }
+}
+
+/** returns wheter get() has been called since last pre() */
+bool IOutputPin::called() const
+{
+    return m_called;
+}
+
+void IOutputPin::putUntyped( RefPtr<Data> data )
+{
+    // check if get is not called twice during one process call
+    if( m_called )
+    {
+        QString processorName = this->m_owner->getName();
+        QString msg = "Illegal: method put() called twice "
+                      "during process() on OutputPin. Pin name is \"" %
+                      this->m_name %
+                      "\" of processor \"" % processorName % "\"";
+        throw PlvRuntimeException(msg,__FILE__, __LINE__ );
+    }
+    m_called = true;
+
+    // this might be published to multiple processors which might run in
+    // multiple threads. Make immutable to prevent writes corrupting reads
+    // in other threads.
+    data->makeImmutable();
+
+    // propagate the serial number
+    unsigned int serial = m_owner->getProcessingSerial();
+    data->setSerial( serial  );
+
+    // data should never be NULL
+    if( serial == 0  )
+    {
+        QString processorName = this->m_owner->getName();
+        QString msg = "Illegal: Error in processor " % processorName
+                      %"NULL data published during process() on OutputPin \"" %
+                      this->m_name % "\"";
+        throw PlvRuntimeException(msg,__FILE__, __LINE__ );
+    }
+
+    // publish data to viewers
+    emit( newData( data ) );
+
+    // publish to all pin connections
+    for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
+            itr != m_connections.end(); ++itr)
+    {
+        PinConnection* connection = (*itr).getPtr();
+        connection->put( data );
     }
 }
