@@ -123,8 +123,10 @@ void MainWindow::changeEvent(QEvent *e)
 
 bool MainWindow::event(QEvent* event)
 {
-//    qDebug() << "MainWindow got event " << event << " ut=" << PinDoubleClickedEvent::user_type();
-//    return QObject::event(event);
+//    qDebug()<< "MainWindow got event " << event
+//            << " ut=" << PinDoubleClickedEvent::user_type()
+//            << " ut=" << PinClickedEvent::user_type();
+
     if(event->type() == PinDoubleClickedEvent::user_type())
     {
         PinDoubleClickedEvent* pce = static_cast<PinDoubleClickedEvent*>(event);
