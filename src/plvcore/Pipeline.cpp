@@ -318,6 +318,7 @@ void Pipeline::run()
             m_running = false;
             stop();
         }
+        emit( tick() );
     }
     m_running = false;
 }

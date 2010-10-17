@@ -57,7 +57,7 @@ namespace plv
         /** Refcounted so only call this directly if you know what you are
           * doing
           */
-        ~Pipeline();
+        virtual ~Pipeline();
 
         /** Initialise this Pipeline. Not yet reentrant
           */
@@ -161,6 +161,8 @@ namespace plv
 
         void started();
         void stopped();
+
+        void tick();
 
     public slots:
         void start();
