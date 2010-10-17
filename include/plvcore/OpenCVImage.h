@@ -31,7 +31,7 @@
 #include "PlvExceptions.h"
 
 #define OPENCVIMAGE_MAX_OBJECT_POOL_SIZE (1024 * 1024 * 8)
-#define OPENCVIMAGE_USE_POOL 0
+#define OPENCVIMAGE_USE_POOL 1
 
 namespace plv
 {
@@ -60,12 +60,6 @@ namespace plv
           * @returns an OpenCVImage with appropriate format
           */
         OpenCVImage* get( int width, int height, int depth, int channels );
-
-        /** Purges all objects which are not in used from the object pool */
-        void purge();
-
-        /** Purges all objects, even those in use (refcount > 1). Dangerous! */
-        void purgeAll();
 
         /** @returns the number of object in the object pool */
         int numObjects();
@@ -96,6 +90,12 @@ namespace plv
         ~OpenCVImageFactory();
 
         OpenCVImage* getOrCreate( int width, int height, int depth, int channels );
+
+        /** Purges all objects which are not in used from the object pool. Not thread safe. */
+        void purge();
+
+        /** Purges all objects, even those in use (refcount > 1). Dangerous! */
+        void purgeAll();
 
     private:
         static OpenCVImageFactory* m_instance;  /** singleton class instance */
