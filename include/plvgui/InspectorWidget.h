@@ -79,7 +79,7 @@ namespace plvgui
 
     public:
         explicit InspectorWidget(QWidget *parent = 0);
-        ~InspectorWidget();
+        virtual ~InspectorWidget();
 
     public slots:
         /** set the currently selected target to this one
