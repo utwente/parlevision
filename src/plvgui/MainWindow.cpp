@@ -377,6 +377,8 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(m_scene, SIGNAL(contentsChanged()),
             this, SLOT(documentChanged()));
 
+    connect( pipeline, SIGNAL(tick()), this, SLOT(tick()) );
+
     qDebug() << "setting documentChanged to false #1";
     m_documentChanged = false;
 }
@@ -393,6 +395,10 @@ void MainWindow::pipelineStopped()
     ui->actionStart->setEnabled(true);
     ui->actionStop->setDisabled(true);
     ui->statusbar->showMessage("Stopped.");
+}
+
+void MainWindow::tick()
+{
 }
 
 void MainWindow::loadFile(QString fileName)

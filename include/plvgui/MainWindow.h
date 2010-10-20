@@ -130,6 +130,8 @@ namespace plvgui
 
         void pipelineStarted();
         void pipelineStopped();
+
+        void tick();
     };
 
 } // namespace plvgui
