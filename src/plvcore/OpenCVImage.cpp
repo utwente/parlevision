@@ -50,9 +50,9 @@ void OpenCVImageFactory::purge()
         if( img->getRefCount() == 1 )
         {
             // this will auto delete the image
-            img->dec();
             itr = m_objectPool.erase( itr );
             m_objectPoolSize -= img->size();
+            img->dec();
         }
         else
         {
