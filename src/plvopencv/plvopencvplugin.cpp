@@ -15,19 +15,19 @@
 #include "ImageCornerHarris.h"
 #include "ImageFlip.h"
 #include "ImageSmooth.h"
+#include "ImageThreshold.h"
 #include "Snapshot.h"
 #include "ViolaJonesFaceDetector.h"
 #include "Trigger.h"
 #include "SaveImageToFile.h"
+#include "ImageLoader.h"
 
 PlvOpenCVPlugin::PlvOpenCVPlugin()
 {
-    qDebug() << "PlvOpenCVPlugin constructor";
 }
 
 PlvOpenCVPlugin::~PlvOpenCVPlugin()
 {
-    qDebug() << "PlvOpenCVPlugin destructor";
 }
 
 void PlvOpenCVPlugin::onLoad()
@@ -49,11 +49,13 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::ImageColorConvert>("plvopencv::ImageColorConvert", "Color Conversion");
     plvRegisterPipelineElement<plvopencv::ImageCornerHarris>("plvopencv::ImageCornerHarris", "Harris Corner Detection");
     plvRegisterPipelineElement<plvopencv::ImageFlip>("plvopencv::ImageFlip", "Flip Image");
-    plvRegisterPipelineElement<plvopencv::ImageSmooth>("plvopencv::ImageSmooth", "Smooth");
+    plvRegisterPipelineElement<plvopencv::ImageSmooth>("plvopencv::ImageSmooth", "Smooth Image");
     plvRegisterPipelineElement<plvopencv::Snapshot>("plvopencv::Snapshot", "Snapshot");
     plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>("plvopencv::ViolaJonesFaceDetector", "Face Detect V.-J.");
     plvRegisterPipelineElement<plvopencv::Trigger>("plvopencv::Trigger", "Trigger");
-    plvRegisterPipelineElement<plvopencv::SaveImageToFile>("plvopencv::SaveImageToFile", "Save Image To File");
+    plvRegisterPipelineElement<plvopencv::SaveImageToFile>("plvopencv::SaveImageToFile", "Save Image");
+    plvRegisterPipelineElement<plvopencv::ImageLoader>("plvopencv::ImageLoader", "Load Image");
+    plvRegisterPipelineElement<plvopencv::ImageThreshold>("plvopencv::ImageThreshold", "Threshold");
 
     //consumers
 }
