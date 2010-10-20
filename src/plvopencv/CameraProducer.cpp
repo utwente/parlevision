@@ -23,6 +23,8 @@
 
 #include <QMutexLocker>
 #include <QDebug>
+#include <QStringBuilder>
+#include <QVariant>
 
 #include <plvcore/Pin.h>
 
@@ -31,14 +33,15 @@
 using namespace plv;
 using namespace plvopencv;
 
-#define OUTPUT_PIN_NAME "output"
-
 CameraProducer::CameraProducer() :
         m_camera( new OpenCVCamera() ),
+        m_cameraId( 0 ),
+        m_width( 640 ),
+        m_height( 480 ),
         m_lastProcessedId( 0 )
 {
     // we have one output pin
-    m_outputPin = createOutputPin<plv::OpenCVImage>(OUTPUT_PIN_NAME, this );
+    m_outputPin = createOutputPin<plv::OpenCVImage>("output", this );
 
     // connect the camera to this camera producer using Qt's signals
     // and slots mechanism.
@@ -58,7 +61,7 @@ CameraProducer::CameraProducer(const CameraProducer& other):
         m_lastProcessedId( other.m_lastProcessedId )
 {
     // we have one output pin
-    m_outputPin = createOutputPin<plv::OpenCVImage>(OUTPUT_PIN_NAME, this );
+    m_outputPin = createOutputPin<plv::OpenCVImage>("output", this );
 
     // connect the camera to this camera producer using Qt's signals
     // and slots mechanism.
@@ -81,17 +84,19 @@ void CameraProducer::process()
 void CameraProducer::newFrame( plv::RefPtr<plv::Data> frame )
 {
     QMutexLocker lock(&m_frameMutex);
-    m_lastFrame = ref_ptr_dynamic_cast<OpenCVImage>( frame );
-    //m_frameReady.wakeAll();
+    m_lastFrame = ref_ptr_static_cast<OpenCVImage>( frame );
 }
 
 void CameraProducer::init()
 {
-    if( !m_camera->init() )
+    if( !m_camera->init(m_cameraId) )
     {
-        throw PlvException("Camera failed to initialise");
+        QString msg = "Camera with id " %
+                      QVariant(m_cameraId).toString() %
+                      " failed to initialise";
+        throw PlvException(msg);
     }
-    m_camera->setDimensions( 640, 480 );
+    m_camera->setDimensions(m_width, m_height);
 }
 
 void CameraProducer::deinit() throw()

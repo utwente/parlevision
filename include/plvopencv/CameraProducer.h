@@ -36,6 +36,10 @@ namespace plvopencv
     {
         Q_OBJECT
 
+        Q_PROPERTY( int cameraId READ getCameraId WRITE setCameraId NOTIFY cameraIdChanged )
+        Q_PROPERTY( int width READ getWidth WRITE setWidth NOTIFY widthChanged )
+        Q_PROPERTY( int height READ getHeight WRITE setHeight NOTIFY heightChanged )
+
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
 
@@ -49,11 +53,18 @@ namespace plvopencv
 
         inline OpenCVCamera* getCamera() const { return m_camera.getPtr(); }
 
+        inline int getCameraId() const { return m_cameraId; }
+        inline int getHeight() const { return m_height; }
+        inline int getWidth() const { return m_width; }
+
     protected:
         plv::RefPtr<OpenCVCamera> m_camera;
         plv::RefPtr<plv::OpenCVImage> m_lastFrame;
         plv::OutputPin<plv::OpenCVImage>* m_outputPin;
 
+        int m_cameraId;
+        int m_width;
+        int m_height;
         int m_lastProcessedId;
 
         QMutex m_frameMutex;
@@ -61,6 +72,15 @@ namespace plvopencv
 
     public slots:
         void newFrame( plv::RefPtr<plv::Data> frame );
+
+        void setCameraId(int c) { m_cameraId = c; emit(cameraIdChanged(c));}
+        void setHeight(int h) { m_height = h; emit(heightChanged(h));}
+        void setWidth(int w) { m_width = w; emit(widthChanged(w));}
+
+    signals:
+        void cameraIdChanged(int c);
+        void heightChanged(int h);
+        void widthChanged(int w);
     };
 
 }

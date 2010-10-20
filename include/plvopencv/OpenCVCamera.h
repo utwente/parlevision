@@ -50,10 +50,10 @@ namespace plvopencv
         };
 
         /** Constructor default to OpenCV camera with id 0. */
-        OpenCVCamera( int id = 0 );
+        OpenCVCamera();
 
         /** Initializes camera. Allocates resources. */
-        bool init();
+        bool init( int id );
 
         /** Returns the camera ID. This is a number equal to or above 0. The
           * default is 0.
