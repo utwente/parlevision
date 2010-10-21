@@ -31,7 +31,6 @@
 #include <plvgui/ImageConverter.h>
 #include <plvgui/ImageWidget.h>
 
-using namespace plv;
 using namespace plvgui;
 
 OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent) :
@@ -43,65 +42,57 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent) :
     m_imageWidget = new ImageWidget;
 
     m_layout->addWidget( m_imageWidget );
-//    m_layout->setSizeConstraint(QLayout::SetDefaultConstraint);
-//    m_layout->addStretch(0);
 
     QImage image = QImage(320,240,QImage::Format_RGB32);
     image.fill( qRgb(0,0,0) );
-    m_imageWidget->setMinimumSize( 320, 240 );
+
+    // TODO make minimum configurable somewhere
+    m_imageWidget->setMinimumSize( 160, 120 );
     m_imageWidget->setImage( image );
 
     this->setLayout( m_layout );
 
-//    QSizePolicy labelPolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-//    labelPolicy.setHeightForWidth(true);
-//    m_imagelabel->setSizePolicy(labelPolicy);
-
-//    QSizePolicy sizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-//    sizePolicy.setHeightForWidth(true);
-//    this->setSizePolicy(sizePolicy);
-
     m_converter = new ImageConverter();
-}
-
-void OpenCVImageRenderer::showEvent(QShowEvent* event)
-{
-    qDebug() << "connecting renderer";
 
     connect(m_converter.getPtr(), SIGNAL( converted( QImage ) ),
              this,                 SLOT( updateImage( QImage ) ),
              Qt::UniqueConnection);
+}
 
+OpenCVImageRenderer::~OpenCVImageRenderer()
+{
+}
+
+void OpenCVImageRenderer::showEvent(QShowEvent* event)
+{
+    qDebug() << "Showing renderer";
     QWidget::showEvent(event);
 }
 
 void OpenCVImageRenderer::hideEvent(QHideEvent* event)
 {
-    qDebug() << "disconnecting renderer";
-    this->disconnect();
+    qDebug() << "Hiding renderer";
     QWidget::hideEvent(event);
 }
 
-
-void OpenCVImageRenderer::newData( RefPtr<Data> data )
+void OpenCVImageRenderer::newData( plv::RefPtr<plv::Data> data )
 {
-    QMutexLocker lock( &m_busy_mutex );
+    m_busy_mutex.lock();
 
-    if(m_busy)
+    if(m_busy || !this->isVisible() )
     {
+        m_busy_mutex.unlock();
         return;
     }
     else
     {
-        RefPtr<OpenCVImage> img = ref_ptr_static_cast<OpenCVImage>(data);
-        assert(img.isNotNull());
-        if(img.isNotNull())
-        {
-            m_busy = true;
-            // dispatch an asynchronous call
-            m_converter->convert_OpenCVImage(img);
-        }
+        m_busy = true;
+        m_busy_mutex.unlock();
     }
+
+    // dispatch an asynchronous call
+    plv::OpenCVImage* img = static_cast<plv::OpenCVImage*>(data.getPtr());
+    m_converter->convert_OpenCVImage(img);
 }
 
 void OpenCVImageRenderer::updateImage( QImage image )

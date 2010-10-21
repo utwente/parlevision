@@ -172,7 +172,7 @@ namespace plv
         virtual const std::type_info& getTypeInfo() const = 0;
 
     signals:
-        void newData( RefPtr<Data> data );
+        void newData( plv::RefPtr<plv::Data> data );
 
     protected:
         std::list< RefPtr<PinConnection > > m_connections;

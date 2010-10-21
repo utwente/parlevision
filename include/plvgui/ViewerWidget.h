@@ -35,8 +35,6 @@ namespace plv
     class IOutputPin;
 }
 
-using namespace plv;
-
 namespace plvgui
 {
     class ViewerWidget : public QDockWidget
@@ -44,16 +42,16 @@ namespace plvgui
         Q_OBJECT
 
     public:
-        explicit ViewerWidget(IOutputPin* pin, QWidget *parent = 0);
-        ~ViewerWidget();
-        RefPtr<IOutputPin> getPin();
+        explicit ViewerWidget(plv::IOutputPin* pin, QWidget *parent = 0);
+        virtual ~ViewerWidget();
+        plv::RefPtr<plv::IOutputPin> getPin();
 
     protected:
         void changeEvent(QEvent *e);
 
     private:
         Ui::ViewerWidget *ui;
-        RefPtr<IOutputPin> pin;
+        plv::RefPtr<plv::IOutputPin> pin;
     };
 }
 #endif // VIEWERWIDGET_H

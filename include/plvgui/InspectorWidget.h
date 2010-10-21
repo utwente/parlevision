@@ -35,13 +35,6 @@ namespace Ui
     class InspectorWidget;
 }
 
-namespace plv
-{
-//    class PipelineElement;
-}
-
-using namespace plv;
-
 namespace plvgui
 {
     class PlvEnumProxy : public QObject
@@ -94,14 +87,13 @@ namespace plvgui
 
     private:
         void clearSelection();
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, int value);
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, double value);
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, bool value);
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, const QString& value, bool editable=true);
-        //void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, QMetaEnum metaEnum );
-        void addRow(QFormLayout* form, RefPtr<PipelineElement> element, const QString& name, plv::Enum plvEnum );
+        void addRow(QFormLayout* form, plv::RefPtr<plv::PipelineElement> element, const QString& name, int value);
+        void addRow(QFormLayout* form, plv::RefPtr<plv::PipelineElement> element, const QString& name, double value);
+        void addRow(QFormLayout* form, plv::RefPtr<plv::PipelineElement> element, const QString& name, bool value);
+        void addRow(QFormLayout* form, plv::RefPtr<plv::PipelineElement> element, const QString& name, const QString& value, bool editable=true);
+        void addRow(QFormLayout* form, plv::RefPtr<plv::PipelineElement> element, const QString& name, plv::Enum plvEnum );
         Ui::InspectorWidget *ui;
-        RefPtr<PipelineElement> element;
+        plv::RefPtr<plv::PipelineElement> element;
         QWidget* formContainer;
 
         QString propertySlotSignature(QObject* obj, QString property, QString signature = "");

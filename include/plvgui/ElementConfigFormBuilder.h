@@ -26,7 +26,7 @@
 #include <QMetaType>
 #include <QHash>
 
-#include "plvcore/plvglobal.h"
+#include <plvcore/plvglobal.h>
 
 class QString;
 class QWidget;
@@ -35,8 +35,6 @@ namespace plv
 {
     class PipelineElement;
 }
-
-using namespace plv;
 
 namespace plvgui
 {
@@ -54,7 +52,7 @@ namespace plvgui
         /** Implement this method to return a custom QWidget
           * that knows how to configure element
           */
-        virtual QWidget* buildForm(PipelineElement* element, QWidget* parent=0)=0;
+        virtual QWidget* buildForm(plv::PipelineElement* element, QWidget* parent=0)=0;
 
         /** Register the given type as a PipelineElement Type.
           * The type needs to be known to Qt's MetaType system,
