@@ -24,7 +24,6 @@
 
 #include <list>
 #include <QMutex>
-#include <QReadWriteLock>
 #include <opencv/cv.h>
 
 #include "Types.h"
@@ -35,6 +34,34 @@
 
 namespace plv
 {
+    class OpenCVImageProperties
+    {
+    protected:
+        int m_width;
+        int m_height;
+        int m_depth;
+        int m_numChannels;
+
+    public:
+        OpenCVImageProperties( int width,int height, int depth, int nChannels ) :
+                m_width(width), m_height(height),
+                m_depth(depth), m_numChannels(nChannels) {}
+
+        inline bool operator == (const OpenCVImageProperties& rhs ) const
+        {
+            return m_width == rhs.m_width &&
+                   m_height == rhs.m_height &&
+                   m_depth == rhs.m_depth &&
+                   m_numChannels == rhs.m_numChannels;
+        }
+
+        inline int getWidth() const { return m_width; }
+        inline int getHeight() const { return m_height; }
+        inline int getDepth() const { return m_depth; }
+        inline int getNumChannels() const { return m_numChannels; }
+
+    };
+
     class OpenCVImage;
 
     class PLVCORE_EXPORT OpenCVImageFactory
@@ -60,6 +87,20 @@ namespace plv
           * @returns an OpenCVImage with appropriate format
           */
         OpenCVImage* get( int width, int height, int depth, int channels );
+
+        static inline void get( RefPtr<OpenCVImage>& rv, const OpenCVImageProperties& props )
+        {
+            rv = OpenCVImageFactory::instance()->get( props.getWidth(), props.getHeight(),
+                                                      props.getDepth(), props.getNumChannels() );
+        }
+
+        static inline RefPtr<OpenCVImage> get( const OpenCVImageProperties& props )
+        {
+            RefPtr<OpenCVImage> img;
+            img = OpenCVImageFactory::instance()->get( props.getWidth(), props.getHeight(),
+                                                      props.getDepth(), props.getNumChannels() );
+            return img;
+        }
 
         /** @returns the number of object in the object pool */
         int numObjects();
@@ -121,6 +162,12 @@ namespace plv
         inline int getHeight() const { return m_img->height; }
         inline int getNumChannels() const { return m_img->nChannels; }
         inline int getDepth() const { return m_img->depth; }
+
+        inline OpenCVImageProperties getProperties() const
+        {
+            return OpenCVImageProperties( getWidth(), getHeight(),
+                                          getDepth(), getNumChannels() );
+        }
 
         inline bool isNull() const { return m_img == 0; }
 

@@ -24,7 +24,7 @@
 #include "EdgeDetectorCanny.h"
 
 #include <plvcore/OpenCVImage.h>
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -39,8 +39,19 @@ EdgeDetectorCanny::EdgeDetectorCanny() :
         m_thresholdLow(0.1),
         m_thresholdHigh(1.0)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin  = new OpenCVImageInputPin( "input", this );
+    m_outputPin = new OpenCVImageOutputPin( "output", this );
+
+    this->addInputPin( m_inputPin );
+    this->addOutputPin( m_outputPin );
+
+    m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
+    m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
+    m_inputPin->addSupportedChannels( 1 );
+
+    m_outputPin->addSupportedDepth( IPL_DEPTH_8S );
+    m_outputPin->addSupportedDepth( IPL_DEPTH_8U );
+    m_outputPin->addSupportedChannels( 1 );
 }
 
 EdgeDetectorCanny::~EdgeDetectorCanny()
@@ -69,12 +80,12 @@ void EdgeDetectorCanny::process()
     assert(m_outputPin != 0);
 
     RefPtr<OpenCVImage> img = m_inputPin->get();
-    if(img->getDepth() != IPL_DEPTH_8U)
-    {
-        throw std::runtime_error("format not yet supported");
-    }
 
-    // temporary image with extra room (depth), see e.g. http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
+    //assert(img->getDepth() == IPL_DEPTH_8U || img->getDepth() == IPL_DEPTH_8S );
+    //assert(img->getNumChannels() == 1 );
+
+    // temporary image with extra room (depth), see e.g.
+    // http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
     RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), IPL_DEPTH_16U , 1 );
 

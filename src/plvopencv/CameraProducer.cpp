@@ -26,9 +26,9 @@
 #include <QStringBuilder>
 #include <QVariant>
 
-#include <plvcore/Pin.h>
-
+#include <plvcore/OpenCVImagePin.h>
 #include "OpenCVCamera.h"
+
 
 using namespace plv;
 using namespace plvopencv;
@@ -41,7 +41,21 @@ CameraProducer::CameraProducer() :
         m_lastProcessedId( 0 )
 {
     // we have one output pin
-    m_outputPin = createOutputPin<plv::OpenCVImage>("output", this );
+    m_outputPin = new OpenCVImageOutputPin( "output", this );
+    this->addOutputPin( m_outputPin );
+
+    m_outputPin->addSupportedChannels(1);
+    m_outputPin->addSupportedChannels(2);
+    m_outputPin->addSupportedChannels(3);
+    m_outputPin->addSupportedChannels(4);
+
+    m_outputPin->addSupportedDepth(IPL_DEPTH_8S);
+    m_outputPin->addSupportedDepth(IPL_DEPTH_8U);
+    m_outputPin->addSupportedDepth(IPL_DEPTH_16U);
+    m_outputPin->addSupportedDepth(IPL_DEPTH_16S);
+    m_outputPin->addSupportedDepth(IPL_DEPTH_32S);
+    m_outputPin->addSupportedDepth(IPL_DEPTH_32F);
+    m_outputPin->addSupportedDepth(IPL_DEPTH_64F);
 
     // connect the camera to this camera producer using Qt's signals
     // and slots mechanism.
@@ -61,7 +75,8 @@ CameraProducer::CameraProducer(const CameraProducer& other):
         m_lastProcessedId( other.m_lastProcessedId )
 {
     // we have one output pin
-    m_outputPin = createOutputPin<plv::OpenCVImage>("output", this );
+    m_outputPin = new OpenCVImageOutputPin( "output", this );
+    this->addOutputPin( m_outputPin );
 
     // connect the camera to this camera producer using Qt's signals
     // and slots mechanism.
@@ -75,7 +90,8 @@ void CameraProducer::process()
 {
     QMutexLocker lock(&m_frameMutex);
     assert( m_lastFrame.isNotNull() );
-    m_outputPin->put( m_lastFrame.getPtr() );
+
+    m_outputPin->put( m_lastFrame );
 
     // clear last frame so we do not process this image twice
     m_lastFrame.set( 0 );

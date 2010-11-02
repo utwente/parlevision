@@ -130,7 +130,7 @@ CV_HLS2RGB
 
 ImageColorConvert::ImageColorConvert()
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this );
+    m_inputPin  = createInputPin<OpenCVImage>( "input", this );
     m_outputPin = createOutputPin<OpenCVImage>( "output", this );
 
     // first one added is default
@@ -164,10 +164,6 @@ void ImageColorConvert::process()
     assert(m_outputPin != 0);
 
     RefPtr<OpenCVImage> img = m_inputPin->get();
-    if(img->getDepth() != IPL_DEPTH_8U)
-    {
-        throw std::runtime_error("format not yet supported");
-    }
 
     // temporary image with extra room (depth)
     RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(

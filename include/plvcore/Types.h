@@ -24,7 +24,9 @@
 
 #include <QMap>
 #include <QStringList>
+#include <QStringBuilder>
 #include <QMetaType>
+#include <QVariant>
 
 #include "RefPtr.h"
 #include "assert.h"
@@ -56,7 +58,7 @@ namespace plv
           */
         Data(const Data& other): m_serial(other.m_serial), m_mutable(true) {}
 
-        /** Destructor, should not be called explicitly */
+        /** Destructor, should not be called explicitly because of reference counting */
         virtual ~Data() {}
 
         /** makes this data unit mutable again. Internal framework method.
@@ -98,8 +100,8 @@ namespace plv
         /** used to signal a NULL entry, generally there will be no
           * data items sent with serial number 0. Null entries are ignored
           * by viewers but used to synchronize the system. This is done
-          * automatically. Producer should never produce a Data item with serial
-          * number 0.
+          * automatically. Producers should generally never produce a Data item
+          * with serial number 0.
           */
         inline bool isNull() const
         {

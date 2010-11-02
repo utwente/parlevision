@@ -79,7 +79,8 @@ void IInputPin::flushConnection()
 
 unsigned int IInputPin::getNextSerial() const
 {
-    RefPtr<Data> data = m_connection->peek();
+    RefPtr<Data> data;
+    m_connection->peek( data );
     return data->getSerial();
 }
 
@@ -119,14 +120,10 @@ void IInputPin::post()
     }
 }
 
-/** returns wheter get() has been called since last pre() */
-bool IInputPin::called() const
+void IInputPin::getUntyped( RefPtr<Data>& dataPtr ) throw ( PlvRuntimeException )
 {
-    return m_called;
-}
+    assert( dataPtr.isNull() );
 
-RefPtr<Data> IInputPin::getUntyped() throw ( PlvRuntimeException )
-{
     // check if get is not called twice during one process call
     if( m_called )
     {
@@ -149,9 +146,16 @@ RefPtr<Data> IInputPin::getUntyped() throw ( PlvRuntimeException )
                       " of processor " % processorName;
         throw PlvRuntimeException(msg, __FILE__, __LINE__);
     }
-    RefPtr<Data> data = m_connection->get();
-    m_scope.push( data );
-    return data;
+    m_connection->get( dataPtr );
+    assert( dataPtr.isNotNull() );
+
+    // check data for format contract using the callback functor.
+    // Defaults to none allowed
+    // checkData( dataPtr );
+
+    // push data on stack so we increase refcount to protect against
+    // faulty processors not using RefPtr template
+    m_scope.push( dataPtr );
 }
 
 IOutputPin::~IOutputPin()
@@ -199,11 +203,6 @@ void IOutputPin::removeConnections()
     }
 }
 
-bool IOutputPin::isConnected() const
-{
-    return !m_connections.empty();
-}
-
 std::list< RefPtr<PinConnection > > IOutputPin::getConnections()
 {
     // makes a copy
@@ -242,13 +241,7 @@ void IOutputPin::post()
     }
 }
 
-/** returns wheter get() has been called since last pre() */
-bool IOutputPin::called() const
-{
-    return m_called;
-}
-
-void IOutputPin::putUntyped( RefPtr<Data> data )
+void IOutputPin::putUntyped( const RefPtr<Data>& data )
 {
     // check if get is not called twice during one process call
     if( m_called )
@@ -261,6 +254,10 @@ void IOutputPin::putUntyped( RefPtr<Data> data )
         throw PlvRuntimeException(msg,__FILE__, __LINE__ );
     }
     m_called = true;
+
+    // check data for format contract using the callback functor.
+    // Defaults to none allowed
+    // checkData( data );
 
     // this might be published to multiple processors which might run in
     // multiple threads. Make immutable to prevent writes corrupting reads
@@ -292,3 +289,4 @@ void IOutputPin::putUntyped( RefPtr<Data> data )
         connection->put( data );
     }
 }
+

@@ -99,6 +99,13 @@ namespace plv
         /** Get all the PinConnections that make up this Pipeline. */
         const PipelineConnectionsList& getConnections() const;
 
+
+        /** returns true if pins can be connected. Returns false if not. If not
+          * possible reason contains a message stating the reason for failure
+          */
+        bool canConnectPins( IOutputPin* outputPin, IInputPin* inputPin,
+                                       QString reason );
+
         /** Create a PinConnnection between the given InputPin and outputPin
           * @emits connectionAdded(connection)
           */

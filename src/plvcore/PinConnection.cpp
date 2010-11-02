@@ -29,7 +29,9 @@
 using namespace plv;
 
 PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer )
-    throw ( IllegalConnectionException, IncompatibleTypeException, DuplicateConnectionException ) :
+    throw ( IllegalConnectionException,
+            IncompatibleTypeException,
+            DuplicateConnectionException ) :
         m_producer( producer ),
         m_consumer( consumer ),
         m_type( LOSSLESS )
@@ -48,6 +50,54 @@ PinConnection::~PinConnection()
     assert(m_producer == 0);
 }
 
+bool PinConnection::canConnectPins( IOutputPin* out, IInputPin* in,
+                                    QString& errStr )
+{
+    if( out->getOwner() == in->getOwner() )
+    {
+        errStr = "Cannot connect " % out->getOwner()->getName() +
+                 " to itself" ;
+        return false;
+    }
+
+    if( in->isConnected() )
+    {
+        errStr = "Input pin " % in->getName() % " is already connected";
+        return false;
+    }
+
+    const std::type_info& producerTypeInfo = out->getTypeInfo();
+    const std::type_info& consumerTypeInfo = in->getTypeInfo();
+
+    if( producerTypeInfo != consumerTypeInfo )
+    {
+        QString producerName = out->getName();
+        QString consumerName = in->getName();
+        QString producerTypeName = producerTypeInfo.name();
+        QString consumerTypeName = consumerTypeInfo.name();
+
+        errStr = "Cannot connect pins of incompatible type: producer "
+                 % producerName % " and consumer " % consumerName %
+                 " with types " % producerTypeName %
+                 " and " % consumerTypeName;
+        return false;
+    }
+
+    // ask pins for pin type specific objections to connection
+    if( !out->acceptsConnectionWith( in, errStr ) )
+    {
+        return false;
+    }
+
+    // ask pins for pin type specific objections to connection
+    if( !in->acceptsConnectionWith( out, errStr ) )
+    {
+        return false;
+    }
+
+    return true;
+}
+
 void PinConnection::connect()
         throw (IllegalConnectionException,
                IncompatibleTypeException,
@@ -61,7 +111,9 @@ void PinConnection::connect()
                                           " to itself" );
 
     if(m_consumer->isConnected())
+    {
         throw DuplicateConnectionException(m_consumer->getName() + " is already connected");
+    }
 
     const std::type_info& producerTypeInfo = m_producer->getTypeInfo();
     const std::type_info& consumerTypeInfo = m_consumer->getTypeInfo();
@@ -81,8 +133,23 @@ void PinConnection::connect()
 
         throw IncompatibleTypeException(errStr);
     }
+
+    QString errStr;
+    // ask pins for pin type specific objections to connection
+    if( !m_producer->acceptsConnectionWith( m_consumer, errStr ) )
+    {
+        throw IncompatibleTypeException(errStr);
+    }
+
+    if(! m_consumer->acceptsConnectionWith( m_producer, errStr ) )
+    {
+        throw IncompatibleTypeException(errStr);
+    }
+
+    // finally, make the connection
     m_producer->addConnection(this);
     m_consumer->setConnection(this);
+
     assert( m_consumer->isConnected() );
 }
 
@@ -147,7 +214,7 @@ int PinConnection::size()
     return static_cast<int>( m_queue.size() );
 }
 
-RefPtr<Data> PinConnection::get() throw ( PlvRuntimeException )
+void PinConnection::get( RefPtr<Data>& dataPtr ) throw ( PlvRuntimeException )
 {
     QMutexLocker lock( &m_connectionMutex );
     if( m_queue.empty() )
@@ -162,12 +229,11 @@ RefPtr<Data> PinConnection::get() throw ( PlvRuntimeException )
 
         throw PlvRuntimeException( msg, __FILE__, __LINE__ );
     }
-    RefPtr<Data> data = m_queue.front();
+    dataPtr = m_queue.front();
     m_queue.pop();
-    return data;
 }
 
-RefPtr<Data> PinConnection::peek() const
+void PinConnection::peek( RefPtr<Data>& rv ) const
         throw ( PlvRuntimeException )
 {
     QMutexLocker lock( &m_connectionMutex );
@@ -183,11 +249,10 @@ RefPtr<Data> PinConnection::peek() const
 
         throw PlvRuntimeException( msg, __FILE__, __LINE__ );
     }
-    RefPtr<Data> data = m_queue.front();
-    return data;
+    rv = m_queue.front();
 }
 
-void PinConnection::put( Data* data )
+void PinConnection::put( const RefPtr<Data>& data )
 {
     QMutexLocker lock( &m_connectionMutex );
     m_queue.push( data );

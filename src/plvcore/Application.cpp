@@ -32,8 +32,6 @@
 #include "Pipeline.h"
 #include "PipelineLoader.h"
 
-
-
 using namespace plv;
 
 Application::Application(QCoreApplication* app)
@@ -52,7 +50,6 @@ void Application::init()
 void Application::loadBuiltins()
 {
     // register classes with Qt so they can be used in signals and slots
-    qRegisterMetaType< RefPtr<Data> >("RefPtr<Data>");
     qRegisterMetaType< plv::RefPtr<plv::Data> >("plv::RefPtr<plv::Data>");
     qRegisterMetaType< plv::RefPtr<PlvBoolean> >("plv::RefPtr<PlvBoolean>");
     qRegisterMetaType< plv::RefPtr<PlvInteger> >("plv::RefPtr<PlvInteger>");
@@ -60,7 +57,7 @@ void Application::loadBuiltins()
     qRegisterMetaType< plv::RefPtr<PlvDouble> >("plv::RefPtr<PlvDouble>");
     qRegisterMetaType< plv::RefPtr<PlvString> >("plv::RefPtr<PlvString>");
 
-    qRegisterMetaType< Enum >( "Enum" );
+    // is copied by value, does not need a RefPtr
     qRegisterMetaType< plv::Enum >( "plv::Enum" );
 }
 
@@ -87,7 +84,9 @@ void Application::loadPlugins()
         return;
     }
 
-    foreach (QString fileName, pluginsDir.entryList(QDir::Files))
+    QStringList fileList = pluginsDir.entryList(QDir::Files);
+
+    foreach( const QString& fileName, fileList )
     {
         qDebug() << "Trying " << fileName;
         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));

@@ -74,23 +74,21 @@ void DummyProcessor::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
+    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
 
-    qDebug() << "Dummy: serial: " << img->getSerial();
+    RefPtr<OpenCVImage> targetPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
 
     // open for reading
-    const IplImage* iplImg1 = img->getImage();
+    const IplImage* src = srcPtr->getImage();
 
     // open image for writing
-    IplImage* iplImg2 = img2->getImageForWriting();
+    IplImage* target = targetPtr->getImageForWriting();
 
     // do a flip of the image
-    cvFlip( iplImg1, iplImg2, (int)m_someBool);
+    cvFlip( src, target, (int)m_someBool);
 
     // publish the new image
-    m_outputPin->put( img2.getPtr() );
+    m_outputPin->put( targetPtr.getPtr() );
 
     this->setSomeInt(this->getSomeInt()+1);
 }

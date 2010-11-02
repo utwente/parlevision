@@ -32,18 +32,13 @@
 namespace plv
 {
     class Data;
+    class Pin;
     class IOutputPin;
     class IInputPin;
 
     class PLVCORE_EXPORT PinConnection : public RefCounted
     {
-        enum ConnectionType {
-            LOSSLESS,
-            LOSSY_FIFO,
-            LOSSY_LIFO
-        };
-        friend class Pipeline;
-    public:
+      public:
         class PLVCORE_EXPORT IllegalConnectionException : public PlvException
         {
         public:
@@ -65,18 +60,25 @@ namespace plv
             virtual ~DuplicateConnectionException() throw() {}
         };
 
+        enum ConnectionType {
+            LOSSLESS,
+            LOSSY_FIFO,
+            LOSSY_LIFO
+        };
+        friend class Pipeline;
+
         PinConnection( IOutputPin* producer, IInputPin* consumer )
                 throw ( IllegalConnectionException,
                         IncompatibleTypeException,
                         DuplicateConnectionException );
-        ~PinConnection();
+        virtual ~PinConnection();
 
         bool hasData();
         int size();
         inline ConnectionType getType();
-        RefPtr<Data> get() throw ( PlvRuntimeException );
-        RefPtr<Data> peek() const throw ( PlvRuntimeException );
-        void put( Data* data );
+        void get( RefPtr<Data>& rv ) throw ( PlvRuntimeException );
+        void peek( RefPtr<Data>& rv ) const throw ( PlvRuntimeException );
+        void put( const RefPtr<Data>& data );
 
         bool fastforward( unsigned int target );
 
@@ -90,6 +92,9 @@ namespace plv
         const IInputPin*  toPin() const;
 
     protected:
+        static bool canConnectPins( IOutputPin* out, IInputPin* in,
+                                    QString& errStr );
+
         void connect() throw ( IllegalConnectionException,
                                IncompatibleTypeException,
                                DuplicateConnectionException );

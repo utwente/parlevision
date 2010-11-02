@@ -26,7 +26,11 @@
 #include <QWaitCondition>
 
 #include <plvcore/PipelineProducer.h>
-#include <plvcore/Pin.h>
+
+namespace plv
+{
+    class OpenCVImageOutputPin;
+}
 
 #include "OpenCVCamera.h"
 
@@ -43,10 +47,11 @@ namespace plvopencv
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
 
+        CameraProducer(const CameraProducer&);
+
     public:
         CameraProducer();
         virtual ~CameraProducer();
-        CameraProducer(const CameraProducer&);
 
         /** @returns true if a new frame is available */
         bool isReadyForProcessing() const;
@@ -60,7 +65,7 @@ namespace plvopencv
     protected:
         plv::RefPtr<OpenCVCamera> m_camera;
         plv::RefPtr<plv::OpenCVImage> m_lastFrame;
-        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
 
         int m_cameraId;
         int m_width;

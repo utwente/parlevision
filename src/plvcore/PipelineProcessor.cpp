@@ -106,7 +106,8 @@ void PipelineProcessor::__process()
             IInputPin* in = itr->second.getPtr();
 
             // just remove first data in queue
-            in->getUntyped();
+            RefPtr<Data> d;
+            in->getUntyped(d);
         }
 
         // call post on input pins

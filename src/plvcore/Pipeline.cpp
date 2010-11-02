@@ -156,6 +156,12 @@ const Pipeline::PipelineConnectionsList& Pipeline::getConnections() const
     return m_connections;
 }
 
+bool Pipeline::canConnectPins( IOutputPin* outputPin, IInputPin* inputPin,
+                               QString reason )
+{
+    return PinConnection::canConnectPins( outputPin, inputPin, reason );
+}
+
 void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
         throw (PinConnection::IllegalConnectionException,
                PinConnection::IncompatibleTypeException,
