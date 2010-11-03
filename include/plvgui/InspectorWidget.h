@@ -27,6 +27,7 @@
 #include <plvcore/RefPtr.h>
 #include <plvcore/PipelineElement.h>
 #include <plvcore/Types.h>
+#include <plvcore/Enum.h>
 
 class QFormLayout;
 

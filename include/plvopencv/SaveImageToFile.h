@@ -25,10 +25,13 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
 #include <plvcore/Types.h>
+#include <plvcore/Enum.h>
 
 namespace plv
 {
     class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
 }
 
 namespace plvopencv
@@ -99,7 +102,7 @@ namespace plvopencv
         void setAutoIncSuf(bool b) {m_autoIncSuf = b; emit(autoIncSufChanged(b));}
 
     private:
-        plv::InputPin<plv::OpenCVImage>* m_inputImage;
+        plv::OpenCVImageInputPin* m_inputImage;
         plv::InputPin<PlvBoolean>* m_inputTrigger;
 
         bool        m_doSave;    //Determines if the input has to be saved. Mostly false.

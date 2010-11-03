@@ -24,7 +24,7 @@
 #include "DelayImage.h"
 #include <plvcore/OpenCVImage.h>
 
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImagePin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -32,9 +32,9 @@ using namespace plvopencv;
 DelayImage::DelayImage():
         m_steps(5)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
-    m_delayedOutputPin = createOutputPin<OpenCVImage>( "delayed", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_delayedOutputPin = createOpenCVImageOutputPin( "delayed", this );
 }
 
 DelayImage::~DelayImage()

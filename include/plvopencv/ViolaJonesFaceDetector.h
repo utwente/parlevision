@@ -2,13 +2,14 @@
 #define VIOLAJONESFACEDETECTOR_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
 #include <plvcore/Types.h>
 #include <opencv/cv.h>
 
 namespace plv
 {
     class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
 }
 
 namespace plvopencv
@@ -60,8 +61,8 @@ namespace plvopencv
         void setHaarCascadeFile(QString filename) { m_haarCascadeFile = filename; emit( haarCascadeFileChanged(filename)); }
 
     private:
-        plv::InputPin<plv::OpenCVImage>* m_inputPin;
-        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin* m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
 
         int m_minNeighbours;
         double m_scaleFactor;

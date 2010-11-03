@@ -312,3 +312,29 @@ bool OpenCVImage::isCompatible( int width, int height, int depth, int channels )
                 m_img->depth     == depth );
     }
 }
+
+// TODO use ENUM for this
+const char* OpenCVImage::getStringForDepth( int depth )
+{
+    switch( depth )
+    {
+    case IPL_DEPTH_1U:
+        return "IPL_DEPTH_1U";
+    case IPL_DEPTH_8U:
+        return "IPL_DEPTH_8U";
+    case IPL_DEPTH_8S:
+        return "IPL_DEPTH_8S";
+    case IPL_DEPTH_16U:
+        return "IPL_DEPTH_16U";
+    case IPL_DEPTH_16S:
+        return "IPL_DEPTH_16S";
+    case IPL_DEPTH_32S:
+        return "IPL_DEPTH_32S";
+    case IPL_DEPTH_32F:
+        return "IPL_DEPTH_32F";
+    case IPL_DEPTH_64F:
+        return "IPL_DEPTH_64F";
+    default:
+        return "Invalid depth";
+    }
+}

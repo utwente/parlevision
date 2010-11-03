@@ -22,6 +22,7 @@
 
 #include <QDebug>
 #include <plvcore/OpenCVImage.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -30,9 +31,9 @@ using namespace plvopencv;
 Add::Add() :
     m_normalize ( false )
 {
-    m_inputPin1 = createInputPin<OpenCVImage>( "input 1", this );
-    m_inputPin2 = createInputPin<OpenCVImage>( "input 2", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin1 = createOpenCVImageInputPin( "input 1", this );
+    m_inputPin2 = createOpenCVImageInputPin( "input 2", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 }
 
 Add::~Add()

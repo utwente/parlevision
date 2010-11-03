@@ -135,58 +135,6 @@ namespace plv
             m_value = value;
         }
     };
-
-    /** private class used to store enum information in Enum class */
-    class EnumPair
-    {
-    public:
-        EnumPair( const QString& s="", int v=-1 ) :
-                m_name(s), m_value(v) {}
-
-        inline QString name() const { return m_name; }
-        inline int value() const { return m_value; }
-
-    protected:
-        QString m_name;
-        int m_value;
-    };
-
-    /** Class for configurable enum properties with introspection support. Useful in GUI code */
-    class PLVCORE_EXPORT Enum
-    {
-    public:
-        Enum( int selected = 0 );
-
-        ~Enum();
-
-        Enum( const Enum& other );
-
-        void setSelectedIndex( int i );
-
-        void setSelected( const QString& selected );
-
-        void add( const QString& str );
-
-        void add( const QString& str, int value );
-
-        int getSelectedIndex() const;
-
-        int getSelectedValue() const;
-
-        QString getItemName( int i ) const;
-
-        QString getSelectedItemName() const;
-
-        int getItemValue( int i ) const;
-
-        QStringList getItemNames() const;
-
-        QString toString() const;
-
-    protected:
-        int m_selectedIndex;
-        QMap<int, EnumPair> m_items;
-    };
 }
 
 /** primitive types */
@@ -203,7 +151,5 @@ Q_DECLARE_METATYPE( plv::RefPtr<PlvInteger> )
 Q_DECLARE_METATYPE( plv::RefPtr<PlvFloat> )
 Q_DECLARE_METATYPE( plv::RefPtr<PlvDouble> )
 Q_DECLARE_METATYPE( plv::RefPtr<PlvString> )
-
-Q_DECLARE_METATYPE( plv::Enum )
 
 #endif // TYPES_H

@@ -23,12 +23,14 @@
 #define DUMMYPROCESSOR_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
 #include <plvcore/Types.h>
+#include <plvcore/Enum.h>
 
 namespace plv
 {
     class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
 }
 
 namespace plvopencv
@@ -85,9 +87,9 @@ namespace plvopencv
         void setCustomEnum( plv::Enum c ) { m_customEnum = c; emit( customEnumChanged( c ) ); }
 
     private:
-        plv::InputPin<plv::OpenCVImage>*  m_inputPin;
-        plv::InputPin<plv::OpenCVImage>*  m_inputPinOptional;
-        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin*  m_inputPin;
+        plv::OpenCVImageInputPin*  m_inputPinOptional;
+        plv::OpenCVImageOutputPin* m_outputPin;
 
         int m_someInt;
         double m_someDouble;

@@ -24,6 +24,7 @@
 #include "ImageCornerHarris.h"
 
 #include <plvcore/OpenCVImage.h>
+#include <plvcore/OpenCVImagePin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -34,8 +35,8 @@ ImageCornerHarris::ImageCornerHarris() :
         m_blockSize(3),
         m_k(0.04)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 }
 
 ImageCornerHarris::~ImageCornerHarris()

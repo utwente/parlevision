@@ -23,11 +23,12 @@
 #define IMAGEFLIP_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
 
 namespace plv
 {
     class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
 }
 
 namespace plvopencv
@@ -64,8 +65,8 @@ namespace plvopencv
 
     private:
 
-        plv::InputPin<plv::OpenCVImage>* m_inputPin;
-        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin* m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
 
         bool m_flipX;
         bool m_flipY;

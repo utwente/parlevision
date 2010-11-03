@@ -23,11 +23,14 @@
 #define IMAGECOLORCONVERT_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+#include <plvcore/Enum.h>
+#include <QMutex>
 
 namespace plv
 {
     class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
 }
 
 namespace plvopencv
@@ -51,14 +54,19 @@ namespace plvopencv
         void conversionTypeChanged(plv::Enum newValue);
 
     public slots:
-        void setConversionType(plv::Enum e) { m_conversionType = e; emit(conversionTypeChanged(e)); }
+        void setConversionType(plv::Enum e);
 
-    private:
+    protected:
+        int getInChannels( int code );
+        int getOutChannels( int code );
 
-        plv::InputPin<plv::OpenCVImage>* m_inputPin;
-        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
+        int m_inChannels;
+        int m_outChannels;
 
+        plv::OpenCVImageInputPin* m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
         plv::Enum m_conversionType;
+        QMutex m_colorConvertMutex;
     };
 }
 #endif // IMAGECOLORCONVERT_H

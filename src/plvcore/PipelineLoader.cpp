@@ -23,6 +23,7 @@
 #include "Pipeline.h"
 #include "PipelineProcessor.h"
 #include "Pin.h"
+#include "Enum.h"
 
 #include <QStringList>
 #include <QFile>

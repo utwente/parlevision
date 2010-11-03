@@ -23,7 +23,7 @@
 
 #include "EdgeDetectorSobel.h"
 #include <plvcore/OpenCVImage.h>
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -32,8 +32,8 @@ using namespace plvopencv;
 EdgeDetectorSobel::EdgeDetectorSobel():
         m_apertureSize(3)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 }
 
 EdgeDetectorSobel::~EdgeDetectorSobel()

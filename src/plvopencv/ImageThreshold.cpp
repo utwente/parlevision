@@ -23,7 +23,7 @@
 
 #include "ImageThreshold.h"
 #include <plvcore/OpenCVImage.h>
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -36,8 +36,8 @@ ImageThreshold::ImageThreshold() :
         m_threshold( 0.0 ),
         m_maxValue( 255.0 )
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this,  IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this,  IInputPin::INPUT_REQUIRED );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 
     PLV_ENUM_ADD( m_method, CV_THRESH_BINARY );
     PLV_ENUM_ADD( m_method, CV_THRESH_BINARY_INV );

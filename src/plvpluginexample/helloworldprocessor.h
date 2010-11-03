@@ -9,6 +9,8 @@
 namespace plv
 {
     class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
 }
 
 class HelloWorldProcessor : public plv::PipelineProcessor
@@ -44,8 +46,8 @@ public slots:
     void setSomeString(QString s) {m_someString = s; emit(someStringChanged(s));}
 
 private:
-    plv::RefPtr< plv::InputPin<plv::OpenCVImage> > m_inputPin;
-    plv::RefPtr< plv::OutputPin<plv::OpenCVImage> > m_outputPin;
+    plv::OpenCVImageInputPin* m_inputPin;
+    plv::OpenCVImageOutputPin* m_outputPin;
 
     int m_someInt;
     double m_someDouble;

@@ -51,6 +51,12 @@ namespace plv
         bool supportsChannels( int channels ) const;
         bool supportsDepth( int depth ) const;
 
+        void clearDephts();
+        void clearChannels();
+
+        void addAllDepths();
+        void addAllChannels();
+
         /** Done at runtime */
         void checkImageFormat( const RefPtr<OpenCVImage>& img )
                 throw (PlvRuntimeException);
@@ -88,6 +94,12 @@ namespace plv
         bool supportsChannels( int channels ) const;
         bool supportsDepth( int depth ) const;
 
+        void clearDephts();
+        void clearChannels();
+
+        void addAllDepths();
+        void addAllChannels();
+
         /** Done at runtime */
         void checkImageFormat( const RefPtr<OpenCVImage>& img )
                 throw (PlvRuntimeException);
@@ -99,6 +111,13 @@ namespace plv
         QSet<int> m_depths;
         QSet<int> m_channels;
     };
+
+    OpenCVImageOutputPin* PLVCORE_EXPORT createOpenCVImageOutputPin( const QString& name, PipelineElement* owner )
+    throw (IllegalArgumentException);
+
+    OpenCVImageInputPin* PLVCORE_EXPORT createOpenCVImageInputPin( const QString& name, PipelineElement* owner,
+                                  IInputPin::InputPinType type = IInputPin::INPUT_REQUIRED )
+    throw (IllegalArgumentException);
 }
 
 #endif // OPENCVIMAGEOUTPUTPIN_H

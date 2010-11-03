@@ -21,7 +21,7 @@
 
 #include "DummyProcessor.h"
 
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <plvcore/OpenCVImage.h>
 
 #include <QDebug>
@@ -39,14 +39,14 @@ DummyProcessor::DummyProcessor() :
         m_someVarWithNr1(0),
         m_someVarWithNr2(0)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
-    m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::INPUT_OPTIONAL );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPinOptional = createOpenCVImageInputPin( "input2", this, IInputPin::INPUT_OPTIONAL );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 
-    m_customEnum.add( "Very Low" );
-    m_customEnum.add( "Low" );
-    m_customEnum.add( "High" );
-    m_customEnum.add( "Very High" );
+    m_customEnum.addLast( "Very Low" );
+    m_customEnum.addLast( "Low" );
+    m_customEnum.addLast( "High" );
+    m_customEnum.addLast( "Very High" );
 }
 
 DummyProcessor::~DummyProcessor()

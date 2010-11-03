@@ -24,7 +24,7 @@
 #include "Snapshot.h"
 #include <plvcore/OpenCVImage.h>
 
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -33,8 +33,8 @@ using namespace plvopencv;
 Snapshot::Snapshot() :
         m_makeSnapshot(true)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 }
 
 Snapshot::~Snapshot()

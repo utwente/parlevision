@@ -37,6 +37,37 @@ bool OpenCVImageInputPin::supportsDepth( int depth ) const
     return m_depths.contains(depth);
 }
 
+void OpenCVImageInputPin::clearDephts()
+{
+    m_depths.clear();
+}
+
+void OpenCVImageInputPin::clearChannels()
+{
+    m_channels.clear();
+}
+
+void OpenCVImageInputPin::addAllDepths()
+{
+    m_depths.insert( IPL_DEPTH_1U );
+    m_depths.insert( IPL_DEPTH_8U );
+    m_depths.insert( IPL_DEPTH_8S );
+    m_depths.insert( IPL_DEPTH_16U );
+    m_depths.insert( IPL_DEPTH_16S );
+    m_depths.insert( IPL_DEPTH_32S );
+    m_depths.insert( IPL_DEPTH_32F );
+    m_depths.insert( IPL_DEPTH_64F );
+}
+
+void OpenCVImageInputPin::addAllChannels()
+{
+    m_channels.insert( 1 );
+    m_channels.insert( 2 );
+    m_channels.insert( 3 );
+    m_channels.insert( 4 );
+}
+
+
 void OpenCVImageInputPin::checkImageFormat( const RefPtr<OpenCVImage>& img )
     throw (PlvRuntimeException)
 {
@@ -125,6 +156,36 @@ bool OpenCVImageOutputPin::supportsDepth( int depth ) const
     return m_depths.contains(depth);
 }
 
+void OpenCVImageOutputPin::clearDephts()
+{
+    m_depths.clear();
+}
+
+void OpenCVImageOutputPin::clearChannels()
+{
+    m_channels.clear();
+}
+
+void OpenCVImageOutputPin::addAllDepths()
+{
+    m_depths.insert( IPL_DEPTH_1U );
+    m_depths.insert( IPL_DEPTH_8U );
+    m_depths.insert( IPL_DEPTH_8S );
+    m_depths.insert( IPL_DEPTH_16U );
+    m_depths.insert( IPL_DEPTH_16S );
+    m_depths.insert( IPL_DEPTH_32S );
+    m_depths.insert( IPL_DEPTH_32F );
+    m_depths.insert( IPL_DEPTH_64F );
+}
+
+void OpenCVImageOutputPin::addAllChannels()
+{
+    m_channels.insert( 1 );
+    m_channels.insert( 2 );
+    m_channels.insert( 3 );
+    m_channels.insert( 4 );
+}
+
 void OpenCVImageOutputPin::checkImageFormat( const RefPtr<OpenCVImage>& img )
     throw (PlvRuntimeException)
 {
@@ -175,3 +236,24 @@ bool OpenCVImageOutputPin::acceptsConnectionWith( const IInputPin* pin,
     }
     return true;
 }
+
+OpenCVImageOutputPin* plv::createOpenCVImageOutputPin( const QString& name, PipelineElement* owner )
+throw (IllegalArgumentException)
+{
+    // if add fails pin is automatically deleted and exception is thrown
+    OpenCVImageOutputPin* pin = new OpenCVImageOutputPin( name, owner );
+    owner->addOutputPin( pin );
+    return pin;
+}
+
+OpenCVImageInputPin* plv::createOpenCVImageInputPin( const QString& name, PipelineElement* owner,
+                                                     IInputPin::InputPinType type )
+throw (IllegalArgumentException)
+{
+    // if add fails pin is automatically deleted and exception is thrown
+    OpenCVImageInputPin* pin = new OpenCVImageInputPin( name, owner, type );
+    owner->addInputPin( pin );
+    return pin;
+}
+
+

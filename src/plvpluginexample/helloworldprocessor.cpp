@@ -5,6 +5,7 @@
 #include "HelloWorldProcessor.h"
 #include <plvcore/Pin.h>
 #include <plvcore/OpenCVImage.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -15,11 +16,8 @@ HelloWorldProcessor::HelloWorldProcessor() :
         m_someBool(true),
         m_someString("hello")
 {
-    m_inputPin = new InputPin<OpenCVImage>("input", this);
-    addInputPin( m_inputPin );
-
-    m_outputPin = new OutputPin<OpenCVImage>("output", this);
-    addOutputPin( m_outputPin );
+    m_inputPin = createOpenCVImageInputPin("input", this);
+    m_outputPin = createOpenCVImageOutputPin("output", this);
 }
 
 HelloWorldProcessor::~HelloWorldProcessor()

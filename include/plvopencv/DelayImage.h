@@ -23,17 +23,15 @@
 #define DELAYIMAGE_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
 
-#include <QMutex>
-#include <QMutexLocker>
 #include <QList>
 
 namespace plv
 {
     class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
 }
-
 namespace plvopencv
 {
     class DelayImage : public plv::PipelineProcessor
@@ -65,9 +63,9 @@ namespace plvopencv
         void setSteps(int i);
 
     private:
-        plv::InputPin<plv::OpenCVImage>*  m_inputPin;
-        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
-        plv::OutputPin<plv::OpenCVImage>* m_delayedOutputPin;
+        plv::OpenCVImageInputPin*  m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::OpenCVImageOutputPin* m_delayedOutputPin;
 
         /** List of delayed images. */
         QList< plv::RefPtr<plv::OpenCVImage> > m_images;

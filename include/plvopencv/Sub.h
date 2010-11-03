@@ -23,11 +23,12 @@
 #define SUB_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
 
 namespace plv
 {
     class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
 }
 
 namespace plvopencv
@@ -51,9 +52,9 @@ namespace plvopencv
         virtual ~Sub();
 
     private:
-        plv::InputPin<plv::OpenCVImage>* m_inputPin1;
-        plv::InputPin<plv::OpenCVImage>* m_inputPin2;
-        plv::OutputPin<plv::OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin* m_inputPin1;
+        plv::OpenCVImageInputPin* m_inputPin2;
+        plv::OpenCVImageOutputPin* m_outputPin;
     };
 }
 #endif // SUB_H

@@ -23,7 +23,7 @@
 
 #include "Sub.h"
 #include <plvcore/OpenCVImage.h>
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -31,9 +31,9 @@ using namespace plvopencv;
 
 Sub::Sub()
 {
-    m_inputPin1 = createInputPin<OpenCVImage>( "input 1", this );
-    m_inputPin2 = createInputPin<OpenCVImage>( "input 2", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin1 = createOpenCVImageInputPin( "input 1", this );
+    m_inputPin2 = createOpenCVImageInputPin( "input 2", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 }
 
 Sub::~Sub()

@@ -26,6 +26,7 @@
 #include <QPluginLoader>
 
 #include "Types.h"
+#include "Enum.h"
 #include "Plugin.h"
 #include "PipelineElement.h"
 #include "RefPtr.h"

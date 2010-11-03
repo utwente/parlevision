@@ -53,7 +53,8 @@ SOURCES += \
     Plugin.cpp \
     OpenCVImage.cpp \
     CvMatData.cpp \
-    OpenCVImagePin.cpp
+    OpenCVImagePin.cpp \
+    Enum.cpp
 
 HEADERS += ../../include/plvcore/plvglobal.h \
     ../../include/plvcore/Application.h \
@@ -72,4 +73,5 @@ HEADERS += ../../include/plvcore/plvglobal.h \
     ../../include/plvcore/Scheduler.h \
     ../../include/plvcore/OpenCVImage.h \
     ../../include/plvcore/CvMatData.h \
-    ../../include/plvcore/OpenCVImagePin.h
+    ../../include/plvcore/OpenCVImagePin.h \
+    ../../include/plvcore/Enum.h

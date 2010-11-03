@@ -60,6 +60,10 @@ namespace plv
         inline int getDepth() const { return m_depth; }
         inline int getNumChannels() const { return m_numChannels; }
 
+        inline void setWidth( int width ) { m_width = width; }
+        inline void setHeight( int height ) { m_height = height; }
+        inline void setDepth( int depth ) { m_depth = depth; }
+        inline void setNumChannels( int numChannels ) { m_numChannels = numChannels; }
     };
 
     class OpenCVImage;
@@ -197,6 +201,8 @@ namespace plv
 
         /** @returns the size of the contained IplImage image data in bytes */
         int size()const;
+
+        static const char* getStringForDepth( int depth );
 
     protected:
         OpenCVImage( IplImage* img );
