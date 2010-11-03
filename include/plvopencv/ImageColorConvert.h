@@ -66,7 +66,6 @@ namespace plvopencv
         plv::OpenCVImageInputPin* m_inputPin;
         plv::OpenCVImageOutputPin* m_outputPin;
         plv::Enum m_conversionType;
-        QMutex m_colorConvertMutex;
     };
 }
 #endif // IMAGECOLORCONVERT_H

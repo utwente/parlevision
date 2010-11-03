@@ -342,8 +342,6 @@ int ImageColorConvert::getOutChannels( int code )
 
 void ImageColorConvert::setConversionType(plv::Enum e)
 {
-    QMutexLocker lock( &m_colorConvertMutex );
-
     // update pin settings
     m_inChannels  = getInChannels( e.getSelectedValue() );
     m_outChannels = getOutChannels( e.getSelectedValue() );
@@ -363,8 +361,6 @@ void ImageColorConvert::setConversionType(plv::Enum e)
 
 void ImageColorConvert::process()
 {
-    QMutexLocker lock( &m_colorConvertMutex );
-
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
