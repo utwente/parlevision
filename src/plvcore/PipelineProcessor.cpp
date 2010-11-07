@@ -133,6 +133,8 @@ void PipelineProcessor::__process()
             if( (*itr) < max)
             {
                 fastforward = true;
+
+                // TODO, will this ever occur in current model?
                 assert( false );
             }
 
@@ -163,26 +165,11 @@ void PipelineProcessor::__process()
         }
 
         // call process function which does the actual work
-        // if fastforward did not succeed we just exit
-        try
-        {
-            // set the serial number for this processing run
-            this->setProcessingSerial( max );
+        // set the serial number for this processing run
+        this->setProcessingSerial( max );
 
-            // do the actual processing
-            this->process();
-        }
-        catch( ... )
-        {
-            // call post before we re-throw
-            for( InputPinMap::iterator itr = m_inputPins.begin();
-                 itr != m_inputPins.end(); ++itr )
-            {
-                IInputPin* in = itr->second.getPtr();
-                in->post();
-            }
-            throw;
-        }
+        // do the actual processing
+        this->process();
 
         // call post on input pins
         for( InputPinMap::iterator itr = m_inputPins.begin();
