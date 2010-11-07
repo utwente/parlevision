@@ -73,7 +73,9 @@ void OpenCVImageInputPin::checkImageFormat( const RefPtr<OpenCVImage>& img )
 {
     if( !supportsDepth(img->getDepth()) )
     {
-        QString msg = "Depth unsupported by one or multiple connected input pins";
+        QString msg = QString("Depth \"%1\" unsupported by input pin \"%2\"")
+                      .arg( OpenCVImage::depthToString( img->getDepth() ) )
+                      .arg( this->getName() );
         throw PlvRuntimeException( msg, __FILE__, __LINE__ );
     }
 
