@@ -191,7 +191,7 @@ QImage ImageConverter::iplImageToQImage( const IplImage* img )
     default:
         errStr = QString("Conversion not supported: depth %1 "
                          "and number of channels is %2")
-                .arg(OpenCVImage::getStringForDepth(img->depth))
+                .arg(OpenCVImage::depthToString(img->depth))
                 .arg(img->nChannels);
         throw ImageConversionException( errStr.toStdString() );
     }

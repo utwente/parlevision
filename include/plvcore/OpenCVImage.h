@@ -202,7 +202,7 @@ namespace plv
         /** @returns the size of the contained IplImage image data in bytes */
         int size()const;
 
-        static const char* getStringForDepth( int depth );
+        static const char* depthToString( int depth );
 
     protected:
         OpenCVImage( IplImage* img );

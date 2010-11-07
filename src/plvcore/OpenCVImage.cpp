@@ -314,7 +314,7 @@ bool OpenCVImage::isCompatible( int width, int height, int depth, int channels )
 }
 
 // TODO use ENUM for this
-const char* OpenCVImage::getStringForDepth( int depth )
+const char* OpenCVImage::depthToString( int depth )
 {
     switch( depth )
     {
