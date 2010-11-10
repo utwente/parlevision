@@ -17,7 +17,7 @@ namespace plvopencv
     class ViolaJonesFaceDetector : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( ViolaJonesFaceDetector )
         Q_CLASSINFO("author", "Dennis")
         Q_CLASSINFO("name", "Face Detect V.-J.")
         Q_CLASSINFO("description", "Viola-Jones Face Detector.");

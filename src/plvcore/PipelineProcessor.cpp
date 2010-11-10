@@ -75,6 +75,9 @@ void PipelineProcessor::__process()
 
     QMutexLocker lock( &m_pleMutex );
 
+    // we do not want properties to change in the middle of an operation
+    QMutexLocker lock2( m_propertyMutex );
+
     std::vector<unsigned int> serials;
     serials.reserve( m_inputPins.size() );
     bool nullDetected = false;

@@ -37,7 +37,7 @@ namespace plvopencv
     class ImageSmooth : public plv::PipelineProcessor
     {
         Q_OBJECT
-        
+        Q_DISABLE_COPY( ImageSmooth )
         Q_CLASSINFO("author", "Dennis & Wim")
         Q_CLASSINFO("name", "Smooth")
         Q_CLASSINFO("description", "Smoothing using cvSmooth."
@@ -47,7 +47,6 @@ namespace plvopencv
                     "</a>")
 
         Q_PROPERTY( plv::Enum method READ getMethod WRITE setMethod NOTIFY methodChanged )
-
         Q_PROPERTY( int one READ getOne WRITE setOne NOTIFY oneChanged )
         Q_PROPERTY( int two READ getTwo WRITE setTwo NOTIFY twoChanged )
         Q_PROPERTY( double three READ getThree WRITE setThree NOTIFY threeChanged )

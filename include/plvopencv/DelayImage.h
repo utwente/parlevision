@@ -37,7 +37,7 @@ namespace plvopencv
     class DelayImage : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( DelayImage )
         Q_CLASSINFO("author", "Dennis");
         Q_CLASSINFO("name", "Delay image");
         Q_CLASSINFO("description", "Delay an image by given number of steps (max 10).");

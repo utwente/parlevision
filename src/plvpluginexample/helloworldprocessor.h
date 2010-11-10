@@ -16,11 +16,13 @@ namespace plv
 class HelloWorldProcessor : public plv::PipelineProcessor
 {
     Q_OBJECT
+    Q_DISABLE_COPY( HelloWorldProcessor )
     Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt NOTIFY someIntChanged  )
     Q_PROPERTY( double someDouble READ getSomeDouble WRITE setSomeDouble NOTIFY someDoubleChanged  )
     Q_PROPERTY( bool someBool READ getSomeBool WRITE setSomeBool NOTIFY someBoolChanged  )
     Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString NOTIFY someStringChanged )
 
+    /** required standard method declaration for plv::PipelineElement */
     PLV_PIPELINE_ELEMENT
 
 public:

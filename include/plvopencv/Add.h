@@ -39,6 +39,7 @@ namespace plvopencv
     class Add : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( Add )
         Q_CLASSINFO("author", "Ported from old version by Dennis")
         Q_CLASSINFO("name", "A add B")
         Q_CLASSINFO("description", "A simple processor to add two images. Optionally, the result is normalized.");

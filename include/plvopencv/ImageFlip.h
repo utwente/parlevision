@@ -36,7 +36,7 @@ namespace plvopencv
     class ImageFlip : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( ImageFlip )
         Q_CLASSINFO("author", "Ported from old version by Wim & Dennis")
         Q_CLASSINFO("name", "Flip")
         Q_CLASSINFO("description", "Flip image. FlipX means \"flip around x-axis\". Same for FlipY.");

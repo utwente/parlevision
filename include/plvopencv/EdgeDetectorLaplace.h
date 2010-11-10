@@ -36,7 +36,7 @@ namespace plvopencv
     class EdgeDetectorLaplace : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( EdgeDetectorLaplace )
         Q_CLASSINFO("author", "Ported from old version by Wim & Dennis")
         Q_CLASSINFO("name", "Edge detector Laplace")
         Q_CLASSINFO("description", "Edge detection using the Laplace method.");

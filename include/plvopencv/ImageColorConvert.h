@@ -38,6 +38,7 @@ namespace plvopencv
     class ImageColorConvert : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( ImageColorConvert )
         Q_PROPERTY( plv::Enum conversionType READ getConversionType WRITE setConversionType NOTIFY conversionTypeChanged )
 
         /** required standard method declaration for plv::PipelineElement */

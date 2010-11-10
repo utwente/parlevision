@@ -51,7 +51,7 @@ namespace plvopencv
     class Trigger : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( Trigger )
         Q_CLASSINFO("author", "Niek Hoeijmakers")
         Q_CLASSINFO("name", "Trigger")
         Q_CLASSINFO("description", "A processor that passes on a boolean value for every received image. "

@@ -24,16 +24,39 @@
 #include "EdgeDetectorSobel.h"
 #include <plvcore/OpenCVImage.h>
 #include <plvcore/OpenCVImagePin.h>
+#include <plvcore/Util.h>
 #include <opencv/cv.h>
 
 using namespace plv;
 using namespace plvopencv;
 
 EdgeDetectorSobel::EdgeDetectorSobel():
-        m_apertureSize(3)
+        m_xOrder( 1 ),
+        m_yOrder( 0 ),
+        m_apertureSize(3),
+        m_Scharr( false ),
+        m_output16bit( false )
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this );
+    m_inputPin  = createOpenCVImageInputPin( "input", this );
     m_outputPin = createOpenCVImageOutputPin( "output", this );
+
+    m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
+    m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
+    m_inputPin->addSupportedDepth( IPL_DEPTH_32F );
+    m_inputPin->addSupportedChannels( 1 );
+
+    if( m_output16bit )
+    {
+        m_outputPin->addSupportedDepth( IPL_DEPTH_16S );
+        m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
+    }
+    else
+    {
+        m_outputPin->addSupportedDepth( IPL_DEPTH_8S );
+        m_outputPin->addSupportedDepth( IPL_DEPTH_8U );
+        m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
+    }
+    m_outputPin->addSupportedChannels( 1 );
 }
 
 EdgeDetectorSobel::~EdgeDetectorSobel()
@@ -58,52 +81,180 @@ void EdgeDetectorSobel::stop()
 
 void EdgeDetectorSobel::process()
 {
-    assert(m_inputPin != 0);
-    assert(m_outputPin != 0);
+    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    if(img->getDepth() != IPL_DEPTH_8U)
+    // destination image should be at least 16 bits avoid overflow of Sobel operation
+    // see e.g. http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsobel#cvSobel
+    OpenCVImageProperties props = srcPtr->getProperties();
+    if( props.getDepth() != IPL_DEPTH_32F )
     {
-        throw std::runtime_error("format not yet supported");
+        props.setDepth( IPL_DEPTH_16S );
     }
-
-    // temporary image with extra room (depth), see e.g. http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
-
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
-
+    RefPtr<OpenCVImage> dstPtr = OpenCVImageFactory::get( props );
 
     // open for reading
-    const IplImage* iplImg1 = img->getImage();
+    const IplImage* src = srcPtr->getImage();
 
     // open image for writing
-    IplImage* iplImg2 = img2->getImageForWriting();
-    IplImage* iplTmp = tmp->getImageForWriting();
+    IplImage* dst = dstPtr->getImageForWriting();
 
     // do a sobel operator of the image
-    //FIXME: missing parameters for x_order and y_order
-    cvSobel( iplImg1, iplTmp, 1,0,m_apertureSize);
-    // convert the image back to 8bit depth
-    cvConvertScale(iplTmp, iplImg2, 1, 0);
+    // Parameters:
+    //  * src – Source image of type CvArr*
+    //  * dst – Destination image
+    //  * xorder – Order of the derivative x
+    //  * yorder – Order of the derivative y
+    //  * apertureSize – Size of the extended Sobel kernel, must be 1, 3, 5 or 7
+    assert( m_xOrder == 1 || m_xOrder == 0 );
+    assert( m_yOrder == 1 || m_yOrder == 0 );
+    assert( m_apertureSize == 1 || m_apertureSize == 3 || m_apertureSize == 5 || m_apertureSize == 7 );
 
-    // publish the new image
-    m_outputPin->put( img2.getPtr() );
+    // check for Scharr and use appropriate aperture size
+    int apertureSize = m_Scharr ? CV_SCHARR : m_apertureSize;
+
+    // do sobel operation
+    cvSobel( src, dst, (int)m_xOrder, (int)m_yOrder, apertureSize );
+
+    // publish output
+    if( !m_output16bit &&
+        (srcPtr->getDepth() == IPL_DEPTH_8U || srcPtr->getDepth() == (int)IPL_DEPTH_8S ))
+    {
+        // convert the image back to 8bit depth if we do not want to ouput 16bit
+        RefPtr<OpenCVImage> dst8bitPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
+        IplImage* dst8bit = dst8bitPtr->getImageForWriting();
+
+        cvConvertScale( dst, dst8bit, 1, 0);
+        m_outputPin->put( dst8bitPtr );
+    }
+    else
+    {
+        m_outputPin->put( dstPtr );
+    }
 }
 
+void EdgeDetectorSobel::setXOrder(bool x)
+{
+    QMutexLocker lock( m_propertyMutex );
+
+    if( m_Scharr )
+    {
+        // x and y are not allowed to both be 1
+        if( x )
+        {
+            m_xOrder = true;
+            m_yOrder = false;
+        }
+        else
+        {
+            m_xOrder = false;
+            m_yOrder = true;
+        }
+        emit(xOrderChanged(m_xOrder));
+        emit(yOrderChanged(m_yOrder));
+    }
+    else
+    {
+        // x is only allowed to be 0 when yOrder is 1
+        if( !(!x && !m_yOrder) )
+        {
+            m_xOrder = x;
+        }
+        emit(xOrderChanged(m_xOrder));
+    }
+}
+
+void EdgeDetectorSobel::setYOrder(bool y)
+{
+    QMutexLocker lock( m_propertyMutex );
+
+    if( m_Scharr )
+    {
+        // x and y are not allowed to both be 1
+        if( y )
+        {
+            m_xOrder = false;
+            m_yOrder = true;
+        }
+        else
+        {
+            m_xOrder = true;
+            m_yOrder = false;
+        }
+        emit(xOrderChanged(m_xOrder));
+        emit(yOrderChanged(m_yOrder));
+    }
+    else
+    {
+        // y is only allowed to be 0 when xOrder is 1
+        if( !(!y && !m_xOrder) )
+        {
+            m_yOrder = y;
+        }
+        emit(yOrderChanged(m_yOrder));
+    }
+}
 
 void EdgeDetectorSobel::setApertureSize(int i)
 {
-    //aperture size must be odd and positive, max 31 (?)
-    if (i < 1) i = 1;
-    if (i > 31) i = 31;
-    if (i%2 == 0)
+    QMutexLocker lock( m_propertyMutex );
+
+    //aperture size must be odd and positive,
+    //min 1 and max 7
+    if (i < 1)
+        i = 1;
+    else if (i > 7)
+        i = 7;
+    else if( isEven(i) )
     {   //even: determine appropriate new odd value
-        if (i > m_apertureSize) i++; //we were increasing -- increase to next odd value
-        else i--;                    //we were decreasing -- decrease to next odd value
+        //we were increasing -- increase to next odd value
+        if( i > m_apertureSize )
+            i++;
+        //we were decreasing -- decrease to next odd value
+        else
+            i--;
     }
     m_apertureSize = i;
-    emit(apertureSizeChanged(m_apertureSize));
+    emit(apertureSizeChanged(i));
 }
+
+void EdgeDetectorSobel::setScharr(bool useScharr)
+{
+    QMutexLocker lock( m_propertyMutex );
+
+    if( useScharr )
+    {
+        // in Scharr mode x order and y order are mutually exclusive
+        if( m_xOrder && m_yOrder )
+        {
+            m_yOrder = false;
+        }
+        emit( yOrderChanged(m_yOrder) );
+    }
+
+    m_Scharr = useScharr;
+    emit( ScharrChanged(useScharr) );
+}
+
+void EdgeDetectorSobel::setOutput16bit(bool val)
+{
+    QMutexLocker lock( m_propertyMutex );
+
+    m_output16bit = val;
+
+    m_outputPin->clearDephts();
+    if( m_output16bit )
+    {
+        m_outputPin->addSupportedDepth( IPL_DEPTH_16S );
+        m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
+    }
+    else
+    {
+        m_outputPin->addSupportedDepth( IPL_DEPTH_8S );
+        m_outputPin->addSupportedDepth( IPL_DEPTH_8U );
+        m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
+    }
+
+    emit( output16bitChanged( val ));
+}
+
 

@@ -36,6 +36,7 @@ namespace plvopencv
     class ImageCornerHarris : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( ImageCornerHarris )
         Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
         Q_PROPERTY( int blockSize READ getBlockSize WRITE setBlockSize NOTIFY blockSizeChanged )
         Q_PROPERTY( double k READ getK WRITE setK NOTIFY kChanged )

@@ -76,6 +76,7 @@ void DummyProcessor::process()
 
     RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
 
+    // allocate a target buffer
     RefPtr<OpenCVImage> targetPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
 
     // open for reading
@@ -88,7 +89,8 @@ void DummyProcessor::process()
     cvFlip( src, target, (int)m_someBool);
 
     // publish the new image
-    m_outputPin->put( targetPtr.getPtr() );
+    m_outputPin->put( targetPtr );
 
+    // update our "frame counter"
     this->setSomeInt(this->getSomeInt()+1);
 }

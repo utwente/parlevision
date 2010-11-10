@@ -36,7 +36,7 @@ namespace plvopencv
     class Snapshot : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( Snapshot )
         Q_CLASSINFO("author", "Dennis")
         Q_CLASSINFO("name", "Snapshot")
         Q_CLASSINFO("description", "On request, make a new snapshot of the input pin. On the output pin, always present the latest snapshot. Always enforces a snapshot on the first frame.");

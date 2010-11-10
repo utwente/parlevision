@@ -39,6 +39,7 @@ namespace plvopencv
     class CameraProducer : public plv::PipelineProducer
     {
         Q_OBJECT
+        Q_DISABLE_COPY( CameraProducer )
 
         Q_PROPERTY( int cameraId READ getCameraId WRITE setCameraId NOTIFY cameraIdChanged )
         Q_PROPERTY( int width READ getWidth WRITE setWidth NOTIFY widthChanged )
@@ -46,8 +47,6 @@ namespace plvopencv
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
-
-        CameraProducer(const CameraProducer&);
 
     public:
         CameraProducer();

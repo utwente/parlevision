@@ -32,6 +32,7 @@ namespace plvopencv
     class ImageLoader : public plv::PipelineProducer
     {
         Q_OBJECT
+        Q_DISABLE_COPY( ImageLoader )
         Q_CLASSINFO("author", "Niek Hoeijmakers")
         Q_CLASSINFO("name", "ImageLoader")
         Q_CLASSINFO("description", "This pipeline producer loads an image with the given path to the image."
@@ -47,7 +48,6 @@ namespace plvopencv
     public:
         ImageLoader();
         virtual ~ImageLoader();
-        ImageLoader(const ImageLoader&);
 
         /** @returns true if a new frame is available */
         bool isReadyForProcessing() const;

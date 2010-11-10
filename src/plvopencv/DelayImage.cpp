@@ -33,8 +33,16 @@ DelayImage::DelayImage():
         m_steps(5)
 {
     m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPin->addAllChannels();
+    m_inputPin->addAllDepths();
+
     m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
+
     m_delayedOutputPin = createOpenCVImageOutputPin( "delayed", this );
+    m_delayedOutputPin->addAllChannels();
+    m_delayedOutputPin->addAllDepths();
 }
 
 DelayImage::~DelayImage()

@@ -38,6 +38,7 @@ namespace plvopencv
     class DummyProcessor : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( DummyProcessor )
         Q_CLASSINFO("author", "Michel & Richard")
         Q_CLASSINFO("name", "Dummy")
         Q_CLASSINFO("description", "A simple processor to demonstrate how to implement your own processors. "

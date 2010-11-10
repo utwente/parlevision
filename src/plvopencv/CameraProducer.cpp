@@ -41,21 +41,11 @@ CameraProducer::CameraProducer() :
         m_lastProcessedId( 0 )
 {
     // we have one output pin
-    m_outputPin = new OpenCVImageOutputPin( "output", this );
-    this->addOutputPin( m_outputPin );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 
-    m_outputPin->addSupportedChannels(1);
-    m_outputPin->addSupportedChannels(2);
-    m_outputPin->addSupportedChannels(3);
-    m_outputPin->addSupportedChannels(4);
-
-    m_outputPin->addSupportedDepth(IPL_DEPTH_8S);
-    m_outputPin->addSupportedDepth(IPL_DEPTH_8U);
-    m_outputPin->addSupportedDepth(IPL_DEPTH_16U);
-    m_outputPin->addSupportedDepth(IPL_DEPTH_16S);
-    m_outputPin->addSupportedDepth(IPL_DEPTH_32S);
-    m_outputPin->addSupportedDepth(IPL_DEPTH_32F);
-    m_outputPin->addSupportedDepth(IPL_DEPTH_64F);
+    // supports all types of images
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 
     // connect the camera to this camera producer using Qt's signals
     // and slots mechanism.
@@ -67,23 +57,6 @@ CameraProducer::CameraProducer() :
 
 CameraProducer::~CameraProducer()
 {
-}
-
-CameraProducer::CameraProducer(const CameraProducer& other):
-        PipelineProducer(other),
-        m_camera(other.m_camera),
-        m_lastProcessedId( other.m_lastProcessedId )
-{
-    // we have one output pin
-    m_outputPin = new OpenCVImageOutputPin( "output", this );
-    this->addOutputPin( m_outputPin );
-
-    // connect the camera to this camera producer using Qt's signals
-    // and slots mechanism.
-    connect( m_camera.getPtr(),
-             SIGNAL( newFrame( RefPtr<Data> ) ),
-             this,
-             SLOT( newFrame( RefPtr<Data> ) ) );
 }
 
 void CameraProducer::process()
@@ -107,10 +80,9 @@ void CameraProducer::init()
 {
     if( !m_camera->init(m_cameraId) )
     {
-        QString msg = "Camera with id " %
-                      QVariant(m_cameraId).toString() %
-                      " failed to initialise";
-        throw PlvException(msg);
+        QString msg = QString("Camera with id %1 failed to initialise")
+                      .arg(m_cameraId);
+        throw PlvRuntimeException(msg, __FILE__, __LINE__ );
     }
     m_camera->setDimensions(m_width, m_height);
 }

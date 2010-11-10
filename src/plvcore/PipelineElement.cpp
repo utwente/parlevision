@@ -37,21 +37,14 @@ std::list<QString> PipelineElement::s_types;
 std::map<QString,QString> PipelineElement::s_names;
 
 PipelineElement::PipelineElement() :
-        m_id( -1 )
+        m_id( -1 ),
+        m_propertyMutex( new QMutex( QMutex::Recursive ) )
 {
 }
 
 PipelineElement::~PipelineElement()
 {
-}
-
-PipelineElement::PipelineElement(const PipelineElement &other)
-    : QObject(),
-        RefCounted(other),
-        m_inputPins(other.m_inputPins),
-        m_outputPins(other.m_outputPins),
-        m_serial( 0 )
-{
+    delete m_propertyMutex;
 }
 
 void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentException)
@@ -295,11 +288,10 @@ std::list<QString> PipelineElement::types()
 int PipelineElement::registerType(QString typeName, QString humanName)
 {
     qDebug() << "Registering PipelineElement " << typeName
-                    << " as " << "'" << humanName << "'";
+             << " as " << "'" << humanName << "'";
 
     PipelineElement::s_types.push_back( typeName );
     PipelineElement::s_names[typeName] = humanName;
-    //return qRegisterMetaType<E>(typeName);
     return 0;
 }
 

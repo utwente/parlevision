@@ -25,15 +25,12 @@
 
 #include <plvcore/OpenCVImage.h>
 #include <plvcore/OpenCVImagePin.h>
+#include <plvcore/Util.h>
 #include <opencv/cv.h>
 
 using namespace plv;
 using namespace plvopencv;
 
-//FIXME:
-//why do we need to do all this complicated conversion up and down in process()? Better to just do a simple Canny,
-//but refuse to process (i.e., throw away all frames) when input is not proper grayscale.
-//maybe also send message or something...
 EdgeDetectorCanny::EdgeDetectorCanny() :
         m_apertureSize(3),
         m_thresholdLow(0.1),
@@ -76,90 +73,41 @@ void EdgeDetectorCanny::stop()
 
 void EdgeDetectorCanny::process()
 {
-    assert(m_inputPin != 0);
-    assert(m_outputPin != 0);
+    // get the source
+    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-
-    //assert(img->getDepth() == IPL_DEPTH_8U || img->getDepth() == IPL_DEPTH_8S );
-    //assert(img->getNumChannels() == 1 );
-
-    // temporary image with extra room (depth), see e.g.
-    // http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_16U , 1 );
-
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
-
+    // get a new target image with the same properties as the src
+    RefPtr<OpenCVImage> targetPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
 
     // open for reading
-    const IplImage* iplImg1 = img->getImage();
+    const IplImage* src = srcPtr->getImage();
 
     // open image for writing
-    IplImage* iplImg2 = img2->getImageForWriting();
-    IplImage* iplTmp = tmp->getImageForWriting();
-
-    // INPUT REQUIRED TO BE GRAYSCALED! take the first channel as grayscale image
-    cvSplit(iplImg1,iplTmp,NULL,NULL,NULL);
+    IplImage* target = targetPtr->getImageForWriting();
 
     // do a canny edge detection operator of the image
-    cvCanny( iplTmp, iplTmp, m_thresholdLow, m_thresholdHigh, m_apertureSize);
-
-    // convert the image back to 8bit depth
-//    cvConvertScale(iplTmp, iplImg2, 1, 0);
-    cvMerge( iplTmp, iplTmp, iplTmp, NULL, iplImg2 );
+    // the input should be grayscaled
+    cvCanny( src, target, m_thresholdLow, m_thresholdHigh, m_apertureSize);
 
     // publish the new image
-    m_outputPin->put( img2.getPtr() );
+    m_outputPin->put( targetPtr );
 }
 
-/*
-void alternativeProcess()
-{
-    assert(m_inputPin != 0);
-    assert(m_outputPin != 0);
-
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    if(img->getDepth() != IPL_DEPTH_8U)
-    {
-        throw std::runtime_error("format not yet supported");
-    }
-
-    // temporary image with extra room (depth), see e.g. http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
-
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
-
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
-
-
-    // open for reading
-    const IplImage* iplImg1 = img->getImage();
-
-    // perform canny filter
-    IplImage* tmpImg = tmp->getImageForWriting();
-
-    cvCanny(iplImg1, tmpImg, m_thresholdLow, m_thresholdHigh, m_apertureSize);
-
-    // scale back to output format
-    IplImage* iplImg2 = img2->getImageForWriting();
-    cvConvertScale( tmpImg, iplImg2, 1, 0 );
-
-    // publish the new image
-    m_outputPin->put( img2.getPtr() );
-}
-*/
 void EdgeDetectorCanny::setApertureSize(int i)
 {
     //aperture size must be odd and positive, min 3, max 7 (but that is already way too much for sensible results)
-    if (i < 3) i = 3;
-    if (i > 7) i = 7;
-    if (i%2 == 0)
+    if (i < 3)
+        i = 3;
+    else if (i > 7)
+        i = 7;
+    else if( isEven(i) )
     {   //even: determine appropriate new odd value
-        if (i > m_apertureSize) i++; //we were increasing -- increase to next odd value
-        else i--;                    //we were decreasing -- decrease to next odd value
+        //we were increasing -- increase to next odd value
+        if( i > m_apertureSize )
+            i++;
+        //we were decreasing -- decrease to next odd value
+        else
+            i--;
     }
     m_apertureSize = i;
     emit(apertureSizeChanged(m_apertureSize));

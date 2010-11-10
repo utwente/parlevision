@@ -34,7 +34,7 @@
 
 namespace plv
 {
-    class OpenCVImageProperties
+    class PLVCORE_EXPORT OpenCVImageProperties
     {
     protected:
         int m_width;
@@ -195,6 +195,11 @@ namespace plv
 
         /** Compare two opencv images for type equality */
         bool isCompatible( const OpenCVImage* other, ImageCompare compareType = ALL ) const;
+
+        inline bool isCompatible( const RefPtr<OpenCVImage>& other, ImageCompare compareType = ALL ) const
+        {
+            return isCompatible( other.getPtr(), compareType );
+        }
 
         /** Compare this opencv images for type equality to parameters */
         bool isCompatible( int width, int height, int depth, int channels ) const;

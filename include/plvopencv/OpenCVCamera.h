@@ -37,7 +37,8 @@ namespace plvopencv
 {
     class OpenCVCamera : public QThread, public plv::RefCounted
     {
-         Q_OBJECT
+        Q_OBJECT
+        Q_DISABLE_COPY( OpenCVCamera )
 
     public:
 

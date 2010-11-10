@@ -44,6 +44,7 @@ namespace plvopencv
     class ImageThreshold : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( ImageThreshold )
         Q_CLASSINFO("author", "Niek Hoeijmakers")
         Q_CLASSINFO("name", "Threshold")
         Q_CLASSINFO("description", "A processor that removes all image data above or below a given threshold."

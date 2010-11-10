@@ -39,7 +39,7 @@ namespace plvopencv
     class Diff : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( Diff )
         Q_CLASSINFO("author", "Ported from old version by Dennis")
         Q_CLASSINFO("name", "AbsDiff(A, B)")
         Q_CLASSINFO("description", "Calculate absolute difference of two images.");

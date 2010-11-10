@@ -26,6 +26,7 @@
 #include "utils.h"
 
 #include <plvcore/PipelineElement.h>
+#include <plvcore/PipelineElementFactory.h>
 #include <plvcore/RefPtr.h>
 #include <plvcore/Pin.h>
 
@@ -69,15 +70,14 @@ void LibraryWidget::createItem(QString typeName)
 {
     try
     {
-        int id = QMetaType::type(typeName.toAscii());
-        if(!QMetaType::isRegistered(id))
+        int id = PipelineElementFactory::isElementRegistered( typeName );
+        if( id == -1 )
         {
             qWarning() << "Ignoring unknown element " << typeName;
             return;
         }
 
-        RefPtr<PipelineElement> element = static_cast<PipelineElement*>(QMetaType::construct(id));
-
+        RefPtr<PipelineElement> element = PipelineElementFactory::construct( typeName );
         LibraryElement* w = new LibraryElement(element, this);
         connect(w, SIGNAL(pressed()), this, SLOT(elementPressed()));
         connect(w, SIGNAL(moved()), this, SLOT(elementMoved()));

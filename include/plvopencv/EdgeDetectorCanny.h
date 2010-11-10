@@ -36,7 +36,7 @@ namespace plvopencv
     class EdgeDetectorCanny : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( EdgeDetectorCanny )
         Q_CLASSINFO("author", "Wim, Dennis, Richard")
         Q_CLASSINFO("name", "Edge detector Canny")
         Q_CLASSINFO("description", "Edge detection using the Canny method.");

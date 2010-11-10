@@ -56,6 +56,7 @@ namespace plvopencv
     class SaveImageToFile : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( SaveImageToFile )
 
         Q_CLASSINFO("author", "Niek Hoeijmakers")
         Q_CLASSINFO("name", "SaveImageToFile")

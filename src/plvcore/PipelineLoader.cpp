@@ -248,14 +248,14 @@ void PipelineLoader::parseElements( QDomNodeList* list, Pipeline* pipeline )
         qDebug() << "Creating element with name: " << name << " and id: " << id;
 
         // Use Qt metatype system to locate this processor type
-        int typeId = QMetaType::type( name.toAscii() );
-        if( typeId == 0 )
+        int typeId = PipelineElementFactory::isElementRegistered( name );
+        if( typeId == -1 )
         {
             QString msg = "XML document contains unknown processor type " % name;
             throw std::runtime_error ( msg.toStdString() );
         }
         // and instantiate it
-        PipelineElement* ple = static_cast<PipelineElement*>( QMetaType::construct( typeId ) );
+        PipelineElement* ple = PipelineElementFactory::construct( typeId );
 
         // set the id
         ple->setId( id );

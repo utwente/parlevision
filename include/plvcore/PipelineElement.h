@@ -31,9 +31,10 @@
 #include <QObject>
 #include <QMetaType>
 
+#include "plvglobal.h"
 #include "RefPtr.h"
 #include "PlvExceptions.h"
-#include "plvglobal.h"
+#include "PipelineElementFactory.h"
 
 /** Utility macro for implemented pure abstract methods in sub classes */
 #define PLV_PIPELINE_ELEMENT \
@@ -55,6 +56,11 @@ namespace plv
     {
         Q_OBJECT
 
+    private:
+        /** copy constructor and assignment operator are disabled
+            since we are a QObject */
+        Q_DISABLE_COPY(PipelineElement)
+
     public:
         /** typedefs to make code more readable */
         typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
@@ -75,17 +81,18 @@ namespace plv
 
         mutable QMutex m_pleMutex;
 
+        /** mutex used for properties. Properties need a recursive mutex
+          * sice the emit() they do to update their own value can return the
+          * call to the set function resulting in a deadlock if we use a normal
+          * mutex */
+        mutable QMutex* m_propertyMutex;
+
     public:
         friend class Pipeline;
         friend class ScheduleInfo;
 
         /*************** BEGIN PUBLIC API ******************/
-
-        /** QMetaType requires a public default constructor,
-         *  a public copy constructor and a public destructor.
-         */
         PipelineElement();
-        PipelineElement( const PipelineElement& other );
         virtual ~PipelineElement();
 
         /** Initialise the element so it is ready to receive process() calls.
@@ -277,7 +284,10 @@ template<typename PET>
 int plvRegisterPipelineElement(const char* typeName, const char* humanName)
 {
     plv::PipelineElement::registerType(typeName, humanName);
-    return qRegisterMetaType<PET>(typeName);
+    plv::PipelineElementConstructorHelper<PET>* plec
+            = new plv::PipelineElementConstructorHelper<PET>(typeName);
+    int id = plv::PipelineElementFactory::registerElement( plec );
+    return id;
 }
 
 #endif // PIPELINEELEMENT_H

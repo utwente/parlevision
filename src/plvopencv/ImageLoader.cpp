@@ -50,22 +50,9 @@ ImageLoader::ImageLoader()
     //m_isReady = ObtainImage(m_directory, m_filename);
 }
 
-ImageLoader::~ImageLoader(){}
-
-ImageLoader::ImageLoader(const ImageLoader& other) :
-        PipelineProducer( other )
+ImageLoader::~ImageLoader()
 {
-    //create the output pin
-    m_outputPin = new OutputPin<OpenCVImage>("image_output", this );
-    addOutputPin( m_outputPin.getPtr() );
-
-    m_directory = other.m_directory;
-    m_filename = other.m_filename;
-    m_isReady = false;
-    //Attempt to load the image
-    //m_isReady = ObtainImage(m_directory, m_filename);
 }
-
 
 //--- ImageLoader methods -----------------------------------------------------
 void ImageLoader::setFilename(QString filename)

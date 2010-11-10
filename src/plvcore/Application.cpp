@@ -32,6 +32,7 @@
 #include "RefPtr.h"
 #include "Pipeline.h"
 #include "PipelineLoader.h"
+#include "PipelineElementFactory.h"
 
 using namespace plv;
 
@@ -42,14 +43,26 @@ Application::Application(QCoreApplication* app)
     app->setOrganizationName("University of Twente");
 }
 
+Application::~Application()
+{
+    deinit();
+}
+
 void Application::init()
 {
     loadBuiltins();
     loadPlugins();
 }
 
+void Application::deinit()
+{
+    PipelineElementFactory::clear();
+}
+
 void Application::loadBuiltins()
 {
+    PipelineElementFactory::instance();
+
     // register classes with Qt so they can be used in signals and slots
     qRegisterMetaType< plv::RefPtr<plv::Data> >("plv::RefPtr<plv::Data>");
     qRegisterMetaType< plv::RefPtr<PlvBoolean> >("plv::RefPtr<PlvBoolean>");

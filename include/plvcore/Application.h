@@ -32,7 +32,9 @@ namespace plv
     {
     public:
         Application(QCoreApplication* app);
+        ~Application();
         void init();
+        void deinit();
 
     private:
         void loadBuiltins();

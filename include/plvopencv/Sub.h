@@ -39,7 +39,7 @@ namespace plvopencv
     class Sub : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( Sub )
         Q_CLASSINFO("author", "Ported from old version by Dennis")
         Q_CLASSINFO("name", "A sub B")
         Q_CLASSINFO("description", "A simple processor to subtract two images.");
