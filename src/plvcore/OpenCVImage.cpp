@@ -20,13 +20,12 @@
   */
 
 #include "OpenCVImage.h"
-#include <plvcore/RefPtr.h>
+#include "RefPtr.h"
 
 #include <opencv/cv.h>
 #include <QMutexLocker>
 
 using namespace plv;
-using namespace plvopencv;
 
 OpenCVImageFactory* OpenCVImageFactory::m_instance = 0;
 
@@ -37,37 +36,45 @@ OpenCVImageFactory::OpenCVImageFactory( int maxObjectPoolSize ) :
 
 OpenCVImageFactory::~OpenCVImageFactory()
 {
+    QMutexLocker lock( &m_factoryMutex );
     purgeAll();
 }
 
 void OpenCVImageFactory::purge()
 {
-    for( std::list<OpenCVImage*>::iterator itr = m_objectPool.begin();
-            itr != m_objectPool.end(); ++itr )
+    std::list<OpenCVImage*>::iterator itr = m_objectPool.begin();
+
+    while(itr != m_objectPool.end())
     {
         OpenCVImage* img = *itr;
-        m_objectPoolSize -= img->size();
         if( img->getRefCount() == 1 )
         {
             // this will auto delete the image
+            itr = m_objectPool.erase( itr );
+            m_objectPoolSize -= img->size();
             img->dec();
-            m_objectPool.erase( itr );
+        }
+        else
+        {
+            ++itr;
         }
     }
 }
 
 void OpenCVImageFactory::purgeAll()
 {
-    for( std::list<OpenCVImage*>::iterator itr = m_objectPool.begin();
-            itr != m_objectPool.end(); ++itr )
+    QMutexLocker lock( &m_factoryMutex );
+
+    std::list<OpenCVImage*>::iterator itr = m_objectPool.begin();
+    while(itr != m_objectPool.end())
     {
         OpenCVImage* img = *itr;
         m_objectPoolSize -= img->size();
         if( img->getRefCount() > 1 )
         {
-            qDebug() << "OpenCVImageFactory::purgeAll() called when object " <<
-                    img << " has reference count of " << img->getRefCount();
-            qDebug() << "WARNING. Forcing delete.";
+            qWarning() << "WARNING. Forcing delete of object "
+                       << img << " which has a reference count of " << img->getRefCount()
+                       << " in OpenCVImageFactory::purgeAll()";
             delete img;
         }
         else
@@ -75,27 +82,31 @@ void OpenCVImageFactory::purgeAll()
             // this will auto delete the image
             img->dec();
         }
-        m_objectPool.erase( itr );
+        itr = m_objectPool.erase( itr );
     }
 }
 
 int OpenCVImageFactory::objectPoolSize()
 {
+    QMutexLocker lock( &m_factoryMutex );
     return m_objectPoolSize;
 }
 
 int OpenCVImageFactory::maxObjectPoolSize()
 {
+    QMutexLocker lock( &m_factoryMutex );
     return m_maxObjectPoolSize;
 }
 
 int OpenCVImageFactory::numObjects()
 {
+    QMutexLocker lock( &m_factoryMutex );
     return m_objectPool.size();
 }
 
 int OpenCVImageFactory::numObjectsInUse()
 {
+    QMutexLocker lock( &m_factoryMutex );
     int count = 0;
     for( std::list<OpenCVImage*>::iterator itr = m_objectPool.begin();
             itr != m_objectPool.end(); ++itr )
@@ -132,6 +143,11 @@ OpenCVImage* OpenCVImageFactory::getFromBuffer( IplImage* buffer, bool own )
         img = new OpenCVImage( buffer );
 
 #if OPENCVIMAGE_USE_POOL
+        if( m_objectPoolSize > OPENCVIMAGE_MAX_OBJECT_POOL_SIZE )
+        {
+            purge();
+        }
+
         // up the ref count by one and add to pool
         img->inc();
         m_objectPool.push_back( img );
@@ -162,6 +178,7 @@ OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth,
             image == 0 && itr != m_objectPool.end(); ++itr )
     {
         OpenCVImage* current = *itr;
+
         if( current->getRefCount() == 1 &&
             current->isCompatible( width, height, depth, channels ) )
         {
@@ -178,10 +195,15 @@ OpenCVImage* OpenCVImageFactory::getOrCreate( int width, int height, int depth,
         image = new OpenCVImage( cvimg );
 
 #if OPENCVIMAGE_USE_POOL
+        if( m_objectPoolSize > OPENCVIMAGE_MAX_OBJECT_POOL_SIZE )
+        {
+            purge();
+        }
+
         // up the ref count by one
         image->inc();
-        m_objectPoolSize += image->size();
         m_objectPool.push_back( image );
+        m_objectPoolSize += image->size();
 #endif
     }
 
@@ -205,11 +227,12 @@ OpenCVImage::~OpenCVImage()
     m_img = 0;
 }
 
-IplImage* OpenCVImage::getImageForWriting() throw ( IllegalAccessException )
+IplImage* OpenCVImage::getImageForWriting() throw ( plv::PlvRuntimeException )
 {
     if( !isMutable() )
     {
-        throw IllegalAccessException( "Tried to access image data on an immutable image." );
+        throw plv::PlvRuntimeException( "Tried to access image data on an immutable image.",
+                                        __FILE__, __LINE__ );
     }
     return m_img;
 }
@@ -227,22 +250,26 @@ OpenCVImage* OpenCVImage::deepCopy() const
 
 int OpenCVImage::size() const
 {
+    QMutexLocker lock( &m_imgLock );
     if( !m_img ) return 0;
     return m_img->imageSize;
 }
 
 bool OpenCVImage::isCompatibleDimensions( const OpenCVImage* other ) const
 {
+    QMutexLocker lock( &m_imgLock );
     return getWidth() == other->getWidth() && getHeight() == other->getHeight();
 }
 
 bool OpenCVImage::isCompatibleDepth( const OpenCVImage* other ) const
 {
+    QMutexLocker lock( &m_imgLock );
     return getDepth() == other->getDepth();
 }
 
 bool OpenCVImage::isCompatibleSize( const OpenCVImage* other ) const
 {
+    QMutexLocker lock( &m_imgLock );
     return getNumChannels() == other->getNumChannels();
 }
 
@@ -283,5 +310,31 @@ bool OpenCVImage::isCompatible( int width, int height, int depth, int channels )
                 m_img->height    == height &&
                 m_img->nChannels == channels &&
                 m_img->depth     == depth );
+    }
+}
+
+// TODO use ENUM for this
+const char* OpenCVImage::depthToString( int depth )
+{
+    switch( depth )
+    {
+    case IPL_DEPTH_1U:
+        return "IPL_DEPTH_1U";
+    case IPL_DEPTH_8U:
+        return "IPL_DEPTH_8U";
+    case IPL_DEPTH_8S:
+        return "IPL_DEPTH_8S";
+    case IPL_DEPTH_16U:
+        return "IPL_DEPTH_16U";
+    case IPL_DEPTH_16S:
+        return "IPL_DEPTH_16S";
+    case IPL_DEPTH_32S:
+        return "IPL_DEPTH_32S";
+    case IPL_DEPTH_32F:
+        return "IPL_DEPTH_32F";
+    case IPL_DEPTH_64F:
+        return "IPL_DEPTH_64F";
+    default:
+        return "Invalid depth";
     }
 }

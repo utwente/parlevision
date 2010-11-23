@@ -33,9 +33,8 @@ namespace plv
     class Pin;
 }
 
-using namespace plv;
-
-namespace plvgui {
+namespace plvgui
+{
 
     /** Interface for DataRenderers that observe or monitor pins of a certain dataType.
       * Each implementation must register itself with the DataRendererFactory
@@ -55,7 +54,7 @@ namespace plvgui {
         virtual void setPin(const plv::Pin* pin);
 
     public slots:
-        virtual void newData( RefPtr<Data> data );
+        virtual void newData( plv::RefPtr<plv::Data> data );
 
     };
 }

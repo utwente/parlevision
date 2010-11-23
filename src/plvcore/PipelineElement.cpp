@@ -22,6 +22,7 @@
 #include "PipelineElement.h"
 
 #include <QString>
+#include <QStringBuilder>
 #include <QDebug>
 #include <QMetaObject>
 #include <QMetaProperty>
@@ -36,20 +37,14 @@ std::list<QString> PipelineElement::s_types;
 std::map<QString,QString> PipelineElement::s_names;
 
 PipelineElement::PipelineElement() :
-        m_id( -1 )
+        m_id( -1 ),
+        m_propertyMutex( new QMutex( QMutex::Recursive ) )
 {
 }
 
 PipelineElement::~PipelineElement()
 {
-}
-
-PipelineElement::PipelineElement(const PipelineElement &other)
-    : QObject(),
-        RefCounted(other),
-        m_inputPins(other.m_inputPins),
-        m_outputPins(other.m_outputPins)
-{
+    delete m_propertyMutex;
 }
 
 void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentException)
@@ -196,74 +191,28 @@ bool PipelineElement::requiredPinsConnected() const
     return true;
 }
 
-bool PipelineElement::dataAvailableOnRequiredPins() const
+bool PipelineElement::dataAvailableOnInputPins() const
 {
     QMutexLocker lock( &m_pleMutex );
+
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
+         itr != m_inputPins.end();
+         ++itr )
     {
-        RefPtr<IInputPin> in = itr->second;
-        if( in->isRequired() )
+        IInputPin* in = itr->second.getPtr();
+
+        // only automatically check synchronous connections
+        if( in->isConnected() &&
+            in->isSynchronous() )
+        {
+            // check for data
             if( !in->hasData() )
+            {
                 return false;
+            }
+        }
     }
     return true;
-}
-
-bool PipelineElement::__isReadyForProcessing() const
-{
-    assert( requiredPinsConnected() );
-
-    // see if data is available and the processor is ready for processing
-    if( dataAvailableOnRequiredPins() )
-    {
-        return isReadyForProcessing();
-    }
-    return false;
-}
-
-void PipelineElement::__process()
-{
-    assert( requiredPinsConnected() );
-    assert( dataAvailableOnRequiredPins() );
-
-    QMutexLocker lock( &m_pleMutex );
-
-    // prepares stack to receive objects
-    // for current scope
-    // extra saveguard against faulty processors which
-    // do not use wrappers for proper reference counting
-    for( InputPinMap::iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        RefPtr<IInputPin> in = itr->second;
-        in->scope();
-    }
-
-    // call process function which does the actual work
-    try
-    {
-        this->process();
-    }
-    catch( ... )
-    {
-        // decrease refcount before we re-throw
-        for( InputPinMap::iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end(); ++itr )
-        {
-            RefPtr<IInputPin> in = itr->second;
-            in->unscope();
-        }
-        throw;
-    }
-
-    // decrease refcount
-    for( InputPinMap::iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        RefPtr<IInputPin> in = itr->second;
-        in->unscope();
-    }
 }
 
 std::list<QString> PipelineElement::getInputPinNames() const
@@ -339,11 +288,10 @@ std::list<QString> PipelineElement::types()
 int PipelineElement::registerType(QString typeName, QString humanName)
 {
     qDebug() << "Registering PipelineElement " << typeName
-                    << " as " << "'" << humanName << "'";
+             << " as " << "'" << humanName << "'";
 
     PipelineElement::s_types.push_back( typeName );
     PipelineElement::s_names[typeName] = humanName;
-    //return qRegisterMetaType<E>(typeName);
     return 0;
 }
 

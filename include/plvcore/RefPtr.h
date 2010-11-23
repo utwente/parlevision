@@ -42,14 +42,14 @@ public:
 
     RefPtr( T* ptr ) : m_ptr( ptr )
     {
-		if( m_ptr )
+        if( m_ptr )
         {
             m_ptr->inc();
         }
     }
 
     /** copy constructor */
-	RefPtr( const RefPtr<T>& rp ) : m_ptr( rp.m_ptr )
+    RefPtr( const RefPtr<T>& rp ) : m_ptr( rp.getPtr() )
     {
         if( m_ptr != 0 )
         {
@@ -99,34 +99,6 @@ public:
     }
 
     RefPtr& operator = (const RefPtr& rp)
-    {
-        // protect against self assignment
-        if( m_ptr != rp.m_ptr )
-        {
-            // save old pointer temporarily
-            T* tmp = m_ptr;
-
-            // assign new pointer and increase reference count
-            m_ptr = rp.m_ptr;
-            if( m_ptr != 0 )
-            {
-                m_ptr->inc();
-            }
-
-            // now decrease reference count on the old pointer
-            // we do this after increasing the reference count on
-            // the new pointer, to avoid situations where the new
-            // ptr would get deleted, because it was a child of the
-            // old ptr.
-            if( tmp != 0 )
-            {
-                tmp->dec();
-            }
-        }
-        return *this;
-    }
-
-    template<class Other> RefPtr& operator = (const RefPtr<Other>& rp)
     {
         // protect against self assignment
         if( m_ptr != rp.m_ptr )

@@ -57,7 +57,7 @@ namespace plv
         /** Refcounted so only call this directly if you know what you are
           * doing
           */
-        ~Pipeline();
+        virtual ~Pipeline();
 
         /** Initialise this Pipeline. Not yet reentrant
           */
@@ -98,6 +98,13 @@ namespace plv
 
         /** Get all the PinConnections that make up this Pipeline. */
         const PipelineConnectionsList& getConnections() const;
+
+
+        /** returns true if pins can be connected. Returns false if not. If not
+          * possible reason contains a message stating the reason for failure
+          */
+        bool canConnectPins( IOutputPin* outputPin, IInputPin* inputPin,
+                                       QString reason );
 
         /** Create a PinConnnection between the given InputPin and outputPin
           * @emits connectionAdded(connection)
@@ -161,6 +168,8 @@ namespace plv
 
         void started();
         void stopped();
+
+        void tick();
 
     public slots:
         void start();

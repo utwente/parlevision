@@ -2,9 +2,9 @@
 #include <QFile>
 
 #include "ViolaJonesFaceDetector.h"
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImagePin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -20,8 +20,8 @@ ViolaJonesFaceDetector::ViolaJonesFaceDetector() :
         m_pCascade( 0 ),
         m_pStorage( 0 )
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 }
 
 ViolaJonesFaceDetector::~ViolaJonesFaceDetector()
@@ -49,11 +49,11 @@ void ViolaJonesFaceDetector::init()
         throw PlvInitialisationException( "Failed to load haar cascade file " +
                                            m_haarCascadeFile + ". File does not exist." );
     }
-    if( !file.isReadable() )
-    {
-        throw PlvInitialisationException( "Failed to load haar cascade file " +
-                                           m_haarCascadeFile + ". File is not readable." );
-    }
+//    if( !file.isReadable() )
+//    {
+//        throw PlvInitialisationException( "Failed to load haar cascade file " +
+//                                           m_haarCascadeFile + ". File is not readable." );
+//    }
     void* cascade = cvLoad( m_haarCascadeFile.toAscii(),0,0,0 );
     if( cascade == 0 )
     {
@@ -67,10 +67,16 @@ void ViolaJonesFaceDetector::init()
 void ViolaJonesFaceDetector::deinit() throw()
 {
     if (m_pCascade != 0)
+    {
         cvReleaseHaarClassifierCascade(&m_pCascade);
+        m_pCascade = 0;
+    }
 
     if (m_pStorage != 0)
+    {
         cvReleaseMemStorage(&m_pStorage);
+        m_pStorage = 0;
+    }
 }
 
 void ViolaJonesFaceDetector::start()

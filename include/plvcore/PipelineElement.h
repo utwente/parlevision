@@ -22,16 +22,19 @@
 #ifndef PIPELINEELEMENT_H
 #define PIPELINEELEMENT_H
 
+#include <list>
 #include <map>
 #include <stdexcept>
+#include <assert.h>
+
 #include <QString>
 #include <QObject>
 #include <QMetaType>
-#include <assert.h>
 
+#include "plvglobal.h"
 #include "RefPtr.h"
 #include "PlvExceptions.h"
-#include "plvglobal.h"
+#include "PipelineElementFactory.h"
 
 /** Utility macro for implemented pure abstract methods in sub classes */
 #define PLV_PIPELINE_ELEMENT \
@@ -53,6 +56,11 @@ namespace plv
     {
         Q_OBJECT
 
+    private:
+        /** copy constructor and assignment operator are disabled
+            since we are a QObject */
+        Q_DISABLE_COPY(PipelineElement)
+
     public:
         /** typedefs to make code more readable */
         typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
@@ -73,17 +81,18 @@ namespace plv
 
         mutable QMutex m_pleMutex;
 
+        /** mutex used for properties. Properties need a recursive mutex
+          * sice the emit() they do to update their own value can return the
+          * call to the set function resulting in a deadlock if we use a normal
+          * mutex */
+        mutable QMutex* m_propertyMutex;
+
     public:
         friend class Pipeline;
         friend class ScheduleInfo;
 
         /*************** BEGIN PUBLIC API ******************/
-
-        /** QMetaType requires a public default constructor,
-         *  a public copy constructor and a public destructor.
-         */
         PipelineElement();
-        PipelineElement( const PipelineElement& other );
         virtual ~PipelineElement();
 
         /** Initialise the element so it is ready to receive process() calls.
@@ -133,8 +142,10 @@ namespace plv
           */
         QSet<PipelineElement*> getConnectedElementsToInputs() const;
 
-        /** @returns true if input pins which are required have data available */
-        bool dataAvailableOnRequiredPins() const;
+        /** @returns true if input pins which are connected and synchronous
+          *  have data available
+          */
+        bool dataAvailableOnInputPins() const;
 
         /** This function does the actual work of this PipelineElement and
           * is called by the PipelineScheduler when inputs of this processor
@@ -233,24 +244,22 @@ namespace plv
           */
         void setProperty(const char *name, const QVariant &value);
 
+        inline void setProcessingSerial( unsigned int serial ) { m_serial = serial; }
+        inline unsigned int getProcessingSerial() const { return m_serial; }
+
     signals:
         void propertyChanged(QString);
 
     protected:
-        //RefPtr<Pipeline> m_parent;
-
-        // list to keep track of registered types
+        /** list to keep track of registered types */
         static std::list<QString> s_types;
         static std::map<QString,QString> s_names;
 
-        /**
-         * This gets called by Pipeline when we are added to it.
-         * Handles removing ourself from any previous pipeline we were part of
-         * and sets m_parent to the new pipeline
-         */
-        //virtual void setPipeline(Pipeline* parent);
+        /** serial number of current processing run. */
+        unsigned int m_serial;
 
-        bool __init();
+        // TODO should be called by the scheduler
+        virtual void __init() = 0;
 
         /** check if required pins are connected and if data is available
           * on required pins. Calls isReadyForProcessing function of super
@@ -258,13 +267,13 @@ namespace plv
           * @returns true when all conditions have been met and isReadyForProcessing()
           * of super also returns true.
           */
-        bool __isReadyForProcessing() const;
+        virtual bool __isReadyForProcessing() const = 0;
 
         /**
           * private process function which handles scoping of input and output pins
           * and calls the process() function of the super class.
           */
-        void __process();
+        virtual void __process() = 0;
     };
 }
 
@@ -275,7 +284,10 @@ template<typename PET>
 int plvRegisterPipelineElement(const char* typeName, const char* humanName)
 {
     plv::PipelineElement::registerType(typeName, humanName);
-    return qRegisterMetaType<PET>(typeName);
+    plv::PipelineElementConstructorHelper<PET>* plec
+            = new plv::PipelineElementConstructorHelper<PET>(typeName);
+    int id = plv::PipelineElementFactory::registerElement( plec );
+    return id;
 }
 
 #endif // PIPELINEELEMENT_H

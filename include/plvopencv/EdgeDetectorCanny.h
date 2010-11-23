@@ -23,16 +23,20 @@
 #define EDGEDETECTORCANNY_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
     class EdgeDetectorCanny : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( EdgeDetectorCanny )
         Q_CLASSINFO("author", "Wim, Dennis, Richard")
         Q_CLASSINFO("name", "Edge detector Canny")
         Q_CLASSINFO("description", "Edge detection using the Canny method.");
@@ -46,7 +50,7 @@ namespace plvopencv
 
     public:
         EdgeDetectorCanny();
-        ~EdgeDetectorCanny();
+        virtual ~EdgeDetectorCanny();
 
         /** propery methods */
         int getApertureSize() { return m_apertureSize; }
@@ -66,8 +70,8 @@ namespace plvopencv
     private:
         int nearestOdd(int i);
 
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin*  m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
 
         int m_apertureSize;
         double m_thresholdLow;

@@ -26,16 +26,14 @@
 #include <plvcore/RefPtr.h>
 #include <plvcore/Pin.h>
 
-
 class QGraphicsItem;
 
-using namespace plv;
-
-//namespace plv {
-//    class Pin;
-//    class IInputPin;
-//    class IOutputPin;
-//}
+namespace plv
+{
+    class Pin;
+    class IInputPin;
+    class IOutputPin;
+}
 
 namespace plvgui
 {
@@ -48,11 +46,13 @@ namespace plvgui
         Q_OBJECT
 
     public:
-        PinWidget(PipelineElementWidget* parent, RefPtr<IInputPin> p);
-        PinWidget(PipelineElementWidget* parent, RefPtr<IOutputPin> p);
+        PinWidget(PipelineElementWidget* parent, plv::RefPtr<plv::IInputPin> p);
+        PinWidget(PipelineElementWidget* parent, plv::RefPtr<plv::IOutputPin> p);
         virtual QRectF boundingRect() const;
-        RefPtr<Pin> getPin() const {return m_pin;}
-        const PinCircle* getCircle() const {return circle;}
+
+        inline plv::RefPtr<plv::Pin> getPin() const {return m_pin;}
+        inline const PinCircle* getCircle() const {return circle;}
+
         void handleMouseDoubleClick();
 
     protected:
@@ -60,16 +60,13 @@ namespace plvgui
         virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
         virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
         virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
-//        virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
         virtual bool sceneEvent ( QEvent * event );
-//        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     private:
         PipelineElementWidget* m_parent;
-        RefPtr<Pin> m_pin;
+        plv::RefPtr<plv::Pin> m_pin;
         void init(bool isInput);
         PinCircle* circle;
-//        MainWindow* findMainWindow(QWidget*);
     };
 
 
@@ -80,8 +77,9 @@ namespace plvgui
         virtual QPainterPath shape() const;
         QPointF getCenter() const;
     private:
-        RefPtr<Pin> m_pin;
-        qreal m_width, m_height;
+        plv::RefPtr<plv::Pin> m_pin;
+        qreal m_width;
+        qreal m_height;
     };
 }
 

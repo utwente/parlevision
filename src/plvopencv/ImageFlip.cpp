@@ -22,10 +22,8 @@
 #include <QDebug>
 
 #include "ImageFlip.h"
-#include "OpenCVImage.h"
-
-#include <plvcore/Pin.h>
-#include <opencv/cv.h>
+#include <plvcore/OpenCVImage.h>
+#include <plvcore/OpenCVImagePin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -35,8 +33,8 @@ ImageFlip::ImageFlip() :
         m_flipY(true),
         m_method(-1)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 }
 
 ImageFlip::~ImageFlip()

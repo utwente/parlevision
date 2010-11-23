@@ -131,8 +131,6 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
                     {
                         plv::Enum e = value.value<plv::Enum>();
                         addRow( form, element, propertyName, e );
-                        qDebug() << "Custom enum type " << propertyName << " found ";
-                        qDebug() << e.toString();
                     }
                     break;
                 default:

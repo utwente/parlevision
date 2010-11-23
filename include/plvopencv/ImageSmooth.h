@@ -23,16 +23,21 @@
 #define IMAGESMOOTH_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+#include <plvcore/Enum.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
     class ImageSmooth : public plv::PipelineProcessor
     {
         Q_OBJECT
-        
+        Q_DISABLE_COPY( ImageSmooth )
         Q_CLASSINFO("author", "Dennis & Wim")
         Q_CLASSINFO("name", "Smooth")
         Q_CLASSINFO("description", "Smoothing using cvSmooth."
@@ -42,7 +47,6 @@ namespace plvopencv
                     "</a>")
 
         Q_PROPERTY( plv::Enum method READ getMethod WRITE setMethod NOTIFY methodChanged )
-
         Q_PROPERTY( int one READ getOne WRITE setOne NOTIFY oneChanged )
         Q_PROPERTY( int two READ getTwo WRITE setTwo NOTIFY twoChanged )
         Q_PROPERTY( double three READ getThree WRITE setThree NOTIFY threeChanged )
@@ -53,7 +57,7 @@ namespace plvopencv
 
     public:
         ImageSmooth();
-        ~ImageSmooth();
+        virtual ~ImageSmooth();
 
         /** propery methods */
         plv::Enum getMethod() const { return m_method; }
@@ -77,10 +81,8 @@ namespace plvopencv
         void setMethod( plv::Enum m ) { m_method = m; emit(methodChanged(m_method));}
 
     private:
-
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
-
+        plv::OpenCVImageInputPin* m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
         plv::Enum m_method;
         int m_one;
         int m_two;

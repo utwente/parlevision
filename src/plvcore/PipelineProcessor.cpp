@@ -21,6 +21,12 @@
 
 #include "PipelineProcessor.h"
 
+#include "Pin.h"
+
+#include <vector>
+#include <algorithm>
+#include <functional>
+
 using namespace plv;
 
 PipelineProcessor::PipelineProcessor()
@@ -29,6 +35,161 @@ PipelineProcessor::PipelineProcessor()
 
 PipelineProcessor::~PipelineProcessor()
 {
+}
+
+void PipelineProcessor::__init()
+{
+    QMutexLocker lock( &m_pleMutex );
+
+    if( m_inputPins.size() == 0 )
+    {
+        throw PlvRuntimeException( "Processor " + getName() + " has no input pins defined",
+                                   __FILE__, __LINE__);
+    }
+
+    if( m_outputPins.size() == 0 )
+    {
+        throw PlvRuntimeException( "Processor " + getName() + " has no output pins defined",
+                                   __FILE__, __LINE__);
+    }
+
+    this->init();
+}
+
+bool PipelineProcessor::__isReadyForProcessing() const
+{
+    assert( requiredPinsConnected() );
+
+    // see if data is available and the processor is ready for processing
+    if( dataAvailableOnInputPins() )
+    {
+        return isReadyForProcessing();
+    }
+    return false;
+}
+
+void PipelineProcessor::__process()
+{
+    assert( requiredPinsConnected() );
+    assert( dataAvailableOnInputPins() );
+
+    QMutexLocker lock( &m_pleMutex );
+
+    // we do not want properties to change in the middle of an operation
+    QMutexLocker lock2( m_propertyMutex );
+
+    std::vector<unsigned int> serials;
+    serials.reserve( m_inputPins.size() );
+    bool nullDetected = false;
+    for( InputPinMap::iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end() && !nullDetected; ++itr )
+    {
+        IInputPin* in = itr->second.getPtr();
+        in->pre();
+        if( in->isConnected() &&
+            in->isSynchronous() )
+        {
+            unsigned int serial = in->getNextSerial();
+            serials.push_back( serial );
+            if( serial == 0 )
+            {
+                nullDetected = true;
+            }
+
+        }
+    }
+
+    // if one data item is a null
+    // we throw away all data from all synchronous pins
+    if( nullDetected )
+    {
+        for( InputPinMap::iterator itr = m_inputPins.begin();
+             itr != m_inputPins.end(); ++itr )
+        {
+            IInputPin* in = itr->second.getPtr();
+
+            // just remove first data in queue
+            RefPtr<Data> d;
+            in->getUntyped(d);
+        }
+
+        // call post on input pins
+        for( InputPinMap::iterator itr = m_inputPins.begin();
+             itr != m_inputPins.end(); ++itr )
+        {
+            IInputPin* in = itr->second.getPtr();
+            in->post();
+        }
+    }
+    else
+    {
+        // sort on serial number
+        std::sort( serials.begin(), serials.end(), std::greater<unsigned int>() );
+
+        // check for equality
+        // we are a processor, so there is guaranteed to be at least one input pin
+        unsigned int max = serials[0];
+        bool fastforward = false;
+        for( std::vector<unsigned int>::iterator itr = serials.begin();
+             itr != serials.end(); ++itr )
+        {
+            if( (*itr) < max)
+            {
+                fastforward = true;
+
+                // TODO, will this ever occur in current model?
+                assert( false );
+            }
+
+        }
+
+//        bool fastforwardSucceeded = true;
+//        if(fastforward)
+//        {
+//            qDebug() << "Fastforward needed on pin inputs of processor " << getName();
+
+//            for( InputPinMap::iterator itr = m_inputPins.begin();
+//                 itr != m_inputPins.end(); ++itr )
+//            {
+//                IInputPin* in = itr->second.getPtr();
+//                if( in->isConnected() && in->isSynchronous() )
+//                {
+//                    fastforwardSucceeded = in->fastforward( max ) && fastforwardSucceeded;
+//                }
+//            }
+//        }
+
+        // call pre on output pins
+        for( OutputPinMap::iterator itr = m_outputPins.begin();
+             itr != m_outputPins.end(); ++itr )
+        {
+            IOutputPin* out = itr->second.getPtr();
+            out->pre();
+        }
+
+        // call process function which does the actual work
+        // set the serial number for this processing run
+        this->setProcessingSerial( max );
+
+        // do the actual processing
+        this->process();
+
+        // call post on input pins
+        for( InputPinMap::iterator itr = m_inputPins.begin();
+             itr != m_inputPins.end(); ++itr )
+        {
+            IInputPin* in = itr->second.getPtr();
+            in->post();
+        }
+
+        // call post on output pins
+        for( OutputPinMap::iterator itr = m_outputPins.begin();
+             itr != m_outputPins.end(); ++itr )
+        {
+            IOutputPin* out = itr->second.getPtr();
+            out->post();
+        }
+    }
 }
 
 

@@ -23,16 +23,20 @@
 #define IMAGECORNERHARRIS_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class Pipeline;
-    class OpenCVImage;
-
     class ImageCornerHarris : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( ImageCornerHarris )
         Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
         Q_PROPERTY( int blockSize READ getBlockSize WRITE setBlockSize NOTIFY blockSizeChanged )
         Q_PROPERTY( double k READ getK WRITE setK NOTIFY kChanged )
@@ -42,7 +46,7 @@ namespace plvopencv
 
     public:
         ImageCornerHarris();
-        ~ImageCornerHarris();
+        virtual ~ImageCornerHarris();
 
         /** propery methods */
         int getApertureSize() { return m_apertureSize; }
@@ -62,8 +66,8 @@ namespace plvopencv
     private:
         int nearestOdd(int i);
 
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin* m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
 
         int m_apertureSize;
         int m_blockSize;

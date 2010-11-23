@@ -10,8 +10,12 @@ CONFIG += plugin
 QT += core
 QT -= gui
 DESTDIR = ../../libs/plugins
-
+INCLUDEPATH += ../../include/plvopencv
 LIBS += -lplvcore -lplvgui -lplvopencv
+QMAKE_LIBDIR += ../../libs/plugins
+
+include(../../ParleVision.local)
+
 #macx {
 #    LITERAL_DOT=.
 #    LITERAL_LIB=lib
@@ -21,25 +25,23 @@ LIBS += -lplvcore -lplvgui -lplvopencv
 #    QMAKE_POST_LINK  = install_name_tool -change libplvcore.dylib @loader_path/../Frameworks/libplvcore.dylib $$LIBRARYFILE
 #    #QMAKE_POST_LINK += && install_name_tool -change libplvgui.dylib loader_path/../Frameworks/libplvgui.dylib $$LIBRARYFILE
 #}
-win32 {
-    LIBS += -lcv200d \
-        -lcxcore200d \
-        -lcvaux200d \
-        -lhighgui200d \
-        -lcxts200d \
-        -lml200d
-    #do NOT use trailing slashes in the libdir, this will make the linker choke
-    QMAKE_LIBDIR += c:/OpenCV2.0/lib/Debug ../../libs ../../libs/plugins
-    INCLUDEPATH += c:/OpenCV2.0/include
-}
-
-INCLUDEPATH += ../../include
+#win32 {
+#    LIBS += -lcv200d \
+#        -lcxcore200d \
+#        -lcvaux200d \
+#        -lhighgui200d \
+#        -lcxts200d \
+#        -lml200d
+#    #do NOT use trailing slashes in the libdir, this will make the linker choke
+#    QMAKE_LIBDIR += c:/OpenCV2.0/lib/Debug ../../libs ../../libs/plugins
+#    INCLUDEPATH += c:/OpenCV2.0/include
+#}
 
 DEFINES += HELLO_WORLD_PLUGIN_LIBRARY
 
 SOURCES += helloworldplugin.cpp \
-    helloworldprocessor.cpp
+            helloworldprocessor.cpp
 
-HEADERS += helloworldplugin.h\
-        hello_world_plugin_global.h \
-    helloworldprocessor.h
+HEADERS +=  helloworldplugin.h \
+            hello_world_plugin_global.h \
+            helloworldprocessor.h

@@ -23,18 +23,15 @@
 #define IMAGECONVERTER_H
 
 #include <plvcore/RefPtr.h>
-
 #include <QObject>
 #include <opencv/cv.h>
 #include <stdexcept>
-
 #include <QImage>
 
-namespace plvopencv {
+namespace plv
+{
     class OpenCVImage;
 }
-
-using namespace plv;
 
 namespace plvgui
 {
@@ -45,7 +42,7 @@ namespace plvgui
                 std::runtime_error( why ) {}
     };
 
-    class ImageConverter : public QObject, public RefCounted
+    class ImageConverter : public QObject, public plv::RefCounted
     {
         Q_OBJECT
 
@@ -56,11 +53,11 @@ namespace plvgui
           * as converting is done asynchronously.
           * @emits converted(QImage*) when converting has finished;
           */
-        void convert_OpenCVImage( plv::RefPtr<plvopencv::OpenCVImage> img );
+        void convert_OpenCVImage( plv::RefPtr<plv::OpenCVImage> img );
 
     private:
         static ImageConverter* m_instance;
-        void convert(plv::RefPtr<plvopencv::OpenCVImage> img);
+        void convert(plv::RefPtr<plv::OpenCVImage> img);
 
         /** Converts an OpenCV iplImage to a QImage.
           * @throw ImageConversionException when conversion fails.

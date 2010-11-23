@@ -24,7 +24,9 @@
 
 #include <QMap>
 #include <QStringList>
+#include <QStringBuilder>
 #include <QMetaType>
+#include <QVariant>
 
 #include "RefPtr.h"
 #include "assert.h"
@@ -33,7 +35,9 @@
 namespace plv 
 {
     /** Base class for data resources.
-      *
+      * Data resources are not allowed to be deleted explicitly since they can be
+      * shared. Explicit deletion could cause a crash. Reference counting
+      * is used to let data resources delete themselves.
       */
     class PLVCORE_EXPORT Data : public RefCounted
     {
@@ -45,14 +49,17 @@ namespace plv
         bool m_mutable;
 
     public:
-        Data( unsigned int serial = 0 ) : m_serial( serial), m_mutable( true ) {}
+        Data(unsigned int serial = 0) : m_serial(serial), m_mutable(true) {}
 
         /** Copy constructor needs to be implemented by super classes
           * to allow the copying of a data resources when the Pin
           * connection type is set to copy which can be faster with
           * simple types.
           */
-        Data( const Data& other );
+        Data(const Data& other): m_serial(other.m_serial), m_mutable(true) {}
+
+        /** Destructor, should not be called explicitly because of reference counting */
+        virtual ~Data() {}
 
         /** makes this data unit mutable again. Internal framework method.
           * Should normally not be called by client code
@@ -78,14 +85,29 @@ namespace plv
             return m_mutable;
         }
 
-    protected:
-        /** protected destructor, data resources are not allowed to be
-          * deleted by individual processor since they can be in use
-          * by other processors in other threads. Deletion in one processor
-          * could cause a crash. Reference counting is used to let data
-          * resources delete themselves.
+        inline unsigned int getSerial() const
+        {
+            QMutexLocker( &this->m_refMutex );
+            return m_serial;
+        }
+
+        inline void setSerial( unsigned int serial )
+        {
+            QMutexLocker( &this->m_refMutex );
+            m_serial = serial;
+        }
+
+        /** used to signal a NULL entry, generally there will be no
+          * data items sent with serial number 0. Null entries are ignored
+          * by viewers but used to synchronize the system. This is done
+          * automatically. Producers should generally never produce a Data item
+          * with serial number 0.
           */
-        virtual ~Data() {}
+        inline bool isNull() const
+        {
+            QMutexLocker( &this->m_refMutex );
+            return m_serial == 0;
+        }
     };
 
     /** Template class to make the implementation of primitive data types
@@ -113,58 +135,6 @@ namespace plv
             m_value = value;
         }
     };
-
-    /** private class used to store enum information in Enum class */
-    class EnumPair
-    {
-    public:
-        EnumPair( const QString& s="", int v=-1 ) :
-                m_name(s), m_value(v) {}
-
-        inline QString name() const { return m_name; }
-        inline int value() const { return m_value; }
-
-    protected:
-        QString m_name;
-        int m_value;
-    };
-
-    /** Class for configurable enum properties with introspection support. Useful in GUI code */
-    class PLVCORE_EXPORT Enum
-    {
-    public:
-        Enum( int selected = 0 );
-
-        ~Enum();
-
-        Enum( const Enum& other );
-
-        void setSelectedIndex( int i );
-
-        void setSelected( const QString& selected );
-
-        void add( const QString& str );
-
-        void add( const QString& str, int value );
-
-        int getSelectedIndex() const;
-
-        int getSelectedValue() const;
-
-        QString getItemName( int i ) const;
-
-        QString getSelectedItemName() const;
-
-        int getItemValue( int i ) const;
-
-        QStringList getItemNames() const;
-
-        QString toString() const;
-
-    protected:
-        int m_selectedIndex;
-        QMap<int, EnumPair> m_items;
-    };
 }
 
 /** primitive types */
@@ -181,7 +151,5 @@ Q_DECLARE_METATYPE( plv::RefPtr<PlvInteger> )
 Q_DECLARE_METATYPE( plv::RefPtr<PlvFloat> )
 Q_DECLARE_METATYPE( plv::RefPtr<PlvDouble> )
 Q_DECLARE_METATYPE( plv::RefPtr<PlvString> )
-
-Q_DECLARE_METATYPE( plv::Enum )
 
 #endif // TYPES_H

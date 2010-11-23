@@ -23,16 +23,20 @@
 #define IMAGEFLIP_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
     class ImageFlip : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( ImageFlip )
         Q_CLASSINFO("author", "Ported from old version by Wim & Dennis")
         Q_CLASSINFO("name", "Flip")
         Q_CLASSINFO("description", "Flip image. FlipX means \"flip around x-axis\". Same for FlipY.");
@@ -45,7 +49,7 @@ namespace plvopencv
 
     public:
         ImageFlip();
-        ~ImageFlip();
+        virtual ~ImageFlip();
 
         /** propery methods */
         bool getFlipX() { return m_flipX; }
@@ -61,8 +65,8 @@ namespace plvopencv
 
     private:
 
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin* m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
 
         bool m_flipX;
         bool m_flipY;

@@ -18,13 +18,11 @@
   * of this software package directory in the file LICENSE.LGPL.
   * If not, see <http://www.gnu.org/licenses/>.
   */
+#include "Add.h"
 
 #include <QDebug>
-
-#include "Add.h"
-#include "OpenCVImage.h"
-
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImage.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -33,9 +31,15 @@ using namespace plvopencv;
 Add::Add() :
     m_normalize ( false )
 {
-    m_inputPin1 = createInputPin<OpenCVImage>( "input 1", this );
-    m_inputPin2 = createInputPin<OpenCVImage>( "input 2", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin1 = createOpenCVImageInputPin( "input 1", this );
+    m_inputPin2 = createOpenCVImageInputPin( "input 2", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
+
+    m_inputPin1->addAllChannels();
+    m_inputPin1->addAllDepths();
+
+    m_inputPin2->addAllChannels();
+    m_inputPin2->addAllDepths();
 }
 
 Add::~Add()
@@ -60,38 +64,35 @@ void Add::stop()
 
 void Add::process()
 {
-    assert(m_inputPin1 != 0);
-    assert(m_inputPin2 != 0);
-    assert(m_outputPin != 0);
-
+    // get the inputs
     RefPtr<OpenCVImage> img1 = m_inputPin1->get();
     RefPtr<OpenCVImage> img2 = m_inputPin2->get();
 
     //check format of images?
-    if( !img1->isCompatible( img2.getPtr() ) )
+    if( !img1->isCompatible( img2 ) )
     {
-        //TODO: we could use some modifications when the images do not match -- e.g., copy one of the mismatching images into a duplicate that DOES match (stretch? shrink? add depth?)
-        throw plv::PlvRuntimeException("The two images need to be the same in depth, size and nr of channels", __FILE__, __LINE__);
+        // TODO: we could use some modifications when the images do not match
+        // -- e.g., copy one of the mismatching images into a duplicate that
+        // DOES match (stretch? shrink? add depth?)
+        throw plv::PlvRuntimeException("The two images need to be the same in depth,"
+                                       "size and nr of channels", __FILE__, __LINE__);
     }
 
     // open input images for reading
     const IplImage* iplImgIn1 = img1->getImage();
     const IplImage* iplImgIn2 = img2->getImage();
 
-    //need this because I need to scale down input for adding, otherwise I get too many white areas
-    RefPtr<OpenCVImage> imgTempIn1 = OpenCVImageFactory::instance()->get(
-            img1->getWidth(), img1->getHeight(), img1->getDepth(), img1->getNumChannels() );
-
-    RefPtr<OpenCVImage> imgTempIn2 = OpenCVImageFactory::instance()->get(
-            img2->getWidth(), img2->getHeight(), img2->getDepth(), img2->getNumChannels() );
+    // need this because we need to scale down input for adding,
+    // otherwise we get too many white areas
+    RefPtr<OpenCVImage> imgTempIn1 = OpenCVImageFactory::get( img1->getProperties() );
+    RefPtr<OpenCVImage> imgTempIn2 = OpenCVImageFactory::get( img2->getProperties() );
 
     // open temp images for writing
     IplImage* iplImgTempIn1 = imgTempIn1->getImageForWriting();
     IplImage* iplImgTempIn2 = imgTempIn2->getImageForWriting();
 
     //get a new output image of same depth and size as input image
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
-            img1->getWidth(), img1->getHeight(), img1->getDepth(), img1->getNumChannels() );
+    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::get( img1->getProperties() );
 
     // open output image for writing
     IplImage* iplImgOut = imgOut->getImageForWriting();
@@ -102,8 +103,11 @@ void Add::process()
     cvAdd(iplImgTempIn1,iplImgTempIn2,iplImgOut, NULL);
 
     //scale back up again
-    if (!m_normalize)cvConvertScale(iplImgOut,iplImgOut, 2, 0);
+    if( !m_normalize )
+    {
+        cvConvertScale(iplImgOut,iplImgOut, 2, 0);
+    }
 
     // publish the new image
-    m_outputPin->put( imgOut.getPtr() );
+    m_outputPin->put( imgOut );
 }

@@ -24,7 +24,7 @@
 #include <plvcore/Pin.h>
 #include <opencv/cv.h>
 
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
 using namespace plv;
 using namespace plvopencv;

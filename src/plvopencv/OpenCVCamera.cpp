@@ -29,8 +29,8 @@
 using namespace plv;
 using namespace plvopencv;
 
-OpenCVCamera::OpenCVCamera( int id ) :
-    m_id( id ),
+OpenCVCamera::OpenCVCamera() :
+    m_id( 0 ),
     m_state( CAM_UNINITIALIZED ),
     m_captureDevice( 0 )
 {
@@ -41,9 +41,10 @@ OpenCVCamera::~OpenCVCamera()
     releaseCapture();
 }
 
-bool OpenCVCamera::init()
+bool OpenCVCamera::init( int id )
 {
     QMutexLocker lock( &m_opencv_mutex );
+    m_id = id;
 
     qDebug() << "Trying to initialize OpenCV camera with id " << m_id;
 

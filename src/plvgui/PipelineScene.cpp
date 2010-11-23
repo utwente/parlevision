@@ -399,18 +399,16 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
         QString elementName = QString(event->mimeData()->data("x-plv-element-name"));
         qDebug() << elementName;
 
-        int typeId = QMetaType::type(elementName.toAscii());
-
-        if(typeId == 0)
+        int typeId = PipelineElementFactory::isElementRegistered(elementName);
+        if(typeId == -1)
         {
             throw PlvRuntimeException( "Tried to create unknown element " + elementName,
                                        __FILE__, __LINE__ );
         }
 
-        RefPtr<PipelineElement> pe = static_cast<PipelineElement*>(QMetaType::construct(typeId));
+        RefPtr<PipelineElement> pe = PipelineElementFactory::construct(typeId);
         pe->setProperty("sceneCoordX", event->scenePos().x());
         pe->setProperty("sceneCoordY", event->scenePos().y());
-
         m_pipeline->addElement( pe );
     }
 }

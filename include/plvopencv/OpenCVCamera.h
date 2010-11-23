@@ -31,14 +31,14 @@
 
 #include <plvcore/RefCounted.h>
 #include <plvcore/RefPtr.h>
-
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
 namespace plvopencv
 {
     class OpenCVCamera : public QThread, public plv::RefCounted
     {
-         Q_OBJECT
+        Q_OBJECT
+        Q_DISABLE_COPY( OpenCVCamera )
 
     public:
 
@@ -51,10 +51,10 @@ namespace plvopencv
         };
 
         /** Constructor default to OpenCV camera with id 0. */
-        OpenCVCamera( int id = 0 );
+        OpenCVCamera();
 
         /** Initializes camera. Allocates resources. */
-        bool init();
+        bool init( int id );
 
         /** Returns the camera ID. This is a number equal to or above 0. The
           * default is 0.
@@ -114,7 +114,7 @@ namespace plvopencv
         /** Tries to get an image from OpenCV and copy it into an OpenCVImage.
           * \return 0 on failure, pointer to an OpenCVImage on success.
           */
-        OpenCVImage* getFrame();
+        plv::OpenCVImage* getFrame();
 
     signals:
         void newFrame( plv::RefPtr<plv::Data> frame );

@@ -246,7 +246,7 @@ bool Scheduler::generateGraphOrdering( QList<ScheduleInfo*>& ordering )
     QString out;
     foreach( ScheduleInfo* si, ordering )
     {
-        out.append( si->getElement()->getName() % "\n" );
+        out.append( si->getElement()->getName() % "->" );
     }
     qDebug() << out;
 

@@ -22,10 +22,8 @@
 #include <QDebug>
 
 #include "EdgeDetectorLaplace.h"
-#include "OpenCVImage.h"
-
-#include <plvcore/Pin.h>
-#include <opencv/cv.h>
+#include <plvcore/OpenCVImage.h>
+#include <plvcore/OpenCVImagePin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -33,8 +31,8 @@ using namespace plvopencv;
 EdgeDetectorLaplace::EdgeDetectorLaplace() :
         m_apertureSize(3)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 }
 
 EdgeDetectorLaplace::~EdgeDetectorLaplace()

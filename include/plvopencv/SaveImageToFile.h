@@ -25,11 +25,17 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
 #include <plvcore/Types.h>
+#include <plvcore/Enum.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
     /**
      * This proccessor allows a single camera image to be saved to the hard-
      * drive. The user is capable of providing the directory where the file has
@@ -50,6 +56,7 @@ namespace plvopencv
     class SaveImageToFile : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( SaveImageToFile )
 
         Q_CLASSINFO("author", "Niek Hoeijmakers")
         Q_CLASSINFO("name", "SaveImageToFile")
@@ -69,7 +76,7 @@ namespace plvopencv
     public:
         /** Constructor/Destructor */
         SaveImageToFile();
-        ~SaveImageToFile();
+        virtual ~SaveImageToFile();
 
         /** property methods */
         bool getDoSave(){ return m_doSave; }
@@ -96,7 +103,7 @@ namespace plvopencv
         void setAutoIncSuf(bool b) {m_autoIncSuf = b; emit(autoIncSufChanged(b));}
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputImage;
+        plv::OpenCVImageInputPin* m_inputImage;
         plv::InputPin<PlvBoolean>* m_inputTrigger;
 
         bool        m_doSave;    //Determines if the input has to be saved. Mostly false.

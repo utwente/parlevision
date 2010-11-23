@@ -26,10 +26,13 @@
 #include <plvcore/Pin.h>
 #include <plvcore/Types.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+}
 
+namespace plvopencv
+{
     /**
      * For every image this proccessor recieves it sends out a boolean signal.
      * This signal is of the same value as the processors activation property.
@@ -48,7 +51,7 @@ namespace plvopencv
     class Trigger : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( Trigger )
         Q_CLASSINFO("author", "Niek Hoeijmakers")
         Q_CLASSINFO("name", "Trigger")
         Q_CLASSINFO("description", "A processor that passes on a boolean value for every received image. "

@@ -24,18 +24,6 @@
 
 #include <QEvent>
 
-static inline int getPinClickedEventType()
-{
-    static int sPinClickedEventType= QEvent::registerEventType();
-    return sPinClickedEventType;
-}
-
-static inline int getPinDoubleClickedEventType()
-{
-    static int sPinDoubleClickedEventType= QEvent::registerEventType();
-    return sPinDoubleClickedEventType;
-}
-
 namespace plvgui
 {
     class PinWidget;
@@ -43,31 +31,31 @@ namespace plvgui
     class PinClickedEvent : public QEvent
     {
     public:
-        PinClickedEvent(PinWidget* pw) :
-                QEvent(PinClickedEvent::user_type()), source(pw) {}
+        PinClickedEvent(PinWidget* pw);
 
         PinWidget* getSource() { return source; }
 
         /** returns the type of this event, for use in handling switches */
-        static QEvent::Type user_type() {return QEvent::Type(getPinClickedEventType());}
+        static QEvent::Type user_type();
 
     private:
         PinWidget* source;
+        static QEvent::Type sPinClickedEventType;
     };
 
     class PinDoubleClickedEvent : public QEvent
     {
     public:
-        PinDoubleClickedEvent(PinWidget* pw) :
-                QEvent(PinDoubleClickedEvent::user_type()), source(pw) {}
+        PinDoubleClickedEvent(PinWidget* pw);
 
         PinWidget* getSource() { return source; }
 
         /** returns the type of this event, for use in handilng switches */
-        static QEvent::Type user_type() {return QEvent::Type(getPinDoubleClickedEventType());}
+        static QEvent::Type user_type();
 
     private:
         PinWidget* source;
+        static QEvent::Type sPinDoubleClickedEventType;
     };
 }
 

@@ -23,16 +23,20 @@
 #define EDGEDETECTORLAPLACE_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
     class EdgeDetectorLaplace : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( EdgeDetectorLaplace )
         Q_CLASSINFO("author", "Ported from old version by Wim & Dennis")
         Q_CLASSINFO("name", "Edge detector Laplace")
         Q_CLASSINFO("description", "Edge detection using the Laplace method.");
@@ -44,7 +48,7 @@ namespace plvopencv
 
     public:
         EdgeDetectorLaplace();
-        ~EdgeDetectorLaplace();
+        virtual ~EdgeDetectorLaplace();
 
         /** propery methods */
         int getApertureSize() { return m_apertureSize; }
@@ -56,11 +60,8 @@ namespace plvopencv
         void setApertureSize(int i);
 
     private:
-
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
-
-
+        plv::OpenCVImageInputPin* m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
         int m_apertureSize;
     };
 

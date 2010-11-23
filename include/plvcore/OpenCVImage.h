@@ -24,22 +24,51 @@
 
 #include <list>
 #include <QMutex>
-#include <QReadWriteLock>
 #include <opencv/cv.h>
 
-#include <plvcore/Types.h>
-#include <plvcore/PlvExceptions.h>
-
-#include "plvopencv_global.h"
+#include "Types.h"
+#include "PlvExceptions.h"
 
 #define OPENCVIMAGE_MAX_OBJECT_POOL_SIZE (1024 * 1024 * 8)
-#define OPENCVIMAGE_USE_POOL 0
+#define OPENCVIMAGE_USE_POOL 1
 
-namespace plvopencv
+namespace plv
 {
+    class PLVCORE_EXPORT OpenCVImageProperties
+    {
+    protected:
+        int m_width;
+        int m_height;
+        int m_depth;
+        int m_numChannels;
+
+    public:
+        OpenCVImageProperties( int width,int height, int depth, int nChannels ) :
+                m_width(width), m_height(height),
+                m_depth(depth), m_numChannels(nChannels) {}
+
+        inline bool operator == (const OpenCVImageProperties& rhs ) const
+        {
+            return m_width == rhs.m_width &&
+                   m_height == rhs.m_height &&
+                   m_depth == rhs.m_depth &&
+                   m_numChannels == rhs.m_numChannels;
+        }
+
+        inline int getWidth() const { return m_width; }
+        inline int getHeight() const { return m_height; }
+        inline int getDepth() const { return m_depth; }
+        inline int getNumChannels() const { return m_numChannels; }
+
+        inline void setWidth( int width ) { m_width = width; }
+        inline void setHeight( int height ) { m_height = height; }
+        inline void setDepth( int depth ) { m_depth = depth; }
+        inline void setNumChannels( int numChannels ) { m_numChannels = numChannels; }
+    };
+
     class OpenCVImage;
 
-    class PLVOPENCV_EXPORT OpenCVImageFactory
+    class PLVCORE_EXPORT OpenCVImageFactory
     {
     public:
 
@@ -63,11 +92,19 @@ namespace plvopencv
           */
         OpenCVImage* get( int width, int height, int depth, int channels );
 
-        /** Purges all objects which are not in used from the object pool */
-        void purge();
+        static inline void get( RefPtr<OpenCVImage>& rv, const OpenCVImageProperties& props )
+        {
+            rv = OpenCVImageFactory::instance()->get( props.getWidth(), props.getHeight(),
+                                                      props.getDepth(), props.getNumChannels() );
+        }
 
-        /** Purges all objects, even those in use (refcount > 1). Dangerous! */
-        void purgeAll();
+        static inline RefPtr<OpenCVImage> get( const OpenCVImageProperties& props )
+        {
+            RefPtr<OpenCVImage> img;
+            img = OpenCVImageFactory::instance()->get( props.getWidth(), props.getHeight(),
+                                                      props.getDepth(), props.getNumChannels() );
+            return img;
+        }
 
         /** @returns the number of object in the object pool */
         int numObjects();
@@ -99,6 +136,12 @@ namespace plvopencv
 
         OpenCVImage* getOrCreate( int width, int height, int depth, int channels );
 
+        /** Purges all objects which are not in used from the object pool. Not thread safe. */
+        void purge();
+
+        /** Purges all objects, even those in use (refcount > 1). Dangerous! */
+        void purgeAll();
+
     private:
         static OpenCVImageFactory* m_instance;  /** singleton class instance */
         std::list<OpenCVImage*> m_objectPool;
@@ -107,7 +150,7 @@ namespace plvopencv
         QMutex m_factoryMutex;
     };
 
-    class PLVOPENCV_EXPORT OpenCVImage : public plv::Data
+    class PLVCORE_EXPORT OpenCVImage : public Data
     {
         friend class OpenCVImageFactory;
 
@@ -119,17 +162,16 @@ namespace plvopencv
             ALL = 7
         } ImageCompare;
 
-        class PLVCORE_EXPORT IllegalAccessException : public plv::PlvException
-        {
-        public:
-            IllegalAccessException(const QString& str ) : plv::PlvException(str) {}
-            virtual ~IllegalAccessException() throw() {}
-        };
-
         inline int getWidth() const { return m_img->width; }
         inline int getHeight() const { return m_img->height; }
         inline int getNumChannels() const { return m_img->nChannels; }
         inline int getDepth() const { return m_img->depth; }
+
+        inline OpenCVImageProperties getProperties() const
+        {
+            return OpenCVImageProperties( getWidth(), getHeight(),
+                                          getDepth(), getNumChannels() );
+        }
 
         inline bool isNull() const { return m_img == 0; }
 
@@ -140,7 +182,7 @@ namespace plvopencv
           */
         const IplImage* getImage() const { return m_img; }
 
-        IplImage* getImageForWriting() throw ( IllegalAccessException );
+        IplImage* getImageForWriting() throw ( PlvRuntimeException );
 
         /** @returns a deep copy of this OpenCVImage, including a copy of the internal
           * IplImage.
@@ -154,11 +196,18 @@ namespace plvopencv
         /** Compare two opencv images for type equality */
         bool isCompatible( const OpenCVImage* other, ImageCompare compareType = ALL ) const;
 
+        inline bool isCompatible( const RefPtr<OpenCVImage>& other, ImageCompare compareType = ALL ) const
+        {
+            return isCompatible( other.getPtr(), compareType );
+        }
+
         /** Compare this opencv images for type equality to parameters */
         bool isCompatible( int width, int height, int depth, int channels ) const;
 
         /** @returns the size of the contained IplImage image data in bytes */
         int size()const;
+
+        static const char* depthToString( int depth );
 
     protected:
         OpenCVImage( IplImage* img );

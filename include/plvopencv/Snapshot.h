@@ -23,16 +23,20 @@
 #define SNAPSHOT_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
     class Snapshot : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( Snapshot )
         Q_CLASSINFO("author", "Dennis")
         Q_CLASSINFO("name", "Snapshot")
         Q_CLASSINFO("description", "On request, make a new snapshot of the input pin. On the output pin, always present the latest snapshot. Always enforces a snapshot on the first frame.");
@@ -44,7 +48,7 @@ namespace plvopencv
 
     public:
         Snapshot();
-        ~Snapshot();
+        virtual ~Snapshot();
 
         /** propery methods */
         bool getMakeSnapshot() { return m_makeSnapshot; }
@@ -56,9 +60,9 @@ namespace plvopencv
         void setMakeSnapshot(bool b) {m_makeSnapshot = b; emit(makeSnapshotChanged(b));}
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
-        plv::RefPtr<OpenCVImage> m_imgSnapshot;
+        plv::OpenCVImageInputPin* m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::RefPtr<plv::OpenCVImage> m_imgSnapshot;
 
         bool m_makeSnapshot;
 

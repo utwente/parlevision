@@ -20,13 +20,63 @@
   */
 
 #include "PipelineProducer.h"
+#include "Pin.h"
 
 using namespace plv;
 
-PipelineProducer::PipelineProducer()
+PipelineProducer::PipelineProducer() : m_serial( 0 )
 {
 }
 
 PipelineProducer::~PipelineProducer()
 {
+}
+
+void PipelineProducer::__init()
+{
+    QMutexLocker lock( &m_pleMutex );
+
+    if( m_inputPins.size() != 0 )
+    {
+        throw PlvRuntimeException( "Producer " + getName() + " has input pins defined",
+                                   __FILE__, __LINE__);
+    }
+
+    if( m_outputPins.size() == 0 )
+    {
+        throw PlvRuntimeException( "Producer " + getName() + " has no output pins defined",
+                                   __FILE__, __LINE__);
+    }
+
+    this->init();
+}
+
+bool PipelineProducer::__isReadyForProcessing() const
+{
+    return isReadyForProcessing();
+}
+
+void PipelineProducer::__process()
+{
+    QMutexLocker lock( &m_pleMutex );
+
+    // set the serial number for this processing run
+    this->setProcessingSerial( getNextSerial() );
+
+    for( OutputPinMap::iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
+    {
+        IOutputPin* out = itr->second.getPtr();
+        out->pre();
+    }
+
+    // do the actual processing
+    this->process();
+
+    for( OutputPinMap::iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
+    {
+        IOutputPin* out = itr->second.getPtr();
+        out->post();
+    }
 }

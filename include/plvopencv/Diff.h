@@ -23,19 +23,23 @@
 #define DIFF_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
     /**
       * Absolute diff of two images.
       */
     class Diff : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( Diff )
         Q_CLASSINFO("author", "Ported from old version by Dennis")
         Q_CLASSINFO("name", "AbsDiff(A, B)")
         Q_CLASSINFO("description", "Calculate absolute difference of two images.");
@@ -44,11 +48,11 @@ namespace plvopencv
         PLV_PIPELINE_ELEMENT
     public:
         Diff();
-        ~Diff();
+        virtual ~Diff();
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin1;
-        plv::InputPin<OpenCVImage>* m_inputPin2;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin* m_inputPin1;
+        plv::OpenCVImageInputPin* m_inputPin2;
+        plv::OpenCVImageOutputPin* m_outputPin;
     };
 }
 #endif // DIFF_H

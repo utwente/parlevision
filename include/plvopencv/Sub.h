@@ -23,18 +23,23 @@
 #define SUB_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
     /**
       * Sub of two images.
       */
     class Sub : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( Sub )
         Q_CLASSINFO("author", "Ported from old version by Dennis")
         Q_CLASSINFO("name", "A sub B")
         Q_CLASSINFO("description", "A simple processor to subtract two images.");
@@ -44,12 +49,12 @@ namespace plvopencv
 
     public:
         Sub();
-        ~Sub();
+        virtual ~Sub();
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin1;
-        plv::InputPin<OpenCVImage>* m_inputPin2;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin* m_inputPin1;
+        plv::OpenCVImageInputPin* m_inputPin2;
+        plv::OpenCVImageOutputPin* m_outputPin;
     };
 }
 #endif // SUB_H

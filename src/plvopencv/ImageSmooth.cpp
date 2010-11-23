@@ -22,10 +22,9 @@
 #include <QDebug>
 
 #include "ImageSmooth.h"
-#include "OpenCVImage.h"
 
-#include <plvcore/Pin.h>
-#include <opencv/cv.h>
+#include <plvcore/OpenCVImage.h>
+#include <plvcore/OpenCVImagePin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -38,8 +37,8 @@ ImageSmooth::ImageSmooth() :
         m_three(0.0),
         m_four(0.0)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 
     PLV_ENUM_ADD( m_method, CV_BLUR_NO_SCALE );
     PLV_ENUM_ADD( m_method, CV_BLUR );

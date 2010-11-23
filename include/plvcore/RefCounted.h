@@ -79,7 +79,20 @@ public:
     }
 
     /** @return number of references to this object */
-    inline int getRefCount() const { return m_referenceCount; }
+    inline int getRefCount() const
+    {
+        QMutexLocker lock( &m_refMutex );
+        return m_referenceCount;
+    }
+
+    /** resets reference count to 0. Necessary for manual reference counting only.
+      * Do not use lightly!
+      */
+    inline void resetRefCount()
+    {
+        QMutexLocker lock( &m_refMutex );
+        m_referenceCount = 0;
+    }
 };
 
 }

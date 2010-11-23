@@ -40,14 +40,15 @@ DataRenderer::~DataRenderer()
 
 void DataRenderer::setPin( const plv::Pin* p )
 {
-    qDebug() << "attaching inspector to pin";
+    qDebug() << "Attaching inspector to pin";
     disconnect();
-    connect( p, SIGNAL( newData( RefPtr<Data> )),
-             this, SLOT( newData( RefPtr<Data> )) );
+    connect( p, SIGNAL( newData( plv::RefPtr<plv::Data>)),
+             this, SLOT( newData( plv::RefPtr<plv::Data> )) );
 }
 
-void DataRenderer::newData( RefPtr<Data> )
+void DataRenderer::newData( plv::RefPtr<plv::Data> data )
 {
-    qDebug() << "WARNING: Abstract DataRenderer received newData signal.\n"
-                << "Did you forget to implement newData(Data* data) in a subclass?";
+    Q_UNUSED( data );
+    qWarning() << "Abstract DataRenderer received newData signal.\n"
+               << "Did you forget to implement newData(Data* data) in a subclass?";
 }

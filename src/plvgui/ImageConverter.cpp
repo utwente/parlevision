@@ -21,13 +21,13 @@
 
 #include "ImageConverter.h"
 
-#include <plvopencv/OpenCVImage.h>
+#include <plvcore/OpenCVImage.h>
 
 #include <QImage>
+#include <QPainter>
 #include <QString>
 #include <QtConcurrentRun>
 
-using namespace plvopencv;
 using namespace plvgui;
 using namespace plv;
 
@@ -48,9 +48,22 @@ void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
     }
     catch( ImageConversionException& e )
     {
-        qDebug() << "Failed to convert image with error: " << e.what() << "\n";
-    }
+        QString msg = QString("IplImageConverter failed to convert image with error: %1")
+                      .arg( e.what() );
 
+        QSize size( imgdata->getWidth(), imgdata->getHeight() );
+        QImage qimage( size, QImage::Format_ARGB32_Premultiplied );
+        qimage.fill( 0 );
+        QPainter painter(&qimage);
+        painter.fillRect( qimage.rect(), QColor( Qt::white ));
+        painter.setPen( Qt::black );
+        QFont font = painter.font();
+        font.setPointSize( 16 );
+        painter.setFont( font );
+        painter.drawText( qimage.rect(), Qt::AlignCenter | Qt::TextWordWrap, msg);
+        painter.end();
+        emit( converted( qimage ) );
+    }
 }
 
 QImage ImageConverter::iplImageToQImage( const IplImage* img )
@@ -109,8 +122,8 @@ QImage ImageConverter::iplImageToQImage( const IplImage* img )
         }
         else
         {
-            errStr = "Conversion not supported: depth IPL_DEPTH_8U and number of channels is ";
-            errStr += img->nChannels + " \n";
+            errStr = QString("Conversion not supported: depth IPL_DEPTH_8U "
+                             "and number of channels is %1").arg(img->nChannels);
             throw ImageConversionException( errStr.toStdString() );
         }
         break;
@@ -170,45 +183,18 @@ QImage ImageConverter::iplImageToQImage( const IplImage* img )
         }
         else
         {
-            errStr = "Conversion not supported: depth IPL_DEPTH_16U and number of channels is ";
-            errStr += img->nChannels + " \n";
+            errStr = QString("Conversion not supported: depth IPL_DEPTH_16U "
+                             "and number of channels is %1").arg(img->nChannels);
             throw ImageConversionException( errStr.toStdString() );
         }
 
-    case IPL_DEPTH_32F:
-        errStr = "Conversion not supported: depth IPL_DEPTH_32F and number of channels is ";
-        errStr += img->nChannels + " \n";
-        throw ImageConversionException( errStr.toStdString() );
-
-    case IPL_DEPTH_32S:
-        errStr = "Conversion not supported: depth IPL_DEPTH_32S and number of channels is ";
-        errStr += img->nChannels + " \n";
-        throw ImageConversionException( errStr.toStdString() );
-
-    case IPL_DEPTH_64F:
-        errStr = "Conversion not supported: depth IPL_DEPTH_64F and number of channels is ";
-        errStr += img->nChannels + " \n";
-        throw ImageConversionException( errStr.toStdString() );
-
-    case IPL_DEPTH_1U:
-        errStr = "Conversion not supported: depth IPL_DEPTH_1U and number of channels is ";
-        errStr += img->nChannels + " \n";
-        throw ImageConversionException( errStr.toStdString() );
-
-    case IPL_DEPTH_8S:
-        errStr = "Conversion not supported: depth IPL_DEPTH_8S and number of channels is ";
-        errStr += img->nChannels + " \n";
-        throw ImageConversionException( errStr.toStdString() );
-
-    case IPL_DEPTH_16S:
-        errStr = "Conversion not supported: depth IPL_DEPTH_16S and number of channels is ";
-        errStr += img->nChannels + " \n";
-        throw ImageConversionException( errStr.toStdString() );
-
     default:
-        throw ImageConversionException( "Conversion not supported: unknown IplImage type. \n" );
+        errStr = QString("Conversion not supported: depth %1 "
+                         "and number of channels is %2")
+                .arg(OpenCVImage::depthToString(img->depth))
+                .arg(img->nChannels);
+        throw ImageConversionException( errStr.toStdString() );
     }
-
 
     if( img->nChannels == 1 )
     {

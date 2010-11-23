@@ -23,18 +23,23 @@
 #define ADD_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+
+namespace plv
+{
+    class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
     /**
       * Add two images.
       */
     class Add : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( Add )
         Q_CLASSINFO("author", "Ported from old version by Dennis")
         Q_CLASSINFO("name", "A add B")
         Q_CLASSINFO("description", "A simple processor to add two images. Optionally, the result is normalized.");
@@ -45,7 +50,7 @@ namespace plvopencv
 
     public:
         Add();
-        ~Add();
+        virtual ~Add();
 
         /** propery methods */
         bool getNormalizeAfterAdd() { return m_normalize; }
@@ -57,9 +62,9 @@ namespace plvopencv
         void setNormalizeAfterAdd(bool b) {m_normalize = b; emit(normalizeAfterAddChanged(b));}
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin1;
-        plv::InputPin<OpenCVImage>* m_inputPin2;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin* m_inputPin1;
+        plv::OpenCVImageInputPin* m_inputPin2;
+        plv::OpenCVImageOutputPin* m_outputPin;
         bool m_normalize;
     };
 }

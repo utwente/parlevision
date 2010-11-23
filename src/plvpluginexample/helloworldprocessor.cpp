@@ -4,11 +4,11 @@
 
 #include "HelloWorldProcessor.h"
 #include <plvcore/Pin.h>
-#include <plvopencv/OpenCVImage.h>
+#include <plvcore/OpenCVImage.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
-using namespace plvopencv;
 
 HelloWorldProcessor::HelloWorldProcessor() :
         m_someInt(1337),
@@ -16,18 +16,15 @@ HelloWorldProcessor::HelloWorldProcessor() :
         m_someBool(true),
         m_someString("hello")
 {
-    m_inputPin = new InputPin<OpenCVImage>("input", this);
-    addInputPin( m_inputPin );
-
-    m_outputPin = new OutputPin<OpenCVImage>("output", this);
-    addOutputPin( m_outputPin );
+    m_inputPin = createOpenCVImageInputPin("input", this);
+    m_outputPin = createOpenCVImageOutputPin("output", this);
 }
 
 HelloWorldProcessor::~HelloWorldProcessor()
 {
 }
 
-void HelloWorldProcessor::init() throw (PipelineException)
+void HelloWorldProcessor::init()
 {
 }
 
@@ -35,21 +32,12 @@ void HelloWorldProcessor::deinit() throw ()
 {
 }
 
-void HelloWorldProcessor::start() throw (PipelineException)
+void HelloWorldProcessor::start()
 {
 }
 
-void HelloWorldProcessor::stop() throw (PipelineException)
+void HelloWorldProcessor::stop()
 {
-}
-
-bool HelloWorldProcessor::isReadyForProcessing() const
-{
-    if( m_inputPin->isConnected() )
-    {
-        return m_inputPin->getConnection()->hasData();
-    }
-    return false;
 }
 
 void HelloWorldProcessor::process()

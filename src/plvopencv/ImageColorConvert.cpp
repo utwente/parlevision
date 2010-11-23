@@ -20,11 +20,11 @@
   */
 
 #include <QDebug>
+#include <QMutexLocker>
 
 #include "ImageColorConvert.h"
-#include "OpenCVImage.h"
-
-#include <plvcore/Pin.h>
+#include <plvcore/OpenCVImage.h>
+#include <plvcore/OpenCVImagePin.h>
 
 #include <opencv/cv.h>
 #include <opencv/cxcore.h>
@@ -127,16 +127,19 @@ CV_HLS2BGR
 CV_HLS2RGB
 */
 
-#define PLV_ENUM_ADD( plvEnum, type ) plvEnum.add( #type, type )
-
 ImageColorConvert::ImageColorConvert()
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin  = createOpenCVImageInputPin( "input", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 
     // first one added is default
     PLV_ENUM_ADD( m_conversionType, CV_RGB2GRAY );
     PLV_ENUM_ADD( m_conversionType, CV_RGB2RGBA );
+
+    setConversionType( m_conversionType );
+
+    m_inputPin->addAllDepths();
+    m_outputPin->addAllDepths();
 }
 
 ImageColorConvert::~ImageColorConvert()
@@ -159,37 +162,223 @@ void ImageColorConvert::stop()
 {
 }
 
+int ImageColorConvert::getInChannels( int code )
+{
+    int inChannels;
+
+    switch( code )
+    {
+        // 1
+        case CV_GRAY2BGRA:
+        case CV_GRAY2BGR:
+        case CV_GRAY2BGR565:
+        case CV_GRAY2BGR555:
+        case CV_BayerBG2BGR:
+        case CV_BayerGB2BGR:
+        case CV_BayerRG2BGR:
+        case CV_BayerGR2BGR:
+            inChannels = 1;
+            break;
+
+        // 2
+        case CV_BGR5652BGRA:
+        case CV_BGR5552BGRA:
+        case CV_BGR5652RGBA:
+        case CV_BGR5552RGBA:
+        case CV_BGR5652BGR:
+        case CV_BGR5552BGR:
+        case CV_BGR5652RGB:
+        case CV_BGR5552RGB:
+        case CV_BGR5652GRAY:
+        case CV_BGR5552GRAY:
+            inChannels = 2;
+            break;
+
+        // 3
+        case CV_BGR2BGRA:
+        case CV_RGB2BGRA:
+        case CV_BGR2YCrCb:
+        case CV_RGB2YCrCb:
+        case CV_BGR2XYZ:
+        case CV_RGB2XYZ:
+        case CV_BGR2HSV:
+        case CV_RGB2HSV:
+        case CV_BGR2Lab:
+        case CV_RGB2Lab:
+        case CV_BGR2Luv:
+        case CV_RGB2Luv:
+        case CV_BGR2HLS:
+        case CV_RGB2HLS:
+        case CV_RGB2BGR:
+        case CV_BGR2BGR565:
+        case CV_BGR2BGR555:
+        case CV_RGB2BGR565:
+        case CV_RGB2BGR555:
+        case CV_BGR2GRAY:
+        case CV_RGB2GRAY:
+        case CV_YCrCb2BGR:
+        case CV_YCrCb2RGB:
+        case CV_XYZ2BGR:
+        case CV_XYZ2RGB:
+        case CV_HSV2BGR:
+        case CV_HSV2RGB:
+        case CV_Lab2BGR:
+        case CV_Lab2RGB:
+        case CV_Luv2BGR:
+        case CV_Luv2RGB:
+        case CV_HLS2BGR:
+        case CV_HLS2RGB:
+            inChannels = 3;
+            break;
+
+        // 4
+        case CV_BGRA2RGBA:
+        case CV_BGRA2BGR:
+        case CV_RGBA2BGR:
+        case CV_BGRA2BGR565:
+        case CV_BGRA2BGR555:
+        case CV_RGBA2BGR565:
+        case CV_RGBA2BGR555:
+        case CV_BGRA2GRAY:
+        case CV_RGBA2GRAY:
+            inChannels = 4;
+            break;
+    default:
+        // error
+        inChannels = -1;
+    }
+
+    return inChannels;
+}
+
+int ImageColorConvert::getOutChannels( int code )
+{
+    int outChannels;
+
+    switch( code )
+    {
+    case CV_BGR2BGRA:
+    case CV_RGB2BGRA:
+    case CV_BGRA2RGBA:
+    case CV_BGR5652BGRA:
+    case CV_BGR5552BGRA:
+    case CV_BGR5652RGBA:
+    case CV_BGR5552RGBA:
+    case CV_GRAY2BGRA:
+        outChannels = 4;
+        break;
+
+    case CV_BGR2YCrCb:
+    case CV_RGB2YCrCb:
+    case CV_BGR2XYZ:
+    case CV_RGB2XYZ:
+    case CV_BGR2HSV:
+    case CV_RGB2HSV:
+    case CV_BGR2Lab:
+    case CV_RGB2Lab:
+    case CV_BGR2Luv:
+    case CV_RGB2Luv:
+    case CV_BGR2HLS:
+    case CV_RGB2HLS:
+        outChannels = 3;
+        break;
+
+    case CV_BayerBG2BGR:
+    case CV_BayerGB2BGR:
+    case CV_BayerRG2BGR:
+    case CV_BayerGR2BGR:
+
+    case CV_BGRA2BGR:
+    case CV_RGBA2BGR:
+    case CV_RGB2BGR:
+    case CV_BGR5652BGR:
+    case CV_BGR5552BGR:
+    case CV_BGR5652RGB:
+    case CV_BGR5552RGB:
+    case CV_GRAY2BGR:
+
+    case CV_YCrCb2BGR:
+    case CV_YCrCb2RGB:
+    case CV_XYZ2BGR:
+    case CV_XYZ2RGB:
+    case CV_HSV2BGR:
+    case CV_HSV2RGB:
+    case CV_Lab2BGR:
+    case CV_Lab2RGB:
+    case CV_Luv2BGR:
+    case CV_Luv2RGB:
+    case CV_HLS2BGR:
+    case CV_HLS2RGB:
+        outChannels = 3;
+        break;
+
+    case CV_BGR2BGR565:
+    case CV_BGR2BGR555:
+    case CV_RGB2BGR565:
+    case CV_RGB2BGR555:
+    case CV_BGRA2BGR565:
+    case CV_BGRA2BGR555:
+    case CV_RGBA2BGR565:
+    case CV_RGBA2BGR555:
+    case CV_GRAY2BGR565:
+    case CV_GRAY2BGR555:
+        outChannels = 2;
+        break;
+
+    case CV_BGR2GRAY:
+    case CV_BGRA2GRAY:
+    case CV_RGB2GRAY:
+    case CV_RGBA2GRAY:
+    case CV_BGR5652GRAY:
+    case CV_BGR5552GRAY:
+        outChannels = 1;
+        break;
+    default:
+        outChannels = -1;
+    }
+
+    return outChannels;
+}
+
+void ImageColorConvert::setConversionType(plv::Enum e)
+{
+    // update pin settings
+    m_inChannels  = getInChannels( e.getSelectedValue() );
+    m_outChannels = getOutChannels( e.getSelectedValue() );
+
+    m_inputPin->clearChannels();
+    m_outputPin->clearChannels();
+
+    m_inputPin->addSupportedChannels( m_inChannels );
+    m_outputPin->addSupportedChannels( m_outChannels );
+
+    // update selection
+    m_conversionType = e;
+
+    // update GUI
+    emit( conversionTypeChanged(e) );
+}
+
 void ImageColorConvert::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    if(img->getDepth() != IPL_DEPTH_8U)
-    {
-        throw std::runtime_error("format not yet supported");
-    }
+    RefPtr<OpenCVImage> src = m_inputPin->get();
 
-    // temporary image with extra room (depth)
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), 1 );
-
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
-
+    OpenCVImageProperties props = src->getProperties();
+    props.setNumChannels( m_outChannels );
+    RefPtr<OpenCVImage> target = OpenCVImageFactory::get( props );
 
     // open for reading
-    const IplImage* iplImg1 = img->getImage();
+    const IplImage* srcIpl = src->getImage();
 
     // open image for writing
-    IplImage* iplImg2 = img2->getImageForWriting();
-    IplImage* iplTmp = tmp->getImageForWriting();
+    IplImage* targetIpl = target->getImageForWriting();
 
-    cvCvtColor(iplImg1, iplTmp, m_conversionType.getSelectedValue());
-
-    // merge the temporary image in the three channels of the output image
-    cvMerge(iplTmp, iplTmp, iplTmp, NULL, iplImg2);
+    // cvCvtColor function, see OpenCV documentation for details
+    cvCvtColor(srcIpl, targetIpl, m_conversionType.getSelectedValue());
 
     // publish the new image
-    m_outputPin->put( img2.getPtr() );
+    m_outputPin->put( target );
 }

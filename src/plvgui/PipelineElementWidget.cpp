@@ -172,6 +172,9 @@ void PipelineElementWidget::paint(QPainter *painter, const QStyleOptionGraphicsI
     Q_UNUSED(widget);
     Q_UNUSED(option);
 
+    // just repaint the changed part
+    painter->setClipRect( option->exposedRect );
+
     if(this->isSelected())
     {
         //TODO move this outside paint

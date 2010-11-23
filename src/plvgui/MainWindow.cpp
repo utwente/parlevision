@@ -123,8 +123,10 @@ void MainWindow::changeEvent(QEvent *e)
 
 bool MainWindow::event(QEvent* event)
 {
-//    qDebug() << "MainWindow got event " << event << " ut=" << PinDoubleClickedEvent::user_type();
-//    return QObject::event(event);
+//    qDebug()<< "MainWindow got event " << event
+//            << " ut=" << PinDoubleClickedEvent::user_type()
+//            << " ut=" << PinClickedEvent::user_type();
+
     if(event->type() == PinDoubleClickedEvent::user_type())
     {
         PinDoubleClickedEvent* pce = static_cast<PinDoubleClickedEvent*>(event);
@@ -375,6 +377,8 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(m_scene, SIGNAL(contentsChanged()),
             this, SLOT(documentChanged()));
 
+    connect( pipeline, SIGNAL(tick()), this, SLOT(tick()) );
+
     qDebug() << "setting documentChanged to false #1";
     m_documentChanged = false;
 }
@@ -391,6 +395,10 @@ void MainWindow::pipelineStopped()
     ui->actionStart->setEnabled(true);
     ui->actionStop->setDisabled(true);
     ui->statusbar->showMessage("Stopped.");
+}
+
+void MainWindow::tick()
+{
 }
 
 void MainWindow::loadFile(QString fileName)

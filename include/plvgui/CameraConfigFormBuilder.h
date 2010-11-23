@@ -40,7 +40,7 @@ namespace plvgui
         CameraForm(plvopencv::CameraProducer* producer, QWidget* parent=0);
     private:
         Ui::CameraConfigForm* ui;
-        RefPtr<plvopencv::CameraProducer> producer;
+        plv::RefPtr<plvopencv::CameraProducer> producer;
     };
 
     class CameraConfigFormBuilder : public ElementConfigFormBuilder
@@ -48,7 +48,7 @@ namespace plvgui
         Q_OBJECT
 
     public:
-        virtual QWidget* buildForm(PipelineElement* element, QWidget* parent=0);
+        virtual QWidget* buildForm(plv::PipelineElement* element, QWidget* parent=0);
     };
 }
 

@@ -20,8 +20,8 @@
   */
 
 #include "ConnectionLine.h"
-#include <QtGui>
 
+#include <QtGui>
 #include <QDebug>
 
 #include "PinWidget.h"
@@ -44,6 +44,10 @@ ConnectionLine::ConnectionLine(PinWidget* fromPin,
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemIsMovable, false);
     setPen(QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+}
+
+ConnectionLine::~ConnectionLine()
+{
 }
 
 QPainterPath ConnectionLine::shape() const

@@ -2,18 +2,22 @@
 #define VIOLAJONESFACEDETECTOR_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
 #include <plvcore/Types.h>
 #include <opencv/cv.h>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
 
+namespace plvopencv
+{
     class ViolaJonesFaceDetector : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( ViolaJonesFaceDetector )
         Q_CLASSINFO("author", "Dennis")
         Q_CLASSINFO("name", "Face Detect V.-J.")
         Q_CLASSINFO("description", "Viola-Jones Face Detector.");
@@ -30,7 +34,7 @@ namespace plvopencv
 
     public:
         ViolaJonesFaceDetector();
-        ~ViolaJonesFaceDetector();
+        virtual ~ViolaJonesFaceDetector();
 
         /** propery methods */
         int getMinNeighbours() { return m_minNeighbours; }
@@ -57,8 +61,8 @@ namespace plvopencv
         void setHaarCascadeFile(QString filename) { m_haarCascadeFile = filename; emit( haarCascadeFileChanged(filename)); }
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
+        plv::OpenCVImageInputPin* m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
 
         int m_minNeighbours;
         double m_scaleFactor;

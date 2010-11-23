@@ -23,20 +23,21 @@
 #define DELAYIMAGE_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
 
-#include <QMutex>
-#include <QMutexLocker>
 #include <QList>
 
-namespace plvopencv
+namespace plv
 {
     class OpenCVImage;
-
+    class OpenCVImageInputPin;
+    class OpenCVImageOutputPin;
+}
+namespace plvopencv
+{
     class DelayImage : public plv::PipelineProcessor
     {
         Q_OBJECT
-
+        Q_DISABLE_COPY( DelayImage )
         Q_CLASSINFO("author", "Dennis");
         Q_CLASSINFO("name", "Delay image");
         Q_CLASSINFO("description", "Delay an image by given number of steps (max 10).");
@@ -50,7 +51,7 @@ namespace plvopencv
         static const int MAX_STEPS = 1000;
 
         DelayImage();
-        ~DelayImage();
+        virtual ~DelayImage();
 
         /** propery methods */
         int getSteps() { return m_steps; }
@@ -62,12 +63,12 @@ namespace plvopencv
         void setSteps(int i);
 
     private:
-        plv::InputPin<OpenCVImage>*  m_inputPin;
-        plv::OutputPin<OpenCVImage>* m_outputPin;
-        plv::OutputPin<OpenCVImage>* m_delayedOutputPin;
+        plv::OpenCVImageInputPin*  m_inputPin;
+        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::OpenCVImageOutputPin* m_delayedOutputPin;
 
         /** List of delayed images. */
-        QList< plv::RefPtr<OpenCVImage> > m_images;
+        QList< plv::RefPtr<plv::OpenCVImage> > m_images;
 
         /** Number of steps images are delayed */
         int m_steps;

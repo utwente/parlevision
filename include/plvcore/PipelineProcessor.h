@@ -34,6 +34,11 @@ namespace plv
 
         /** inherited from PipelineElement. Can be overridden if needed. */
         virtual bool isReadyForProcessing() const { return true; }
+
+    private:
+        virtual void __init();
+        virtual bool __isReadyForProcessing() const;
+        virtual void __process();
     };
 
 }

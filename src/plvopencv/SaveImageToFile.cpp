@@ -22,9 +22,10 @@
 #include <QDebug>
 
 #include "SaveImageToFile.h"
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImage.h>
 
 #include <plvcore/Pin.h>
+#include <plvcore/OpenCVImagePin.h>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 
@@ -38,7 +39,7 @@ using namespace plvopencv;
 #elif defined(Q_OS_DARWIN)
 #   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp/"
 #elif defined(Q_OS_UNIX)
-#   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp"
+#   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp/"
 #endif
 
 /**
@@ -51,15 +52,15 @@ SaveImageToFile::SaveImageToFile() :
         m_suffixNr(1001),
         m_autoIncSuf(true)
 {
-    m_inputImage = createInputPin<OpenCVImage>("image", this, IInputPin::INPUT_REQUIRED );
+    m_inputImage = createOpenCVImageInputPin("image", this, IInputPin::INPUT_REQUIRED );
     m_inputTrigger = createInputPin<PlvBoolean>("trigger", this, IInputPin::INPUT_OPTIONAL );
 
-    m_fileFormat.add("Windows Bitmap - *.bmp");
-    m_fileFormat.add("JPEG Files - *.jpg");
-    m_fileFormat.add("Portable Network Graphics - *.png");
-    m_fileFormat.add("Portable Image Format - *.pbm");
-    m_fileFormat.add("Sun Rasters - *.sr");
-    m_fileFormat.add("TIFF Files - *.tiff");
+    m_fileFormat.addLast("Windows Bitmap - *.bmp");
+    m_fileFormat.addLast("JPEG Files - *.jpg");
+    m_fileFormat.addLast("Portable Network Graphics - *.png");
+    m_fileFormat.addLast("Portable Image Format - *.pbm");
+    m_fileFormat.addLast("Sun Rasters - *.sr");
+    m_fileFormat.addLast("TIFF Files - *.tiff");
 
     m_fileExt.clear();
     m_fileExt = ".bmp";

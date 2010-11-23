@@ -21,8 +21,8 @@
 
 #include "DummyProcessor.h"
 
-#include <plvcore/Pin.h>
-#include "OpenCVImage.h"
+#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/OpenCVImage.h>
 
 #include <QDebug>
 
@@ -39,14 +39,14 @@ DummyProcessor::DummyProcessor() :
         m_someVarWithNr1(0),
         m_someVarWithNr2(0)
 {
-    m_inputPin = createInputPin<OpenCVImage>( "input", this, IInputPin::INPUT_REQUIRED );
-    m_inputPinOptional = createInputPin<OpenCVImage>( "input2", this, IInputPin::INPUT_OPTIONAL );
-    m_outputPin = createOutputPin<OpenCVImage>( "output", this );
+    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPinOptional = createOpenCVImageInputPin( "input2", this, IInputPin::INPUT_OPTIONAL );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 
-    m_customEnum.add( "Very Low" );
-    m_customEnum.add( "Low" );
-    m_customEnum.add( "High" );
-    m_customEnum.add( "Very High" );
+    m_customEnum.addLast( "Very Low" );
+    m_customEnum.addLast( "Low" );
+    m_customEnum.addLast( "High" );
+    m_customEnum.addLast( "Very High" );
 }
 
 DummyProcessor::~DummyProcessor()
@@ -74,21 +74,23 @@ void DummyProcessor::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
+    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
+
+    // allocate a target buffer
+    RefPtr<OpenCVImage> targetPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
 
     // open for reading
-    const IplImage* iplImg1 = img->getImage();
+    const IplImage* src = srcPtr->getImage();
 
     // open image for writing
-    IplImage* iplImg2 = img2->getImageForWriting();
+    IplImage* target = targetPtr->getImageForWriting();
 
     // do a flip of the image
-    cvFlip( iplImg1, iplImg2, (int)m_someBool);
+    cvFlip( src, target, (int)m_someBool);
 
     // publish the new image
-    m_outputPin->put( img2.getPtr() );
+    m_outputPin->put( targetPtr );
 
+    // update our "frame counter"
     this->setSomeInt(this->getSomeInt()+1);
 }
