@@ -22,7 +22,7 @@
 #include "OpenCVImageRenderer.h"
 
 #include <QDebug>
-#include <QtGui>
+#include <QVBoxLayout>
 
 #include <plvcore/Types.h>
 #include <plvcore/OpenCVImage.h>

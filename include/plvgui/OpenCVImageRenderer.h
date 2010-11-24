@@ -23,18 +23,13 @@
 #define OpenCVImageRenderer_H
 
 #include <QMutex>
-#include <QLabel>
-
-#include <plvcore/OpenCVImage.h>
 #include <plvcore/RefPtr.h>
 
 #include "ImageConverter.h"
 #include "DataRenderer.h"
 
 class QPixmap;
-class QLabel;
 class QVBoxLayout;
-class QHBoxLayout;
 class QImage;
 
 namespace plv
@@ -59,12 +54,8 @@ namespace plvgui
         void hideEvent(QHideEvent* event);
 
     private:
-        void putImage();
-        void fixAspectRatio();
-
         QVBoxLayout*    m_layout;
         ImageWidget*    m_imageWidget;
-
         bool            m_busy;
         QMutex          m_busy_mutex;
         plv::RefPtr<ImageConverter> m_converter;
