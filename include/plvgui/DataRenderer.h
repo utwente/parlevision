@@ -45,6 +45,7 @@ namespace plvgui
         Q_OBJECT
 
     public:
+        DataRenderer();
         DataRenderer( QWidget* parent );
         virtual ~DataRenderer();
 
@@ -54,7 +55,7 @@ namespace plvgui
         virtual void setPin(const plv::Pin* pin);
 
     public slots:
-        virtual void newData( plv::RefPtr<plv::Data> data );
+        virtual void newData( plv::RefPtr<plv::Data> data ) = 0;
 
     };
 }
