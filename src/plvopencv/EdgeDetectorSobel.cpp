@@ -34,8 +34,7 @@ EdgeDetectorSobel::EdgeDetectorSobel():
         m_xOrder( 1 ),
         m_yOrder( 0 ),
         m_apertureSize(3),
-        m_Scharr( false ),
-        m_output16bit( false )
+        m_Scharr( false )
 {
     m_inputPin  = createOpenCVImageInputPin( "input", this );
     m_outputPin = createOpenCVImageOutputPin( "output", this );
@@ -45,17 +44,8 @@ EdgeDetectorSobel::EdgeDetectorSobel():
     m_inputPin->addSupportedDepth( IPL_DEPTH_32F );
     m_inputPin->addSupportedChannels( 1 );
 
-    if( m_output16bit )
-    {
-        m_outputPin->addSupportedDepth( IPL_DEPTH_16S );
-        m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
-    }
-    else
-    {
-        m_outputPin->addSupportedDepth( IPL_DEPTH_8S );
-        m_outputPin->addSupportedDepth( IPL_DEPTH_8U );
-        m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
-    }
+    m_outputPin->addSupportedDepth( IPL_DEPTH_16S );
+    m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
     m_outputPin->addSupportedChannels( 1 );
 }
 
@@ -116,20 +106,7 @@ void EdgeDetectorSobel::process()
     cvSobel( src, dst, (int)m_xOrder, (int)m_yOrder, apertureSize );
 
     // publish output
-    if( !m_output16bit &&
-        (srcPtr->getDepth() == IPL_DEPTH_8U || srcPtr->getDepth() == (int)IPL_DEPTH_8S ))
-    {
-        // convert the image back to 8bit depth if we do not want to ouput 16bit
-        RefPtr<OpenCVImage> dst8bitPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
-        IplImage* dst8bit = dst8bitPtr->getImageForWriting();
-
-        cvConvertScale( dst, dst8bit, 1, 0);
-        m_outputPin->put( dst8bitPtr );
-    }
-    else
-    {
-        m_outputPin->put( dstPtr );
-    }
+    m_outputPin->put( dstPtr );
 }
 
 void EdgeDetectorSobel::setXOrder(bool x)
@@ -233,28 +210,6 @@ void EdgeDetectorSobel::setScharr(bool useScharr)
 
     m_Scharr = useScharr;
     emit( ScharrChanged(useScharr) );
-}
-
-void EdgeDetectorSobel::setOutput16bit(bool val)
-{
-    QMutexLocker lock( m_propertyMutex );
-
-    m_output16bit = val;
-
-    m_outputPin->clearDephts();
-    if( m_output16bit )
-    {
-        m_outputPin->addSupportedDepth( IPL_DEPTH_16S );
-        m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
-    }
-    else
-    {
-        m_outputPin->addSupportedDepth( IPL_DEPTH_8S );
-        m_outputPin->addSupportedDepth( IPL_DEPTH_8U );
-        m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
-    }
-
-    emit( output16bitChanged( val ));
 }
 
 

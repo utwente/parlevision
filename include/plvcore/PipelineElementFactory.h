@@ -84,7 +84,7 @@ namespace plv
         }
 
         /** static destructor */
-        inline static void clear()
+        inline static void destruct()
         {
             if(m_instance != 0)
             {

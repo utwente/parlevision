@@ -35,7 +35,7 @@ void ElementConfigFormBuilder::registerType(QString elementTypeName, QString bui
     qDebug() << "Registering ElementconfigFormBuilder " << builderTypeName
                     << " for " << "'" << elementTypeName << "'";
 
-    ElementConfigFormBuilder::s_typeMap[elementTypeName] = builderTypeName;
+    ElementConfigFormBuilder::s_typeMap.insert( elementTypeName, builderTypeName );
 }
 
 bool ElementConfigFormBuilder::existsFor(QString elementTypeName)
@@ -53,8 +53,8 @@ ElementConfigFormBuilder* ElementConfigFormBuilder::getBuilderFor(QString elemen
     }
 
     const QString builderTypeName = ElementConfigFormBuilder::s_typeMap[elementTypeName];
-    int typeId = QMetaType::type(builderTypeName.toAscii());
 
+    int typeId = QMetaType::type(builderTypeName.toAscii());
     if(typeId == 0)
         throw new std::runtime_error(
                 QString("Tried to create unknown formbuilder "+builderTypeName).toStdString());

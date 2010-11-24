@@ -56,7 +56,7 @@ void Application::init()
 
 void Application::deinit()
 {
-    PipelineElementFactory::clear();
+    PipelineElementFactory::destruct();
 }
 
 void Application::loadBuiltins()
@@ -70,6 +70,7 @@ void Application::loadBuiltins()
     qRegisterMetaType< plv::RefPtr<PlvFloat> >("plv::RefPtr<PlvFloat>");
     qRegisterMetaType< plv::RefPtr<PlvDouble> >("plv::RefPtr<PlvDouble>");
     qRegisterMetaType< plv::RefPtr<PlvString> >("plv::RefPtr<PlvString>");
+    qRegisterMetaType< plv::RefPtr<plv::RectangleData> >("plv::RefPtr<plv::RectangleData>");
 
     // is copied by value, does not need a RefPtr
     qRegisterMetaType< plv::Enum >( "plv::Enum" );

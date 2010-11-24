@@ -78,21 +78,21 @@ void Add::process()
                                        "size and nr of channels", __FILE__, __LINE__);
     }
 
-    // open input images for reading
-    const IplImage* iplImgIn1 = img1->getImage();
-    const IplImage* iplImgIn2 = img2->getImage();
-
     // need this because we need to scale down input for adding,
     // otherwise we get too many white areas
     RefPtr<OpenCVImage> imgTempIn1 = OpenCVImageFactory::get( img1->getProperties() );
     RefPtr<OpenCVImage> imgTempIn2 = OpenCVImageFactory::get( img2->getProperties() );
 
+    //get a new output image of same depth and size as input image
+    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::get( img1->getProperties() );
+
+    // open input images for reading
+    const IplImage* iplImgIn1 = img1->getImage();
+    const IplImage* iplImgIn2 = img2->getImage();
+
     // open temp images for writing
     IplImage* iplImgTempIn1 = imgTempIn1->getImageForWriting();
     IplImage* iplImgTempIn2 = imgTempIn2->getImageForWriting();
-
-    //get a new output image of same depth and size as input image
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::get( img1->getProperties() );
 
     // open output image for writing
     IplImage* iplImgOut = imgOut->getImageForWriting();
@@ -103,7 +103,7 @@ void Add::process()
     cvAdd(iplImgTempIn1,iplImgTempIn2,iplImgOut, NULL);
 
     //scale back up again
-    if( !m_normalize )
+    if( m_normalize )
     {
         cvConvertScale(iplImgOut,iplImgOut, 2, 0);
     }

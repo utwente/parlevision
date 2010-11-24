@@ -25,11 +25,10 @@
 
 #include <plvcore/OpenCVImage.h>
 #include <plvcore/OpenCVImagePin.h>
+#include <plvcore/Util.h>
 
 using namespace plv;
 using namespace plvopencv;
-
-#define PLV_ENUM_ADD( plvEnum, type ) plvEnum.add( #type, type )
 
 ImageSmooth::ImageSmooth() :
         m_one(3),
@@ -69,44 +68,37 @@ void ImageSmooth::stop()
 
 void ImageSmooth::process()
 {
-    assert(m_inputPin != 0);
-    assert(m_outputPin != 0);
-
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    if(img->getDepth() != IPL_DEPTH_8U)
-    {
-        throw std::runtime_error("format not yet supported");
-    }
-
-    // temporary image with extra room (depth)
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
-
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
-
+    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
+    RefPtr<OpenCVImage> dstPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
 
     // open for reading
-    const IplImage* iplImgIn = img->getImage();
+    const IplImage* src = srcPtr->getImage();
 
     // open image for writing
-    IplImage* iplImgOut = img2->getImageForWriting();
+    IplImage* dst = dstPtr->getImageForWriting();
 
     // perform smooth operation on the image
-    cvSmooth( iplImgIn, iplImgOut, m_method.getSelectedValue(), m_one, m_two, m_three, m_four);
+    cvSmooth( src, dst, m_method.getSelectedValue(), m_one, m_two, m_three, m_four);
 
     // publish the new image
-    m_outputPin->put( img2.getPtr() );
+    m_outputPin->put( dstPtr );
 }
 
 void ImageSmooth::setOne(int i)
 {
+    QMutexLocker lock( m_propertyMutex );
+
     //aperture size must be odd and positive
-    if (i < 1) i = 1;
-    if (i%2 == 0)
+    if (i < 1)
+        i = 1;
+    else if( isEven(i) )
     {   //even: determine appropriate new odd value
-        if (i > m_one) i++; //we were increasing -- increase to next odd value
-        else i--;                    //we were decreasing -- decrease to next odd value
+        //we were increasing -- increase to next odd value
+        if (i > m_one)
+            i++;
+        //we were decreasing -- decrease to next odd value
+        else
+            i--;
     }
     m_one = i;
     emit(oneChanged(m_one));
@@ -115,11 +107,12 @@ void ImageSmooth::setOne(int i)
 void ImageSmooth::setTwo(int i)
 {
     //aperture size must be odd and positive
-    if (i < 1) i = 1;
-    if (i%2 == 0)
+    if (i < 1)
+        i = 1;
+    else if( isEven(i) )
     {   //even: determine appropriate new odd value
         if (i > m_two) i++; //we were increasing -- increase to next odd value
-        else i--;                    //we were decreasing -- decrease to next odd value
+        else i--;           //we were decreasing -- decrease to next odd value
     }
     m_two = i;
     emit(twoChanged(m_two));

@@ -36,11 +36,8 @@ EdgeDetectorCanny::EdgeDetectorCanny() :
         m_thresholdLow(0.1),
         m_thresholdHigh(1.0)
 {
-    m_inputPin  = new OpenCVImageInputPin( "input", this );
-    m_outputPin = new OpenCVImageOutputPin( "output", this );
-
-    this->addInputPin( m_inputPin );
-    this->addOutputPin( m_outputPin );
+    m_inputPin  = createOpenCVImageInputPin( "input", this );
+    m_outputPin = createOpenCVImageOutputPin( "output", this );
 
     m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
     m_inputPin->addSupportedDepth( IPL_DEPTH_8U );

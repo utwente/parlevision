@@ -27,14 +27,17 @@
 #include <QStringBuilder>
 #include <QMetaType>
 #include <QVariant>
+#include <QRect>
 
 #include "RefPtr.h"
 #include "assert.h"
+#include "PlvExceptions.h"
 #include "plvglobal.h"
 
 namespace plv 
 {
-    /** Base class for data resources.
+    /** Base class for data resources. Can be used to implement a wrapper around
+      * existing classes. See e.g. OpenCVImage class.
       * Data resources are not allowed to be deleted explicitly since they can be
       * shared. Explicit deletion could cause a crash. Reference counting
       * is used to let data resources delete themselves.
@@ -51,12 +54,11 @@ namespace plv
     public:
         Data(unsigned int serial = 0) : m_serial(serial), m_mutable(true) {}
 
-        /** Copy constructor needs to be implemented by super classes
-          * to allow the copying of a data resources when the Pin
-          * connection type is set to copy which can be faster with
-          * simple types.
-          */
-        Data(const Data& other): m_serial(other.m_serial), m_mutable(true) {}
+        /** Copy constructor */
+        Data(const Data& other) :
+                m_serial(other.m_serial),
+                m_mutable(other.m_mutable)
+        {}
 
         /** Destructor, should not be called explicitly because of reference counting */
         virtual ~Data() {}
@@ -132,7 +134,46 @@ namespace plv
         inline T setValue(T value)
         {
             QMutexLocker lock( &m_sdMutex );
+            if( !isMutable() )
+            {
+                throw plv::PlvRuntimeException( "Tried to access data on "
+                                                "an immutable data container.",
+                                                __FILE__, __LINE__ );
+            }
+
             m_value = value;
+        }
+    };
+
+    /** DataContainer around a QList with QRect rectangle list */
+    class PLVCORE_EXPORT RectangleData : public Data
+    {
+    protected:
+        mutable QMutex m_rectMutex;
+        QList<QRect> m_rects;
+
+    public:
+        RectangleData() {}
+        ~RectangleData() {}
+
+        /** adds a rectangle to internal rectangle list */
+        inline void add( const QRect& rect )
+        {
+            QMutexLocker lock( &m_rectMutex );
+            if( !isMutable() )
+            {
+                throw plv::PlvRuntimeException( "Tried to access data on "
+                                                "an immutable data container.",
+                                                __FILE__, __LINE__ );
+            }
+            m_rects.append( rect );
+        }
+
+        /** QList uses implicit sharing so we return by value */
+        inline QList<QRect> getRects() const
+        {
+            QMutexLocker lock( &m_rectMutex );
+            return m_rects;
         }
     };
 }
@@ -151,5 +192,6 @@ Q_DECLARE_METATYPE( plv::RefPtr<PlvInteger> )
 Q_DECLARE_METATYPE( plv::RefPtr<PlvFloat> )
 Q_DECLARE_METATYPE( plv::RefPtr<PlvDouble> )
 Q_DECLARE_METATYPE( plv::RefPtr<PlvString> )
+Q_DECLARE_METATYPE( plv::RefPtr<plv::RectangleData> )
 
 #endif // TYPES_H

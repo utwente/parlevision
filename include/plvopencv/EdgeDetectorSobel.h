@@ -45,7 +45,6 @@ namespace plvopencv
         Q_PROPERTY( bool yOrder READ getYOrder WRITE setYOrder NOTIFY yOrderChanged )
         Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
         Q_PROPERTY( bool Scharr READ getScharr WRITE setScharr NOTIFY ScharrChanged )
-        Q_PROPERTY( bool output16bit READ getOutput16bit WRITE setOutput16bit NOTIFY output16bitChanged )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -55,18 +54,16 @@ namespace plvopencv
         virtual ~EdgeDetectorSobel();
 
         /** propery methods */
-        bool getXOrder() const { return m_xOrder; }
-        bool getYOrder() const { return m_yOrder; }
-        bool getScharr() const { return m_Scharr; }
-        int getApertureSize() const { return m_apertureSize; }
-        bool getOutput16bit() const { return m_output16bit; }
+        bool getXOrder() const { QMutexLocker lock( m_propertyMutex );return m_xOrder; }
+        bool getYOrder() const { QMutexLocker lock( m_propertyMutex );return m_yOrder; }
+        bool getScharr() const { QMutexLocker lock( m_propertyMutex );return m_Scharr; }
+        int getApertureSize() const { QMutexLocker lock( m_propertyMutex );return m_apertureSize; }
 
     signals:
         void xOrderChanged(bool x);
         void yOrderChanged(bool y);
         void apertureSizeChanged(int newValue);
         void ScharrChanged(bool useScharr);
-        void output16bitChanged(bool output16bit);
 
     public slots:
         /** ApertureSize – Size of the extended Sobel kernel, must be 1, 3, 5 or 7 */
@@ -81,9 +78,6 @@ namespace plvopencv
         /** Use special Scharr kernel. Bypasses aperture size */
         void setScharr( bool useScharr );
 
-        /** Sets this processor to ouput 16 bit image if incoming image is 8-bit depth */
-        void setOutput16bit( bool b );
-
     private:
         plv::OpenCVImageInputPin* m_inputPin;
         plv::OpenCVImageOutputPin* m_outputPin;
@@ -92,7 +86,6 @@ namespace plvopencv
         bool m_yOrder;
         int m_apertureSize;
         bool m_Scharr;
-        bool m_output16bit;
     };
 }
 #endif // EDGEDETECTORSOBEL_H

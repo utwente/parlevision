@@ -40,6 +40,7 @@ SOURCES += \
     OpenCVImageRenderer.cpp \
     RendererFactory.cpp \
     DataRenderer.cpp \
+    UnknownDataRenderer.cpp \
     ImageConverter.cpp \
     LibraryWidget.cpp \
     InspectorWidget.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     ../../include/plvgui/OpenCVImageRenderer.h \
     ../../include/plvgui/RendererFactory.h \
     ../../include/plvgui/DataRenderer.h \
+    ../../include/plvgui/UnknownDataRenderer.h \
     ../../include/plvgui/ImageConverter.h \
     ../../include/plvgui/PipelineScene.h \
     ../../include/plvgui/LibraryWidget.h \
