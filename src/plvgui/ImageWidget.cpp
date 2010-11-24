@@ -24,13 +24,16 @@
 #include <QImage>
 #include <QPainter>
 #include <QSize>
+#include <QDebug>
 
 using namespace plvgui;
 
 ImageWidget::ImageWidget(QWidget *parent) :
-        QWidget(parent)
+        QWidget(parent),
+        m_zoomFactor( 1.0 ),
+        m_aspectRatio( 1.0 ),
+        m_zoomToFit( true )
 {
-    m_zoomToFit = true;
 }
 
 void ImageWidget::setImage(const QImage &img)
@@ -50,6 +53,19 @@ void ImageWidget::setImage(const QImage &img)
     // resize and update widget
     resize( sizeHint() );
     update();
+}
+
+void ImageWidget::resizeEvent(QResizeEvent * event)
+{
+    qDebug() << "test";
+    if( m_zoomToFit )
+    {
+        computeZoomFactorToFitImage();
+    }
+    else
+    {
+        m_zoomFactor = 1.0;
+    }
 }
 
 void ImageWidget::paintEvent(QPaintEvent *)
@@ -86,8 +102,7 @@ QSize ImageWidget::sizeHint() const
 {
     if( !m_image.isNull() )
     {
-        QSize hint = m_image.size();
-        hint = m_zoomFactor * hint;
+        QSize hint = m_image.size() * m_zoomFactor;
         return hint;
     }
     return minimumSize();
