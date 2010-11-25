@@ -40,6 +40,9 @@ Add::Add() :
 
     m_inputPin2->addAllChannels();
     m_inputPin2->addAllDepths();
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 }
 
 Add::~Add()

@@ -35,6 +35,12 @@ ImageFlip::ImageFlip() :
 {
     m_inputPin = createOpenCVImageInputPin( "input", this );
     m_outputPin = createOpenCVImageOutputPin( "output", this );
+
+    m_inputPin->addAllChannels();
+    m_inputPin->addAllDepths();
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 }
 
 ImageFlip::~ImageFlip()

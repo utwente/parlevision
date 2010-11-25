@@ -139,7 +139,10 @@ ImageColorConvert::ImageColorConvert()
     setConversionType( m_conversionType );
 
     m_inputPin->addAllDepths();
+    m_inputPin->addAllChannels();
+
     m_outputPin->addAllDepths();
+    m_outputPin->addAllChannels();
 }
 
 ImageColorConvert::~ImageColorConvert()

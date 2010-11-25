@@ -34,6 +34,15 @@ Sub::Sub()
     m_inputPin1 = createOpenCVImageInputPin( "input 1", this );
     m_inputPin2 = createOpenCVImageInputPin( "input 2", this );
     m_outputPin = createOpenCVImageOutputPin( "output", this );
+
+    m_inputPin1->addAllChannels();
+    m_inputPin1->addAllDepths();
+
+    m_inputPin2->addAllChannels();
+    m_inputPin2->addAllDepths();
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 }
 
 Sub::~Sub()

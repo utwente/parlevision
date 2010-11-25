@@ -47,6 +47,15 @@ DummyProcessor::DummyProcessor() :
     m_customEnum.addLast( "Low" );
     m_customEnum.addLast( "High" );
     m_customEnum.addLast( "Very High" );
+
+    m_inputPin->addAllChannels();
+    m_inputPin->addAllDepths();
+
+    m_inputPinOptional->addAllChannels();
+    m_inputPinOptional->addAllDepths();
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 }
 
 DummyProcessor::~DummyProcessor()
