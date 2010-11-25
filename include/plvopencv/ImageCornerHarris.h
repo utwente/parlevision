@@ -49,9 +49,9 @@ namespace plvopencv
         virtual ~ImageCornerHarris();
 
         /** propery methods */
-        int getApertureSize() { return m_apertureSize; }
-        int getBlockSize() { return m_blockSize; }
-        double getK() { return m_k; }
+        int getApertureSize() const;
+        int getBlockSize() const;
+        double getK() const;
 
     signals:
         void apertureSizeChanged(int newValue);
@@ -59,13 +59,11 @@ namespace plvopencv
         void kChanged(double newValue);
 
     public slots:
-        void setApertureSize(int i) { m_apertureSize = i; emit(apertureSizeChanged(i)); }
-        void setBlockSize(int i) { m_blockSize = i; emit(blockSizeChanged(i)); }
-        void setK (double newValue) { m_k = newValue; emit(kChanged(newValue)); }
+        void setApertureSize(int i);
+        void setBlockSize(int i);
+        void setK (double newValue);
 
     private:
-        int nearestOdd(int i);
-
         plv::OpenCVImageInputPin* m_inputPin;
         plv::OpenCVImageOutputPin* m_outputPin;
 
