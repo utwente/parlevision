@@ -109,6 +109,35 @@ void EdgeDetectorSobel::process()
     m_outputPin->put( dstPtr );
 }
 
+/**** getters ******/
+
+bool EdgeDetectorSobel::getXOrder() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_xOrder;
+}
+
+bool EdgeDetectorSobel::getYOrder() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_yOrder;
+}
+
+bool EdgeDetectorSobel::getScharr() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_Scharr;
+}
+
+int EdgeDetectorSobel::getApertureSize() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_apertureSize;
+}
+
+
+/**** setters ****/
+
 void EdgeDetectorSobel::setXOrder(bool x)
 {
     QMutexLocker lock( m_propertyMutex );

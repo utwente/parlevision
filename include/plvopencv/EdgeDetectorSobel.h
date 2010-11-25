@@ -54,10 +54,10 @@ namespace plvopencv
         virtual ~EdgeDetectorSobel();
 
         /** propery methods */
-        bool getXOrder() const { QMutexLocker lock( m_propertyMutex );return m_xOrder; }
-        bool getYOrder() const { QMutexLocker lock( m_propertyMutex );return m_yOrder; }
-        bool getScharr() const { QMutexLocker lock( m_propertyMutex );return m_Scharr; }
-        int getApertureSize() const { QMutexLocker lock( m_propertyMutex );return m_apertureSize; }
+        bool getXOrder() const;
+        bool getYOrder() const;
+        bool getScharr() const;
+        int getApertureSize() const;
 
     signals:
         void xOrderChanged(bool x);
