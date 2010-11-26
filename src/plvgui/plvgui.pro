@@ -41,6 +41,7 @@ SOURCES += \
     RendererFactory.cpp \
     DataRenderer.cpp \
     UnknownDataRenderer.cpp \
+    RectangleDataRenderer.cpp \
     ImageConverter.cpp \
     LibraryWidget.cpp \
     InspectorWidget.cpp \
@@ -64,6 +65,7 @@ HEADERS += \
     ../../include/plvgui/RendererFactory.h \
     ../../include/plvgui/DataRenderer.h \
     ../../include/plvgui/UnknownDataRenderer.h \
+    ../../include/plvgui/RectangleDataRenderer.h \
     ../../include/plvgui/ImageConverter.h \
     ../../include/plvgui/PipelineScene.h \
     ../../include/plvgui/LibraryWidget.h \

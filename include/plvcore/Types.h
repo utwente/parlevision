@@ -151,10 +151,23 @@ namespace plv
     protected:
         mutable QMutex m_rectMutex;
         QList<QRect> m_rects;
+        int m_width;
+        int m_height;
 
     public:
-        RectangleData() {}
+        /** Constructor. Takes width and height of the image from which the
+            rectangles are taken if relevant. This is necessary for correct
+            rendering of the rectangles.  */
+        RectangleData( int width, int height )
+            : m_width(width), m_height(height)
+        {
+            assert( m_width > 0 );
+            assert( m_height > 0 );
+        }
         ~RectangleData() {}
+
+        inline int width() const { return m_width; }
+        inline int height() const { return m_height; }
 
         /** adds a rectangle to internal rectangle list */
         inline void add( const QRect& rect )

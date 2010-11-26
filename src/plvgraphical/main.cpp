@@ -30,6 +30,7 @@
 #include <plvgui/CameraConfigFormBuilder.h>
 #include <plvgui/RendererFactory.h>
 #include <plvgui/OpenCVImageRenderer.h>
+#include <plvgui/RectangleDataRenderer.h>
 
 #include "openeventhandler.h"
 
@@ -41,6 +42,7 @@ int main(int argc, char **argv)
     // TODO fix this! Maybe custom factory again?
     //plvgui::registerConfigFormBuilder<plvgui::CameraConfigFormBuilder>("plv::CameraProducer", "plvgui::CameraConfigFormBuilder");
     plvgui::RendererFactory::add<plv::OpenCVImage, plvgui::OpenCVImageRenderer>();
+    plvgui::RendererFactory::add<plv::RectangleData, plvgui::RectangleDataRenderer>();
 
     plv::Application parlevision(&app);
     parlevision.init();

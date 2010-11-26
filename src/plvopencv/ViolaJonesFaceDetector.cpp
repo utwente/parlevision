@@ -114,7 +114,7 @@ void ViolaJonesFaceDetector::process()
     //copy input image
     cvCopy( src, dst );
 
-    RefPtr<RectangleData> rectangles = new RectangleData();
+    RefPtr<RectangleData> rectangles = new RectangleData( srcPtr->getWidth(), srcPtr->getHeight() );
 
     //draw face rects
     for (int i = 0; i < ( faceRectSeq ? faceRectSeq->total : 0 ); ++i )
@@ -190,7 +190,7 @@ void ViolaJonesFaceDetector::setMinHeight(int val)
 
 int ViolaJonesFaceDetector::getMinHeight()
 {
-    QMutexLocker lock( m_propertyMutex);
+    QMutexLocker lock( m_propertyMutex );
     return m_minHeight;
 }
 
