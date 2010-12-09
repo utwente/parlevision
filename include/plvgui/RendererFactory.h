@@ -28,14 +28,16 @@
 #include <QHash>
 #include <plvcore/RefCounted.h>
 #include <plvcore/RefPtr.h>
+
 #include "DataRenderer.h"
+#include "plvgui_global.h"
 
 class QWidget;
 
 namespace plvgui
 {
     // abstract base class for constructors
-    class DataRendererConstructor : public plv::RefCounted
+    class PLVGUI_EXPORT DataRendererConstructor : public plv::RefCounted
     {
     public:
         virtual const char* getDataTypeName() const = 0;
@@ -46,13 +48,13 @@ namespace plvgui
     class DataRendererConstructorHelper : public DataRendererConstructor
     {
     public:
-        const char* getDataTypeName() const
+        inline const char* getDataTypeName() const
         {
             const std::type_info& info = typeid( DT );
             return info.name();
         }
 
-        DataRenderer* create(QWidget* parent) const
+        inline DataRenderer* create(QWidget* parent) const
         {
             DataRenderer* r = static_cast<DataRenderer*>(new RT(parent));
             r->setParent( parent );
@@ -60,9 +62,9 @@ namespace plvgui
         }
     };
 
-    class RendererFactory
+    class PLVGUI_EXPORT RendererFactory
     {
-    protected:
+    private:
         static RendererFactory* m_instance;
         QHash<QString, plv::RefPtr<DataRendererConstructor> > m_rendererConstructors;
 

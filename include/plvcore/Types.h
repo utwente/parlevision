@@ -29,10 +29,9 @@
 #include <QVariant>
 #include <QRect>
 
+#include "plvglobal.h"
 #include "RefPtr.h"
 #include "assert.h"
-#include "PlvExceptions.h"
-#include "plvglobal.h"
 
 namespace plv 
 {
@@ -63,7 +62,7 @@ namespace plv
         /** Destructor, should not be called explicitly because of reference counting */
         virtual ~Data() {}
 
-        /** makes this data unit mutable again. Internal framework method.
+        /** Makes this data unit mutable again. Internal framework method.
           * Should normally not be called by client code
           */
         inline void makeMutable()
@@ -72,8 +71,8 @@ namespace plv
             m_mutable = true;
         }
 
-        /** makes this data element immutable. This is called by the framework when this element
-          * is read only shared in multiple threads
+        /** Makes this data element immutable. This is called by the framework
+          * when this element is read only shared in multiple threads
           */
         inline void makeImmutable()
         {
@@ -116,39 +115,27 @@ namespace plv
       * trivial. Do not use for pointer types!
       */
     template< class T >
-    class PLVCORE_EXPORT PrimitiveData : public Data
+    class PrimitiveData : public Data
     {
-    protected:
-        mutable QMutex m_sdMutex;
+    public:
+        PrimitiveData( T data ) : m_value( data ) {}
+        PrimitiveData( const PrimitiveData& other ) : m_value( other.m_value ) {}
+        ~PrimitiveData() {}
+
+        /** no mutex necessary since assignment is not possible */
+        inline T getValue() const { return m_value; }
+
+    private:
         T m_value;
 
-    public:
-        PrimitiveData( T value ) : m_value( value ) {}
-
-        inline T getValue() const
-        {
-            QMutexLocker lock( &m_sdMutex );
-            return m_value;
-        }
-
-        inline T setValue(T value)
-        {
-            QMutexLocker lock( &m_sdMutex );
-            if( !isMutable() )
-            {
-                throw plv::PlvRuntimeException( "Tried to access data on "
-                                                "an immutable data container.",
-                                                __FILE__, __LINE__ );
-            }
-
-            m_value = value;
-        }
+        /** assignment not possible. Value is immutable */
+        PrimitiveData& operator=(const PrimitiveData& );
     };
 
     /** DataContainer around a QList with QRect rectangle list */
     class PLVCORE_EXPORT RectangleData : public Data
     {
-    protected:
+    private:
         mutable QMutex m_rectMutex;
         QList<QRect> m_rects;
         int m_width;
@@ -158,36 +145,17 @@ namespace plv
         /** Constructor. Takes width and height of the image from which the
             rectangles are taken if relevant. This is necessary for correct
             rendering of the rectangles.  */
-        RectangleData( int width, int height )
-            : m_width(width), m_height(height)
-        {
-            assert( m_width > 0 );
-            assert( m_height > 0 );
-        }
-        ~RectangleData() {}
+        RectangleData( int width, int height );
+        ~RectangleData();
 
-        inline int width() const { return m_width; }
-        inline int height() const { return m_height; }
+        int width() const; // { return m_width; }
+        int height() const; // { return m_height; }
 
         /** adds a rectangle to internal rectangle list */
-        inline void add( const QRect& rect )
-        {
-            QMutexLocker lock( &m_rectMutex );
-            if( !isMutable() )
-            {
-                throw plv::PlvRuntimeException( "Tried to access data on "
-                                                "an immutable data container.",
-                                                __FILE__, __LINE__ );
-            }
-            m_rects.append( rect );
-        }
+        void add( const QRect& rect );
 
         /** QList uses implicit sharing so we return by value */
-        inline QList<QRect> getRects() const
-        {
-            QMutexLocker lock( &m_rectMutex );
-            return m_rects;
-        }
+        QList<QRect> getRects() const;
     };
 }
 

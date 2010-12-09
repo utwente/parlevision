@@ -228,7 +228,7 @@ namespace plv
     };
 
     template< class T >
-    class PLVCORE_EXPORT OutputPin : public IOutputPin
+    class OutputPin : public IOutputPin
     {
     public:
         OutputPin( const QString& name, PipelineElement* owner ) :
@@ -257,7 +257,7 @@ namespace plv
     };
 
     template< class T >
-    class PLVCORE_EXPORT InputPin : public IInputPin
+    class InputPin : public IInputPin
     {
     public:
         InputPin( const QString& name, PipelineElement* owner,

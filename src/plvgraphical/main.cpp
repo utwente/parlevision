@@ -36,7 +36,7 @@
 
 int main(int argc, char **argv)
 {
-    Q_INIT_RESOURCE(icons);
+    //Q_INIT_RESOURCE(icons);
     QApplication app(argc, argv);
 
     // TODO fix this! Maybe custom factory again?

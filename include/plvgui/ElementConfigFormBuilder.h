@@ -26,7 +26,7 @@
 #include <QMetaType>
 #include <QHash>
 
-#include <plvcore/plvglobal.h>
+#include "plvgui_global.h"
 
 class QString;
 class QWidget;

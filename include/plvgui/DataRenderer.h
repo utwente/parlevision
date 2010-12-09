@@ -28,6 +28,8 @@
 #include <plvcore/RefPtr.h>
 #include <plvcore/Types.h>
 
+#include "plvgui_global.h"
+
 namespace plv
 {
     class Pin;
@@ -40,7 +42,7 @@ namespace plvgui
       * Each implementation must register itself with the DataRendererFactory
       * and implement the methods needed to render the datatype.
       */
-    class DataRenderer : public QWidget
+    class PLVGUI_EXPORT DataRenderer : public QWidget
     {
         Q_OBJECT
 

@@ -23,4 +23,28 @@
 
 using namespace plv;
 
+RectangleData::RectangleData( int width, int height ) :
+    m_width(width),
+    m_height(height)
+{
+    assert( m_width > 0 );
+    assert( m_height > 0 );
+}
+RectangleData::~RectangleData() {}
+
+int RectangleData::width() const { return m_width; }
+int RectangleData::height() const { return m_height; }
+
+/** adds a rectangle to internal rectangle list */
+void RectangleData::add( const QRect& rect )
+{
+    m_rects.append( rect );
+}
+
+/** QList uses implicit sharing so we return by value */
+QList<QRect> RectangleData::getRects() const
+{
+    return m_rects;
+}
+
 

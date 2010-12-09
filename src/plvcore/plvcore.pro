@@ -36,7 +36,7 @@ QT += xml
 
 INCLUDEPATH += ../../include/plvcore
 
-DEFINES += PLV_DLL PLV_DLL_EXPORTS
+DEFINES += PLVCORE_LIBRARY
 
 SOURCES += \
     Types.cpp \

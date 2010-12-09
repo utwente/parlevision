@@ -29,6 +29,7 @@ LIBS += -L../../libs -lplvcore
 
 CONFIG(debug, debug|release):DEFINES += DEBUG
 QT      += xml
+DEFINES += PLVGUI_LIBRARY
 
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
@@ -80,7 +81,8 @@ HEADERS += \
     ../../include/plvgui/ElementConfigFormBuilder.h \
     ../../include/plvgui/CameraConfigFormBuilder.h \
     ../../include/plvgui/ImageWidget.h \
-    ../../include/plvgui/Exceptions.h
+    ../../include/plvgui/Exceptions.h \
+    ../../include/plvgui/plvgui_global.h
 
 FORMS += ../../resources/mainwindow.ui \
     ../../resources/librarywidget.ui \

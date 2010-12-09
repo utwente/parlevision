@@ -30,6 +30,8 @@
 #include <plvcore/Pin.h>
 #include <plvcore/RefPtr.h>
 
+#include "plvgui_global.h"
+
 class QToolbar;
 class QGraphicsView;
 

@@ -41,7 +41,7 @@ namespace plvgui
 {
     class ImageWidget;
 
-    class OpenCVImageRenderer : public DataRenderer
+    class PLVGUI_EXPORT OpenCVImageRenderer : public DataRenderer
     {
         Q_OBJECT
 

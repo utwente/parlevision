@@ -217,6 +217,15 @@ namespace plv
         IplImage* m_img;
         mutable QMutex m_imgLock;
     };
+
+    class PLVCORE_EXPORT OpenCVImages : public Data
+    {
+        QList< RefPtr<OpenCVImage> > m_images;
+
+    public:
+        void addImage( plv::RefPtr<OpenCVImage>& img ) { m_images.append( img ); }
+        inline QList< RefPtr<OpenCVImage> > getImages() const { return m_images; }
+    };
 }
 
 #endif

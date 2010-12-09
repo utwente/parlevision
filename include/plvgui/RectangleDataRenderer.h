@@ -23,6 +23,7 @@
 #define RECTANGLEDATARENDERER_H
 
 #include "DataRenderer.h"
+#include "plvgui_global.h"
 
 #include <qglobal.h>
 QT_FORWARD_DECLARE_CLASS( QVBoxLayout )
@@ -36,7 +37,7 @@ namespace plvgui
 {
     class ImageWidget;
 
-    class RectangleDataRenderer : public DataRenderer
+    class PLVGUI_EXPORT RectangleDataRenderer : public DataRenderer
     {
         Q_OBJECT
 
