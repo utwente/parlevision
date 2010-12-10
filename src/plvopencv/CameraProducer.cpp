@@ -26,7 +26,7 @@
 #include <QStringBuilder>
 #include <QVariant>
 
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatDataPin.h>
 #include "OpenCVCamera.h"
 
 
@@ -41,7 +41,7 @@ CameraProducer::CameraProducer() :
         m_lastProcessedId( 0 )
 {
     // we have one output pin
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     // supports all types of images
     m_outputPin->addAllChannels();
@@ -50,9 +50,9 @@ CameraProducer::CameraProducer() :
     // connect the camera to this camera producer using Qt's signals
     // and slots mechanism.
     connect( m_camera.getPtr(),
-             SIGNAL( newFrame( plv::RefPtr<plv::Data> ) ),
+             SIGNAL( newFrame( plv::CvMatData ) ),
              this,
-             SLOT( newFrame( plv::RefPtr<plv::Data> ) ) );
+             SLOT( newFrame( plv::CvMatData ) ) );
 }
 
 CameraProducer::~CameraProducer()
@@ -62,18 +62,18 @@ CameraProducer::~CameraProducer()
 void CameraProducer::process()
 {
     QMutexLocker lock(&m_frameMutex);
-    assert( m_lastFrame.isNotNull() );
+    assert( m_lastFrame.isValid() );
 
     m_outputPin->put( m_lastFrame );
 
     // clear last frame so we do not process this image twice
-    m_lastFrame.set( 0 );
+    m_lastFrame = CvMatData();
 }
 
-void CameraProducer::newFrame( plv::RefPtr<plv::Data> frame )
+void CameraProducer::newFrame( plv::CvMatData frame )
 {
     QMutexLocker lock(&m_frameMutex);
-    m_lastFrame = ref_ptr_static_cast<OpenCVImage>( frame );
+    m_lastFrame = frame;
 }
 
 void CameraProducer::init()
@@ -104,5 +104,6 @@ void CameraProducer::stop()
 
 bool CameraProducer::isReadyForProcessing() const
 {
-    return( m_lastFrame.isNotNull() );
+    QMutexLocker lock(&m_frameMutex);
+    return( m_lastFrame.isValid() );
 }

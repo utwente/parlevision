@@ -2,9 +2,9 @@
 #include <QFile>
 
 #include "ViolaJonesFaceDetector.h"
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatDataPin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -20,13 +20,13 @@ ViolaJonesFaceDetector::ViolaJonesFaceDetector() :
         m_pCascade( 0 ),
         m_pStorage( 0 )
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this );
+    m_inputPin = createCvMatDataInputPin( "input", this );
     m_inputPin->addAllChannels();
     m_inputPin->addAllDepths();
 
     m_outputPinRectangles = createOutputPin<RectangleData>( "face rectangles", this );
 
-    m_outputPinMonitor = createOpenCVImageOutputPin( "monitor", this );
+    m_outputPinMonitor = createCvMatDataOutputPin( "monitor", this );
     m_outputPinMonitor->addAllChannels();
     m_outputPinMonitor->addAllDepths();
 }
@@ -95,8 +95,8 @@ void ViolaJonesFaceDetector::process()
     assert( m_pCascade != 0 );
     assert( m_pStorage != 0 );
 
-    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
-    RefPtr<OpenCVImage> dstPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
+    CvMatData srcPtr = m_inputPin->get();
+    CvMatData dstPtr = CvMatData::create( srcPtr->getProperties() );
 
     // open for reading
     const IplImage* src = srcPtr->getImage();

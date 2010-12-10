@@ -21,8 +21,8 @@
 
 #include "DummyProcessor.h"
 
-#include <plvcore/OpenCVImagePin.h>
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatDataPin.h>
+#include <plvcore/CvMatData.h>
 
 #include <QDebug>
 
@@ -39,9 +39,9 @@ DummyProcessor::DummyProcessor() :
         m_someVarWithNr1(0),
         m_someVarWithNr2(0)
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
-    m_inputPinOptional = createOpenCVImageInputPin( "input2", this, IInputPin::INPUT_OPTIONAL );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPinOptional = createCvMatDataInputPin( "input2", this, IInputPin::INPUT_OPTIONAL );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_customEnum.addLast( "Very Low" );
     m_customEnum.addLast( "Low" );
@@ -83,22 +83,18 @@ void DummyProcessor::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
+    CvMatData src = m_inputPin->get();
 
     // allocate a target buffer
-    RefPtr<OpenCVImage> targetPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
-
-    // open for reading
-    const IplImage* src = srcPtr->getImage();
-
-    // open image for writing
-    IplImage* target = targetPtr->getImageForWriting();
+    CvMatData target = CvMatData::create( src.getWidth(), src.getHeight(), src.getType() );
 
     // do a flip of the image
-    cvFlip( src, target, (int)m_someBool);
+    const cv::Mat in = src;
+    cv::Mat out = target;
+    cv::flip( in, out, (int)m_someBool);
 
     // publish the new image
-    m_outputPin->put( targetPtr );
+    m_outputPin->put( target );
 
     // update our "frame counter"
     this->setSomeInt(this->getSomeInt()+1);

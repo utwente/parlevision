@@ -21,8 +21,8 @@
 #include "Add.h"
 
 #include <QDebug>
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -31,9 +31,9 @@ using namespace plvopencv;
 Add::Add() :
     m_normalize ( false )
 {
-    m_inputPin1 = createOpenCVImageInputPin( "input 1", this );
-    m_inputPin2 = createOpenCVImageInputPin( "input 2", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin1 = createCvMatDataInputPin( "input 1", this );
+    m_inputPin2 = createCvMatDataInputPin( "input 2", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin1->addAllChannels();
     m_inputPin1->addAllDepths();
@@ -68,8 +68,8 @@ void Add::stop()
 void Add::process()
 {
     // get the inputs
-    RefPtr<OpenCVImage> img1 = m_inputPin1->get();
-    RefPtr<OpenCVImage> img2 = m_inputPin2->get();
+    CvMatData img1 = m_inputPin1->get();
+    CvMatData img2 = m_inputPin2->get();
 
     //check format of images?
     if( !img1->isCompatible( img2 ) )
@@ -83,11 +83,11 @@ void Add::process()
 
     // need this because we need to scale down input for adding,
     // otherwise we get too many white areas
-    RefPtr<OpenCVImage> imgTempIn1 = OpenCVImageFactory::get( img1->getProperties() );
-    RefPtr<OpenCVImage> imgTempIn2 = OpenCVImageFactory::get( img2->getProperties() );
+    CvMatData imgTempIn1 = CvMatData::create( img1->getProperties() );
+    CvMatData imgTempIn2 = CvMatData::create( img2->getProperties() );
 
     //get a new output image of same depth and size as input image
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::get( img1->getProperties() );
+    CvMatData imgOut = CvMatData::create( img1->getProperties() );
 
     // open input images for reading
     const IplImage* iplImgIn1 = img1->getImage();

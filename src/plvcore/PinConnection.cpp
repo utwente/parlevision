@@ -66,15 +66,15 @@ bool PinConnection::canConnectPins( IOutputPin* out, IInputPin* in,
         return false;
     }
 
-    const std::type_info& producerTypeInfo = out->getTypeInfo();
-    const std::type_info& consumerTypeInfo = in->getTypeInfo();
+    int producerTypeId = out->getTypeId();
+    int consumerTypeId = in->getTypeId();
 
-    if( producerTypeInfo != consumerTypeInfo )
+    if( producerTypeId != consumerTypeId )
     {
         QString producerName = out->getName();
         QString consumerName = in->getName();
-        QString producerTypeName = producerTypeInfo.name();
-        QString consumerTypeName = consumerTypeInfo.name();
+        QString producerTypeName = out->getTypeName();
+        QString consumerTypeName = in->getTypeName();
 
         errStr = "Cannot connect pins of incompatible type: producer "
                  % producerName % " and consumer " % consumerName %
@@ -115,22 +115,20 @@ void PinConnection::connect()
         throw DuplicateConnectionException(m_consumer->getName() + " is already connected");
     }
 
-    const std::type_info& producerTypeInfo = m_producer->getTypeInfo();
-    const std::type_info& consumerTypeInfo = m_consumer->getTypeInfo();
+    int producerTypeId = m_producer->getTypeId();
+    int consumerTypeId = m_consumer->getTypeId();
 
-    if(producerTypeInfo != consumerTypeInfo)
+    if( producerTypeId != consumerTypeId )
     {
         QString producerName = m_producer->getName();
         QString consumerName = m_consumer->getName();
-
-        QString producerTypeName = producerTypeInfo.name();
-        QString consumerTypeName = consumerTypeInfo.name();
+        QString producerTypeName = m_producer->getTypeName();
+        QString consumerTypeName = m_consumer->getTypeName();
 
         QString errStr = "Cannot connect pins of incompatible type: producer "
-                         % producerName % " and consumer " % consumerName %
-                         " with types " % producerTypeName %
-                         " and " % consumerTypeName;
-
+                 % producerName % " and consumer " % consumerName %
+                 " with types " % producerTypeName %
+                 " and " % consumerTypeName;
         throw IncompatibleTypeException(errStr);
     }
 
@@ -160,8 +158,8 @@ bool PinConnection::fastforward( unsigned int target )
     bool success = false;
     while( !success && !m_queue.empty())
     {
-        RefPtr<Data> data = m_queue.front();
-        if( data->getSerial() == target )
+        Data data = m_queue.front();
+        if( data.getSerial() == target )
         {
             success = true;
         }
@@ -214,7 +212,7 @@ int PinConnection::size()
     return static_cast<int>( m_queue.size() );
 }
 
-void PinConnection::get( RefPtr<Data>& dataPtr ) throw ( PlvRuntimeException )
+Data PinConnection::get()
 {
     QMutexLocker lock( &m_connectionMutex );
     if( m_queue.empty() )
@@ -229,12 +227,12 @@ void PinConnection::get( RefPtr<Data>& dataPtr ) throw ( PlvRuntimeException )
 
         throw PlvRuntimeException( msg, __FILE__, __LINE__ );
     }
-    dataPtr = m_queue.front();
+    Data d = m_queue.front();
     m_queue.pop();
+    return d;
 }
 
-void PinConnection::peek( RefPtr<Data>& rv ) const
-        throw ( PlvRuntimeException )
+Data PinConnection::peek() const
 {
     QMutexLocker lock( &m_connectionMutex );
     if( m_queue.empty() )
@@ -249,10 +247,10 @@ void PinConnection::peek( RefPtr<Data>& rv ) const
 
         throw PlvRuntimeException( msg, __FILE__, __LINE__ );
     }
-    rv = m_queue.front();
+    return m_queue.front();
 }
 
-void PinConnection::put( const RefPtr<Data>& data )
+void PinConnection::put( const Data& data )
 {
     QMutexLocker lock( &m_connectionMutex );
     m_queue.push( data );

@@ -22,8 +22,8 @@
 #include <QDebug>
 
 #include "ImageThreshold.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -36,8 +36,8 @@ ImageThreshold::ImageThreshold() :
         m_threshold( 0.0 ),
         m_maxValue( 255.0 )
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this,  IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this,  IInputPin::INPUT_REQUIRED );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     PLV_ENUM_ADD( m_method, CV_THRESH_BINARY );
     PLV_ENUM_ADD( m_method, CV_THRESH_BINARY_INV );
@@ -60,17 +60,17 @@ void ImageThreshold::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
+    CvMatData img = m_inputPin->get();
 /*    if(img->getDepth() != IPL_DEPTH_8U)
     {
         throw std::runtime_error("format not yet supported");
     }
 
     // temporary image with extra room (depth)
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
+    CvMatData tmp = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
 */
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
+    CvMatData img2 = OpenCVImageFactory::instance()->get(
             img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
 
 

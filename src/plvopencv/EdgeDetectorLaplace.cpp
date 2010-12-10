@@ -22,8 +22,8 @@
 #include <QDebug>
 
 #include "EdgeDetectorLaplace.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <plvcore/Util.h>
 
 using namespace plv;
@@ -32,8 +32,8 @@ using namespace plvopencv;
 EdgeDetectorLaplace::EdgeDetectorLaplace() :
         m_apertureSize(3)
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     // formats directly supported by cvLaplace function
     m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
@@ -70,27 +70,38 @@ void EdgeDetectorLaplace::stop()
 
 void EdgeDetectorLaplace::process()
 {
-    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
+    CvMatData srcPtr = m_inputPin->get();
 
     // destination image should be at least 16 bits to avoid overflow
     // see e.g. http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsobel#cvLaplace
-    OpenCVImageProperties props = srcPtr->getProperties();
-    if( props.getDepth() != IPL_DEPTH_32F )
+    CvMatDataProperties props = srcPtr.getProperties();
+    if( props.getDepth() != CV_32F )
     {
-        props.setDepth( IPL_DEPTH_16S );
+        props.setDepth( CV_16S );
     }
-    RefPtr<OpenCVImage> dstPtr = OpenCVImageFactory::get( props );
+    CvMatData dstPtr = CvMatData::create( props );
 
     // open for reading
-    const IplImage* src = srcPtr->getImage();
+    const cv::Mat& src = srcPtr;
 
-    // open image for writing
-    IplImage* dst = dstPtr->getImageForWriting();
+    // open for writing
+    cv::Mat& dst = dstPtr;
 
     assert( m_apertureSize == 1 || m_apertureSize == 3 || m_apertureSize == 5 || m_apertureSize == 7 );
 
     // do laplace operation
-    cvLaplace( src, dst, m_apertureSize );
+    //    Calculates the Laplacian of an image
+    //    Parameters:
+
+    //        * src – Source image
+    //        * dst – Destination image; will have the same size and the same number of channels as src
+    //        * ddepth – The desired depth of the destination image
+    //        * ksize – The aperture size used to compute the second-derivative filters, see getDerivKernels() . It must be positive and odd
+    //        * scale – The optional scale factor for the computed Laplacian values (by default, no scaling is applied, see getDerivKernels() )
+    //        * delta – The optional delta value, added to the results prior to storing them in dst
+    //        * borderType – The pixel extrapolation method, see borderInterpolate()
+    int ddepth = srcPtr.getDepth();
+    cv::Laplacian( src, dst, ddepth, m_apertureSize );
 
     // publish output
     m_outputPin->put( dstPtr );

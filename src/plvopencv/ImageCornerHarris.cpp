@@ -23,8 +23,8 @@
 
 #include "ImageCornerHarris.h"
 
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <plvcore/Util.h>
 
 using namespace plv;
@@ -35,8 +35,8 @@ ImageCornerHarris::ImageCornerHarris() :
         m_blockSize(3),
         m_k(0.04)
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
     m_inputPin->addSupportedChannels( 1 );
@@ -71,7 +71,7 @@ void ImageCornerHarris::process()
     assert(m_outputPin != 0);
 
     // get the src image
-    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
+    CvMatData srcPtr = m_inputPin->get();
 
     // make a target image
     // apparantly cvCornerHarris expects a 32F dst image although it is not mentioned
@@ -79,7 +79,7 @@ void ImageCornerHarris::process()
     // OpenCV Error: Assertion failed (src.size() == dst.size() && dst.type() == CV_32FC1)
     // in cvCornerHarris, file cvcorner.cpp, line 380
     OpenCVImageProperties props( srcPtr->getWidth(), srcPtr->getHeight(), IPL_DEPTH_32F, 1 );
-    RefPtr<OpenCVImage> dstPtr = OpenCVImageFactory::get( props );
+    CvMatData dstPtr = CvMatData::create( props );
 
     // open src for reading
     const IplImage* src = srcPtr->getImage();

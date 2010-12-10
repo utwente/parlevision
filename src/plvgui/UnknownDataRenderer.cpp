@@ -63,7 +63,7 @@ UnknownDataRenderer::~UnknownDataRenderer()
 {
 }
 
-void UnknownDataRenderer::newData( plv::RefPtr<plv::Data> data )
+void UnknownDataRenderer::newData( QVariant data )
 {
     Q_UNUSED( data );
 }

@@ -57,8 +57,7 @@ namespace plvgui
         virtual void setPin(const plv::Pin* pin);
 
     public slots:
-        virtual void newData( plv::RefPtr<plv::Data> data ) = 0;
-
+        virtual void newData( QVariant v ) = 0;
     };
 }
 

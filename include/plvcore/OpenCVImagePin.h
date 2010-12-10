@@ -1,3 +1,5 @@
+#if 0
+
 #ifndef OPENCVIMAGEOUTPUTPIN_H
 #define OPENCVIMAGEOUTPUTPIN_H
 
@@ -121,3 +123,4 @@ namespace plv
 }
 
 #endif // OPENCVIMAGEOUTPUTPIN_H
+#endif

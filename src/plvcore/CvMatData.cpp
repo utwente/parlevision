@@ -23,6 +23,39 @@
 
 using namespace plv;
 
+CvMatData::CvMatData() : d( new MatData() )
+{
+}
+
+CvMatData::CvMatData( const CvMatData& other ) :
+        d( other.d )
+{
+}
+
+CvMatData::CvMatData( const IplImage* img )
+{
+    // copy image data
+    // workaround for bug in OpenCV 2.0 / 2.1 which causes
+    // this cv::Mat mat( img, true ); to not work.
+    cv::Mat tmp(img, false);
+    cv::Mat mat = tmp.clone();
+    d = new MatData( mat );
+}
+
+CvMatData::CvMatData( const cv::Mat& mat, bool copyData )
+{
+    //d = copyData ? new MatData(mat.clone()) : new MatData(mat);
+    if( copyData )
+    {
+        cv::Mat copy = mat.clone();
+        d = new MatData(copy);
+    }
+    else
+    {
+        d = new MatData(mat);
+    }
+}
+
 CvMatData CvMatData::create( int width, int height, int type )
 {
     assert( width > 0 );
@@ -36,6 +69,29 @@ CvMatData CvMatData::create( int width, int height, int type )
 
 CvMatData::~CvMatData()
 {
+}
+
+const char* CvMatData::depthToString( int depth )
+{
+    switch( CV_MAT_DEPTH( depth ) )
+    {
+    case CV_8U:
+        return "CV_8U";
+    case CV_8S:
+        return "CV_8S";
+    case CV_16U:
+        return "CV_16U";
+    case CV_16S:
+        return "CV_16S";
+    case CV_32S:
+        return "CV_32S";
+    case CV_32F:
+        return "CV_32F";
+    case CV_64F:
+        return "CV_64F";
+    default:
+        return "Invalid depth";
+    }
 }
 
 /*

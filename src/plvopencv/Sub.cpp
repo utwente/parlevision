@@ -22,8 +22,8 @@
 #include <QDebug>
 
 #include "Sub.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -31,9 +31,9 @@ using namespace plvopencv;
 
 Sub::Sub()
 {
-    m_inputPin1 = createOpenCVImageInputPin( "input 1", this );
-    m_inputPin2 = createOpenCVImageInputPin( "input 2", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin1 = createCvMatDataInputPin( "input 1", this );
+    m_inputPin2 = createCvMatDataInputPin( "input 2", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin1->addAllChannels();
     m_inputPin1->addAllDepths();
@@ -71,8 +71,8 @@ void Sub::process()
     assert(m_inputPin2 != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> img1 = m_inputPin1->get();
-    RefPtr<OpenCVImage> img2 = m_inputPin2->get();
+    CvMatData img1 = m_inputPin1->get();
+    CvMatData img2 = m_inputPin2->get();
 
     // open input images for reading
     const IplImage* iplImgIn1 = img1->getImage();
@@ -87,7 +87,7 @@ void Sub::process()
     }
 
     //get a new output image of same depth and size as input image
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
+    CvMatData imgOut = OpenCVImageFactory::instance()->get(
             img1->getWidth(), img1->getHeight(), img1->getDepth(), img1->getNumChannels() );
 
     // open output image for writing

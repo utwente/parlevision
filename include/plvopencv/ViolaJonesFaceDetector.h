@@ -9,8 +9,8 @@
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -62,9 +62,9 @@ namespace plvopencv
         void setHaarCascadeFile(QString filename);
 
     private:
-        plv::OpenCVImageInputPin* m_inputPin;
+        plv::CvMatDataInputPin* m_inputPin;
         plv::OutputPin<plv::RectangleData>* m_outputPinRectangles;
-        plv::OpenCVImageOutputPin* m_outputPinMonitor;
+        plv::CvMatDataOutputPin* m_outputPinMonitor;
 
         int m_minNeighbours;
         double m_scaleFactor;

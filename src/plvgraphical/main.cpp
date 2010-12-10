@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
     // TODO fix this! Maybe custom factory again?
     //plvgui::registerConfigFormBuilder<plvgui::CameraConfigFormBuilder>("plv::CameraProducer", "plvgui::CameraConfigFormBuilder");
-    plvgui::RendererFactory::add<plv::OpenCVImage, plvgui::OpenCVImageRenderer>();
+    plvgui::RendererFactory::add<plv::CvMatData, plvgui::OpenCVImageRenderer>();
     plvgui::RendererFactory::add<plv::RectangleData, plvgui::RectangleDataRenderer>();
 
     plv::Application parlevision(&app);

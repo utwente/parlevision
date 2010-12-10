@@ -35,10 +35,47 @@
 
 namespace plv
 {
+    /** helper class for dealing with properties of the cv::Mat */
+    class PLVCORE_EXPORT CvMatDataProperties
+        {
+        protected:
+            int m_width;
+            int m_height;
+            int m_type; // combination of depth and channels
+
+        public:
+            inline CvMatDataProperties( int width,int height, int type ) :
+                    m_width(width), m_height(height),
+                    m_type(type) {}
+
+            inline CvMatDataProperties( const cv::Mat& mat ) :
+                    m_width(mat.cols), m_height(mat.rows), m_type(mat.type()) {}
+
+            inline bool operator == (const CvMatDataProperties& rhs ) const
+            {
+                return m_width == rhs.m_width &&
+                       m_height == rhs.m_height &&
+                       m_type == rhs.m_type;
+            }
+
+            inline int getWidth() const { return m_width; }
+            inline int getHeight() const { return m_height; }
+            inline int getDepth() const { return CV_MAT_DEPTH( m_type ); }
+            inline int getNumChannels() const { return CV_MAT_CN( m_type ); }
+            inline int getType() const { return m_type; }
+
+            inline void setWidth( int width ) { m_width = width; }
+            inline void setHeight( int height ) { m_height = height; }
+            inline void setDepth( int depth ) { m_type = CV_MAKE_TYPE(depth,  CV_MAT_CN( m_type )); }
+            inline void setNumChannels( int numChannels ) { m_type = CV_MAKE_TYPE( CV_MAT_DEPTH( m_type ), numChannels); }
+            inline void setType( int type ) { m_type = type; }
+        };
+
     /** internal class to CvMatData. Not exported */
     class MatData : public QSharedData
     {
     public:
+        inline MatData() : mat(cv::Mat()) {}
         inline MatData( const cv::Mat& mat ) : mat(mat) {}
 
         // explicit copy of matrix header and data
@@ -49,19 +86,27 @@ namespace plv
         cv::Mat mat;
     };
 
-    class PLVCORE_EXPORT CvMatData : public Data
+    class PLVCORE_EXPORT CvMatData
     {
 
     public:
-        explicit CvMatData( const cv::Mat& mat, bool copyData = false )
-        {
-            d = copyData ? new MatData(mat.clone()) : new MatData(mat);
-        }
-        CvMatData( const CvMatData& other ) : Data(other), d( other.d ) {}
+        CvMatData();
+        CvMatData( const cv::Mat& mat, bool copyData = false );
+        CvMatData( const IplImage* img );
+        CvMatData( const CvMatData& other );
         ~CvMatData();
 
+        inline CvMatData& operator=(const CvMatData& other)
+        {
+            if( this != &other )
+            {
+                d = other.d;
+            }
+            return *this;
+        }
+
         /** Returns if the contained matrix has allocated data */
-        inline bool isValid() const { return d->mat.data != 0; }
+        inline bool isValid() const { return d->mat.cols > 0 && d->mat.rows > 0 && d->mat.data!=0; }
 
         /** Returns a copy of the cv::Mat header. The actual image data is not copied
             Warning: do not remove const qualifier since this data might be shared
@@ -74,19 +119,39 @@ namespace plv
             the matrix data. */
         inline cv::Mat get() { return d->mat; }
 
-        // constructs matrix of the specified size and type
-        // (_type is CV_8UC1, CV_64FC3, CV_32SC(12) etc.)
-        static CvMatData create( int width, int height, int type );
+        /** constructs matrix of the specified size and type
+          ( depthAndChannels is CV_8UC1, CV_64FC3, CV_32SC(12) etc.)
+            or CV_MAKETYPE( depth, channels ) where depth is CV_8U etc */
+        static CvMatData create( int width, int height, int depthAndChannels );
 
-        inline int type() const { return d->mat.type(); }
-        inline int channels() const { return d->mat.channels(); }
-        inline int width() const { return d->mat.cols; }
-        inline int height() const { return d->mat.rows; }
+        inline static CvMatData create( int width, int height, int depth, int channels )
+        {
+            return create( width, height, CV_MAKETYPE( depth, channels ) );
+        }
+        inline static CvMatData create( const CvMatDataProperties& props )
+        {
+            return create( props.getWidth(), props.getHeight(), props.getType() );
+        }
+
+        inline int getType() const { return d->mat.type(); }
+        inline int getDepth() const { return d->mat.depth(); }
+        inline int getChannels() const { return d->mat.channels(); }
+        inline int getWidth() const { return d->mat.cols; }
+        inline int getHeight() const { return d->mat.rows; }
+        inline int getCols() const { return d->mat.cols; }
+        inline int getRows() const { return d->mat.rows; }
+        inline CvMatDataProperties getProperties() const { return CvMatDataProperties(d->mat); }
+
+        static const char* depthToString( int depth );
+
+        inline operator cv::Mat&() { return d->mat; }
+        inline operator const cv::Mat&() const { return d->mat; }
 
     private:
         /** the internal open cv matrix */
         QSharedDataPointer<MatData> d;
     };
 }
+Q_DECLARE_METATYPE( plv::CvMatData )
 
 #endif

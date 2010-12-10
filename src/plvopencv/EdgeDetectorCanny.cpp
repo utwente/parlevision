@@ -23,8 +23,8 @@
 
 #include "EdgeDetectorCanny.h"
 
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <plvcore/Util.h>
 #include <opencv/cv.h>
 
@@ -36,8 +36,8 @@ EdgeDetectorCanny::EdgeDetectorCanny() :
         m_thresholdLow(0.1),
         m_thresholdHigh(1.0)
 {
-    m_inputPin  = createOpenCVImageInputPin( "input", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin  = createCvMatDataInputPin( "input", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
     m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
@@ -71,10 +71,10 @@ void EdgeDetectorCanny::stop()
 void EdgeDetectorCanny::process()
 {
     // get the source
-    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
+    CvMatData srcPtr = m_inputPin->get();
 
     // get a new target image with the same properties as the src
-    RefPtr<OpenCVImage> targetPtr = OpenCVImageFactory::get( srcPtr->getProperties() );
+    CvMatData targetPtr = CvMatData::create( srcPtr->getProperties() );
 
     // open for reading
     const IplImage* src = srcPtr->getImage();

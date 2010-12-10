@@ -4,8 +4,8 @@
 
 #include "HelloWorldProcessor.h"
 #include <plvcore/Pin.h>
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -16,8 +16,8 @@ HelloWorldProcessor::HelloWorldProcessor() :
         m_someBool(true),
         m_someString("hello")
 {
-    m_inputPin = createOpenCVImageInputPin("input", this);
-    m_outputPin = createOpenCVImageOutputPin("output", this);
+    m_inputPin = createCvMatDataInputPin("input", this);
+    m_outputPin = createCvMatDataOutputPin("output", this);
 }
 
 HelloWorldProcessor::~HelloWorldProcessor()
@@ -45,21 +45,20 @@ void HelloWorldProcessor::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
+    CvMatData src = m_inputPin->get();
 
-    // open for reading
-    const IplImage* iplImg1 = img->getImage();
-
-    // open image for writing
-    IplImage* iplImg2 = img2->getImageForWriting();
+    // allocate a target buffer
+    CvMatData target;
+    target.create( src.getWidth(), src.getHeight(), src.getType() );
 
     // do a flip of the image
-    cvFlip( iplImg1, iplImg2, (int)m_someBool);
+    const cv::Mat in = src;
+    cv::Mat out = target;
+    cv::flip( in, out, (int)m_someBool);
 
     // publish the new image
-    m_outputPin->put( img2.getPtr() );
+    m_outputPin->put( target );
 
+    // update our "frame counter"
     this->setSomeInt(this->getSomeInt()+1);
 }

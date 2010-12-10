@@ -23,8 +23,8 @@
 #include <QMutexLocker>
 
 #include "ImageColorConvert.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 
 #include <opencv/cv.h>
 #include <opencv/cxcore.h>
@@ -129,8 +129,8 @@ CV_HLS2RGB
 
 ImageColorConvert::ImageColorConvert()
 {
-    m_inputPin  = createOpenCVImageInputPin( "input", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin  = createCvMatDataInputPin( "input", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     // first one added is default
     PLV_ENUM_ADD( m_conversionType, CV_RGB2GRAY );
@@ -367,11 +367,11 @@ void ImageColorConvert::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> src = m_inputPin->get();
+    CvMatData src = m_inputPin->get();
 
     OpenCVImageProperties props = src->getProperties();
     props.setNumChannels( m_outChannels );
-    RefPtr<OpenCVImage> target = OpenCVImageFactory::get( props );
+    CvMatData target = CvMatData::create( props );
 
     // open for reading
     const IplImage* srcIpl = src->getImage();

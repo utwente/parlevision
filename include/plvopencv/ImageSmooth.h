@@ -27,30 +27,39 @@
 
 namespace plv
 {
-    class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
 {
+    /*
+    Smoothes image using a Gaussian filter
+    Parameters:
+
+        * src – The source image
+        * dst – The destination image; will have the same size and the same type as src
+        * ksize – The Gaussian kernel size; ksize.width and ksize.height can differ, but they both must be positive and odd. Or, they can be zero’s, then they are computed from sigma*
+        * sigmaX, sigmaY – The Gaussian kernel standard deviations in X and Y direction. If sigmaY is zero, it is set to be equal to sigmaX . If they are both zeros, they are computed from ksize.width and ksize.height , respectively, see getGaussianKernel() . To fully control the result regardless of possible future modification of all this semantics, it is recommended to specify all of ksize , sigmaX and sigmaY
+        * borderType – The pixel extrapolation method; see borderInterpolate()
+    */
     class ImageSmooth : public plv::PipelineProcessor
     {
         Q_OBJECT
         Q_DISABLE_COPY( ImageSmooth )
-        Q_CLASSINFO("author", "Dennis & Wim")
-        Q_CLASSINFO("name", "Smooth")
-        Q_CLASSINFO("description", "Smoothing using cvSmooth."
+        Q_CLASSINFO("author", "Richard Loos")
+        Q_CLASSINFO("name", "Gaussian Smooth")
+        Q_CLASSINFO("description", "Smooths and image using Gaussian smoothing"
                     "See OpenCV reference for meaning of parameters."
-                    "<a href='http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsmooth#cvSmooth'>"
-                    "http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsmooth#cvSmooth"
+                    "<a href='http://opencv.willowgarage.com/documentation/cpp/imgproc_image_filtering.html#GaussianBlur'>"
+                    "http://opencv.willowgarage.com/documentation/cpp/imgproc_image_filtering.html#GaussianBlur"
                     "</a>")
 
-        Q_PROPERTY( plv::Enum method READ getMethod WRITE setMethod NOTIFY methodChanged )
-        Q_PROPERTY( int one READ getOne WRITE setOne NOTIFY oneChanged )
-        Q_PROPERTY( int two READ getTwo WRITE setTwo NOTIFY twoChanged )
-        Q_PROPERTY( double three READ getThree WRITE setThree NOTIFY threeChanged )
-        Q_PROPERTY( double four READ getFour WRITE setFour NOTIFY fourChanged )
+        Q_PROPERTY( int kernelSizeWidth READ getKernelSizeWidth WRITE setKernelSizeWidth NOTIFY kernelSizeWidthChanged )
+        Q_PROPERTY( int kernelSizeHeight READ getKernelSizeHeight WRITE setKernelSizeHeight NOTIFY kernelSizeHeightChanged )
+        Q_PROPERTY( double sigmaOne READ getSigmaOne WRITE setSigmaOne NOTIFY sigmaOneChanged )
+        Q_PROPERTY( double sigmaTwo READ getSigmaTwo WRITE setSigmaTwo NOTIFY sigmaTwoChanged )
+        Q_PROPERTY( plv::Enum borderType READ getBorderType WRITE setBorderType NOTIFY borderTypeChanged )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -60,34 +69,36 @@ namespace plvopencv
         virtual ~ImageSmooth();
 
         /** propery methods */
-        plv::Enum getMethod() const { return m_method; }
-        int getOne() { return m_one; }
-        int getTwo() { return m_two; }
-        double getThree() { return m_three; }
-        double getFour() { return m_four; }
+        int getKernelSizeWidth();
+        int getKernelSizeHeight();
+        double getSigmaOne();
+        double getSigmaTwo();
+        plv::Enum getBorderType();
 
     signals:
-        void oneChanged(int newValue);
-        void twoChanged(int newValue);
-        void threeChanged(double newValue);
-        void fourChanged(double newValue);
-        void methodChanged( plv::Enum m );
+        void kernelSizeWidthChanged(int ksx);
+        void kernelSizeHeightChanged(int ksy);
+        void sigmaOneChanged(double s1);
+        void sigmaTwoChanged(double s2);
+        void borderTypeChanged(plv::Enum bt);
 
     public slots:
-        void setOne(int i);
-        void setTwo(int i);
-        void setThree(double i) { m_three = i; emit(threeChanged(i)); }
-        void setFour(double i) { m_four = i; emit(fourChanged(i)); }
-        void setMethod( plv::Enum m ) { m_method = m; emit(methodChanged(m_method));}
+        void setKernelSizeWidth(int ksx);
+        void setKernelSizeHeight(int ksy);
+        void setSigmaOne(double s1);
+        void setSigmaTwo(double s2);
+        void setBorderType(plv::Enum bt);
 
     private:
-        plv::OpenCVImageInputPin* m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
-        plv::Enum m_method;
-        int m_one;
-        int m_two;
-        double m_three;
-        double m_four;
+        plv::CvMatDataInputPin* m_inputPin;
+        plv::CvMatDataOutputPin* m_outputPin;
+
+        int m_kernelSizeWidth;
+        int m_kernelSizeHeight;
+        double m_sigmaOne;
+        double m_sigmaTwo;
+        plv::Enum m_borderType;
+
     };
 }
 #endif // IMAGEFLIP_H

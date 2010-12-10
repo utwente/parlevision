@@ -27,9 +27,17 @@ RectangleData::RectangleData( int width, int height ) :
     m_width(width),
     m_height(height)
 {
-    assert( m_width > 0 );
-    assert( m_height > 0 );
+    assert( m_width >= 0 );
+    assert( m_height >= 0 );
 }
+
+RectangleData::RectangleData( const RectangleData& other) :
+    m_width(other.m_width),
+    m_height(other.m_height),
+    m_rects(other.m_rects)
+{
+}
+
 RectangleData::~RectangleData() {}
 
 int RectangleData::width() const { return m_width; }

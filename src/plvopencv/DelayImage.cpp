@@ -22,9 +22,8 @@
 #include <QDebug>
 
 #include "DelayImage.h"
-#include <plvcore/OpenCVImage.h>
-
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -32,15 +31,15 @@ using namespace plvopencv;
 DelayImage::DelayImage():
         m_steps(5)
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::INPUT_REQUIRED );
     m_inputPin->addAllChannels();
     m_inputPin->addAllDepths();
 
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
     m_outputPin->addAllChannels();
     m_outputPin->addAllDepths();
 
-    m_delayedOutputPin = createOpenCVImageOutputPin( "delayed", this );
+    m_delayedOutputPin = createCvMatDataOutputPin( "delayed", this );
     m_delayedOutputPin->addAllChannels();
     m_delayedOutputPin->addAllDepths();
 }
@@ -74,7 +73,7 @@ void DelayImage::process()
 
     // get the input image and append it to the list
     // of buffered images
-    RefPtr<OpenCVImage> imgIn = m_inputPin->get();
+    CvMatData imgIn = m_inputPin->get();
     m_images.append( imgIn );
 
     // propagate image if we have an history of m_steps images

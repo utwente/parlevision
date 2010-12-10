@@ -61,7 +61,7 @@ namespace plvgui
         plv::RefPtr<ImageConverter> m_converter;
 
     public slots:
-        virtual void newData( plv::RefPtr<plv::Data> data );
+        virtual void newData( QVariant v );
         void updateImage( QImage img );
     };
 }

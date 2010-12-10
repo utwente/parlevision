@@ -21,8 +21,6 @@
 
 #include "ImageConverter.h"
 
-#include <plvcore/OpenCVImage.h>
-
 #include <QImage>
 #include <QPainter>
 #include <QString>
@@ -33,17 +31,16 @@ using namespace plv;
 
 ImageConverter* ImageConverter::m_instance = 0;
 
-void ImageConverter::convert_OpenCVImage( RefPtr<OpenCVImage> img )
+void ImageConverter::convertCvMatData( const plv::CvMatData& data  )
 {
-    QtConcurrent::run(this, &ImageConverter::convert, img);
+    QtConcurrent::run(this, &ImageConverter::convert, data);
 }
 
-void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
+void ImageConverter::convert( const plv::CvMatData data )
 {
     try
     {
-        const IplImage* image = imgdata->getImage();
-        QImage qimage = iplImageToQImage( image );
+        QImage qimage = cvMatToQImage( data.get() );
         emit( converted( qimage ) );
     }
     catch( ImageConversionException& e )
@@ -51,7 +48,7 @@ void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
         QString msg = QString("IplImageConverter failed to convert image with error: %1")
                       .arg( e.what() );
 
-        QSize size( imgdata->getWidth(), imgdata->getHeight() );
+        QSize size( data.getWidth(), data.getHeight() );
         QImage qimage( size, QImage::Format_ARGB32_Premultiplied );
         qimage.fill( 0 );
         QPainter painter(&qimage);
@@ -66,262 +63,238 @@ void ImageConverter::convert( RefPtr<OpenCVImage> imgdata )
     }
 }
 
-QImage ImageConverter::iplImageToQImage( const IplImage* img )
+QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
         throw( ImageConversionException )
 {
     QImage qimg;
     QString errStr;
 
-    switch( img->depth )
+    int depth = mat.depth();
+    int channels = mat.channels();
+
+    int type = CV_MAKETYPE(depth,channels);
+
+    switch( type )
     {
-    case IPL_DEPTH_8U:
-        if( img->nChannels == 1 )
-        {
-            // OpenCV image is stored with one byte grey pixel.
-            // Convert it to an 8 bit indexed QImage.
-            // We add the index at the function exit
-            qimg = QImage( img->width, img->height, QImage::Format_Indexed8 );
-            const uchar* cvImgData = reinterpret_cast<const uchar*>( img->imageData );
+    case CV_8UC1:
+    {
+        // OpenCV image is stored with one byte grey pixel.
+        // Convert it to an 8 bit indexed QImage.
+        // We add the index at the function exit
+        qimg = QImage( mat.cols, mat.rows, QImage::Format_Indexed8 );
+        const uchar* cvImgData = reinterpret_cast<const uchar*>( mat.data );
 
-            for( int y = 0; y < img->height; ++y )
+        for( int y = 0; y < mat.rows; ++y )
+        {
+            // Copy line by line
+            uchar* scanline = qimg.scanLine( y );
+            memcpy( scanline, cvImgData, mat.cols );
+            cvImgData += mat.step;
+        }
+    }
+    break;
+    case CV_8UC3:
+    {
+        // image is stored with 3 channels and one byte per pixel
+        // per channel. Convert to RGB32 which uses 4 bytes per pixel
+        int cvLineStart = 0;
+        int cvIndex = 0;
+
+        qimg = QImage( mat.cols, mat.rows, QImage::Format_RGB32 );
+        const uchar* cvImgData = reinterpret_cast<const uchar*>( mat.data );
+
+        for (int y = 0; y < mat.rows; ++y )
+        {
+            cvIndex = cvLineStart;
+            uchar* sl = qimg.scanLine( y );
+            QRgb* scanline = reinterpret_cast<QRgb*>( sl );
+
+            for (int x = 0; x < mat.cols; ++x )
             {
-                // Copy line by line
-                uchar* scanline = qimg.scanLine( y );
-                memcpy( scanline, cvImgData, img->width );
-                cvImgData += img->widthStep;
+                // here we convert OpenCV's BGR to Qt's RGB
+                const unsigned char blue  = cvImgData[cvIndex+0];
+                const unsigned char green = cvImgData[cvIndex+1];
+                const unsigned char red   = cvImgData[cvIndex+2];
+
+                scanline[x] = qRgb( red, green, blue );
+                cvIndex += 3;
             }
+            cvLineStart += mat.step;
         }
-        else if( img->nChannels == 3 )
+    }
+    break;
+    case CV_16UC1:
+    {
+        // OpenCV image is stored with 2 bytes grey pixel.
+        // Convert it to an 8 bit indexed QImage.
+        // We add the index at the function exit
+        int cvLineStart = 0;
+        int cvIndex = 0;
+        qimg = QImage( mat.cols, mat.rows, QImage::Format_Indexed8 );
+        const uint16_t* cvImgData = reinterpret_cast<const uint16_t*>( mat.data );
+
+        int step = mat.cols / sizeof(uint16_t);
+        for (int y = 0; y < mat.rows; ++y )
         {
-            // image is stored with 3 channels and one byte per pixel
-            // per channel. Convert to RGB32 which uses 4 bytes per pixel
-            int cvLineStart = 0;
-            int cvIndex = 0;
+            cvIndex = cvLineStart;
+            uchar* scanline = qimg.scanLine( y );
 
-            qimg = QImage( img->width, img->height, QImage::Format_RGB32 );
-            const uchar* cvImgData = reinterpret_cast<const uchar*>( img->imageData );
-
-            for (int y = 0; y < img->height; ++y )
+            for (int x = 0; x < mat.cols; ++x )
             {
-                cvIndex = cvLineStart;
-                uchar* sl = qimg.scanLine( y );
-                QRgb* scanline = reinterpret_cast<QRgb*>( sl );
-
-                for (int x = 0; x < img->width; ++x )
-                {
-                    // here we convert OpenCV's BGR to Qt's RGB
-                    const unsigned char blue  = cvImgData[cvIndex+0];
-                    const unsigned char green = cvImgData[cvIndex+1];
-                    const unsigned char red   = cvImgData[cvIndex+2];
-
-                    scanline[x] = qRgb( red, green, blue );
-                    cvIndex += 3;
-                }
-                cvLineStart += img->widthStep;
+                scanline[x] = (cvImgData[cvIndex] >> 8); //divide by 256
+                ++cvIndex;
             }
+            cvLineStart += step;
         }
-        else
-        {
-            errStr = QString("Conversion not supported: depth IPL_DEPTH_8U "
-                             "and number of channels is %1").arg(img->nChannels);
-            throw ImageConversionException( errStr.toStdString() );
-        }
-        break;
+    }
+    break;
+    case CV_16UC3:
+    {
+        // image is stored with 3 channels and 2 bytes per pixel
+        // per channel. Convert to RGB32 which uses 4 bytes per pixel
+        int cvLineStart = 0;
+        int cvIndex = 0;
 
-    case IPL_DEPTH_16U:
-        if( img->nChannels == 1 )
-        {
-            // OpenCV image is stored with 2 bytes grey pixel.
-            // Convert it to an 8 bit indexed QImage.
-            // We add the index at the function exit
-            int cvLineStart = 0;
-            int cvIndex = 0;
-            qimg = QImage( img->width, img->height, QImage::Format_Indexed8 );
-            const uint16_t* cvImgData = reinterpret_cast<const uint16_t*>( img->imageData );
+        qimg = QImage( mat.cols, mat.rows, QImage::Format_RGB32 );
+        const uint16_t* cvImgData = reinterpret_cast<const uint16_t*>( mat.data );
 
-            int step = img->widthStep / sizeof(uint16_t);
-            for (int y = 0; y < img->height; ++y )
+        int step = mat.cols / sizeof(uint16_t);
+        for (int y = 0; y < mat.rows; ++y )
+        {
+            cvIndex = cvLineStart;
+            QRgb* scanline = reinterpret_cast<QRgb*>( qimg.scanLine( y ) );
+
+            for( int x = 0; x < mat.cols; ++x )
             {
-                cvIndex = cvLineStart;
-                uchar* scanline = qimg.scanLine( y );
+                // here we convert OpenCV's BGR to Qt's RGB
+                const unsigned int blue  = cvImgData[cvIndex+0];
+                const unsigned int green = cvImgData[cvIndex+1];
+                const unsigned int red   = cvImgData[cvIndex+2];
 
-                for (int x = 0; x < img->width; ++x )
-                {
-                    scanline[x] = (cvImgData[cvIndex] >> 8); //divide by 256
-                    ++cvIndex;
-                }
-                cvLineStart += step;
+                scanline[x] = qRgb( red, green, blue );
+                cvIndex += 3;
             }
+            cvLineStart += step;
         }
-        else if( img->nChannels == 3 )
+    }
+    break;
+    case CV_16S:
+    {
+        // OpenCV image is stored with 2 bytes grey pixel.
+        // Convert it to an 8 bit indexed QImage.
+        // We add the index at the function exit
+        int cvLineStart = 0;
+        int cvIndex = 0;
+        qimg = QImage( mat.cols, mat.rows, QImage::Format_Indexed8 );
+        const uint16_t* cvImgData = reinterpret_cast<const uint16_t*>( mat.data );
+
+        int step = mat.cols / sizeof(uint16_t);
+        for (int y = 0; y < mat.rows; ++y )
         {
-            // image is stored with 3 channels and 2 bytes per pixel
-            // per channel. Convert to RGB32 which uses 4 bytes per pixel
-            int cvLineStart = 0;
-            int cvIndex = 0;
+            cvIndex = cvLineStart;
+            uchar* scanline = qimg.scanLine( y );
 
-            qimg = QImage( img->width, img->height, QImage::Format_RGB32 );
-            const uint16_t* cvImgData = reinterpret_cast<const uint16_t*>( img->imageData );
-
-            int step = img->widthStep / sizeof(uint16_t);
-            for (int y = 0; y < img->height; ++y )
+            for (int x = 0; x < mat.cols; ++x )
             {
-                cvIndex = cvLineStart;
-                QRgb* scanline = reinterpret_cast<QRgb*>( qimg.scanLine( y ) );
-
-                for( int x = 0; x < img->width; ++x )
-                {
-                    // here we convert OpenCV's BGR to Qt's RGB
-                    const unsigned int blue  = cvImgData[cvIndex+0];
-                    const unsigned int green = cvImgData[cvIndex+1];
-                    const unsigned int red   = cvImgData[cvIndex+2];
-
-                    scanline[x] = qRgb( red, green, blue );
-                    cvIndex += 3;
-                }
-                cvLineStart += step;
+                scanline[x] = (cvImgData[cvIndex] >> 8); //divide by 256
+                ++cvIndex;
             }
+            cvLineStart += step;
         }
-        else
-        {
-            errStr = QString("Conversion not supported: depth IPL_DEPTH_16U "
-                             "and number of channels is %1").arg(img->nChannels);
-            throw ImageConversionException( errStr.toStdString() );
-        }
-        break;
+    }
+    case CV_16SC3:
+    {
+        // image is stored with 3 channels and 2 bytes per pixel
+        // per channel. Convert to RGB32 which uses 4 bytes per pixel
+        int cvLineStart = 0;
+        int cvIndex = 0;
 
-    case IPL_DEPTH_16S:
-        if( img->nChannels == 1 )
-        {
-            // OpenCV image is stored with 2 bytes grey pixel.
-            // Convert it to an 8 bit indexed QImage.
-            // We add the index at the function exit
-            int cvLineStart = 0;
-            int cvIndex = 0;
-            qimg = QImage( img->width, img->height, QImage::Format_Indexed8 );
-            const uint16_t* cvImgData = reinterpret_cast<const uint16_t*>( img->imageData );
+        qimg = QImage( mat.cols, mat.rows, QImage::Format_RGB32 );
+        const int16_t* cvImgData = reinterpret_cast<const int16_t*>( mat.data );
 
-            int step = img->widthStep / sizeof(uint16_t);
-            for (int y = 0; y < img->height; ++y )
+        int step = mat.cols / sizeof(uint16_t);
+        for (int y = 0; y < mat.rows; ++y )
+        {
+            cvIndex = cvLineStart;
+            QRgb* scanline = reinterpret_cast<QRgb*>( qimg.scanLine( y ) );
+
+            for( int x = 0; x < mat.cols; ++x )
             {
-                cvIndex = cvLineStart;
-                uchar* scanline = qimg.scanLine( y );
+                // here we convert OpenCV's BGR to Qt's RGB
+                const unsigned int blue  = cvImgData[cvIndex+0];
+                const unsigned int green = cvImgData[cvIndex+1];
+                const unsigned int red   = cvImgData[cvIndex+2];
 
-                for (int x = 0; x < img->width; ++x )
-                {
-                    scanline[x] = (cvImgData[cvIndex] >> 8); //divide by 256
-                    ++cvIndex;
-                }
-                cvLineStart += step;
+                scanline[x] = qRgb( red, green, blue );
+                cvIndex += 3;
             }
+            cvLineStart += step;
         }
-        else if( img->nChannels == 3 )
+    }
+    break;
+    case CV_32FC1:
+    {
+        // OpenCV image is stored with 2 bytes grey pixel.
+        // Convert it to an 8-bit QImage.
+        int cvLineStart = 0;
+        int cvIndex = 0;
+        qimg = QImage( mat.cols, mat.rows, QImage::Format_Indexed8);
+        const float* cvImgData = reinterpret_cast<const float*>( mat.data );
+
+        int step = mat.cols / sizeof(float);
+        for (int y = 0; y < mat.rows; ++y )
         {
-            // image is stored with 3 channels and 2 bytes per pixel
-            // per channel. Convert to RGB32 which uses 4 bytes per pixel
-            int cvLineStart = 0;
-            int cvIndex = 0;
+            cvIndex = cvLineStart;
+            uchar* scanline = qimg.scanLine( y );
 
-            qimg = QImage( img->width, img->height, QImage::Format_RGB32 );
-            const int16_t* cvImgData = reinterpret_cast<const int16_t*>( img->imageData );
-
-            int step = img->widthStep / sizeof(uint16_t);
-            for (int y = 0; y < img->height; ++y )
+            for (int x = 0; x < mat.cols; ++x )
             {
-                cvIndex = cvLineStart;
-                QRgb* scanline = reinterpret_cast<QRgb*>( qimg.scanLine( y ) );
-
-                for( int x = 0; x < img->width; ++x )
-                {
-                    // here we convert OpenCV's BGR to Qt's RGB
-                    const unsigned int blue  = cvImgData[cvIndex+0];
-                    const unsigned int green = cvImgData[cvIndex+1];
-                    const unsigned int red   = cvImgData[cvIndex+2];
-
-                    scanline[x] = qRgb( red, green, blue );
-                    cvIndex += 3;
-                }
-                cvLineStart += step;
+                // float values between 0 and 1.0 so upscale
+                scanline[x] = (uchar)((int)(cvImgData[cvIndex] * 255.0)); //mult by 255
+                ++cvIndex;
             }
+            cvLineStart += step;
         }
-        else
-        {
-            errStr = QString("Conversion not supported: depth IPL_DEPTH_16S "
-                             "and number of channels is %1").arg(img->nChannels);
-            throw ImageConversionException( errStr.toStdString() );
-        }
-        break;
+    }
+    break;
+    case CV_32FC3:
+    {
+        // image is stored with 3 channels and 4 bytes per pixel
+        // per channel. Convert to RGB32 which uses 4 bytes per pixel
+        int cvLineStart = 0;
+        int cvIndex = 0;
 
-    case IPL_DEPTH_32F:
-        if( img->nChannels == 1 )
-        {
-            // OpenCV image is stored with 2 bytes grey pixel.
-            // Convert it to an 8-bit QImage.
-            int cvLineStart = 0;
-            int cvIndex = 0;
-            qimg = QImage( img->width, img->height, QImage::Format_Indexed8);
-            const float* cvImgData = reinterpret_cast<const float*>( img->imageData );
+        qimg = QImage( mat.cols, mat.rows, QImage::Format_RGB32 );
+        const float* cvImgData = reinterpret_cast<const float*>( mat.data );
 
-            int step = img->widthStep / sizeof(float);
-            for (int y = 0; y < img->height; ++y )
+        int step = mat.cols / sizeof(uint16_t);
+        for (int y = 0; y < mat.rows; ++y )
+        {
+            cvIndex = cvLineStart;
+            QRgb* scanline = reinterpret_cast<QRgb*>( qimg.scanLine( y ) );
+
+            for( int x = 0; x < mat.cols; ++x )
             {
-                cvIndex = cvLineStart;
-                uchar* scanline = qimg.scanLine( y );
+                // here we convert OpenCV's BGR to Qt's RGB
+                const unsigned int blue  = (int)(cvImgData[cvIndex+0]*255.0);
+                const unsigned int green = (int)(cvImgData[cvIndex+1]*255.0);
+                const unsigned int red   = (int)(cvImgData[cvIndex+2]*255.0);
 
-                for (int x = 0; x < img->width; ++x )
-                {
-                    // float values between 0 and 1.0 so upscale
-                    scanline[x] = (uchar)((int)(cvImgData[cvIndex] * 255.0)); //mult by 255
-                    ++cvIndex;
-                }
-                cvLineStart += step;
+                scanline[x] = qRgb( red, green, blue );
+                cvIndex += 3;
             }
+            cvLineStart += step;
         }
-        else if( img->nChannels == 3 )
-        {
-            // image is stored with 3 channels and 4 bytes per pixel
-            // per channel. Convert to RGB32 which uses 4 bytes per pixel
-            int cvLineStart = 0;
-            int cvIndex = 0;
-
-            qimg = QImage( img->width, img->height, QImage::Format_RGB32 );
-            const float* cvImgData = reinterpret_cast<const float*>( img->imageData );
-
-            int step = img->widthStep / sizeof(uint16_t);
-            for (int y = 0; y < img->height; ++y )
-            {
-                cvIndex = cvLineStart;
-                QRgb* scanline = reinterpret_cast<QRgb*>( qimg.scanLine( y ) );
-
-                for( int x = 0; x < img->width; ++x )
-                {
-                    // here we convert OpenCV's BGR to Qt's RGB
-                    const unsigned int blue  = (int)(cvImgData[cvIndex+0]*255.0);
-                    const unsigned int green = (int)(cvImgData[cvIndex+1]*255.0);
-                    const unsigned int red   = (int)(cvImgData[cvIndex+2]*255.0);
-
-                    scanline[x] = qRgb( red, green, blue );
-                    cvIndex += 3;
-                }
-                cvLineStart += step;
-            }
-        }
-        else
-        {
-            errStr = QString("Conversion not supported: depth IPL_DEPTH_32F "
-                             "and number of channels is %1").arg(img->nChannels);
-            throw ImageConversionException( errStr.toStdString() );
-        }
-        break;
+    }
+    break;
     default:
         errStr = QString("Conversion not supported: depth %1 "
                          "and number of channels is %2")
-                .arg(OpenCVImage::depthToString(img->depth))
-                .arg(img->nChannels);
+                .arg(CvMatData::depthToString(mat.depth()))
+                .arg(mat.channels());
         throw ImageConversionException( errStr.toStdString() );
     }
-
-    if( img->nChannels == 1 )
+    if( channels == 1 )
     {
         QVector<QRgb> colorTable;
         for (int i = 0; i < 256; i++)
@@ -330,7 +303,6 @@ QImage ImageConverter::iplImageToQImage( const IplImage* img )
         }
         qimg.setColorTable(colorTable);
     }
-
     return qimg;
 }
 

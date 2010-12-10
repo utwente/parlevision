@@ -317,10 +317,10 @@ void Pipeline::run()
     emit( started() );
 
     m_stopRequested = false;
-    float fps = 0.0f;
-    int count = 0;
-    QTime timer;
-    timer.start();
+//    float fps = 0.0f;
+//    int count = 0;
+//    QTime timer;
+//    timer.start();
     while( !m_stopRequested )
     {
         if( !m_scheduler->schedule() )
@@ -328,17 +328,17 @@ void Pipeline::run()
             m_running = false;
             stop();
         }
-        ++count;
+        //++count;
 
-        int elapsed = timer.elapsed();
-        if( elapsed > 1000 )
-        {
-            float nfps = (count * 1000) / (float)elapsed;
-            fps = 0.1f * nfps + 0.9f * fps;
-            qDebug() << "FPS:" << fps;
-            timer.restart();
-            count = 0;
-        }
+//        int elapsed = timer.elapsed();
+//        if( elapsed > 1000 )
+//        {
+//            float nfps = (count * 1000) / (float)elapsed;
+//            fps = 0.1f * nfps + 0.9f * fps;
+//            qDebug() << "FPS:" << fps;
+//            timer.restart();
+//            count = 0;
+//        }
     }
     m_running = false;
 }

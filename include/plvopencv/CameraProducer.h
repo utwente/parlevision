@@ -29,7 +29,7 @@
 
 namespace plv
 {
-    class OpenCVImageOutputPin;
+    class CvMatDataOutputPin;
 }
 
 #include "OpenCVCamera.h"
@@ -63,19 +63,19 @@ namespace plvopencv
 
     protected:
         plv::RefPtr<OpenCVCamera> m_camera;
-        plv::RefPtr<plv::OpenCVImage> m_lastFrame;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatData m_lastFrame;
+        plv::CvMatDataOutputPin* m_outputPin;
 
         int m_cameraId;
         int m_width;
         int m_height;
         int m_lastProcessedId;
 
-        QMutex m_frameMutex;
+        mutable QMutex m_frameMutex;
         QWaitCondition m_frameReady;
 
     public slots:
-        void newFrame( plv::RefPtr<plv::Data> frame );
+        void newFrame( plv::CvMatData frame );
 
         void setCameraId(int c) { m_cameraId = c; emit(cameraIdChanged(c));}
         void setHeight(int h) { m_height = h; emit(heightChanged(h));}

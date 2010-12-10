@@ -50,7 +50,7 @@ namespace plvgui
         ImageWidget* m_imageWidget;
 
     public slots:
-        virtual void newData( plv::RefPtr<plv::Data> data );
+        virtual void newData( QVariant data );
 
     };
 }

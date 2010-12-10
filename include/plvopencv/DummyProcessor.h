@@ -29,8 +29,8 @@
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -88,9 +88,9 @@ namespace plvopencv
         void setCustomEnum( plv::Enum c ) { m_customEnum = c; emit( customEnumChanged( c ) ); }
 
     private:
-        plv::OpenCVImageInputPin*  m_inputPin;
-        plv::OpenCVImageInputPin*  m_inputPinOptional;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatDataInputPin*  m_inputPin;
+        plv::CvMatDataInputPin*  m_inputPinOptional;
+        plv::CvMatDataOutputPin* m_outputPin;
 
         int m_someInt;
         double m_someDouble;

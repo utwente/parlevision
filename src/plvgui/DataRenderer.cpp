@@ -45,6 +45,6 @@ void DataRenderer::setPin( const plv::Pin* p )
 {
     qDebug() << "Attaching inspector to pin";
     disconnect();
-    connect( p, SIGNAL( newData( plv::RefPtr<plv::Data>)),
-             this, SLOT( newData( plv::RefPtr<plv::Data> )) );
+    connect( p, SIGNAL( newData( QVariant )),
+             this, SLOT( newData( QVariant )) );
 }

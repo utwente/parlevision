@@ -22,9 +22,9 @@
 #include <QDebug>
 
 #include "Diff.h"
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -32,9 +32,9 @@ using namespace plvopencv;
 
 Diff::Diff()
 {
-    m_inputPin1 = createOpenCVImageInputPin( "input 1", this );
-    m_inputPin2 = createOpenCVImageInputPin( "input 2", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin1 = createCvMatDataInputPin( "input 1", this );
+    m_inputPin2 = createCvMatDataInputPin( "input 2", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin1->addAllChannels();
     m_inputPin1->addAllDepths();
@@ -68,8 +68,8 @@ void Diff::stop()
 
 void Diff::process()
 {
-    RefPtr<OpenCVImage> img1 = m_inputPin1->get();
-    RefPtr<OpenCVImage> img2 = m_inputPin2->get();
+    CvMatData img1 = m_inputPin1->get();
+    CvMatData img2 = m_inputPin2->get();
 
     //check format of images?
     if(!img1->isCompatible(img2))
@@ -87,7 +87,7 @@ void Diff::process()
     const IplImage* iplImgIn2 = img2->getImage();
 
     //get a new output image of same depth and size as input image
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::get( img1->getProperties() );
+    CvMatData imgOut = CvMatData::create( img1->getProperties() );
 
     // open output image for writing
     IplImage* iplImgOut = imgOut->getImageForWriting();

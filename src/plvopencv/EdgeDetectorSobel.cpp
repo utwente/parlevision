@@ -22,8 +22,8 @@
 #include <QDebug>
 
 #include "EdgeDetectorSobel.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <plvcore/Util.h>
 #include <opencv/cv.h>
 
@@ -36,8 +36,8 @@ EdgeDetectorSobel::EdgeDetectorSobel():
         m_apertureSize(3),
         m_Scharr( false )
 {
-    m_inputPin  = createOpenCVImageInputPin( "input", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin  = createCvMatDataInputPin( "input", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
     m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
@@ -71,7 +71,7 @@ void EdgeDetectorSobel::stop()
 
 void EdgeDetectorSobel::process()
 {
-    RefPtr<OpenCVImage> srcPtr = m_inputPin->get();
+    CvMatData srcPtr = m_inputPin->get();
 
     // destination image should be at least 16 bits avoid overflow of Sobel operation
     // see e.g. http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsobel#cvSobel
@@ -80,7 +80,7 @@ void EdgeDetectorSobel::process()
     {
         props.setDepth( IPL_DEPTH_16S );
     }
-    RefPtr<OpenCVImage> dstPtr = OpenCVImageFactory::get( props );
+    CvMatData dstPtr = CvMatData::create( props );
 
     // open for reading
     const IplImage* src = srcPtr->getImage();

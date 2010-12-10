@@ -22,9 +22,9 @@
 #include <QDebug>
 
 #include "Snapshot.h"
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -33,8 +33,8 @@ using namespace plvopencv;
 Snapshot::Snapshot() :
         m_makeSnapshot(true)
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 }
 
 Snapshot::~Snapshot()
@@ -61,12 +61,12 @@ void Snapshot::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
-    RefPtr<OpenCVImage> imgIn = m_inputPin->get();
+    CvMatData imgIn = m_inputPin->get();
 
     //enforce snapshot on first frame, when we don't have a snapshot yet
     if ((!m_makeSnapshot) && m_imgSnapshot.isNull())setMakeSnapshot(true);
 
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
+    CvMatData imgOut = OpenCVImageFactory::instance()->get(
             imgIn->getWidth(), imgIn->getHeight(), imgIn->getDepth(), imgIn->getNumChannels() );
 
     // open for reading

@@ -29,8 +29,8 @@
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -80,8 +80,8 @@ namespace plvopencv
         void setMaxValue(double d) { m_maxValue = d; emit(maxValueChanged(m_maxValue)); }
 
     private:
-        plv::OpenCVImageInputPin*  m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatDataInputPin*  m_inputPin;
+        plv::CvMatDataOutputPin* m_outputPin;
 
         plv::Enum m_method;
         double m_threshold;

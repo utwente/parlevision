@@ -39,13 +39,7 @@
 
 namespace plv
 {
-    /** functor base class which can be implemented for compatibility callbacks */
-//    class PLVCORE_EXPORT DataCompatibilityCallback
-//    {
-//    public:
-//        virtual void operator()( const RefPtr<Data>& d ) throw (PlvRuntimeException) = 0;
-//    };
-
+    /** abstract base class of input and output pins */
     class PLVCORE_EXPORT Pin : public QObject, public RefCounted
     {
         Q_OBJECT
@@ -54,8 +48,7 @@ namespace plv
 
         Pin( const QString& name, PipelineElement* owner ) :
             m_name( name ),
-            m_owner( owner )//,
-            //m_callback( 0 )
+            m_owner( owner )
         {
             assert( !m_name.isEmpty() );
             assert( m_owner != 0 );
@@ -69,18 +62,15 @@ namespace plv
           * the TypedPin sub class. */
         virtual const std::type_info& getTypeInfo() const = 0;
 
-        /** returns true if it accepts a connection with the other pin */
-        //virtual bool acceptsConnectionWith( const Pin* pin, QString& errStr ) const = 0;
+        /** @returns the QMetaType typeId of the data type this pin is initialized with */
+        virtual int getTypeId() const = 0;
 
-        /** Checks if data is according to contract if the compatibility
-          * callback is set. Does not check if no compatibility callback is
-          * set. Throws a PlvRuntimeException if data is not compatible
-          */
-//        inline void checkData( const RefPtr<Data>& data ) const
-//        {
-//            if( m_callback != 0 )
-//                (*m_callback)( data );
-//        }
+        /** @returns the name of the type this pin is initialized with */
+        virtual QString getTypeName() const = 0;
+
+    signals:
+        void newData( QVariant v );
+        void error( QString msg );
 
     protected:
          /** the name of this Pin e.g. "BlackAndWhite" */
@@ -88,13 +78,12 @@ namespace plv
 
         /** data received from or delivered to this pipeline element */
         PipelineElement* m_owner;
-
-        /** functor callback to check for data compatibility. Defaults to 0 */
-        //DataCompatibilityCallback* m_callback;
     };
 
     class PLVCORE_EXPORT IInputPin : public Pin
     {
+        Q_OBJECT
+
     public:
         typedef enum InputPinType {
             INPUT_OPTIONAL,
@@ -107,7 +96,6 @@ namespace plv
                 m_type( type )
         {
         }
-
         virtual ~IInputPin();
 
         inline InputPinType getType() const { return m_type; }
@@ -121,11 +109,11 @@ namespace plv
         void setConnection(PinConnection* connection);
         void removeConnection();
         PinConnection* getConnection() const;
+
         bool hasData() const;
         unsigned int getNextSerial() const;
         void flushConnection();
         bool fastforward( unsigned int target );
-        void getUntyped(RefPtr<Data>& dataPtr) throw ( PlvRuntimeException );
 
         /** @returns true when pin is connected */
         bool isConnected() const;
@@ -136,31 +124,28 @@ namespace plv
         /** this method is called after each call to process() in the owner */
         void post();
 
+        void getVariant( QVariant& data );
+
         /** set called to value of val */
         inline void setCalled( bool val ) { m_called = val; }
 
         /** returns true when get() has been called */
         inline bool isCalled() const { return m_called; }
 
-        /** methods not implemented from abstract Pin class */
-        virtual const std::type_info& getTypeInfo() const = 0;
-
         /** checks if this pin is compatible with output pin */
         virtual bool acceptsConnectionWith( const IOutputPin* pin, QString& errStr ) const = 0;
 
-        /** checks if this pin is compatible with other pin */
-        //virtual bool acceptsConnectionWith( const Pin* pin, QString& errStr ) const;
+        /** methods not implemented from abstract Pin class */
+        virtual const std::type_info& getTypeInfo() const = 0;
+        virtual int getTypeId() const = 0;
+        virtual QString getTypeName() const = 0;
 
     protected:
+        /** The input pin type, either INPUT_OPTIONAL or INPUT_REQUIRED */
         InputPinType m_type;
 
         /** isNull() if there is no connection */
         RefPtr<PinConnection> m_connection;
-
-        /** temporarily holds data items in current scope to protect against
-          * faulty processors
-          */
-        std::stack< RefPtr<Data> > m_scope;
 
         /** true when get() has been called */
         bool m_called;
@@ -171,11 +156,7 @@ namespace plv
         Q_OBJECT
 
     public:
-        IOutputPin( const QString& name, PipelineElement* owner )
-            : Pin( name, owner )//,
-            //m_callback(0)
-        {}
-
+        IOutputPin( const QString& name, PipelineElement* owner ) : Pin( name, owner ) {}
         virtual ~IOutputPin();
 
         /** Adds a connection to the set of connections this pin outputs to
@@ -191,7 +172,6 @@ namespace plv
 
         std::list< RefPtr<PinConnection > > getConnections();
         int connectionCount() const;
-        void putUntyped( const RefPtr<Data>& data );
 
         /** @returns true when pin is connected */
         inline bool isConnected() const { return !m_connections.empty(); }
@@ -202,29 +182,24 @@ namespace plv
         /** this method is called after each call to process() in the owner */
         void post();
 
+        void putVariant( const QVariant& data );
+
         /** returns wheter put() has been called since last pre() */
         inline bool isCalled() const { return m_called; }
-
-        /** methods not implemented from abstract Pin class */
-        virtual const std::type_info& getTypeInfo() const = 0;
 
         /** checks if this pin is compatible with input pin */
         virtual bool acceptsConnectionWith( const IInputPin* pin, QString& errStr ) const = 0;
 
-        /** checks if this pin is compatible with other pin */
-        //virtual bool acceptsConnectionWith( const Pin* pin, QString& errStr ) const;
-
-    signals:
-        void newData( plv::RefPtr<plv::Data> data );
+        /** methods not implemented from abstract Pin class */
+        virtual const std::type_info& getTypeInfo() const = 0;
+        virtual int getTypeId() const = 0;
+        virtual QString getTypeName() const = 0;
 
     protected:
         std::list< RefPtr<PinConnection > > m_connections;
 
         /** true when put() has been called */
         bool m_called;
-
-        /** functor callback to check for data compatibility. Defaults to 0 */
-        //DataCompatibilityCallback* m_callback;
     };
 
     template< class T >
@@ -233,20 +208,33 @@ namespace plv
     public:
         OutputPin( const QString& name, PipelineElement* owner ) :
                 IOutputPin( name, owner ) {}
+        virtual ~OutputPin() {}
 
         /** Puts data in connection. Drops data if no connection present.
           * Throws an exception if the data violates format contract,
           * which is checked in the callback functor of IOutputPin
           */
-        inline void put( const RefPtr<T>& typed )
+        inline void put( const T& data )
         {
-            RefPtr<Data> data = ref_ptr_static_cast<Data>(typed);
-            putUntyped( data );
+            QVariant v( data );
+            putVariant( v );
         }
 
         virtual const std::type_info& getTypeInfo() const
         {
             return typeid( T );
+        }
+
+        /** @returns the QMetaType typeId of the data type this pin is initialized with */
+        virtual int getTypeId() const
+        {
+            return qMetaTypeId<T>();
+        }
+
+        /** @returns the name of the type this pin is initialized with */
+        virtual QString getTypeName() const
+        {
+            return QMetaType::typeName( qMetaTypeId<T>() );
         }
 
         virtual bool acceptsConnectionWith( const IInputPin* pin,
@@ -269,25 +257,33 @@ namespace plv
         // We can safely do this because this Pin is
         // guaranteed to be connected to a Pin of the
         // same type T.
-        inline RefPtr<T> get() throw ( PlvRuntimeException )
+        inline T get()
         {
-            // We can safely do this because this Pin is
-            // guaranteed to be connected to a Pin of the
-            // same type T.
-            RefPtr<Data> data;
-            this->getUntyped( data );
-#ifdef QDEBUG
-            RefPtr<T> typed = ref_ptr_dynamic_cast<T>(data);
-            assert(typed.isNotNull());
-#else
-            RefPtr<T> typed = ref_ptr_static_cast<T>(data);
-#endif
-            return typed;
+            QVariant v = this->get();
+            if( !v.canConvert<T>() )
+            {
+               emit( error( "Type conversion error") );
+            }
+            // if canConvert returned false, this will
+            // return an empty newly constructed T
+            return v.value<T>();
         }
 
         virtual const std::type_info& getTypeInfo() const
         {
             return typeid( T );
+        }
+
+        /** @returns the QMetaType typeId of the data type this pin is initialized with */
+        virtual int getTypeId() const
+        {
+            return qMetaTypeId<T>();
+        }
+
+        /** @returns the name of the type this pin is initialized with */
+        virtual QString getTypeName() const
+        {
+            return QMetaType::typeName( qMetaTypeId<T>() );
         }
 
         virtual bool acceptsConnectionWith( const IOutputPin* pin,

@@ -19,6 +19,8 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
+#if 0
+
 #ifndef OPENCVIMAGE_H
 #define OPENCVIMAGE_H
 
@@ -228,4 +230,5 @@ namespace plv
     };
 }
 
+#endif
 #endif

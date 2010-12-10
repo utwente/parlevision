@@ -50,8 +50,7 @@ namespace plvgui
     public:
         inline const char* getDataTypeName() const
         {
-            const std::type_info& info = typeid( DT );
-            return info.name();
+            return QMetaType::typeName( qMetaTypeId<DT>() );
         }
 
         inline DataRenderer* create(QWidget* parent) const

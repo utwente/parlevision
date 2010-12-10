@@ -28,7 +28,7 @@
 #include "DataRenderer.h"
 #include "UnknownDataRenderer.h"
 
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
 using namespace plvgui;
 

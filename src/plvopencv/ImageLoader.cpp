@@ -21,7 +21,7 @@
 
 #include "ImageLoader.h"
 
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
 #include <QMutexLocker>
 #include <QDebug>

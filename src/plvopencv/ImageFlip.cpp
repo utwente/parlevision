@@ -22,8 +22,8 @@
 #include <QDebug>
 
 #include "ImageFlip.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -33,8 +33,8 @@ ImageFlip::ImageFlip() :
         m_flipY(true),
         m_method(-1)
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin->addAllChannels();
     m_inputPin->addAllDepths();
@@ -68,9 +68,9 @@ void ImageFlip::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> imgIn = m_inputPin->get();
+    CvMatData imgIn = m_inputPin->get();
 
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
+    CvMatData imgOut = OpenCVImageFactory::instance()->get(
             imgIn->getWidth(), imgIn->getHeight(), imgIn->getDepth(), imgIn->getNumChannels() );
 
 

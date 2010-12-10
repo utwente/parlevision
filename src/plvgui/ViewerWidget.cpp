@@ -41,7 +41,7 @@ ViewerWidget::ViewerWidget(IOutputPin* pin, QWidget *parent) :
     ui->setupUi(this);
     assert(this->pin.isNotNull());
 
-    DataRenderer* renderer = RendererFactory::instance()->create(pin->getTypeInfo().name(), this);
+    DataRenderer* renderer = RendererFactory::instance()->create( pin->getTypeName(), this );
     renderer->setPin(pin);
 
 //    QVBoxLayout*
@@ -66,7 +66,6 @@ void ViewerWidget::changeEvent(QEvent *e)
         break;
     }
 }
-
 
 RefPtr<IOutputPin> ViewerWidget::getPin()
 {

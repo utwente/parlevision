@@ -27,8 +27,8 @@
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -60,8 +60,8 @@ namespace plvopencv
         void setMakeSnapshot(bool b) {m_makeSnapshot = b; emit(makeSnapshotChanged(b));}
 
     private:
-        plv::OpenCVImageInputPin* m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatDataInputPin* m_inputPin;
+        plv::CvMatDataOutputPin* m_outputPin;
         plv::RefPtr<plv::OpenCVImage> m_imgSnapshot;
 
         bool m_makeSnapshot;
