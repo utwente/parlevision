@@ -36,18 +36,10 @@ ImageSmooth::ImageSmooth() :
         m_sigmaOne(0),
         m_sigmaTwo(0)
 {
-    m_inputPin = createCvMatDataInputPin( "input", this );
+    m_inputPin  = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
-    m_borderType.add( "default", cv::BORDER_DEFAULT );
-    m_borderType.add( "constant", cv::BORDER_CONSTANT );
-    m_borderType.add( "isolated",cv::BORDER_ISOLATED );
-    m_borderType.add( "reflect", cv::BORDER_REFLECT );
-    m_borderType.add( "reflect 101", cv::BORDER_REFLECT101 );
-    m_borderType.add( "reflect 101 (2)", cv::BORDER_REFLECT_101 );
-    m_borderType.add( "replicate", cv::BORDER_REPLICATE );
-    m_borderType.add( "transparent", cv::BORDER_TRANSPARENT );
-    m_borderType.add( "wrap", cv::BORDER_WRAP );
+    addDefaultBorderInterpolationTypes( m_borderType );
 }
 
 ImageSmooth::~ImageSmooth()

@@ -10,7 +10,7 @@
 #include "DummyProcessor.h"
 #include "EdgeDetectorLaplace.h"
 //#include "EdgeDetectorCanny.h"
-//#include "EdgeDetectorSobel.h"
+#include "EdgeDetectorSobel.h"
 //#include "ImageColorConvert.h"
 //#include "ImageCornerHarris.h"
 //#include "ImageFlip.h"
@@ -45,7 +45,7 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::DummyProcessor>("plvopencv::DummyProcessor", "Dummy");
 //    plvRegisterPipelineElement<plvopencv::EdgeDetectorCanny>("plvopencv::EdgeDetectorCanny", "Edge Canny");
     plvRegisterPipelineElement<plvopencv::EdgeDetectorLaplace>("plvopencv::EdgeDetectorLaplace", "Edge Laplace");
-//    plvRegisterPipelineElement<plvopencv::EdgeDetectorSobel>("plvopencv::EdgeDetectorSobel", "Edge Sobel");
+    plvRegisterPipelineElement<plvopencv::EdgeDetectorSobel>("plvopencv::EdgeDetectorSobel", "Edge Sobel");
 //    plvRegisterPipelineElement<plvopencv::ImageColorConvert>("plvopencv::ImageColorConvert", "Color Conversion");
 //    plvRegisterPipelineElement<plvopencv::ImageCornerHarris>("plvopencv::ImageCornerHarris", "Harris Corner Detection");
 //    plvRegisterPipelineElement<plvopencv::ImageFlip>("plvopencv::ImageFlip", "Flip Image");

@@ -33,7 +33,7 @@ SOURCES += plvopencvplugin.cpp \
     DummyProcessor.cpp \
     EdgeDetectorLaplace.cpp \
     ImageSmooth.cpp \
-#    EdgeDetectorSobel.cpp \
+    EdgeDetectorSobel.cpp \
 #    ImageFlip.cpp \
 #    ImageCornerHarris.cpp \
 #    ImageColorConvert.cpp \
@@ -56,7 +56,7 @@ HEADERS += ../../include/plvopencv/plvopencvplugin.h \
     ../../include/plvopencv/DummyProcessor.h \
    ../../include/plvopencv/EdgeDetectorLaplace.h \
    ../../include/plvopencv/ImageSmooth.h \
- #   ../../include/plvopencv/EdgeDetectorSobel.h \
+   ../../include/plvopencv/EdgeDetectorSobel.h \
  #   ../../include/plvopencv/ImageFlip.h \
  #   ../../include/plvopencv/ImageCornerHarris.h \
  #   ../../include/plvopencv/ImageColorConvert.h \

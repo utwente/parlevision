@@ -33,11 +33,14 @@ using namespace plvopencv;
 EdgeDetectorSobel::EdgeDetectorSobel():
         m_xOrder( 1 ),
         m_yOrder( 0 ),
-        m_apertureSize(3),
-        m_Scharr( false )
+        m_kernelSize(3),
+        m_scale( 1 ),
+        m_delta( 0 )
 {
     m_inputPin  = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
+
+    addDefaultBorderTypes( m_borderType );
 
     m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
     m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
@@ -69,41 +72,39 @@ void EdgeDetectorSobel::stop()
 {
 }
 
+/**
+Calculates the first, second, third or mixed image derivatives using an extended Sobel operator
+Parameters:
+
+    * src – The source image
+    * dst – The destination image; will have the same size and the same number of channels as src
+    * ddepth – The destination image depth
+    * xorder – Order of the derivative x
+    * yorder – Order of the derivative y
+    * ksize – Size of the extended Sobel kernel, must be 1, 3, 5 or 7
+    * scale – The optional scale factor for the computed derivative values (by default, no scaling is applied, see getDerivKernels() )
+    * delta – The optional delta value, added to the results prior to storing them in dst
+    * borderType – The pixel extrapolation method, see borderInterpolate()
+*/
 void EdgeDetectorSobel::process()
 {
     CvMatData srcPtr = m_inputPin->get();
-
-    // destination image should be at least 16 bits avoid overflow of Sobel operation
-    // see e.g. http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsobel#cvSobel
-    OpenCVImageProperties props = srcPtr->getProperties();
-    if( props.getDepth() != IPL_DEPTH_32F )
-    {
-        props.setDepth( IPL_DEPTH_16S );
-    }
-    CvMatData dstPtr = CvMatData::create( props );
+    CvMatData dstPtr = CvMatData::create( srcPtr.getProperties() );
 
     // open for reading
-    const IplImage* src = srcPtr->getImage();
+    const cv::Mat& src = srcPtr;
 
     // open image for writing
-    IplImage* dst = dstPtr->getImageForWriting();
+    cv::Mat& dst = dstPtr;
 
-    // do a sobel operator of the image
-    // Parameters:
-    //  * src – Source image of type CvArr*
-    //  * dst – Destination image
-    //  * xorder – Order of the derivative x
-    //  * yorder – Order of the derivative y
-    //  * apertureSize – Size of the extended Sobel kernel, must be 1, 3, 5 or 7
     assert( m_xOrder == 1 || m_xOrder == 0 );
     assert( m_yOrder == 1 || m_yOrder == 0 );
-    assert( m_apertureSize == 1 || m_apertureSize == 3 || m_apertureSize == 5 || m_apertureSize == 7 );
-
-    // check for Scharr and use appropriate aperture size
-    int apertureSize = m_Scharr ? CV_SCHARR : m_apertureSize;
+    assert( m_kernelSize == 1 || m_kernelSize == 3 || m_kernelSize == 5 || m_kernelSize == 7 );
 
     // do sobel operation
-    cvSobel( src, dst, (int)m_xOrder, (int)m_yOrder, apertureSize );
+    cv::Sobel( src, dst, dst.depth() , m_xOrder, m_yOrder,
+               m_kernelSize, m_scale, m_delta,
+               m_borderType.getSelectedValue() );
 
     // publish output
     m_outputPin->put( dstPtr );
@@ -123,18 +124,29 @@ bool EdgeDetectorSobel::getYOrder() const
     return m_yOrder;
 }
 
-bool EdgeDetectorSobel::getScharr() const
+int EdgeDetectorSobel::getKernelSize() const
 {
     QMutexLocker lock( m_propertyMutex );
-    return m_Scharr;
+    return m_kernelSize;
 }
 
-int EdgeDetectorSobel::getApertureSize() const
+double EdgeDetectorSobel::getScale() const
 {
     QMutexLocker lock( m_propertyMutex );
-    return m_apertureSize;
+    return m_scale;
 }
 
+double EdgeDetectorSobel::getDelta() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_delta;
+}
+
+plv::Enum EdgeDetectorSobel::getBorderType() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_borderType;
+}
 
 /**** setters ****/
 
@@ -142,65 +154,27 @@ void EdgeDetectorSobel::setXOrder(bool x)
 {
     QMutexLocker lock( m_propertyMutex );
 
-    if( m_Scharr )
+    // x is only allowed to be 0 when yOrder is 1
+    if( !(!x && !m_yOrder) )
     {
-        // x and y are not allowed to both be 1
-        if( x )
-        {
-            m_xOrder = true;
-            m_yOrder = false;
-        }
-        else
-        {
-            m_xOrder = false;
-            m_yOrder = true;
-        }
-        emit(xOrderChanged(m_xOrder));
-        emit(yOrderChanged(m_yOrder));
+        m_xOrder = x;
     }
-    else
-    {
-        // x is only allowed to be 0 when yOrder is 1
-        if( !(!x && !m_yOrder) )
-        {
-            m_xOrder = x;
-        }
-        emit(xOrderChanged(m_xOrder));
-    }
+    emit(xOrderChanged(m_xOrder));
 }
 
 void EdgeDetectorSobel::setYOrder(bool y)
 {
     QMutexLocker lock( m_propertyMutex );
 
-    if( m_Scharr )
+    // y is only allowed to be 0 when xOrder is 1
+    if( !(!y && !m_xOrder) )
     {
-        // x and y are not allowed to both be 1
-        if( y )
-        {
-            m_xOrder = false;
-            m_yOrder = true;
-        }
-        else
-        {
-            m_xOrder = true;
-            m_yOrder = false;
-        }
-        emit(xOrderChanged(m_xOrder));
-        emit(yOrderChanged(m_yOrder));
+        m_yOrder = y;
     }
-    else
-    {
-        // y is only allowed to be 0 when xOrder is 1
-        if( !(!y && !m_xOrder) )
-        {
-            m_yOrder = y;
-        }
-        emit(yOrderChanged(m_yOrder));
-    }
+    emit(yOrderChanged(m_yOrder));
 }
 
-void EdgeDetectorSobel::setApertureSize(int i)
+void EdgeDetectorSobel::setKernelSize(int i)
 {
     QMutexLocker lock( m_propertyMutex );
 
@@ -213,32 +187,34 @@ void EdgeDetectorSobel::setApertureSize(int i)
     else if( isEven(i) )
     {   //even: determine appropriate new odd value
         //we were increasing -- increase to next odd value
-        if( i > m_apertureSize )
+        if( i > m_kernelSize )
             i++;
         //we were decreasing -- decrease to next odd value
         else
             i--;
     }
-    m_apertureSize = i;
-    emit(apertureSizeChanged(i));
+    m_kernelSize = i;
+    emit(kernelSizeChanged(i));
 }
 
-void EdgeDetectorSobel::setScharr(bool useScharr)
+void EdgeDetectorSobel::setScale(double scale)
 {
     QMutexLocker lock( m_propertyMutex );
+    m_scale = scale > 0 ? scale : 0;
+    emit( scaleChanged(scale) );
+}
 
-    if( useScharr )
-    {
-        // in Scharr mode x order and y order are mutually exclusive
-        if( m_xOrder && m_yOrder )
-        {
-            m_yOrder = false;
-        }
-        emit( yOrderChanged(m_yOrder) );
-    }
+void EdgeDetectorSobel::setDelta(double delta)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_delta = delta;
+    emit( deltaChanged(delta) );
+}
 
-    m_Scharr = useScharr;
-    emit( ScharrChanged(useScharr) );
+void EdgeDetectorSobel::setBorderType(plv::Enum bt)
+{
+    QMutexLocker lock(m_propertyMutex);
+    m_borderType = bt;
 }
 
 
