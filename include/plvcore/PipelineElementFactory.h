@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QHash>
+#include <QDebug>
 
 #include "plvglobal.h"
 #include "PlvExceptions.h"
@@ -10,113 +11,56 @@
 namespace plv
 {
     class PipelineElement;
-    class IllegalArgumentException;
 
     class PLVCORE_EXPORT PipelineElementConstructor
     {
     public:
         virtual PipelineElement* construct() = 0;
-        virtual QString getName() const = 0;
+        virtual const char* getClassName() const = 0;
     };
 
     class PLVCORE_EXPORT PipelineElementFactory
     {
-    protected:
-        /** constructor. Protected because it is a singleton */
-        PipelineElementFactory();
-
-        /** destructor. Protected, use clear instead */
-        ~PipelineElementFactory();
-
-        /** returns element id or -1 on failure */
-        int __registerElement( PipelineElementConstructor* constructor );
-
-        /** unregisters the element constructor */
-        void __unregisterElement( const QString& name );
-
-        /** returns the PipelineElements id if element with name 'name' is
-            registered. Returns -1 if not registered. */
-        int __isElementRegistered( const QString& name );
-
-        /** returns a new instance of the PipelineElement with name 'name' */
-        PipelineElement* __construct( const QString& name ) const;
-
-        PipelineElement* __construct( int id ) const;
-
     public:
         /** returns element id or -1 on failure */
-        inline static int registerElement( PipelineElementConstructor* constructor )
-        {
-            return PipelineElementFactory::instance()->__registerElement(constructor);
-        }
+        static int registerElement( PipelineElementConstructor* constructor );
 
         /** unregisters the element constructor */
-        inline static void unregisterElement( const QString& name )
-        {
-            return PipelineElementFactory::instance()->__unregisterElement(name);
-        }
+        static void unregisterElement( const QString& name );
 
         /** returns the PipelineElements id if element with name 'name' is
             registered. Returns -1 if not registered. */
-        inline static int isElementRegistered( const QString& name )
-        {
-            return PipelineElementFactory::instance()->__isElementRegistered(name);
-        }
+        static int elementId( const QString& name );
 
-        /** returns a new instance of the PipelineElement with name 'name' */
-        inline static PipelineElement* construct( const QString& name )
-        {
-            return PipelineElementFactory::instance()->__construct(name);
-        }
+        /** returns a new instance of the PipelineElement with name 'name'.
+            returns NULL when there is no PipelineElement with name 'name'. */
+        static PipelineElement* construct( const QString& name );
 
-        inline static PipelineElement* construct( int id )
-        {
-            return PipelineElementFactory::instance()->__construct(id);
-        }
+        /** returns a new instance of the PipelineElement with id 'id'.
+            returns NULL when the id is invalid. Very fast, constant time. */
+        static PipelineElement* construct( int id );
 
-        /** returns an instance of this factory */
-        inline static PipelineElementFactory* instance()
-        {
-            if( m_instance == 0 )
-                m_instance = new PipelineElementFactory();
-
-            return m_instance;
-        }
-
-        /** static destructor */
-        inline static void destruct()
-        {
-            if(m_instance != 0)
-            {
-                delete m_instance;
-                m_instance = 0;
-            }
-        }
+        /** Get a list of all known PipelineElement Type names */
+        static QStringList types();
 
     protected:
-        static PipelineElementFactory* m_instance;
-        QList<PipelineElementConstructor*> m_elementConstructors;
-        QHash<QString, int> m_nameIdMapping;
+        static QList< PipelineElementConstructor* > m_elementConstructors;
+        static QHash<QString, int> m_nameIdMapping;
     };
 
     template< class T >
     class PipelineElementConstructorHelper : public PipelineElementConstructor
     {
     public:
-        PipelineElementConstructorHelper( const QString& name ) :
-            m_name( name )
-        {
-        }
-
         virtual PipelineElement* construct()
         {
             return static_cast<PipelineElement*>(new T);
         }
 
-        QString getName() const { return m_name; }
-
-    protected:
-        QString m_name;
+        const char* getClassName() const
+        {
+            return (reinterpret_cast<T*>(0))->staticMetaObject.className();
+        }
     };
 }
 #endif

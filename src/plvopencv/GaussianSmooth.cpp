@@ -21,7 +21,7 @@
 
 #include <QDebug>
 
-#include "ImageSmooth.h"
+#include "GaussianSmooth.h"
 
 #include <plvcore/CvMatData.h>
 #include <plvcore/CvMatDataPin.h>
@@ -30,7 +30,7 @@
 using namespace plv;
 using namespace plvopencv;
 
-ImageSmooth::ImageSmooth() :
+GaussianSmooth::GaussianSmooth() :
         m_kernelSizeWidth(1),
         m_kernelSizeHeight(1),
         m_sigmaOne(0),
@@ -39,30 +39,30 @@ ImageSmooth::ImageSmooth() :
     m_inputPin  = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
-    addDefaultBorderInterpolationTypes( m_borderType );
+    Util::addDefaultBorderInterpolationTypes( m_borderType );
 }
 
-ImageSmooth::~ImageSmooth()
+GaussianSmooth::~GaussianSmooth()
 {
 }
 
-void ImageSmooth::init()
+void GaussianSmooth::init()
 {
 }
 
-void ImageSmooth::deinit() throw ()
+void GaussianSmooth::deinit() throw ()
 {
 }
 
-void ImageSmooth::start()
+void GaussianSmooth::start()
 {
 }
 
-void ImageSmooth::stop()
+void GaussianSmooth::stop()
 {
 }
 
-void ImageSmooth::process()
+void GaussianSmooth::process()
 {
     CvMatData srcPtr = m_inputPin->get();
     CvMatData dstPtr = CvMatData::create( srcPtr.getProperties() );
@@ -89,14 +89,14 @@ void ImageSmooth::process()
     m_outputPin->put( dstPtr );
 }
 
-void ImageSmooth::setKernelSizeWidth(int i)
+void GaussianSmooth::setKernelSizeWidth(int i)
 {
     QMutexLocker lock( m_propertyMutex );
 
     //aperture size must be odd and positive
     if (i < 1)
         i = 1;
-    else if( isEven(i) )
+    else if( Util::isEven(i) )
     {   //even: determine appropriate new odd value
         //we were increasing -- increase to next odd value
         if (i > m_kernelSizeWidth)
@@ -109,14 +109,14 @@ void ImageSmooth::setKernelSizeWidth(int i)
     emit(kernelSizeWidthChanged((m_kernelSizeWidth)));
 }
 
-void ImageSmooth::setKernelSizeHeight(int i)
+void GaussianSmooth::setKernelSizeHeight(int i)
 {
     QMutexLocker lock( m_propertyMutex );
 
     //aperture size must be odd and positive
     if (i < 1)
         i = 1;
-    else if( isEven(i) )
+    else if( Util::isEven(i) )
     {   //even: determine appropriate new odd value
         //we were increasing -- increase to next odd value
         if (i > m_kernelSizeHeight)
@@ -129,51 +129,51 @@ void ImageSmooth::setKernelSizeHeight(int i)
     emit(kernelSizeHeightChanged((m_kernelSizeHeight)));
 }
 
-void ImageSmooth::setBorderType(plv::Enum bt)
+void GaussianSmooth::setBorderType(plv::Enum bt)
 {
     QMutexLocker lock(m_propertyMutex);
     m_borderType = bt;
 }
 
-void ImageSmooth::setSigmaOne(double s1)
+void GaussianSmooth::setSigmaOne(double s1)
 {
     QMutexLocker lock(m_propertyMutex);
     m_sigmaOne = s1 > 0 ? s1 : 0;
     emit(sigmaOneChanged(m_sigmaOne));
 }
 
-void ImageSmooth::setSigmaTwo(double s2)
+void GaussianSmooth::setSigmaTwo(double s2)
 {
     QMutexLocker lock(m_propertyMutex);
     m_sigmaTwo = s2 > 0 ? s2 : 0;
     emit(sigmaTwoChanged(m_sigmaTwo));
 }
 
-int ImageSmooth::getKernelSizeWidth()
+int GaussianSmooth::getKernelSizeWidth()
 {
     QMutexLocker lock(m_propertyMutex);
     return m_kernelSizeWidth;
 }
 
-int ImageSmooth::getKernelSizeHeight()
+int GaussianSmooth::getKernelSizeHeight()
 {
     QMutexLocker lock(m_propertyMutex);
     return m_kernelSizeHeight;
 }
 
-double ImageSmooth::getSigmaOne()
+double GaussianSmooth::getSigmaOne()
 {
     QMutexLocker lock(m_propertyMutex);
     return m_sigmaOne;
 }
 
-double ImageSmooth::getSigmaTwo()
+double GaussianSmooth::getSigmaTwo()
 {
     QMutexLocker lock(m_propertyMutex);
     return m_sigmaTwo;
 }
 
-plv::Enum ImageSmooth::getBorderType()
+plv::Enum GaussianSmooth::getBorderType()
 {
     QMutexLocker lock(m_propertyMutex);
     return m_borderType;

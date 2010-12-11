@@ -247,8 +247,7 @@ void PipelineLoader::parseElements( QDomNodeList* list, Pipeline* pipeline )
 
         qDebug() << "Creating element with name: " << name << " and id: " << id;
 
-        // Use Qt metatype system to locate this processor type
-        int typeId = PipelineElementFactory::isElementRegistered( name );
+        int typeId = PipelineElementFactory::elementId( name );
         if( typeId == -1 )
         {
             QString msg = "XML document contains unknown processor type " % name;

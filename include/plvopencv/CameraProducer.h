@@ -41,6 +41,8 @@ namespace plvopencv
         Q_OBJECT
         Q_DISABLE_COPY( CameraProducer )
 
+        Q_CLASSINFO("author", "Richard")
+        Q_CLASSINFO("name", "Camera")
         Q_PROPERTY( int cameraId READ getCameraId WRITE setCameraId NOTIFY cameraIdChanged )
         Q_PROPERTY( int width READ getWidth WRITE setWidth NOTIFY widthChanged )
         Q_PROPERTY( int height READ getHeight WRITE setHeight NOTIFY heightChanged )

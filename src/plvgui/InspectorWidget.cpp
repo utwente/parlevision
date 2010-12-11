@@ -27,11 +27,9 @@
 #include "utils.h"
 
 #include <QtGui>
-#include <list>
 #include <assert.h>
 
 #include <plvcore/PipelineElement.h>
-#include <plvcore/Types.h>
 
 using namespace plvgui;
 using namespace plv;
@@ -75,8 +73,7 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
 
     ui->statusMsg->hide();
 
-    std::list<QString> propertyNames;
-    element->getConfigurablePropertyNames(propertyNames);
+    QStringList propertyNames = element->getConfigurablePropertyNames();
 
     if(ElementConfigFormBuilder::existsFor(element->metaObject()->className()))
     {
@@ -92,7 +89,7 @@ void InspectorWidget::setTarget(plv::RefPtr<plv::PipelineElement> element)
         formContainer->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
         this->formContainer->setLayout(form);
 
-        for(std::list<QString>::iterator itr = propertyNames.begin();
+        for(QStringList::iterator itr = propertyNames.begin();
             itr != propertyNames.end(); ++itr)
         {
             QString propertyName = *itr;

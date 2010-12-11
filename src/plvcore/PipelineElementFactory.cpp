@@ -1,31 +1,35 @@
 #include "PipelineElementFactory.h"
 
 #include <QDebug>
+#include <QStringList>
 
 using namespace plv;
 
-PipelineElementFactory* PipelineElementFactory::m_instance = 0;
+QList< PipelineElementConstructor* > PipelineElementFactory::m_elementConstructors;
+QHash<QString, int> PipelineElementFactory::m_nameIdMapping;
 
-PipelineElementFactory::PipelineElementFactory()
+//PipelineElementFactory* PipelineElementFactory::m_instance = 0;
+
+//PipelineElementFactory::PipelineElementFactory()
+//{
+//}
+
+//PipelineElementFactory::~PipelineElementFactory()
+//{
+//   // clear instance vars
+//    m_nameIdMapping.clear();
+
+//    for( int i=0; i < m_elementConstructors.size(); ++i )
+//    {
+//        PipelineElementConstructor* plec = m_elementConstructors.at(i);
+//        if( plec != 0 )
+//            delete plec;
+//    }
+//}
+
+int PipelineElementFactory::registerElement( PipelineElementConstructor* constructor )
 {
-}
-
-PipelineElementFactory::~PipelineElementFactory()
-{
-   // clear instance vars
-    m_nameIdMapping.clear();
-
-    for( int i=0; i < m_elementConstructors.size(); ++i )
-    {
-        PipelineElementConstructor* plec = m_elementConstructors.at(i);
-        if( plec != 0 )
-            delete plec;
-    }
-}
-
-int PipelineElementFactory::__registerElement( PipelineElementConstructor* constructor )
-{
-    QString name = constructor->getName();
+    QString name = constructor->getClassName();
     if( m_nameIdMapping.contains( name ))
     {
         QString msg = QString( "Element with name \"%1\" already registered" )
@@ -39,7 +43,7 @@ int PipelineElementFactory::__registerElement( PipelineElementConstructor* const
     return id;
 }
 
-void PipelineElementFactory::__unregisterElement( const QString& name )
+void PipelineElementFactory::unregisterElement( const QString& name )
 {
     if( !m_nameIdMapping.contains( name ) )
         return;
@@ -50,14 +54,15 @@ void PipelineElementFactory::__unregisterElement( const QString& name )
     delete plec;
 }
 
-int PipelineElementFactory::__isElementRegistered( const QString& name )
+int PipelineElementFactory::elementId( const QString& name )
 {
     if( !m_nameIdMapping.contains( name ) )
         return -1;
-    return m_nameIdMapping[name];
+    int id = m_nameIdMapping[name];
+    return m_elementConstructors.at(id) != 0 ? id : -1;
 }
 
-PipelineElement* PipelineElementFactory::__construct( const QString& name ) const
+PipelineElement* PipelineElementFactory::construct( const QString& name )
 {
     if( !m_nameIdMapping.contains( name ) )
     {
@@ -71,7 +76,7 @@ PipelineElement* PipelineElementFactory::__construct( const QString& name ) cons
     return plec->construct();
 }
 
-PipelineElement* PipelineElementFactory::__construct( int id ) const
+PipelineElement* PipelineElementFactory::construct( int id )
 {
     if( id < 0 || m_elementConstructors.size() < id )
     {
@@ -90,5 +95,10 @@ PipelineElement* PipelineElementFactory::__construct( int id ) const
         return 0;
     }
     return plec->construct();
+}
+
+QStringList PipelineElementFactory::types()
+{
+    return QStringList( m_nameIdMapping.keys() );
 }
 

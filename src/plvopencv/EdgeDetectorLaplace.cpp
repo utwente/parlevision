@@ -117,7 +117,7 @@ void EdgeDetectorLaplace::setApertureSize(int i)
         i = 1;
     else if (i > 7)
         i = 7;
-    else if( isEven(i) )
+    else if( Util::isEven(i) )
     {   //even: determine appropriate new odd value
         //we were increasing -- increase to next odd value
         if( i > m_apertureSize )

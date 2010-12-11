@@ -57,13 +57,10 @@ void Application::init()
 
 void Application::deinit()
 {
-    PipelineElementFactory::destruct();
 }
 
 void Application::loadBuiltins()
 {
-    PipelineElementFactory::instance();
-
     // register classes with Qt so they can be used in signals and slots
     qRegisterMetaType< plv::Data >("plv::Data");
     qRegisterMetaType< plv::Enum >( "plv::Enum" );

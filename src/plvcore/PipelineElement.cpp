@@ -33,8 +33,8 @@
 
 using namespace plv;
 
-std::list<QString> PipelineElement::s_types;
-std::map<QString,QString> PipelineElement::s_names;
+//QStringList PipelineElement::s_types;
+//std::map<QString,QString> PipelineElement::s_names;
 
 PipelineElement::PipelineElement() :
         m_id( -1 ),
@@ -120,16 +120,25 @@ PipelineElement::OutputPinMap PipelineElement::getOutputPins() const
 
 QString PipelineElement::getName() const
 {
-    return PipelineElement::nameForType(this->metaObject()->className());
+    QString name = this->getClassProperty("name");
+    if( name.isEmpty() )
+    {
+        const char* className = this->metaObject()->className();
+        qWarning() << "No name registered for processor with class name " << className;
+        return className;
+    }
+    return name;
 }
 
-void PipelineElement::getConfigurablePropertyNames(std::list<QString>& list)
+QStringList PipelineElement::getConfigurablePropertyNames()
 {
     const QMetaObject* metaObject = this->metaObject();
+    QStringList list;
     for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i)
     {
         list.push_back(QString::fromLatin1(metaObject->property(i).name()));
     }
+    return list;
 }
 
 QSet<PipelineElement*> PipelineElement::getConnectedElementsToOutputs() const
@@ -215,11 +224,11 @@ bool PipelineElement::dataAvailableOnInputPins() const
     return true;
 }
 
-std::list<QString> PipelineElement::getInputPinNames() const
+QStringList PipelineElement::getInputPinNames() const
 {
     QMutexLocker lock( &m_pleMutex );
 
-    std::list<QString> names;
+    QStringList names;
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
@@ -228,11 +237,11 @@ std::list<QString> PipelineElement::getInputPinNames() const
     return names;
 }
 
-std::list<QString> PipelineElement::getOutputPinNames() const
+QStringList PipelineElement::getOutputPinNames() const
 {
     QMutexLocker lock( &m_pleMutex );
 
-    std::list<QString> names;
+    QStringList names;
     for( OutputPinMap::const_iterator itr = m_outputPins.begin();
          itr != m_outputPins.end(); ++itr )
     {
@@ -280,25 +289,25 @@ int PipelineElement::pinsConnectionCount() const
     return inputPinsConnectionCount() + outputPinsConnectionCount();
 }
 
-std::list<QString> PipelineElement::types()
-{
-    return PipelineElement::s_types;
-}
+//QStringList PipelineElement::types()
+//{
+//    return PipelineElement::s_types;
+//}
 
-int PipelineElement::registerType(QString typeName, QString humanName)
-{
-    qDebug() << "Registering PipelineElement " << typeName
-             << " as " << "'" << humanName << "'";
+//int PipelineElement::registerType(QString typeName, QString humanName)
+//{
+//    qDebug() << "Registering PipelineElement " << typeName
+//             << " as " << "'" << humanName << "'";
 
-    PipelineElement::s_types.push_back( typeName );
-    PipelineElement::s_names[typeName] = humanName;
-    return 0;
-}
+//    PipelineElement::s_types.push_back( typeName );
+//    PipelineElement::s_names[typeName] = humanName;
+//    return 0;
+//}
 
-QString PipelineElement::nameForType(QString typeName)
-{
-    return PipelineElement::s_names[typeName];
-}
+//QString PipelineElement::nameForType(QString typeName)
+//{
+//    return PipelineElement::s_names[typeName];
+//}
 
 int PipelineElement::maxInputQueueSize() const
 {

@@ -47,9 +47,9 @@ LibraryWidget::LibraryWidget(MainWindow* parent) :
 
     ui->setupUi(this);
 
-    std::list<QString> types = plv::PipelineElement::types();
+    QStringList types = plv::PipelineElementFactory::types();
 
-    for(std::list<QString>::iterator iter = types.begin();
+    for(QStringList::iterator iter = types.begin();
         iter != types.end(); iter++)
     {
         createItem(*iter);
@@ -70,7 +70,7 @@ void LibraryWidget::createItem(QString typeName)
 {
     try
     {
-        int id = PipelineElementFactory::isElementRegistered( typeName );
+        int id = PipelineElementFactory::elementId( typeName );
         if( id == -1 )
         {
             qWarning() << "Ignoring unknown element " << typeName;

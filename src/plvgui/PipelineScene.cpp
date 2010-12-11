@@ -399,7 +399,7 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
         QString elementName = QString(event->mimeData()->data("x-plv-element-name"));
         qDebug() << elementName;
 
-        int typeId = PipelineElementFactory::isElementRegistered(elementName);
+        int typeId = PipelineElementFactory::elementId(elementName);
         if(typeId == -1)
         {
             throw PlvRuntimeException( "Tried to create unknown element " + elementName,

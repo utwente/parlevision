@@ -43,10 +43,10 @@ namespace plvopencv
         * sigmaX, sigmaY – The Gaussian kernel standard deviations in X and Y direction. If sigmaY is zero, it is set to be equal to sigmaX . If they are both zeros, they are computed from ksize.width and ksize.height , respectively, see getGaussianKernel() . To fully control the result regardless of possible future modification of all this semantics, it is recommended to specify all of ksize , sigmaX and sigmaY
         * borderType – The pixel extrapolation method; see borderInterpolate()
     */
-    class ImageSmooth : public plv::PipelineProcessor
+    class GaussianSmooth : public plv::PipelineProcessor
     {
         Q_OBJECT
-        Q_DISABLE_COPY( ImageSmooth )
+        Q_DISABLE_COPY( GaussianSmooth )
         Q_CLASSINFO("author", "Richard Loos")
         Q_CLASSINFO("name", "Gaussian Smooth")
         Q_CLASSINFO("description", "Smooths and image using Gaussian smoothing"
@@ -65,8 +65,8 @@ namespace plvopencv
         PLV_PIPELINE_ELEMENT
 
     public:
-        ImageSmooth();
-        virtual ~ImageSmooth();
+        GaussianSmooth();
+        virtual ~GaussianSmooth();
 
         /** propery methods */
         int getKernelSizeWidth();

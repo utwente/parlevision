@@ -40,7 +40,7 @@ EdgeDetectorSobel::EdgeDetectorSobel():
     m_inputPin  = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
-    addDefaultBorderTypes( m_borderType );
+    Util::addDefaultBorderInterpolationTypes( m_borderType );
 
     m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
     m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
@@ -184,7 +184,7 @@ void EdgeDetectorSobel::setKernelSize(int i)
         i = 1;
     else if (i > 7)
         i = 7;
-    else if( isEven(i) )
+    else if( Util::isEven(i) )
     {   //even: determine appropriate new odd value
         //we were increasing -- increase to next odd value
         if( i > m_kernelSize )
