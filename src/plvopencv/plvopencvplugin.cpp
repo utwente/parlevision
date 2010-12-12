@@ -7,7 +7,7 @@
 //#include "Sub.h"
 //#include "Diff.h"
 //#include "DelayImage.h"
-#include "DummyProcessor.h"
+#include "ExampleProcessor.h"
 #include "EdgeDetectorLaplace.h"
 //#include "EdgeDetectorCanny.h"
 #include "EdgeDetectorSobel.h"
@@ -38,7 +38,7 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::CameraProducer>();
 
     //processors
-    plvRegisterPipelineElement<plvopencv::DummyProcessor>();
+    plvRegisterPipelineElement<plvopencv::ExampleProcessor>();
     plvRegisterPipelineElement<plvopencv::EdgeDetectorLaplace>();
     plvRegisterPipelineElement<plvopencv::EdgeDetectorSobel>();
     plvRegisterPipelineElement<plvopencv::GaussianSmooth>();

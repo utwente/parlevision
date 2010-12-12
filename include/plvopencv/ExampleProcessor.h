@@ -19,28 +19,26 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef DUMMYPROCESSOR_H
-#define DUMMYPROCESSOR_H
+#ifndef EXAMPLEPROCESSOR_H
+#define EXAMPLEPROCESSOR_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Types.h>
 #include <plvcore/Enum.h>
 
 namespace plv
 {
-    class OpenCVImage;
     class CvMatDataInputPin;
     class CvMatDataOutputPin;
 }
 
 namespace plvopencv
 {
-    class DummyProcessor : public plv::PipelineProcessor
+    class ExampleProcessor : public plv::PipelineProcessor
     {
         Q_OBJECT
-        Q_DISABLE_COPY( DummyProcessor )
+        Q_DISABLE_COPY( ExampleProcessor )
         Q_CLASSINFO("author", "Michel & Richard")
-        Q_CLASSINFO("name", "Dummy")
+        Q_CLASSINFO("name", "Example")
         Q_CLASSINFO("description", "A simple processor to demonstrate how to implement your own processors. "
                     "It doesn't do much, but flip your images.");
 
@@ -48,44 +46,42 @@ namespace plvopencv
         Q_PROPERTY( double someDouble READ getSomeDouble WRITE setSomeDouble NOTIFY someDoubleChanged  )
         Q_PROPERTY( bool someBool READ getSomeBool WRITE setSomeBool NOTIFY someBoolChanged  )
         Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString NOTIFY someStringChanged )
-        Q_PROPERTY( int someVarWithNr1 READ getSomeVarWithNr1 WRITE setSomeVarWithNr1 NOTIFY someVarWithNr1Changed )
-        Q_PROPERTY( int someVarWithNr2 READ getSomeVarWithNr2 WRITE setSomeVarWithNr2 NOTIFY someVarWithNr2Changed )
         Q_PROPERTY( plv::Enum customEnum READ getCustomEnum WRITE setCustomEnum NOTIFY customEnumChanged )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
 
     public:
-        DummyProcessor();
-        virtual ~DummyProcessor();
+        ExampleProcessor();
+        virtual ~ExampleProcessor();
 
-        /** propery methods */
-        int getSomeInt() { return m_someInt; }
-        double getSomeDouble() { return m_someDouble; }
-        bool getSomeBool() { return m_someBool; }
-        QString getSomeString() { return m_someString; }
-        plv::Enum getCustomEnum() const { return m_customEnum; }
-
-        int getSomeVarWithNr1() { return m_someVarWithNr1; }
-        int getSomeVarWithNr2() { return m_someVarWithNr2; }
-
-    signals:
-        void someIntChanged(int newValue);
-        void someDoubleChanged(double newValue);
-        void someBoolChanged(bool newValue);
-        void someStringChanged(QString newValue);
-        void someVarWithNr1Changed(int var);
-        void someVarWithNr2Changed(int var);
-        void customEnumChanged( plv::Enum p );
+        /** propery methods getters */
+        int getSomeInt();
+        double getSomeDouble();
+        bool getSomeBool();
+        QString getSomeString();
+        plv::Enum getCustomEnum() const;
 
     public slots:
-        void setSomeInt(int i) {m_someInt = i; emit(someIntChanged(i));}
-        void setSomeDouble(double d) {m_someDouble = d; emit(someDoubleChanged(d));}
-        void setSomeBool(bool b) {m_someBool = b; emit(someBoolChanged(b));}
-        void setSomeString(QString s) {m_someString = s; emit(someStringChanged(s));}
-        void setSomeVarWithNr1(int var) { m_someVarWithNr1 = var; emit( someVarWithNr1Changed(var) ); }
-        void setSomeVarWithNr2(int var) { m_someVarWithNr2 = var; emit( someVarWithNr2Changed(var) ); }
-        void setCustomEnum( plv::Enum c ) { m_customEnum = c; emit( customEnumChanged( c ) ); }
+        void setSomeInt(int i);
+        void setSomeDouble(double d);
+        void setSomeBool(bool b);
+        void setSomeString(QString s);
+        void setCustomEnum(plv::Enum c);
+
+    signals:
+        void someIntChanged(int i);
+        void someDoubleChanged(double d);
+        void someBoolChanged(bool b);
+        void someStringChanged(QString a);
+        void customEnumChanged( plv::Enum p );
+
+    public:
+        void updateSomeInt(int i) { setSomeInt(i); someIntChanged(i); }
+        void updateSomeDouble(double d) { setSomeDouble(d); someDoubleChanged(d); }
+        void updateSomeBool(bool b) { setSomeBool(b); someBoolChanged(b); }
+        void updateSomeString(QString s) { setSomeString(s); someStringChanged(s); }
+        void updateCustomEnum(plv::Enum c) { setCustomEnum(c); customEnumChanged(c); }
 
     private:
         plv::CvMatDataInputPin*  m_inputPin;
@@ -96,11 +92,9 @@ namespace plvopencv
         double m_someDouble;
         bool m_someBool;
         QString m_someString;
-        int m_someVarWithNr1;
-        int m_someVarWithNr2;
         plv::Enum m_customEnum;
     };
 
 }
 
-#endif // DUMMYPROCESSOR_H
+#endif // EXAMPLEPROCESSOR_H

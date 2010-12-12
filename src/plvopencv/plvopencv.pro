@@ -30,7 +30,7 @@ DEFINES += PLV_OPENCV_PLUGIN_LIBRARY
 SOURCES += plvopencvplugin.cpp \
     CameraProducer.cpp \
     OpenCVCamera.cpp \
-    DummyProcessor.cpp \
+    ExampleProcessor.cpp \
     EdgeDetectorLaplace.cpp \
     GaussianSmooth.cpp \
     EdgeDetectorSobel.cpp \
@@ -53,7 +53,7 @@ HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
             ../../include/plvopencv/plvopencv_global.h \
             ../../include/plvopencv/CameraProducer.h \
             ../../include/plvopencv/OpenCVCamera.h \
-            ../../include/plvopencv/DummyProcessor.h \
+            ../../include/plvopencv/ExampleProcessor.h \
             ../../include/plvopencv/EdgeDetectorLaplace.h \
             ../../include/plvopencv/GaussianSmooth.h \
             ../../include/plvopencv/EdgeDetectorSobel.h \

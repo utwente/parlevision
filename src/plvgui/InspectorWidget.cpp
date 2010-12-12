@@ -394,7 +394,7 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
         }
 
         QString slot = QByteArray::number(QSLOT_CODE) + propertySlotSignature(element, name);
-        textField->setEnabled(connect(textField, SIGNAL(textChanged(QString)),
+        textField->setEnabled(connect(textField, SIGNAL(textEdited(QString)),
                             element, slot.toAscii()));
 
         form->addRow(new QLabel( name, form->parentWidget()), textField);

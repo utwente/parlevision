@@ -38,7 +38,7 @@ void Enum::add( const QString& str, int value )
     m_items.insert( m_items.size(), EnumPair( str,value ));
 }
 
-void Enum::addLast( const QString& str )
+void Enum::add( const QString& str )
 {
     m_items.insert( m_items.size(), EnumPair( str, m_items.size() ));
 }
