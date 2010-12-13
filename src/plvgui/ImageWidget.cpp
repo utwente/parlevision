@@ -57,15 +57,10 @@ void ImageWidget::setImage(const QImage &img)
 
 void ImageWidget::resizeEvent(QResizeEvent * event)
 {
-    qDebug() << "test";
     if( m_zoomToFit )
-    {
         computeZoomFactorToFitImage();
-    }
     else
-    {
         m_zoomFactor = 1.0;
-    }
 }
 
 void ImageWidget::paintEvent(QPaintEvent *)
