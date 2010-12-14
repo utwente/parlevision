@@ -4,10 +4,10 @@
 
 using namespace plv;
 
-const std::type_info& CvMatDataInputPin::getTypeInfo() const
-{
-    return typeid(CvMatData);
-}
+//const std::type_info& CvMatDataInputPin::getTypeInfo() const
+//{
+//    return typeid(CvMatData);
+//}
 
 /** @returns the QMetaType typeId of the data type this pin is initialized with */
 int CvMatDataInputPin::getTypeId() const
@@ -127,7 +127,7 @@ void CvMatDataInputPin::checkImageFormat( const CvMatData& mat )
 bool CvMatDataInputPin::acceptsConnectionWith( const IOutputPin* pin,
                                     QString& errStr ) const
 {
-    if( pin->getTypeInfo() != this->getTypeInfo() )
+    if( pin->getTypeId() != this->getTypeId() )
     {
         errStr = "Incompatible types between pins";
         return false;
@@ -145,10 +145,10 @@ bool CvMatDataInputPin::acceptsConnectionWith( const IOutputPin* pin,
 
 /******************** CvMatDataOutputPin ********************************/
 
-const std::type_info& CvMatDataOutputPin::getTypeInfo() const
-{
-    return typeid( CvMatData );
-}
+//const std::type_info& CvMatDataOutputPin::getTypeInfo() const
+//{
+//    return typeid( CvMatData );
+//}
 
 /** @returns the QMetaType typeId of the data type this pin is initialized with */
 int CvMatDataOutputPin::getTypeId() const
@@ -264,7 +264,7 @@ void CvMatDataOutputPin::checkImageFormat( const CvMatData& mat )
 bool CvMatDataOutputPin::acceptsConnectionWith( const IInputPin* pin,
                                     QString& errStr ) const
 {
-    if( pin->getTypeInfo() != this->getTypeInfo() )
+    if( pin->getTypeId() != this->getTypeId() )
     {
         errStr = "Incompatible types between pins";
         return false;
@@ -289,12 +289,14 @@ throw (IllegalArgumentException)
     return pin;
 }
 
-CvMatDataInputPin* plv::createCvMatDataInputPin( const QString& name, PipelineElement* owner,
-                                                     IInputPin::InputPinType type )
+CvMatDataInputPin*
+plv::createCvMatDataInputPin( const QString& name, PipelineElement* owner,
+                              IInputPin::Required required,
+                              IInputPin::Synchronized synchronous )
 throw (IllegalArgumentException)
 {
     // if add fails pin is automatically deleted and exception is thrown
-    CvMatDataInputPin* pin = new CvMatDataInputPin( name, owner, type );
+    CvMatDataInputPin* pin = new CvMatDataInputPin( name, owner, required, synchronous );
     owner->addInputPin( pin );
     return pin;
 }

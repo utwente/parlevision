@@ -58,7 +58,7 @@ namespace plv
         /** @returns the std::type_info struct belonging to the type
           * this pin is initialized with. Is implemented by
           * the TypedPin sub class. */
-        virtual const std::type_info& getTypeInfo() const = 0;
+        //virtual const std::type_info& getTypeInfo() const = 0;
 
         /** @returns the QMetaType typeId of the data type this pin is initialized with */
         virtual int getTypeId() const = 0;
@@ -83,26 +83,32 @@ namespace plv
         Q_OBJECT
 
     public:
-        typedef enum InputPinType {
+        typedef enum Required {
             CONNECTION_OPTIONAL,
             CONNECTION_REQUIRED
-        } InputPinType;
+        } Required;
 
-        IInputPin( const QString& name, PipelineElement* owner,
-                   InputPinType type = CONNECTION_REQUIRED ) :
+        typedef enum Synchronized {
+            CONNECTION_SYNCHRONOUS,
+            CONNECTION_ASYNCHRONOUS
+        } Synchronized;
+
+        IInputPin( const QString& name, PipelineElement* owner, Required required, Synchronized sync ) :
                 Pin( name, owner ),
-                m_type( type )
+                m_required( required ),
+                m_synchronous( sync )
         {
         }
         virtual ~IInputPin();
 
-        inline InputPinType getType() const { return m_type; }
-        inline bool isRequired() const { return m_type == CONNECTION_REQUIRED; }
-        inline bool isOptional() const { return m_type == CONNECTION_OPTIONAL; }
+        inline Required getRequiredType() const { return m_required; }
+        inline Synchronized getSynchronizedType() const { return m_synchronous; }
 
-        // TODO
-        inline bool isSynchronous() const { return true; }
-        inline bool isAsynchronous() const { return false; }
+        inline bool isRequired() const { return m_required == CONNECTION_REQUIRED; }
+        inline bool isOptional() const { return m_required == CONNECTION_OPTIONAL; }
+
+        inline bool isSynchronous() const { return m_synchronous == CONNECTION_SYNCHRONOUS; }
+        inline bool isAsynchronous() const { return m_synchronous == CONNECTION_ASYNCHRONOUS; }
 
         void setConnection(PinConnection* connection);
         void removeConnection();
@@ -134,13 +140,17 @@ namespace plv
         virtual bool acceptsConnectionWith( const IOutputPin* pin, QString& errStr ) const = 0;
 
         /** methods not implemented from abstract Pin class */
-        virtual const std::type_info& getTypeInfo() const = 0;
+        //virtual const std::type_info& getTypeInfo() const = 0;
         virtual int getTypeId() const = 0;
         virtual QString getTypeName() const = 0;
+        virtual bool isDynamicallyTyped() const { return false; }
 
     protected:
-        /** The input pin type, either CONNECTION_OPTIONAL or CONNECTION_REQUIRED */
-        InputPinType m_type;
+        /** The input pin required type either CONNECTION_OPTIONAL or CONNECTION_REQUIRED */
+        Required m_required;
+
+        /** The input pin synchronicity either CONNECTION_SYNCHRONOUS or CONNECTION_ASYNCHRONOUS*/
+        Synchronized m_synchronous;
 
         /** isNull() if there is no connection */
         RefPtr<PinConnection> m_connection;
@@ -189,7 +199,7 @@ namespace plv
         virtual bool acceptsConnectionWith( const IInputPin* pin, QString& errStr ) const = 0;
 
         /** methods not implemented from abstract Pin class */
-        virtual const std::type_info& getTypeInfo() const = 0;
+        //virtual const std::type_info& getTypeInfo() const = 0;
         virtual int getTypeId() const = 0;
         virtual QString getTypeName() const = 0;
 
@@ -204,8 +214,7 @@ namespace plv
     class OutputPin : public IOutputPin
     {
     public:
-        OutputPin( const QString& name, PipelineElement* owner ) :
-                IOutputPin( name, owner ) {}
+        OutputPin( const QString& name, PipelineElement* owner ) : IOutputPin( name, owner ) {}
         virtual ~OutputPin() {}
 
         /** Puts data in connection. Drops data if no connection present.
@@ -219,10 +228,10 @@ namespace plv
             putVariant( v );
         }
 
-        virtual const std::type_info& getTypeInfo() const
-        {
-            return typeid( T );
-        }
+//        virtual const std::type_info& getTypeInfo() const
+//        {
+//            return typeid( T );
+//        }
 
         /** @returns the QMetaType typeId of the data type this pin is initialized with */
         virtual int getTypeId() const
@@ -247,9 +256,8 @@ namespace plv
     class InputPin : public IInputPin
     {
     public:
-        InputPin( const QString& name, PipelineElement* owner,
-                  InputPinType type = CONNECTION_REQUIRED ) :
-                  IInputPin( name, owner, type )
+        InputPin( const QString& name, PipelineElement* owner, Required required, Synchronized sync ) :
+                  IInputPin( name, owner, required, sync )
         {
         }
 
@@ -258,7 +266,8 @@ namespace plv
         // same type T.
         inline T get()
         {
-            QVariant v = this->get();
+            QVariant v;
+            getVariant(v);
             if( !v.canConvert<T>() )
             {
                emit( error( "Type conversion error") );
@@ -268,10 +277,10 @@ namespace plv
             return v.value<T>();
         }
 
-        virtual const std::type_info& getTypeInfo() const
-        {
-            return typeid( T );
-        }
+//        virtual const std::type_info& getTypeInfo() const
+//        {
+//            return typeid( T );
+//        }
 
         /** @returns the QMetaType typeId of the data type this pin is initialized with */
         virtual int getTypeId() const
@@ -290,6 +299,63 @@ namespace plv
         {
             return true;
         }
+
+        virtual bool isDynamicallyTyped() const { return false; }
+    };
+
+    class DynamicInputPin : public IInputPin
+    {
+    private:
+        int m_typeId; /** The dynamically set type id */
+    public:
+        DynamicInputPin( const QString& name, PipelineElement* owner, Required required, Synchronized sync, int typeId ) :
+                  IInputPin( name, owner, required, sync ),
+                  m_typeId( typeId )
+        {
+        }
+
+        template <typename T>
+        inline T get()
+        {
+            QVariant v;
+            getVariant(v);
+            if( !v.canConvert<T>() )
+            {
+               emit( error( "Type conversion error") );
+            }
+            // if canConvert returned false, this will
+            // return an empty newly constructed T
+            return v.value<T>();
+        }
+
+        /** @returns the QMetaType typeId of the data type this pin is initialized with */
+        virtual int getTypeId() const
+        {
+            return m_typeId;
+        }
+
+        bool setTypeId( int type )
+        {
+            assert( !isConnected() );
+            if( !QMetaType::isRegistered(type) ) return false;
+            if( isConnected() ) return false;
+            m_typeId = type;
+            return true;
+        }
+
+        /** @returns the name of the type this pin is initialized with */
+        virtual QString getTypeName() const
+        {
+            return QMetaType::typeName( m_typeId );
+        }
+
+        virtual bool acceptsConnectionWith( const IOutputPin* pin,
+                                            QString& errStr ) const
+        {
+            return true;
+        }
+
+        virtual bool isDynamicallyTyped() const { return true; }
     };
 
     template <class T>
@@ -304,11 +370,12 @@ namespace plv
 
     template<typename T>
     InputPin<T> * createInputPin( const QString& name, PipelineElement* owner,
-                                  IInputPin::InputPinType type = IInputPin::CONNECTION_REQUIRED )
+                                  IInputPin::Required required = IInputPin::CONNECTION_REQUIRED,
+                                  IInputPin::Synchronized synchronized = IInputPin::CONNECTION_SYNCHRONOUS )
     throw (IllegalArgumentException)
     {
         // if add fails pin is automatically deleted and exception is thrown
-        InputPin<T> * pin = new InputPin<T>( name, owner, type );
+        InputPin<T> * pin = new InputPin<T>( name, owner, required, synchronized );
         owner->addInputPin( pin );
         return pin;
     }

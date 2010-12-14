@@ -14,8 +14,9 @@ namespace plv
     public:
         CvMatDataInputPin( const QString& name,
                            PipelineElement* owner,
-                           InputPinType type = CONNECTION_REQUIRED ) :
-                           IInputPin( name, owner, type )
+                           Required required = CONNECTION_REQUIRED,
+                           Synchronized synchronous = CONNECTION_SYNCHRONOUS ) :
+                           IInputPin( name, owner, required, synchronous )
         {
         }
 
@@ -42,7 +43,7 @@ namespace plv
         /** Done once at connection creation only */
         virtual bool acceptsConnectionWith(const IOutputPin* pin, QString& errStr) const;
 
-        virtual const std::type_info& getTypeInfo() const;
+        //virtual const std::type_info& getTypeInfo() const;
         virtual int getTypeId() const;
         virtual QString getTypeName() const;
 
@@ -79,7 +80,7 @@ namespace plv
         /** Done once at connection creation only */
         virtual bool acceptsConnectionWith(const IInputPin* pin, QString& errStr) const;
 
-        virtual const std::type_info& getTypeInfo() const;
+        //virtual const std::type_info& getTypeInfo() const;
         virtual int getTypeId() const;
         virtual QString getTypeName() const;
 
@@ -92,7 +93,8 @@ namespace plv
     throw (IllegalArgumentException);
 
     CvMatDataInputPin* PLVCORE_EXPORT createCvMatDataInputPin( const QString& name, PipelineElement* owner,
-                                  IInputPin::InputPinType type = IInputPin::CONNECTION_REQUIRED )
+                                  IInputPin::Required required = IInputPin::CONNECTION_REQUIRED,
+                                  IInputPin::Synchronized synchronous = IInputPin::CONNECTION_SYNCHRONOUS  )
     throw (IllegalArgumentException);
 }
 

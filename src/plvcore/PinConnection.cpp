@@ -66,21 +66,34 @@ bool PinConnection::canConnectPins( IOutputPin* out, IInputPin* in,
         return false;
     }
 
-    int producerTypeId = out->getTypeId();
-    int consumerTypeId = in->getTypeId();
-
-    if( producerTypeId != consumerTypeId )
+    if( in->isDynamicallyTyped() )
     {
-        QString producerName = out->getName();
-        QString consumerName = in->getName();
-        QString producerTypeName = out->getTypeName();
-        QString consumerTypeName = in->getTypeName();
+        DynamicInputPin* din = static_cast<DynamicInputPin*>(in);
+        if( !din->setTypeId( out->getTypeId() ) )
+        {
+            errStr = "DynamicInputPin " % in->getName() % " failed to change type.";
+            return false;
+        }
+    }
+    else
+    {
 
-        errStr = "Cannot connect pins of incompatible type: producer "
-                 % producerName % " and consumer " % consumerName %
-                 " with types " % producerTypeName %
-                 " and " % consumerTypeName;
-        return false;
+        int producerTypeId = out->getTypeId();
+        int consumerTypeId = in->getTypeId();
+
+        if( producerTypeId != consumerTypeId )
+        {
+            QString producerName = out->getName();
+            QString consumerName = in->getName();
+            QString producerTypeName = out->getTypeName();
+            QString consumerTypeName = in->getTypeName();
+
+            errStr = "Cannot connect pins of incompatible type: producer "
+                     % producerName % " and consumer " % consumerName %
+                     " with types " % producerTypeName %
+                     " and " % consumerTypeName;
+            return false;
+        }
     }
 
     // ask pins for pin type specific objections to connection
@@ -115,21 +128,33 @@ void PinConnection::connect()
         throw DuplicateConnectionException(m_consumer->getName() + " is already connected");
     }
 
-    int producerTypeId = m_producer->getTypeId();
-    int consumerTypeId = m_consumer->getTypeId();
-
-    if( producerTypeId != consumerTypeId )
+    if(m_consumer->isDynamicallyTyped())
     {
-        QString producerName = m_producer->getName();
-        QString consumerName = m_consumer->getName();
-        QString producerTypeName = m_producer->getTypeName();
-        QString consumerTypeName = m_consumer->getTypeName();
+        DynamicInputPin* din = static_cast<DynamicInputPin*>(m_consumer);
+        if( !din->setTypeId( m_producer->getTypeId() ) )
+        {
+            QString errStr = "DynamicInputPin " % m_consumer->getName() % " failed to change type.";
+            throw IncompatibleTypeException(errStr);
+        }
+    }
+    else
+    {
+        int producerTypeId = m_producer->getTypeId();
+        int consumerTypeId = m_consumer->getTypeId();
 
-        QString errStr = "Cannot connect pins of incompatible type: producer "
-                 % producerName % " and consumer " % consumerName %
-                 " with types " % producerTypeName %
-                 " and " % consumerTypeName;
-        throw IncompatibleTypeException(errStr);
+        if( producerTypeId != consumerTypeId )
+        {
+            QString producerName = m_producer->getName();
+            QString consumerName = m_consumer->getName();
+            QString producerTypeName = m_producer->getTypeName();
+            QString consumerTypeName = m_consumer->getTypeName();
+
+            QString errStr = "Cannot connect pins of incompatible type: producer "
+                     % producerName % " and consumer " % consumerName %
+                     " with types " % producerTypeName %
+                     " and " % consumerTypeName;
+            throw IncompatibleTypeException(errStr);
+        }
     }
 
     QString errStr;
