@@ -34,19 +34,19 @@ SOURCES += plvopencvplugin.cpp \
     EdgeDetectorLaplace.cpp \
     GaussianSmooth.cpp \
     EdgeDetectorSobel.cpp \
-#    ImageFlip.cpp \
-#    ImageCornerHarris.cpp \
-#    ImageColorConvert.cpp \
-#    EdgeDetectorCanny.cpp \
-#    Add.cpp \
-#    Sub.cpp \
-#    Snapshot.cpp \
-#    Diff.cpp \
-#    DelayImage.cpp \
-#    ViolaJonesFaceDetector.cpp \
+    ImageFlip.cpp \
+    ImageCornerHarris.cpp \
+    ImageColorConvert.cpp \
+    EdgeDetectorCanny.cpp \
+    Add.cpp \
+    Sub.cpp \
+    Snapshot.cpp \
+    Diff.cpp \
+    DelayImage.cpp \
+    ViolaJonesFaceDetector.cpp \
 #    SaveImageToFile.cpp \
 #    ImageLoader.cpp \
-#    ImageThreshold.cpp \
+    ImageThreshold.cpp \
 #    Trigger.cpp
 	
 HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
@@ -57,18 +57,18 @@ HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
             ../../include/plvopencv/EdgeDetectorLaplace.h \
             ../../include/plvopencv/GaussianSmooth.h \
             ../../include/plvopencv/EdgeDetectorSobel.h \
-        #   ../../include/plvopencv/ImageFlip.h \
-        #   ../../include/plvopencv/ImageCornerHarris.h \
-        #   ../../include/plvopencv/ImageColorConvert.h \
-        #   ../../include/plvopencv/EdgeDetectorCanny.h \
-        #   ../../include/plvopencv/Add.h \
-        #   ../../include/plvopencv/Sub.h \
-        #   ../../include/plvopencv/Snapshot.h \
-        #   ../../include/plvopencv/Diff.h \
-        #   ../../include/plvopencv/DelayImage.h \
-        #   ../../include/plvopencv/ViolaJonesFaceDetector.h  \
+            ../../include/plvopencv/ImageFlip.h \
+            ../../include/plvopencv/ImageCornerHarris.h \
+            ../../include/plvopencv/ImageColorConvert.h \
+            ../../include/plvopencv/EdgeDetectorCanny.h \
+            ../../include/plvopencv/Add.h \
+            ../../include/plvopencv/Sub.h \
+            ../../include/plvopencv/Snapshot.h \
+            ../../include/plvopencv/Diff.h \
+            ../../include/plvopencv/DelayImage.h \
+            ../../include/plvopencv/ViolaJonesFaceDetector.h  \
         #   ../../include/plvopencv/SaveImageToFile.h  \
         #   ../../include/plvopencv/ImageLoader.h \
-        #   ../../include/plvopencv/ImageThreshold.h \
+            ../../include/plvopencv/ImageThreshold.h \
         #   ../../include/plvopencv/Trigger.h
     

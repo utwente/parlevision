@@ -33,9 +33,7 @@
 #include "RefCounted.h"
 #include "PinConnection.h"
 #include "PipelineElement.h"
-#include "Types.h"
 #include "PlvExceptions.h"
-#include "OpenCVImage.h"
 
 namespace plv
 {
@@ -86,12 +84,12 @@ namespace plv
 
     public:
         typedef enum InputPinType {
-            INPUT_OPTIONAL,
-            INPUT_REQUIRED
+            CONNECTION_OPTIONAL,
+            CONNECTION_REQUIRED
         } InputPinType;
 
         IInputPin( const QString& name, PipelineElement* owner,
-                   InputPinType type = INPUT_REQUIRED ) :
+                   InputPinType type = CONNECTION_REQUIRED ) :
                 Pin( name, owner ),
                 m_type( type )
         {
@@ -99,8 +97,8 @@ namespace plv
         virtual ~IInputPin();
 
         inline InputPinType getType() const { return m_type; }
-        inline bool isRequired() const { return m_type == INPUT_REQUIRED; }
-        inline bool isOptional() const { return m_type == INPUT_OPTIONAL; }
+        inline bool isRequired() const { return m_type == CONNECTION_REQUIRED; }
+        inline bool isOptional() const { return m_type == CONNECTION_OPTIONAL; }
 
         // TODO
         inline bool isSynchronous() const { return true; }
@@ -141,7 +139,7 @@ namespace plv
         virtual QString getTypeName() const = 0;
 
     protected:
-        /** The input pin type, either INPUT_OPTIONAL or INPUT_REQUIRED */
+        /** The input pin type, either CONNECTION_OPTIONAL or CONNECTION_REQUIRED */
         InputPinType m_type;
 
         /** isNull() if there is no connection */
@@ -216,7 +214,8 @@ namespace plv
           */
         inline void put( const T& data )
         {
-            QVariant v( data );
+            QVariant v;
+            v.setValue<T>(data);
             putVariant( v );
         }
 
@@ -249,7 +248,7 @@ namespace plv
     {
     public:
         InputPin( const QString& name, PipelineElement* owner,
-                  InputPinType type = INPUT_REQUIRED ) :
+                  InputPinType type = CONNECTION_REQUIRED ) :
                   IInputPin( name, owner, type )
         {
         }
@@ -305,7 +304,7 @@ namespace plv
 
     template<typename T>
     InputPin<T> * createInputPin( const QString& name, PipelineElement* owner,
-                                  IInputPin::InputPinType type = IInputPin::INPUT_REQUIRED )
+                                  IInputPin::InputPinType type = IInputPin::CONNECTION_REQUIRED )
     throw (IllegalArgumentException)
     {
         // if add fails pin is automatically deleted and exception is thrown

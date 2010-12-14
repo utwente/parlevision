@@ -23,10 +23,10 @@
 #define SNAPSHOT_H
 
 #include <plvcore/PipelineProcessor.h>
+#include <plvcore/CvMatData.h>
 
 namespace plv
 {
-    class OpenCVImage;
     class CvMatDataInputPin;
     class CvMatDataOutputPin;
 }
@@ -51,18 +51,17 @@ namespace plvopencv
         virtual ~Snapshot();
 
         /** propery methods */
-        bool getMakeSnapshot() { return m_makeSnapshot; }
-
+        bool getMakeSnapshot() const;
     signals:
-        void makeSnapshotChanged(bool newValue);
+        void makeSnapshotChanged(bool b);
 
     public slots:
-        void setMakeSnapshot(bool b) {m_makeSnapshot = b; emit(makeSnapshotChanged(b));}
+        void setMakeSnapshot(bool b);
 
     private:
         plv::CvMatDataInputPin* m_inputPin;
         plv::CvMatDataOutputPin* m_outputPin;
-        plv::RefPtr<plv::OpenCVImage> m_imgSnapshot;
+        plv::CvMatData m_snapshot;
 
         bool m_makeSnapshot;
 

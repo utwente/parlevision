@@ -3,17 +3,17 @@
 #include <QtDebug>
 
 #include "CameraProducer.h"
-//#include "Add.h"
-//#include "Sub.h"
-//#include "Diff.h"
-//#include "DelayImage.h"
+#include "Add.h"
+#include "Sub.h"
+#include "Diff.h"
+#include "DelayImage.h"
 #include "ExampleProcessor.h"
 #include "EdgeDetectorLaplace.h"
-//#include "EdgeDetectorCanny.h"
+#include "EdgeDetectorCanny.h"
 #include "EdgeDetectorSobel.h"
-//#include "ImageColorConvert.h"
-//#include "ImageCornerHarris.h"
-//#include "ImageFlip.h"
+#include "ImageColorConvert.h"
+#include "ImageCornerHarris.h"
+#include "ImageFlip.h"
 #include "GaussianSmooth.h"
 //#include "ImageThreshold.h"
 //#include "Snapshot.h"
@@ -42,15 +42,16 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::EdgeDetectorLaplace>();
     plvRegisterPipelineElement<plvopencv::EdgeDetectorSobel>();
     plvRegisterPipelineElement<plvopencv::GaussianSmooth>();
+    plvRegisterPipelineElement<plvopencv::ImageFlip>();
+    plvRegisterPipelineElement<plvopencv::Add>();
+    plvRegisterPipelineElement<plvopencv::Sub>();
+    plvRegisterPipelineElement<plvopencv::Diff>();
 
-//    plvRegisterPipelineElement<plvopencv::Add>();
-//    plvRegisterPipelineElement<plvopencv::Sub>();
-//    plvRegisterPipelineElement<plvopencv::Diff>();
-//    plvRegisterPipelineElement<plvopencv::DelayImage>();
-//    plvRegisterPipelineElement<plvopencv::EdgeDetectorCanny>();
-//    plvRegisterPipelineElement<plvopencv::ImageColorConvert>();
-//    plvRegisterPipelineElement<plvopencv::ImageCornerHarris>();
-//    plvRegisterPipelineElement<plvopencv::ImageFlip>();
+    plvRegisterPipelineElement<plvopencv::DelayImage>();
+    plvRegisterPipelineElement<plvopencv::EdgeDetectorCanny>();
+    plvRegisterPipelineElement<plvopencv::ImageColorConvert>();
+    plvRegisterPipelineElement<plvopencv::ImageCornerHarris>();
+
 //    plvRegisterPipelineElement<plvopencv::Snapshot>();
 //    plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>();
 //    plvRegisterPipelineElement<plvopencv::Trigger>();

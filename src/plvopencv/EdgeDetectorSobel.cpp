@@ -89,7 +89,7 @@ Parameters:
 void EdgeDetectorSobel::process()
 {
     CvMatData srcPtr = m_inputPin->get();
-    CvMatData dstPtr = CvMatData::create( srcPtr.getProperties() );
+    CvMatData dstPtr = CvMatData::create( srcPtr.properties() );
 
     // open for reading
     const cv::Mat& src = srcPtr;

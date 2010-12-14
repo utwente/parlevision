@@ -65,6 +65,7 @@ void Application::loadBuiltins()
     qRegisterMetaType< plv::Data >("plv::Data");
     qRegisterMetaType< plv::Enum >( "plv::Enum" );
     qRegisterMetaType< plv::CvMatData >( "plv::CvMatData" );
+    qRegisterMetaType< plv::RectangleData >( "plv::RectangleData" );
 }
 
 void Application::loadPlugins()

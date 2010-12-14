@@ -31,18 +31,21 @@ using namespace plv;
 using namespace plvopencv;
 
 ImageCornerHarris::ImageCornerHarris() :
-        m_apertureSize(3),
+        m_kernelSize(3),
         m_blockSize(3),
         m_k(0.04)
 {
     m_inputPin = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
-    m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
+    m_inputPin->addSupportedDepth( CV_8U );
+    m_inputPin->addSupportedDepth( CV_8S );
     m_inputPin->addSupportedChannels( 1 );
 
-    m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
+    m_outputPin->addSupportedDepth( CV_32F );
     m_outputPin->addSupportedChannels( 1 );
+
+    Util::addDefaultBorderInterpolationTypes( m_borderType );
 }
 
 ImageCornerHarris::~ImageCornerHarris()
@@ -71,33 +74,28 @@ void ImageCornerHarris::process()
     assert(m_outputPin != 0);
 
     // get the src image
-    CvMatData srcPtr = m_inputPin->get();
+    CvMatData in = m_inputPin->get();
 
     // make a target image
-    // apparantly cvCornerHarris expects a 32F dst image although it is not mentioned
-    // in the documentation but this is what we got:
-    // OpenCV Error: Assertion failed (src.size() == dst.size() && dst.type() == CV_32FC1)
-    // in cvCornerHarris, file cvcorner.cpp, line 380
-    OpenCVImageProperties props( srcPtr->getWidth(), srcPtr->getHeight(), IPL_DEPTH_32F, 1 );
-    CvMatData dstPtr = CvMatData::create( props );
+    // cv::CornerHarris expects a 32F dst image
+    CvMatDataProperties props( in.width(), in.height(), CV_32FC1 );
+    CvMatData out = CvMatData::create( props );
 
-    // open src for reading
-    const IplImage* src = srcPtr->getImage();
-
-    // open target for writing
-    IplImage* dst = dstPtr->getImageForWriting();
+    const cv::Mat& src = in;
+    cv::Mat& dst = out;
 
     // do a canny edge detection operator of the image
-    cvCornerHarris( src, dst, m_blockSize, m_apertureSize, m_k);
+    cv::cornerHarris( src, dst, m_blockSize, m_kernelSize,
+                      m_k, m_borderType.getSelectedValue() );
 
     // publish the new image
-    m_outputPin->put( dstPtr );
+    m_outputPin->put( out );
 }
 
-int ImageCornerHarris::getApertureSize() const
+int ImageCornerHarris::getKernelSize() const
 {
     QMutexLocker lock( m_propertyMutex );
-    return m_apertureSize;
+    return m_kernelSize;
 }
 
 int ImageCornerHarris::getBlockSize() const
@@ -110,6 +108,12 @@ double ImageCornerHarris::getK() const
 {
     QMutexLocker lock( m_propertyMutex );
     return m_k;
+}
+
+plv::Enum ImageCornerHarris::getBorderType() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_borderType;
 }
 
 void ImageCornerHarris::setBlockSize(int i)
@@ -132,7 +136,13 @@ void ImageCornerHarris::setK( double k )
     emit(kChanged(k));
 }
 
-void ImageCornerHarris::setApertureSize(int i)
+void ImageCornerHarris::setBorderType(plv::Enum bt)
+{
+    QMutexLocker lock(m_propertyMutex);
+    m_borderType = bt;
+}
+
+void ImageCornerHarris::setKernelSize(int i)
 {
     QMutexLocker lock( m_propertyMutex );
 
@@ -142,15 +152,15 @@ void ImageCornerHarris::setApertureSize(int i)
         i = 1;
     else if (i > 7)
         i = 7;
-    else if( isEven(i) )
+    else if( Util::isEven(i) )
     {   //even: determine appropriate new odd value
         //we were increasing -- increase to next odd value
-        if( i > m_apertureSize )
+        if( i > m_kernelSize )
             i++;
         //we were decreasing -- decrease to next odd value
         else
             i--;
     }
-    m_apertureSize = i;
-    emit(apertureSizeChanged(i));
+    m_kernelSize = i;
+    emit(kernelSizeChanged(i));
 }

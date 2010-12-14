@@ -39,9 +39,9 @@ namespace plvopencv
     {
         Q_OBJECT
         Q_DISABLE_COPY( DelayImage )
-        Q_CLASSINFO("author", "Dennis");
+        Q_CLASSINFO("author", "Dennis, Richard");
         Q_CLASSINFO("name", "Delay image");
-        Q_CLASSINFO("description", "Delay an image by given number of steps (max 10).");
+        Q_CLASSINFO("description", "Delays an image by a given number of steps (max 100).");
 
         Q_PROPERTY( int steps READ getSteps WRITE setSteps NOTIFY stepsChanged )
 
@@ -49,7 +49,7 @@ namespace plvopencv
         PLV_PIPELINE_ELEMENT
 
     public:
-        static const int MAX_STEPS = 1000;
+        static const int MAX_STEPS = 100;
 
         DelayImage();
         virtual ~DelayImage();

@@ -96,25 +96,28 @@ void ViolaJonesFaceDetector::process()
     assert( m_pStorage != 0 );
 
     CvMatData srcPtr = m_inputPin->get();
-    CvMatData dstPtr = CvMatData::create( srcPtr->getProperties() );
+    CvMatData dstPtr = CvMatData::create( srcPtr.properties() );
 
     // open for reading
-    const IplImage* src = srcPtr->getImage();
+    const cv::Mat& src = srcPtr;
+
 
     // open image for writing
-    IplImage* dst = dstPtr->getImageForWriting();
+    cv::Mat& dst = dstPtr;
 
-    //detect faces
-    CvSeq* faceRectSeq = cvHaarDetectObjects(src, m_pCascade, m_pStorage,
+    // detect faces
+    // this still uses old C interface
+    CvMat srcMat = src;
+    CvSeq* faceRectSeq =
+            cvHaarDetectObjects(&srcMat, m_pCascade, m_pStorage,
             m_scaleFactor, /* increase scale by m_scaleFactor each pass */
             m_minNeighbours, /*drop groups fewer than m_minNeighbours detections */
             int (m_useCannyPruning), /* 1 means: CV_HAAR_DO_CANNY_PRUNING */
-            cvSize(m_minWidth,m_minHeight) /* (0,0) means: use default smallest scale for detection */);
+            cv::Size(m_minWidth,m_minHeight) /* (0,0) means: use default smallest scale for detection */);
 
     //copy input image
-    cvCopy( src, dst );
-
-    RefPtr<RectangleData> rectangles = new RectangleData( srcPtr->getWidth(), srcPtr->getHeight() );
+    src.copyTo(dst);
+    RectangleData rectangles( srcPtr.width(), srcPtr.height() );
 
     //draw face rects
     for (int i = 0; i < ( faceRectSeq ? faceRectSeq->total : 0 ); ++i )
@@ -122,8 +125,8 @@ void ViolaJonesFaceDetector::process()
         CvRect* r = (CvRect*)cvGetSeqElem( faceRectSeq,i );
         CvPoint pt1 = {r->x,r->y};
         CvPoint pt2 = {r->x+r->width,r->y+r->height};
-        cvRectangle( dst, pt1, pt2, CV_RGB(0,255,0),3,4,0 );
-        rectangles->add( QRect( r->x, r->y, r->width, r->height ) );
+        cv::rectangle( dst, pt1, pt2, CV_RGB(0,255,0),3,4,0 );
+        rectangles.add( QRect( r->x, r->y, r->width, r->height ) );
     }
 
     // publish the new image and rectangle data

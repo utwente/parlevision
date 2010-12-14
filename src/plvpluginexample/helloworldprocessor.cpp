@@ -49,7 +49,7 @@ void HelloWorldProcessor::process()
 
     // allocate a target buffer
     CvMatData target;
-    target.create( src.getWidth(), src.getHeight(), src.getType() );
+    target.create( src.width(), src.height(), src.type() );
 
     // do a flip of the image
     const cv::Mat in = src;

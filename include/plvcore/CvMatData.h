@@ -37,39 +37,39 @@ namespace plv
 {
     /** helper class for dealing with properties of the cv::Mat */
     class PLVCORE_EXPORT CvMatDataProperties
+    {
+    protected:
+        int m_width;
+        int m_height;
+        int m_type; // combination of depth and channels
+
+    public:
+        inline CvMatDataProperties( int width,int height, int type ) :
+                m_width(width), m_height(height),
+                m_type(type) {}
+
+        inline CvMatDataProperties( const cv::Mat& mat ) :
+                m_width(mat.cols), m_height(mat.rows), m_type(mat.type()) {}
+
+        inline bool operator == (const CvMatDataProperties& rhs ) const
         {
-        protected:
-            int m_width;
-            int m_height;
-            int m_type; // combination of depth and channels
+            return m_width == rhs.m_width &&
+                   m_height == rhs.m_height &&
+                   m_type == rhs.m_type;
+        }
 
-        public:
-            inline CvMatDataProperties( int width,int height, int type ) :
-                    m_width(width), m_height(height),
-                    m_type(type) {}
+        inline int width() const { return m_width; }
+        inline int height() const { return m_height; }
+        inline int depth() const { return CV_MAT_DEPTH( m_type ); }
+        inline int channels() const { return CV_MAT_CN( m_type ); }
+        inline int type() const { return m_type; }
 
-            inline CvMatDataProperties( const cv::Mat& mat ) :
-                    m_width(mat.cols), m_height(mat.rows), m_type(mat.type()) {}
-
-            inline bool operator == (const CvMatDataProperties& rhs ) const
-            {
-                return m_width == rhs.m_width &&
-                       m_height == rhs.m_height &&
-                       m_type == rhs.m_type;
-            }
-
-            inline int getWidth() const { return m_width; }
-            inline int getHeight() const { return m_height; }
-            inline int getDepth() const { return CV_MAT_DEPTH( m_type ); }
-            inline int getNumChannels() const { return CV_MAT_CN( m_type ); }
-            inline int getType() const { return m_type; }
-
-            inline void setWidth( int width ) { m_width = width; }
-            inline void setHeight( int height ) { m_height = height; }
-            inline void setDepth( int depth ) { m_type = CV_MAKE_TYPE(depth,  CV_MAT_CN( m_type )); }
-            inline void setNumChannels( int numChannels ) { m_type = CV_MAKE_TYPE( CV_MAT_DEPTH( m_type ), numChannels); }
-            inline void setType( int type ) { m_type = type; }
-        };
+        inline void setWidth( int width ) { m_width = width; }
+        inline void setHeight( int height ) { m_height = height; }
+        inline void setDepth( int depth ) { m_type = CV_MAKE_TYPE(depth,  CV_MAT_CN( m_type )); }
+        inline void setNumChannels( int numChannels ) { m_type = CV_MAKE_TYPE( CV_MAT_DEPTH( m_type ), numChannels); }
+        inline void setType( int type ) { m_type = type; }
+    };
 
     /** internal class to CvMatData. Not exported */
     class MatData : public QSharedData
@@ -105,6 +105,15 @@ namespace plv
             return *this;
         }
 
+        inline CvMatData& operator=(const cv::Mat& other)
+        {
+            if( &d->mat != &other )
+            {
+                d->mat = other;
+            }
+            return *this;
+        }
+
         /** Returns if the contained matrix has allocated data */
         inline bool isValid() const { return d->mat.cols > 0 && d->mat.rows > 0 && d->mat.data!=0; }
 
@@ -130,17 +139,17 @@ namespace plv
         }
         inline static CvMatData create( const CvMatDataProperties& props )
         {
-            return create( props.getWidth(), props.getHeight(), props.getType() );
+            return create( props.width(), props.height(), props.type() );
         }
 
-        inline int getType() const { return d->mat.type(); }
-        inline int getDepth() const { return d->mat.depth(); }
-        inline int getChannels() const { return d->mat.channels(); }
-        inline int getWidth() const { return d->mat.cols; }
-        inline int getHeight() const { return d->mat.rows; }
-        inline int getCols() const { return d->mat.cols; }
-        inline int getRows() const { return d->mat.rows; }
-        inline CvMatDataProperties getProperties() const { return CvMatDataProperties(d->mat); }
+        inline int type() const { return d->mat.type(); }
+        inline int depth() const { return d->mat.depth(); }
+        inline int channels() const { return d->mat.channels(); }
+        inline int width() const { return d->mat.cols; }
+        inline int height() const { return d->mat.rows; }
+        inline int cols() const { return d->mat.cols; }
+        inline int rows() const { return d->mat.rows; }
+        inline CvMatDataProperties properties() const { return CvMatDataProperties(d->mat); }
 
         static const char* depthToString( int depth );
 

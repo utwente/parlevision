@@ -29,10 +29,12 @@ using namespace plv;
 using namespace plvopencv;
 
 Add::Add() :
-    m_normalize ( false )
+    m_alpha(0.5),
+    m_beta(0.5),
+    m_gamma(0)
 {
-    m_inputPin1 = createCvMatDataInputPin( "input 1", this );
-    m_inputPin2 = createCvMatDataInputPin( "input 2", this );
+    m_inputPin1 = createCvMatDataInputPin( "input A", this );
+    m_inputPin2 = createCvMatDataInputPin( "input B", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin1->addAllChannels();
@@ -45,72 +47,88 @@ Add::Add() :
     m_outputPin->addAllDepths();
 }
 
-Add::~Add()
-{
-}
-
-void Add::init()
-{
-}
-
-void Add::deinit() throw ()
-{
-}
-
-void Add::start()
-{
-}
-
-void Add::stop()
-{
-}
+Add::~Add() {}
+void Add::init() {}
+void Add::deinit() throw () {}
+void Add::start() {}
+void Add::stop() {}
 
 void Add::process()
 {
     // get the inputs
-    CvMatData img1 = m_inputPin1->get();
-    CvMatData img2 = m_inputPin2->get();
+    CvMatData in1 = m_inputPin1->get();
+    CvMatData in2 = m_inputPin2->get();
 
     //check format of images?
-    if( !img1->isCompatible( img2 ) )
+    if( in1.channels() != in2.channels() )
     {
-        // TODO: we could use some modifications when the images do not match
-        // -- e.g., copy one of the mismatching images into a duplicate that
-        // DOES match (stretch? shrink? add depth?)
-        throw plv::PlvRuntimeException("The two images need to be the same in depth,"
-                                       "size and nr of channels", __FILE__, __LINE__);
+        QString msg = tr("Images do not have same number of channels.");
+        error( PLE_FATAL, msg );
+        return;
     }
 
-    // need this because we need to scale down input for adding,
-    // otherwise we get too many white areas
-    CvMatData imgTempIn1 = CvMatData::create( img1->getProperties() );
-    CvMatData imgTempIn2 = CvMatData::create( img2->getProperties() );
-
-    //get a new output image of same depth and size as input image
-    CvMatData imgOut = CvMatData::create( img1->getProperties() );
-
-    // open input images for reading
-    const IplImage* iplImgIn1 = img1->getImage();
-    const IplImage* iplImgIn2 = img2->getImage();
-
-    // open temp images for writing
-    IplImage* iplImgTempIn1 = imgTempIn1->getImageForWriting();
-    IplImage* iplImgTempIn2 = imgTempIn2->getImageForWriting();
-
-    // open output image for writing
-    IplImage* iplImgOut = imgOut->getImageForWriting();
-
-    //scale down to prevent saturation during the add operation
-    cvConvertScale(iplImgIn1,iplImgTempIn1, 0.5, 0);
-    cvConvertScale(iplImgIn2,iplImgTempIn2, 0.5, 0);
-    cvAdd(iplImgTempIn1,iplImgTempIn2,iplImgOut, NULL);
-
-    //scale back up again
-    if( m_normalize )
+    if( in1.depth() != in2.depth() )
     {
-        cvConvertScale(iplImgOut,iplImgOut, 2, 0);
+        QString msg = tr("Input images are not of the same depth. "
+                      "Input 1 has depth %1 and input 2 has depth %2. " )
+                .arg(CvMatData::depthToString(in1.depth()))
+                .arg(CvMatData::depthToString(in2.depth()));
+        error( PLE_FATAL, msg );
+        return;
     }
+
+    CvMatData out = CvMatData::create(in1.properties());
+
+    const cv::Mat& src1 = in1;
+    const cv::Mat& src2 = in2;
+    cv::Mat& dst = out;
+
+    // does a weighted add
+    cv::addWeighted( src1, m_alpha, src2, m_beta, m_gamma, dst );
 
     // publish the new image
-    m_outputPin->put( imgOut );
+    m_outputPin->put( out );
 }
+
+double Add::getAlpha() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_alpha;
+}
+
+void Add::setAlpha( double a, bool doEmit )
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_alpha = a;
+    if( doEmit ) emit( alphaChanged(a) );
+}
+
+double Add::getBeta() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_beta;
+}
+
+void Add::setBeta( double b, bool doEmit )
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_beta = b;
+    if( doEmit ) emit( betaChanged(b) );
+}
+
+double Add::getGamma() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_gamma;
+}
+
+void Add::setGamma( double g, bool doEmit )
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_gamma = g;
+    if( doEmit ) emit( gammaChanged(g) );
+}
+
+
+
+

@@ -367,21 +367,21 @@ void ImageColorConvert::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    CvMatData src = m_inputPin->get();
+    CvMatData in = m_inputPin->get();
 
-    OpenCVImageProperties props = src->getProperties();
+    CvMatDataProperties props = in.properties();
     props.setNumChannels( m_outChannels );
-    CvMatData target = CvMatData::create( props );
+    CvMatData out = CvMatData::create( props );
 
     // open for reading
-    const IplImage* srcIpl = src->getImage();
+    const cv::Mat& src = in;
 
     // open image for writing
-    IplImage* targetIpl = target->getImageForWriting();
+    cv::Mat& dst = out;
 
     // cvCvtColor function, see OpenCV documentation for details
-    cvCvtColor(srcIpl, targetIpl, m_conversionType.getSelectedValue());
+    cv::cvtColor(src, dst, m_conversionType.getSelectedValue(), m_outChannels );
 
     // publish the new image
-    m_outputPin->put( target );
+    m_outputPin->put( out );
 }

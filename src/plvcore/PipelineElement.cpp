@@ -22,6 +22,7 @@
 #include "PipelineElement.h"
 
 #include <QString>
+#include <QStringList>
 #include <QStringBuilder>
 #include <QDebug>
 #include <QMetaObject>
@@ -345,4 +346,10 @@ void PipelineElement::setProperty(const char *name, const QVariant &value)
 {
     QObject::setProperty(name, value);
     emit(propertyChanged(QString(name)));
+}
+
+void PipelineElement::error( ErrorType type, QString msg )
+{
+    m_errorString = msg;
+    emit( errorOccured( type, msg ) );
 }

@@ -31,7 +31,7 @@ using namespace plvopencv;
 DelayImage::DelayImage():
         m_steps(5)
 {
-    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::CONNECTION_REQUIRED );
     m_inputPin->addAllChannels();
     m_inputPin->addAllDepths();
 
@@ -79,11 +79,11 @@ void DelayImage::process()
     // propagate image if we have an history of m_steps images
     while( m_images.size() >= m_steps )
     {
-        m_delayedOutputPin->put( m_images.first().getPtr() );
+        m_delayedOutputPin->put( m_images.first() );
         m_images.removeFirst();
 
         // and propagate non delayed output
-        m_outputPin->put( imgIn.getPtr() );
+        m_outputPin->put( imgIn );
     }
     // not enough in buffer, do not propagate anything
 }

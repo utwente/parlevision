@@ -7,13 +7,14 @@
 namespace plv
 {
     class CvMatDataOutputPin;
+    class PipelineElement;
 
     class PLVCORE_EXPORT CvMatDataInputPin : public IInputPin
     {
     public:
         CvMatDataInputPin( const QString& name,
                            PipelineElement* owner,
-                           InputPinType type = INPUT_REQUIRED ) :
+                           InputPinType type = CONNECTION_REQUIRED ) :
                            IInputPin( name, owner, type )
         {
         }
@@ -22,8 +23,10 @@ namespace plv
 
         void addSupportedDepth(int depth);
         void addSupportedChannels(int channels);
+
         void removeSupportedDepth(int depth);
         void removeSupportedChannels(int channels);
+
         bool supportsChannels( int channels ) const;
         bool supportsDepth( int depth ) const;
 
@@ -89,7 +92,7 @@ namespace plv
     throw (IllegalArgumentException);
 
     CvMatDataInputPin* PLVCORE_EXPORT createCvMatDataInputPin( const QString& name, PipelineElement* owner,
-                                  IInputPin::InputPinType type = IInputPin::INPUT_REQUIRED )
+                                  IInputPin::InputPinType type = IInputPin::CONNECTION_REQUIRED )
     throw (IllegalArgumentException);
 }
 

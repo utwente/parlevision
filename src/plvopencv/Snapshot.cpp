@@ -19,13 +19,8 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#include <QDebug>
-
 #include "Snapshot.h"
-#include <plvcore/CvMatData.h>
-
 #include <plvcore/CvMatDataPin.h>
-#include <opencv/cv.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -33,7 +28,7 @@ using namespace plvopencv;
 Snapshot::Snapshot() :
         m_makeSnapshot(true)
 {
-    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::CONNECTION_REQUIRED );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 }
 
@@ -59,50 +54,29 @@ void Snapshot::stop()
 
 void Snapshot::process()
 {
-    assert(m_inputPin != 0);
-    assert(m_outputPin != 0);
-    CvMatData imgIn = m_inputPin->get();
+    CvMatData in = m_inputPin->get();
 
-    //enforce snapshot on first frame, when we don't have a snapshot yet
-    if ((!m_makeSnapshot) && m_imgSnapshot.isNull())setMakeSnapshot(true);
-
-    CvMatData imgOut = OpenCVImageFactory::instance()->get(
-            imgIn->getWidth(), imgIn->getHeight(), imgIn->getDepth(), imgIn->getNumChannels() );
-
-    // open for reading
-    const IplImage* iplImgIn = imgIn->getImage();
-
-    // open image for writing
-    IplImage* iplImgOut = imgOut->getImageForWriting();
-
-    //if we did not yet have a snapshot, make an empty one
-    if (m_imgSnapshot.isNull())
-    {   //only needed when no snapshot was yet present
-        m_imgSnapshot = OpenCVImageFactory::instance()->get(
-                imgIn->getWidth(), imgIn->getHeight(), imgIn->getDepth(), imgIn->getNumChannels() );
-
-    }
-
-    //get the stored snapshot image, to copy it to the output
-    IplImage* iplImgSnapshot = m_imgSnapshot->getImageForWriting();
-
-    //make snapshot if requested
-    if (m_makeSnapshot)
+    // make snapshot if requested
+    // since we init m_makeSnapshot to true, we do this on the first frame
+    if( m_makeSnapshot )
     {
-        m_imgSnapshot = OpenCVImageFactory::instance()->get(
-                imgIn->getWidth(), imgIn->getHeight(), imgIn->getDepth(), imgIn->getNumChannels() );
-        // open the new snapshot image for writing
-        iplImgSnapshot = m_imgSnapshot->getImageForWriting();
-        //put input data into new snapshot image
-        cvCopy(iplImgIn,iplImgSnapshot);
-        //we made the snapshot, so set property to false again
-        setMakeSnapshot(false);
+        m_snapshot = in;
+        m_makeSnapshot = false;
     }
+    m_outputPin->put( in );
+}
 
-    //copy the snapshot to the output
-    cvCopy(iplImgSnapshot,iplImgOut);
+/** propery methods */
+bool Snapshot::getMakeSnapshot() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_makeSnapshot;
+}
 
-    // publish the new image
-    m_outputPin->put( imgOut.getPtr() );
+void Snapshot::setMakeSnapshot(bool b)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_makeSnapshot = b;
+    emit( makeSnapshotChanged(b) );
 }
 

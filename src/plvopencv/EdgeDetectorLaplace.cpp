@@ -74,8 +74,8 @@ void EdgeDetectorLaplace::process()
 
     // destination image should be at least 16 bits to avoid overflow
     // see e.g. http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsobel#cvLaplace
-    CvMatDataProperties props = srcPtr.getProperties();
-    if( props.getDepth() != CV_32F )
+    CvMatDataProperties props = srcPtr.properties();
+    if( props.depth() != CV_32F )
     {
         props.setDepth( CV_16S );
     }
@@ -100,7 +100,7 @@ void EdgeDetectorLaplace::process()
     //        * scale – The optional scale factor for the computed Laplacian values (by default, no scaling is applied, see getDerivKernels() )
     //        * delta – The optional delta value, added to the results prior to storing them in dst
     //        * borderType – The pixel extrapolation method, see borderInterpolate()
-    int ddepth = srcPtr.getDepth();
+    int ddepth = srcPtr.depth();
     cv::Laplacian( src, dst, ddepth, m_apertureSize );
 
     // publish output

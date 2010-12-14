@@ -65,6 +65,12 @@ namespace plv
         typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
         typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
 
+        typedef enum _ErrorType {
+            PLE_DEBUG,
+            PLE_WARNING,
+            PLE_FATAL
+        } ErrorType;
+
     protected:
         /** processor id */
         int m_id;
@@ -85,6 +91,10 @@ namespace plv
           * call to the set function resulting in a deadlock if we use a normal
           * mutex */
         mutable QMutex* m_propertyMutex;
+
+        /** if an error has occured, this string holds an error message.
+            Errors are also emitted using signal errorOccurred */
+        QString m_errorString;
 
     public:
         friend class Pipeline;
@@ -247,8 +257,11 @@ namespace plv
         inline void setProcessingSerial( unsigned int serial ) { m_serial = serial; }
         inline unsigned int getProcessingSerial() const { return m_serial; }
 
+        void error( ErrorType type, QString msg );
+
     signals:
         void propertyChanged(QString);
+        void errorOccured( ErrorType type, QString message );
 
     protected:
         /** list to keep track of registered types */

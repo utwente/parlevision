@@ -39,6 +39,14 @@ namespace plvopencv
     {
         Q_OBJECT
         Q_DISABLE_COPY( ImageColorConvert )
+        Q_CLASSINFO("author", "Richard")
+        Q_CLASSINFO("name", "Color and scale conversion")
+        Q_CLASSINFO("description", "Color and scale converion using the cv::cvtColor method. See "
+                    "<a href='http://opencv.willowgarage.com/documentation/cpp/imgproc_miscellaneous_image_transformations.html?highlight=cvtcolor#cvtColor'>"
+                    "OpenCV reference"
+                    "</a> for a detailed explanation of the parameters.");
+
+
         Q_PROPERTY( plv::Enum conversionType READ getConversionType WRITE setConversionType NOTIFY conversionTypeChanged )
 
         /** required standard method declaration for plv::PipelineElement */

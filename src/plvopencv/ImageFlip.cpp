@@ -28,12 +28,9 @@
 using namespace plv;
 using namespace plvopencv;
 
-ImageFlip::ImageFlip() :
-        m_flipX(true),
-        m_flipY(true),
-        m_method(-1)
+ImageFlip::ImageFlip()
 {
-    m_inputPin = createCvMatDataInputPin( "input", this );
+    m_inputPin  = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin->addAllChannels();
@@ -41,85 +38,49 @@ ImageFlip::ImageFlip() :
 
     m_outputPin->addAllChannels();
     m_outputPin->addAllDepths();
+
+    // flipCode – Specifies how to flip the array: 0 means flipping
+    // around the x-axis, positive (e.g., 1) means flipping around y-axis,
+    // and negative (e.g., -1) means flipping around both axes.
+    // See also the discussion below for the formulas.
+    m_method.add( "flip around x and y-axis", -1 );
+    m_method.add( "flip around x-axis", 0 );
+    m_method.add( "flip around y-axis", 1 );
 }
 
-ImageFlip::~ImageFlip()
-{
-}
-
-void ImageFlip::init()
-{
-}
-
-void ImageFlip::deinit() throw ()
-{
-}
-
-void ImageFlip::start()
-{
-}
-
-void ImageFlip::stop()
-{
-}
+ImageFlip::~ImageFlip() {}
+void ImageFlip::init() {}
+void ImageFlip::deinit() throw () {}
+void ImageFlip::start() {}
+void ImageFlip::stop() {}
 
 void ImageFlip::process()
 {
-    assert(m_inputPin != 0);
-    assert(m_outputPin != 0);
-
-    CvMatData imgIn = m_inputPin->get();
-
-    CvMatData imgOut = OpenCVImageFactory::instance()->get(
-            imgIn->getWidth(), imgIn->getHeight(), imgIn->getDepth(), imgIn->getNumChannels() );
-
+    CvMatData in = m_inputPin->get();
+    CvMatData out = CvMatData::create(in.properties());
 
     // open for reading
-    const IplImage* iplImgIn = imgIn->getImage();
+    const cv::Mat& src = in;
 
     // open image for writing
-    IplImage* iplImgOut = imgOut->getImageForWriting();
+    cv::Mat& target = out;
 
     // do a flip of the image
-    if (m_flipX || m_flipY) cvFlip( iplImgIn, iplImgOut, m_method);
-    else cvCopy( iplImgIn, iplImgOut);
+    cv::flip( src, target, m_method.getSelectedValue() );
 
     // publish the new image
-    m_outputPin->put( imgOut.getPtr() );
+    m_outputPin->put( target );
 }
 
-void ImageFlip::setFlipX(bool b)
+void ImageFlip::setMethod( plv::Enum e )
 {
-    if (b)
-    {
-        if (m_flipY) m_method = -1;
-        else m_method=0;
-    }
-    else
-    {
-        if (m_flipY) m_method = 1;
-        else m_method=0;
-    }
-
-
-    m_flipX = b;
-    emit(flipXChanged(m_flipX));
+    QMutexLocker lock( m_propertyMutex );
+    m_method = e;
+    emit( methodChanged(e) );
 }
 
-void ImageFlip::setFlipY(bool b)
+plv::Enum ImageFlip::getMethod() const
 {
-    if (b)
-    {
-        if (m_flipX) m_method = -1;
-        else m_method=1;
-    }
-    else
-    {
-        if (m_flipX) m_method = 0;
-        else m_method=1;
-    }
-
-
-    m_flipY = b;
-    emit(flipYChanged(m_flipY));
+    QMutexLocker lock( m_propertyMutex );
+    return m_method;
 }

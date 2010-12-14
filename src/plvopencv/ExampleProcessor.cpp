@@ -39,17 +39,25 @@ ExampleProcessor::ExampleProcessor() :
         m_someString("hello")
 {
     // this pin needs to be connected, or process() will not be called
-    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::CONNECTION_REQUIRED );
 
     // this pin does not have to be connected for process() to be called
     // we have to check it manually
     // if input is ready on this pin, we are required to remove it
-    m_inputPinOptional = createCvMatDataInputPin( "input2", this, IInputPin::INPUT_OPTIONAL );
+    m_inputPinOptional = createCvMatDataInputPin( "input2", this, IInputPin::CONNECTION_OPTIONAL );
 
     // here we can publish the ouput of this processor
     // we do not have to publish output, if no output is published
     // a NULL message is sent to the connected processors
     m_outputPin = createCvMatDataOutputPin( "output", this );
+
+    // the pins get added to the PipelineElement base class. This class makes sure
+    // they are deleted on destruction of this class. We do not have to do this ourselves.
+    // Also, the instance variables can be simple pointers, no smart pointers are
+    // necessary.
+    // The instance variables for the pins are only for convenience. We could also
+    // get them like this:
+    // IOutputPin* example = this->getOutputPin("output");
 
     // we fill our enum, first item is the default
     // items have and index, an QString id, and a value
@@ -78,6 +86,7 @@ ExampleProcessor::ExampleProcessor() :
 
 ExampleProcessor::~ExampleProcessor()
 {
+    // pins are automatically destructed
 }
 
 void ExampleProcessor::init()
@@ -104,7 +113,7 @@ void ExampleProcessor::process()
     CvMatData src = m_inputPin->get();
 
     // allocate a target buffer
-    CvMatData target = CvMatData::create( src.getWidth(), src.getHeight(), src.getType() );
+    CvMatData target = CvMatData::create( src.width(), src.height(), src.type() );
 
     // do a flip of the image
     const cv::Mat in = src;

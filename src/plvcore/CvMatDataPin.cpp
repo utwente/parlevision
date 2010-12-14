@@ -91,21 +91,20 @@ void CvMatDataInputPin::addAllChannels()
     m_channels.insert( 4 );
 }
 
-
 void CvMatDataInputPin::checkImageFormat( const CvMatData& mat )
 {
-    if( !supportsDepth( mat.getDepth()) )
+    if( !supportsDepth( mat.depth()) )
     {
         QString msg = QString("Depth \"%1\" unsupported by input pin \"%2\"")
-                      .arg( CvMatData::depthToString( mat.getDepth() ) )
+                      .arg( CvMatData::depthToString( mat.depth() ) )
                       .arg( this->getName() );
         throw PlvRuntimeException( msg, __FILE__, __LINE__ );
     }
 
-    if( !supportsChannels(mat.getChannels()) )
+    if( !supportsChannels(mat.channels()) )
     {
         QString msg = "Number of channels " %
-                      QVariant(mat.getChannels()).toString() %
+                      QVariant(mat.channels()).toString() %
                       " unsupported by input pin \"" % this->getName() %
                       "\". Supports channels (";
         QString channelsStr;
@@ -231,18 +230,18 @@ void CvMatDataOutputPin::addAllChannels()
 
 void CvMatDataOutputPin::checkImageFormat( const CvMatData& mat )
 {
-    if( !supportsDepth(mat.getDepth()) )
+    if( !supportsDepth(mat.depth()) )
     {
         QString msg = QString("Depth \"%1\" unsupported by output pin \"%2\"")
-                      .arg( CvMatData::depthToString( mat.getDepth() ) )
+                      .arg( CvMatData::depthToString( mat.depth() ) )
                       .arg( this->getName() );
         throw PlvRuntimeException( msg, __FILE__, __LINE__ );
     }
 
-    if( !supportsChannels(mat.getChannels()) )
+    if( !supportsChannels(mat.channels()) )
     {
         QString msg = "Number of channels " %
-                      QVariant(mat.getChannels()).toString() %
+                      QVariant(mat.channels()).toString() %
                       " unsupported by output pin \"" % this->getName() %
                       "\". Supports channels (";
         QString channelsStr;

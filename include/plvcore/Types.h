@@ -28,6 +28,7 @@
 #include <QMetaType>
 #include <QVariant>
 #include <QRect>
+#include <QSharedData>
 
 #include "plvglobal.h"
 #include "RefPtr.h"
@@ -35,34 +36,40 @@
 
 namespace plv 
 {
+    class RectangleDataPrivate : public QSharedData
+    {
+    public:
+        int m_width;
+        int m_height;
+        QList<QRect> m_rects;
+
+        RectangleDataPrivate(int w, int h) : m_width(w), m_height(h) {}
+    };
+
     /** DataContainer around a QList with QRect rectangle list */
     class PLVCORE_EXPORT RectangleData
     {
     private:
-        int m_width;
-        int m_height;
-        QList<QRect> m_rects;
-        mutable QMutex m_rectMutex;
+        QSharedDataPointer<RectangleDataPrivate> d;
 
     public:
         /** Constructor. Takes width and height of the image from which the
             rectangles are taken if relevant. This is necessary for correct
             rendering of the rectangles.  */
-        RectangleData( int width = 0, int height = 0 );
+        RectangleData( int width=0, int height=0 );
         RectangleData( const RectangleData& other );
         ~RectangleData();
 
-        int width() const; // { return m_width; }
-        int height() const; // { return m_height; }
+        int width() const { return d->m_width; }
+        int height() const { return d->m_height; }
 
         /** adds a rectangle to internal rectangle list */
-        void add( const QRect& rect );
+        void add( const QRect& rect ) { d->m_rects.append( rect ); }
 
         /** QList uses implicit sharing so we return by value */
-        QList<QRect> getRects() const;
+        QList<QRect> getRects() const { return d->m_rects; }
     };
 }
-
 /** Declare as Qt Metatype so we can pass RefPtr<Data> along with signals and slots */
 Q_DECLARE_METATYPE( plv::RectangleData )
 

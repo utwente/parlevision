@@ -23,12 +23,10 @@
 #define IMAGETHRESHOLD_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Types.h>
 #include <plvcore/Enum.h>
 
 namespace plv
 {
-    class OpenCVImage;
     class CvMatDataInputPin;
     class CvMatDataOutputPin;
 }
@@ -45,13 +43,13 @@ namespace plvopencv
     {
         Q_OBJECT
         Q_DISABLE_COPY( ImageThreshold )
-        Q_CLASSINFO("author", "Niek Hoeijmakers")
+        Q_CLASSINFO("author", "Niek Hoeijmakers, Richard Loos")
         Q_CLASSINFO("name", "Threshold")
         Q_CLASSINFO("description", "A processor that removes all image data above or below a given threshold."
-                    "This processor uses cvThreshold, see OpenCV reference for meaning of parameters."
-                    "<a href='http://opencv.willowgarage.com/documentation/miscellaneous_image_transformations.html?highlight=cvthreshold#cvThreshold'>"
-                    "http://opencv.willowgarage.com/documentation/miscellaneous_image_transformations.html?highlight=cvthreshold#cvThreshold"
-                    "</a>");
+                    "This processor uses cv::threshold, see "
+                    "<a href='http://opencv.willowgarage.com/documentation/cpp/imgproc_miscellaneous_image_transformations.html#threshold'>"
+                    "OpenCV reference"
+                    "</a> for meaning of parameters.");
 
         Q_PROPERTY( plv::Enum method READ getMethod WRITE setMethod NOTIFY methodChanged )
         Q_PROPERTY( double threshold READ getThreshold WRITE setThreshold NOTIFY thresholdChanged )
@@ -65,19 +63,19 @@ namespace plvopencv
         virtual ~ImageThreshold();
 
         /** propery methods */
-        plv::Enum getMethod() const { return m_method; }
-        double getThreshold() { return m_threshold; }
-        double getMaxValue() { return m_maxValue; }
+        plv::Enum getMethod() const;
+        double getThreshold() const;
+        double getMaxValue() const;
 
     signals:
-        void methodChanged( plv::Enum m );
+        void methodChanged(plv::Enum m);
         void thresholdChanged(double newValue);
         void maxValueChanged(double newValue);
 
     public slots:
-        void setMethod( plv::Enum m ) { m_method = m; emit(methodChanged(m_method));}
-        void setThreshold(double d) { m_threshold = d; emit(thresholdChanged(m_threshold)); }
-        void setMaxValue(double d) { m_maxValue = d; emit(maxValueChanged(m_maxValue)); }
+        void setMethod(plv::Enum m);
+        void setThreshold(double d);
+        void setMaxValue(double d);
 
     private:
         plv::CvMatDataInputPin*  m_inputPin;
