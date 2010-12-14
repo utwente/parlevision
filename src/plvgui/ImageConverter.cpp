@@ -48,7 +48,7 @@ void ImageConverter::convert( const plv::CvMatData data )
         QString msg = QString("IplImageConverter failed to convert image with error: %1")
                       .arg( e.what() );
 
-        QSize size( data.getWidth(), data.getHeight() );
+        QSize size( data.width(), data.height() );
         QImage qimage( size, QImage::Format_ARGB32_Premultiplied );
         qimage.fill( 0 );
         QPainter painter(&qimage);
@@ -133,7 +133,7 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
         qimg = QImage( mat.cols, mat.rows, QImage::Format_Indexed8 );
         const uint16_t* cvImgData = reinterpret_cast<const uint16_t*>( mat.data );
 
-        int step = mat.cols / sizeof(uint16_t);
+        int step = mat.step / sizeof(uint16_t);
         for (int y = 0; y < mat.rows; ++y )
         {
             cvIndex = cvLineStart;
@@ -158,7 +158,7 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
         qimg = QImage( mat.cols, mat.rows, QImage::Format_RGB32 );
         const uint16_t* cvImgData = reinterpret_cast<const uint16_t*>( mat.data );
 
-        int step = mat.cols / sizeof(uint16_t);
+        int step = mat.step / sizeof(uint16_t);
         for (int y = 0; y < mat.rows; ++y )
         {
             cvIndex = cvLineStart;
@@ -188,7 +188,7 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
         qimg = QImage( mat.cols, mat.rows, QImage::Format_Indexed8 );
         const uint16_t* cvImgData = reinterpret_cast<const uint16_t*>( mat.data );
 
-        int step = mat.cols / sizeof(uint16_t);
+        int step = mat.step / sizeof(uint16_t);
         for (int y = 0; y < mat.rows; ++y )
         {
             cvIndex = cvLineStart;
@@ -212,7 +212,7 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
         qimg = QImage( mat.cols, mat.rows, QImage::Format_RGB32 );
         const int16_t* cvImgData = reinterpret_cast<const int16_t*>( mat.data );
 
-        int step = mat.cols / sizeof(uint16_t);
+        int step = mat.step / sizeof(uint16_t);
         for (int y = 0; y < mat.rows; ++y )
         {
             cvIndex = cvLineStart;
@@ -241,7 +241,7 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
         qimg = QImage( mat.cols, mat.rows, QImage::Format_Indexed8);
         const float* cvImgData = reinterpret_cast<const float*>( mat.data );
 
-        int step = mat.cols / sizeof(float);
+        int step = mat.step / sizeof(float);
         for (int y = 0; y < mat.rows; ++y )
         {
             cvIndex = cvLineStart;
@@ -267,7 +267,7 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
         qimg = QImage( mat.cols, mat.rows, QImage::Format_RGB32 );
         const float* cvImgData = reinterpret_cast<const float*>( mat.data );
 
-        int step = mat.cols / sizeof(uint16_t);
+        int step = mat.step / sizeof(uint16_t);
         for (int y = 0; y < mat.rows; ++y )
         {
             cvIndex = cvLineStart;
