@@ -21,6 +21,7 @@
 //#include "Trigger.h"
 //#include "SaveImageToFile.h"
 //#include "ImageLoader.h"
+#include "PixelSum.h"
 
 PlvOpenCVPlugin::PlvOpenCVPlugin()
 {
@@ -52,6 +53,8 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::ImageColorConvert>();
     plvRegisterPipelineElement<plvopencv::ImageCornerHarris>();
 
+    plvRegisterPipelineElement<plvopencv::PixelSum>();
+
 //    plvRegisterPipelineElement<plvopencv::Snapshot>();
 //    plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>();
 //    plvRegisterPipelineElement<plvopencv::Trigger>();
@@ -62,3 +65,4 @@ void PlvOpenCVPlugin::onLoad()
     //consumers
 }
 Q_EXPORT_PLUGIN2(plv_opencv_plugin, PlvOpenCVPlugin)
+
