@@ -190,6 +190,22 @@ int IOutputPin::connectionCount() const
     return m_connections.size();
 }
 
+int IOutputPin::maxDataOnConnection() const
+{
+    int max = 0;
+
+    for(std::list< RefPtr<PinConnection> >::const_iterator itr = m_connections.begin();
+            itr != m_connections.end(); ++itr)
+    {
+        int size = (*itr)->size();
+        if( size > max ) max = size;
+    }
+
+    return max;
+}
+
+
+
 void IOutputPin::pre()
 {
     m_called = false;

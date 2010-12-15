@@ -65,12 +65,6 @@ namespace plv
         typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
         typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
 
-        typedef enum _ErrorType {
-            PLE_DEBUG,
-            PLE_WARNING,
-            PLE_FATAL
-        } ErrorType;
-
     protected:
         /** processor id */
         int m_id;

@@ -53,6 +53,17 @@ void PipelineProducer::__init()
 
 bool PipelineProducer::__isReadyForProcessing() const
 {
+    // TODO total hack to prevent overflow of producer connection
+    // should be solved in scheduler in the future
+    QMutexLocker lock( &m_pleMutex );
+    PipelineElement::OutputPinMap::const_iterator itr = this->m_outputPins.begin();
+    for( ; itr != this->m_outputPins.end(); ++itr )
+    {
+        if( itr->second->maxDataOnConnection() > 5 )
+        {
+            return false;
+        }
+    }
     return isReadyForProcessing();
 }
 

@@ -22,6 +22,13 @@
 #ifndef PLVCORE_GLOBAL_H
 #define PLVCORE_GLOBAL_H
 
+typedef enum _ErrorType {
+    PLE_DEBUG,
+    PLE_WARNING,
+    PLE_ERROR,
+    PLE_FATAL
+} ErrorType;
+
 // Generic helper definitions for shared library support
 // Adapted from http://gcc.gnu.org/wiki/Visibility
 #if defined _WIN32 || defined __CYGWIN__

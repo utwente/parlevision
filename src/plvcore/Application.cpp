@@ -66,6 +66,12 @@ void Application::loadBuiltins()
     qRegisterMetaType< plv::Enum >( "plv::Enum" );
     qRegisterMetaType< plv::CvMatData >( "plv::CvMatData" );
     qRegisterMetaType< plv::RectangleData >( "plv::RectangleData" );
+
+    // register stream operators to enable streaming of data types
+    //qRegisterMetaTypeStreamOperators< plv::Data >("plv::Data");
+    //qRegisterMetaTypeStreamOperators< plv::Enum >( "plv::Enum" );
+    //qRegisterMetaTypeStreamOperators< plv::CvMatData >( "plv::CvMatData" );
+    //qRegisterMetaTypeStreamOperators< plv::RectangleData >( "plv::RectangleData" );
 }
 
 void Application::loadPlugins()

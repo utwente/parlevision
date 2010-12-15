@@ -181,6 +181,8 @@ namespace plv
         std::list< RefPtr<PinConnection > > getConnections();
         int connectionCount() const;
 
+        int maxDataOnConnection() const;
+
         /** @returns true when pin is connected */
         inline bool isConnected() const { return !m_connections.empty(); }
 
