@@ -32,7 +32,7 @@ DelayImage::DelayImage():
         m_steps(5)
 {
     m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::CONNECTION_REQUIRED,
-                                          IInputPin::CONNECTION_ASYNCHRONOUS );
+                                          IInputPin::CONNECTION_SYNCHRONOUS );
     m_inputPin->addAllChannels();
     m_inputPin->addAllDepths();
 
@@ -65,18 +65,15 @@ void DelayImage::stop()
 
 bool DelayImage::isReadyForProcessing()
 {
-    return m_inputPin->hasData() || m_images.size() >= m_steps;
+    return m_images.size() >= m_steps;
 }
 
 void DelayImage::process()
 {
     // get the input image and append it to the list
     // of buffered images
-    if( m_inputPin->hasData() )
-    {
-        CvMatData imgIn = m_inputPin->get();
-        m_images.append( imgIn );
-    }
+    CvMatData imgIn = m_inputPin->get();
+    m_images.append( imgIn );
 
     // propagate image if we have an history of m_steps images
     if( m_images.size() >= m_steps )
