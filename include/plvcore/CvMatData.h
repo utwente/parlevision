@@ -58,6 +58,13 @@ namespace plv
                    m_type == rhs.m_type;
         }
 
+        inline bool operator != (const CvMatDataProperties& rhs ) const
+        {
+            return m_width != rhs.m_width ||
+                   m_height != rhs.m_height ||
+                   m_type != rhs.m_type;
+        }
+
         inline int width() const { return m_width; }
         inline int height() const { return m_height; }
         inline int depth() const { return CV_MAT_DEPTH( m_type ); }
