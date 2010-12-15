@@ -54,8 +54,10 @@ namespace plvopencv
         DelayImage();
         virtual ~DelayImage();
 
+        virtual bool isReadyForProcessing();
+
         /** propery methods */
-        int getSteps() { return m_steps; }
+        int getSteps() const;
 
     signals:
         void stepsChanged(int newValue);
