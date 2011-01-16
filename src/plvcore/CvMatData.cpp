@@ -20,258 +20,79 @@
   */
 
 #include "CvMatData.h"
-#include "RefPtr.h"
-
-#include <opencv/cv.hpp>
-#include <QMutexLocker>
 
 using namespace plv;
 
-//CvMatDataFactory* CvMatDataFactory::m_instance = 0;
-
-//CvMatDataFactory::CvMatDataFactory( int maxObjectPoolSize ) :
-//    m_maxObjectPoolSize( maxObjectPoolSize ), m_objectPoolSize( 0 )
-//{
-//}
-
-//CvMatDataFactory::~CvMatDataFactory()
-//{
-//    QMutexLocker lock( &m_factoryMutex );
-//    purgeAll();
-//}
-
-//void CvMatDataFactory::purge()
-//{
-//    std::list<CvMatData*>::iterator itr = m_objectPool.begin();
-
-//    while(itr != m_objectPool.end())
-//    {
-//        CvMatData* img = *itr;
-//        if( img->getRefCount() == 1 )
-//        {
-//            // this will auto delete the image
-//            itr = m_objectPool.erase( itr );
-//            m_objectPoolSize -= img->size();
-//            img->dec();
-//        }
-//        else
-//        {
-//            ++itr;
-//        }
-//    }
-//}
-
-//void CvMatDataFactory::purgeAll()
-//{
-//    QMutexLocker lock( &m_factoryMutex );
-
-//    std::list<CvMatData*>::iterator itr = m_objectPool.begin();
-//    while(itr != m_objectPool.end())
-//    {
-//        CvMatData* img = *itr;
-//        m_objectPoolSize -= img->size();
-//        if( img->getRefCount() > 1 )
-//        {
-//            qWarning() << "WARNING. Forcing delete of object "
-//                       << img << " which has a reference count of " << img->getRefCount()
-//                       << " in CvMatDataFactory::purgeAll()";
-//            delete img;
-//        }
-//        else
-//        {
-//            // this will auto delete the image
-//            img->dec();
-//        }
-//        itr = m_objectPool.erase( itr );
-//    }
-//}
-
-//int CvMatDataFactory::objectPoolSize()
-//{
-//    QMutexLocker lock( &m_factoryMutex );
-//    return m_objectPoolSize;
-//}
-
-//int CvMatDataFactory::maxObjectPoolSize()
-//{
-//    QMutexLocker lock( &m_factoryMutex );
-//    return m_maxObjectPoolSize;
-//}
-
-//int CvMatDataFactory::numObjects()
-//{
-//    QMutexLocker lock( &m_factoryMutex );
-//    return m_objectPool.size();
-//}
-
-//int CvMatDataFactory::numObjectsInUse()
-//{
-//    QMutexLocker lock( &m_factoryMutex );
-//    int count = 0;
-//    for( std::list<CvMatData*>::iterator itr = m_objectPool.begin();
-//            itr != m_objectPool.end(); ++itr )
-//    {
-//        CvMatData* img = *itr;
-//        if( img->getRefCount() > 1 )
-//        {
-//            ++count;
-//        }
-//    }
-//    return count;
-//}
-
-//CvMatData* CvMatDataFactory::get( int width, int height, int depth, int channels )
-//{
-//    QMutexLocker lock( &m_factoryMutex );
-//    return recycleOrAllocate( width, height, depth, channels );
-//}
-
-//CvMatData* CvMatDataFactory::recycleOrAllocate( cv::Size size, int type )
-//{
-//    // this function is private and should only be called when the mutex
-//    // has already been acquired
-//    assert( width > 0 );
-//    assert( height > 0 );
-//    assert( channels > 0 && channels <= 4 );
-
-//    CvMatData* image = 0;
-//    for( std::list<CvMatData*>::iterator itr = m_objectPool.begin();
-//            image == 0 && itr != m_objectPool.end(); ++itr )
-//    {
-//        CvMatData* current = *itr;
-
-//        if( current->getRefCount() == 1 &&
-//            current->isCompatible( width, height, depth, channels ) )
-//        {
-//            image = current;
-
-//            // reset mutable state so this image can be freely written to
-//            image->makeMutable();
-//        }
-//    }
-
-//    if( image == 0 )
-//    {
-//        IplImage* cvimg = cvCreateImage( cvSize( width, height ), depth, channels );
-//        image = new CvMatData( cvimg );
-
-//#if CVMATDATA_USE_POOL
-//        if( m_objectPoolSize > CVMATDATA_MAX_OBJECT_POOL_SIZE )
-//        {
-//            purge();
-//        }
-
-//        // up the ref count by one
-//        image->inc();
-//        m_objectPool.push_back( image );
-//        m_objectPoolSize += image->size();
-//#endif
-//    }
-
-//    assert( image != 0 );
-//    assert( image->isMutable() );
-
-//    return image;
-//}
-
-/*****************************************************************************/
-
-CvMatData::CvMatData( IplImage* img, bool copyData ) :
-        Data()
+CvMatData::CvMatData() : d( new MatData() )
 {
-    m_mat = new cv::Mat( img, copyData );
+}
+
+CvMatData::CvMatData( const CvMatData& other ) :
+        d( other.d )
+{
+}
+
+CvMatData::CvMatData( const IplImage* img )
+{
+    // copy image data
+    // workaround for bug in OpenCV 2.0 / 2.1 which causes
+    // this cv::Mat mat( img, true ); to not work.
+    cv::Mat tmp(img, false);
+    cv::Mat mat = tmp.clone();
+    d = new MatData( mat );
+}
+
+CvMatData::CvMatData( const cv::Mat& mat, bool copyData )
+{
+    //d = copyData ? new MatData(mat.clone()) : new MatData(mat);
+    if( copyData )
+    {
+        cv::Mat copy = mat.clone();
+        d = new MatData(copy);
+    }
+    else
+    {
+        d = new MatData(mat);
+    }
+}
+
+CvMatData CvMatData::create( int width, int height, int type )
+{
+    assert( width > 0 );
+    assert( height > 0 );
+
+    cv::Mat mat;
+    mat.create( cv::Size(width, height), type );
+    CvMatData data(mat);
+    return data;
 }
 
 CvMatData::~CvMatData()
 {
-    if( m_mat != 0 )
-        delete m_mat;
 }
 
-cv::Mat* CvMatData::getForWriting() throw ( plv::PlvRuntimeException )
+const char* CvMatData::depthToString( int depth )
 {
-    if( !isMutable() )
+    switch( CV_MAT_DEPTH( depth ) )
     {
-        throw plv::PlvRuntimeException( "Tried to access image data on an immutable image.",
-                                        __FILE__, __LINE__ );
+    case CV_8U:
+        return "CV_8U";
+    case CV_8S:
+        return "CV_8S";
+    case CV_16U:
+        return "CV_16U";
+    case CV_16S:
+        return "CV_16S";
+    case CV_32S:
+        return "CV_32S";
+    case CV_32F:
+        return "CV_32F";
+    case CV_64F:
+        return "CV_64F";
+    default:
+        return "Invalid depth";
     }
-    return m_mat;
 }
-
-//CvMatData* CvMatData::deepCopy() const
-//{
-//    QMutexLocker lock( &m_imgLock );
-
-//    CvMatData* matWrapper = CvMatDataFactory::get( m_mat->getProperties() );
-//    cv::Mat* mat = matWrapper->getImageForWriting();
-//    cvCopyImage( m_img, iplimg );
-//    return img;
-//}
-
-//int CvMatData::size() const
-//{
-//    QMutexLocker lock( &m_imgLock );
-//    if( !m_mat ) return 0;
-//    return m_mat->;
-//}
-
-//bool CvMatData::isCompatibleDimensions( const CvMatData* other ) const
-//{
-//    QMutexLocker lock( &m_imgLock );
-//    return getWidth() == other->getWidth() && getHeight() == other->getHeight();
-//}
-
-//bool CvMatData::isCompatibleDepth( const CvMatData* other ) const
-//{
-//    QMutexLocker lock( &m_imgLock );
-//    return getDepth() == other->getDepth();
-//}
-
-//bool CvMatData::isCompatibleSize( const CvMatData* other ) const
-//{
-//    QMutexLocker lock( &m_imgLock );
-//    return getNumChannels() == other->getNumChannels();
-//}
-
-//bool CvMatData::isCompatible( const CvMatData* other, ImageCompare flags ) const
-//{
-//    if( this->isNull() || other->isNull() ) return false;
-
-//    bool equals = false;
-
-//    if( flags != 0 )
-//    {
-//        equals = true;
-//        if((flags & DEPTH) == DEPTH )
-//        {
-//            equals = isCompatibleDepth( other );
-//        }
-//        if( equals && ((flags & DIMENSIONS) == DIMENSIONS))
-//        {
-//            equals = isCompatibleDimensions( other );
-//        }
-//        if( equals && ((flags & CHANNELS) == CHANNELS))
-//        {
-//            equals = isCompatibleSize( other );
-//        }
-//    }
-//    return equals;
-//}
-
-//bool CvMatData::isCompatible( int width, int height, int depth, int channels ) const
-//{
-//    QMutexLocker lock( &m_imgLock );
-
-//    if( m_img == 0 )
-//        return false;
-//    else
-//    {
-//        return( m_img->width     == width &&
-//                m_img->height    == height &&
-//                m_img->nChannels == channels &&
-//                m_img->depth     == depth );
-//    }
-//}
 
 /*
 CV_BGR2BGRA     Convert BGR color to BGRA color

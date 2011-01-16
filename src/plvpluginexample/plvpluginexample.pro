@@ -11,7 +11,7 @@ QT += core
 QT -= gui
 DESTDIR = ../../libs/plugins
 INCLUDEPATH += ../../include/plvopencv
-LIBS += -lplvcore -lplvgui -lplvopencv
+LIBS += -lplvcore
 QMAKE_LIBDIR += ../../libs/plugins
 
 include(../../ParleVision.local)

@@ -19,6 +19,8 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
+#if 0
+
 #ifndef OPENCVIMAGE_H
 #define OPENCVIMAGE_H
 
@@ -217,6 +219,16 @@ namespace plv
         IplImage* m_img;
         mutable QMutex m_imgLock;
     };
+
+    class PLVCORE_EXPORT OpenCVImages : public Data
+    {
+        QList< RefPtr<OpenCVImage> > m_images;
+
+    public:
+        void addImage( plv::RefPtr<OpenCVImage>& img ) { m_images.append( img ); }
+        inline QList< RefPtr<OpenCVImage> > getImages() const { return m_images; }
+    };
 }
 
+#endif
 #endif

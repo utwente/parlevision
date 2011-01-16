@@ -23,12 +23,12 @@
 #define IMAGEFLIP_H
 
 #include <plvcore/PipelineProcessor.h>
+#include <plvcore/Enum.h>
 
 namespace plv
 {
-    class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -41,8 +41,7 @@ namespace plvopencv
         Q_CLASSINFO("name", "Flip")
         Q_CLASSINFO("description", "Flip image. FlipX means \"flip around x-axis\". Same for FlipY.");
 
-        Q_PROPERTY( bool flipX READ getFlipX WRITE setFlipX NOTIFY flipXChanged  )
-        Q_PROPERTY( bool flipY READ getFlipY WRITE setFlipY NOTIFY flipYChanged  )
+        Q_PROPERTY( plv::Enum method READ getMethod WRITE setMethod NOTIFY methodChanged  )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -52,25 +51,19 @@ namespace plvopencv
         virtual ~ImageFlip();
 
         /** propery methods */
-        bool getFlipX() { return m_flipX; }
-        bool getFlipY() { return m_flipY; }
+        plv::Enum getMethod() const;
 
     signals:
-        void flipXChanged(bool newValue);
-        void flipYChanged(bool newValue);
+        void methodChanged(plv::Enum e);
 
     public slots:
-        void setFlipX(bool b);
-        void setFlipY(bool b);
+        void setMethod(plv::Enum e);
 
     private:
+        plv::CvMatDataInputPin* m_inputPin;
+        plv::CvMatDataOutputPin* m_outputPin;
 
-        plv::OpenCVImageInputPin* m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
-
-        bool m_flipX;
-        bool m_flipY;
-        int m_method;
+        plv::Enum m_method;
     };
 }
 #endif // IMAGEFLIP_H

@@ -34,7 +34,7 @@ QMAKE_POST_LINK += && install_name_tool -change libplvcore.dylib @executable_pat
 QMAKE_POST_LINK += && install_name_tool -change libplvgui.dylib @executable_path/../Frameworks/libplvgui.dylib $$MACX_APP_BUNDLE_ROOT/Contents/MacOS/ParleVision
 }
 
-LIBS += -L../../libs -lplvcore -lplvgui
+LIBS += -L../../libs -lplvcore -lplvgui -lplvcore
 
 CONFIG(debug, debug|release):DEFINES += DEBUG
 QT      += xml

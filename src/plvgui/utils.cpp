@@ -42,7 +42,7 @@ QString Utils::elementInfoText(plv::PipelineElement* element)
         RefPtr<IInputPin> pin = itr->second;
         inputPinRows = inputPinRows % "<tr>"
                         % "<td>" % QString(pin->getName()) %"</td>"
-                        % "<td>" % QString(pin->getTypeInfo().name()) %"</td>"
+                        % "<td>" % QString(pin->getTypeName()) %"</td>"
                         % "</tr>";
     }
 
@@ -55,7 +55,7 @@ QString Utils::elementInfoText(plv::PipelineElement* element)
         RefPtr<IOutputPin> pin = itr->second;
         outputPinRows = outputPinRows % "<tr>"
                         % "<td>" % QString(pin->getName()) %"</td>"
-                        % "<td>" % QString(pin->getTypeInfo().name()) %"</td>"
+                        % "<td>" % QString(pin->getTypeName()) %"</td>"
                         % "</tr>";
     }
 

@@ -25,22 +25,23 @@
 #include <plvcore/PipelineProcessor.h>
 
 #include <QList>
+#include <plvcore/CvMatData.h>
 
 namespace plv
 {
-    class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
+
 namespace plvopencv
 {
     class DelayImage : public plv::PipelineProcessor
     {
         Q_OBJECT
         Q_DISABLE_COPY( DelayImage )
-        Q_CLASSINFO("author", "Dennis");
+        Q_CLASSINFO("author", "Dennis, Richard");
         Q_CLASSINFO("name", "Delay image");
-        Q_CLASSINFO("description", "Delay an image by given number of steps (max 10).");
+        Q_CLASSINFO("description", "Delays an image by a given number of steps (max 100).");
 
         Q_PROPERTY( int steps READ getSteps WRITE setSteps NOTIFY stepsChanged )
 
@@ -48,13 +49,15 @@ namespace plvopencv
         PLV_PIPELINE_ELEMENT
 
     public:
-        static const int MAX_STEPS = 1000;
+        static const int MAX_STEPS = 100;
 
         DelayImage();
         virtual ~DelayImage();
 
+        virtual bool isReadyForProcessing();
+
         /** propery methods */
-        int getSteps() { return m_steps; }
+        int getSteps() const;
 
     signals:
         void stepsChanged(int newValue);
@@ -63,12 +66,12 @@ namespace plvopencv
         void setSteps(int i);
 
     private:
-        plv::OpenCVImageInputPin*  m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
-        plv::OpenCVImageOutputPin* m_delayedOutputPin;
+        plv::CvMatDataInputPin*  m_inputPin;
+        plv::CvMatDataOutputPin* m_outputPin;
+        plv::CvMatDataOutputPin* m_delayedOutputPin;
 
         /** List of delayed images. */
-        QList< plv::RefPtr<plv::OpenCVImage> > m_images;
+        QList< plv::CvMatData > m_images;
 
         /** Number of steps images are delayed */
         int m_steps;

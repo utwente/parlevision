@@ -22,10 +22,10 @@
 #include <QDebug>
 
 #include "SaveImageToFile.h"
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
 #include <plvcore/Pin.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 
@@ -52,7 +52,7 @@ SaveImageToFile::SaveImageToFile() :
         m_suffixNr(1001),
         m_autoIncSuf(true)
 {
-    m_inputImage = createOpenCVImageInputPin("image", this, IInputPin::INPUT_REQUIRED );
+    m_inputImage = createCvMatDataInputPin("image", this, IInputPin::INPUT_REQUIRED );
     m_inputTrigger = createInputPin<PlvBoolean>("trigger", this, IInputPin::INPUT_OPTIONAL );
 
     m_fileFormat.addLast("Windows Bitmap - *.bmp");
@@ -133,7 +133,7 @@ void SaveImageToFile::stop()  {}
 void SaveImageToFile::process()
 {
     assert(m_inputImage != 0);
-    RefPtr<OpenCVImage> img = m_inputImage->get();
+    CvMatData img = m_inputImage->get();
     if( m_inputTrigger->isConnected() )
     {
         if( !m_inputTrigger->getConnection()->hasData() )

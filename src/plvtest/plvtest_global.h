@@ -1,0 +1,12 @@
+#ifndef PLVTEST_PLUGIN_GLOBAL_H
+#define PLVTEST_PLUGIN_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(PLV_TEST_PLUGIN_LIBRARY)
+#  define PLV_TEST_EXPORT Q_DECL_EXPORT
+#else
+#  define PLV_TEST_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // PLVTEST_PLUGIN_GLOBAL_H

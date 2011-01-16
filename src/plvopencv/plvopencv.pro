@@ -11,7 +11,7 @@ QT += core
 QT -= gui
 DESTDIR = ../../libs/plugins
 INCLUDEPATH += ../../include/plvopencv
-LIBS += -lplvcore -lplvgui
+LIBS += -L../../libs -lplvcore
 
 include(../../ParleVision.local)
 
@@ -30,9 +30,9 @@ DEFINES += PLV_OPENCV_PLUGIN_LIBRARY
 SOURCES += plvopencvplugin.cpp \
     CameraProducer.cpp \
     OpenCVCamera.cpp \
-    DummyProcessor.cpp \
+    ExampleProcessor.cpp \
     EdgeDetectorLaplace.cpp \
-    ImageSmooth.cpp \
+    GaussianSmooth.cpp \
     EdgeDetectorSobel.cpp \
     ImageFlip.cpp \
     ImageCornerHarris.cpp \
@@ -44,31 +44,33 @@ SOURCES += plvopencvplugin.cpp \
     Diff.cpp \
     DelayImage.cpp \
     ViolaJonesFaceDetector.cpp \
-    SaveImageToFile.cpp \
-    ImageLoader.cpp \
+#    SaveImageToFile.cpp \
+#    ImageLoader.cpp \
     ImageThreshold.cpp \
-    Trigger.cpp
+#    Trigger.cpp \
+    PixelSum.cpp
 	
-HEADERS += ../../include/plvopencv/plvopencvplugin.h \
-	../../include/plvopencv/plvopencv_global.h \
-    ../../include/plvopencv/CameraProducer.h \
-    ../../include/plvopencv/OpenCVCamera.h \
-    ../../include/plvopencv/DummyProcessor.h \
-    ../../include/plvopencv/EdgeDetectorLaplace.h \
-    ../../include/plvopencv/ImageSmooth.h \
-    ../../include/plvopencv/EdgeDetectorSobel.h \
-    ../../include/plvopencv/ImageFlip.h \
-    ../../include/plvopencv/ImageCornerHarris.h \
-    ../../include/plvopencv/ImageColorConvert.h \
-    ../../include/plvopencv/EdgeDetectorCanny.h \
-    ../../include/plvopencv/Add.h \
-    ../../include/plvopencv/Sub.h \
-    ../../include/plvopencv/Snapshot.h \
-    ../../include/plvopencv/Diff.h \
-    ../../include/plvopencv/DelayImage.h \
-    ../../include/plvopencv/ViolaJonesFaceDetector.h  \
-    ../../include/plvopencv/SaveImageToFile.h  \
-    ../../include/plvopencv/ImageLoader.h \
-    ../../include/plvopencv/ImageThreshold.h \
-    ../../include/plvopencv/Trigger.h
+HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
+            ../../include/plvopencv/plvopencv_global.h \
+            ../../include/plvopencv/CameraProducer.h \
+            ../../include/plvopencv/OpenCVCamera.h \
+            ../../include/plvopencv/ExampleProcessor.h \
+            ../../include/plvopencv/EdgeDetectorLaplace.h \
+            ../../include/plvopencv/GaussianSmooth.h \
+            ../../include/plvopencv/EdgeDetectorSobel.h \
+            ../../include/plvopencv/ImageFlip.h \
+            ../../include/plvopencv/ImageCornerHarris.h \
+            ../../include/plvopencv/ImageColorConvert.h \
+            ../../include/plvopencv/EdgeDetectorCanny.h \
+            ../../include/plvopencv/Add.h \
+            ../../include/plvopencv/Sub.h \
+            ../../include/plvopencv/Snapshot.h \
+            ../../include/plvopencv/Diff.h \
+            ../../include/plvopencv/DelayImage.h \
+            ../../include/plvopencv/ViolaJonesFaceDetector.h  \
+        #   ../../include/plvopencv/SaveImageToFile.h  \
+        #   ../../include/plvopencv/ImageLoader.h \
+            ../../include/plvopencv/ImageThreshold.h \
+        #   ../../include/plvopencv/Trigger.h \
+            ../../include/plvopencv/PixelSum.h
     

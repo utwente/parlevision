@@ -33,9 +33,13 @@ namespace plv
 
         void setSelected( const QString& selected );
 
+        /** adds a flied with id 'str' and value 'value' to the end of the enum */
         void add( const QString& str, int value );
 
-        void addLast( const QString& str );
+        /** calls add with value of the index of this string in the enum
+            so doing add( "Value 0" ) is equivalent to add( "Value 0", 0 )
+            on an empty enum */
+        void add( const QString& str );
 
         int getSelectedIndex() const;
 

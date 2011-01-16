@@ -22,8 +22,9 @@
 #include <QDebug>
 
 #include "EdgeDetectorLaplace.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
+#include <plvcore/Util.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -31,8 +32,20 @@ using namespace plvopencv;
 EdgeDetectorLaplace::EdgeDetectorLaplace() :
         m_apertureSize(3)
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
+
+    // formats directly supported by cvLaplace function
+    m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
+    m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
+    m_inputPin->addSupportedDepth( IPL_DEPTH_32F );
+    m_inputPin->addSupportedChannels( 1 );
+
+    // function outputs 16 bit image when input is 8-bit
+    // and 32F when input is 32-bit float
+    m_outputPin->addSupportedDepth( IPL_DEPTH_16S );
+    m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
+    m_outputPin->addSupportedChannels( 1 );
 }
 
 EdgeDetectorLaplace::~EdgeDetectorLaplace()
@@ -57,52 +70,62 @@ void EdgeDetectorLaplace::stop()
 
 void EdgeDetectorLaplace::process()
 {
-    assert(m_inputPin != 0);
-    assert(m_outputPin != 0);
+    CvMatData srcPtr = m_inputPin->get();
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    if(img->getDepth() != IPL_DEPTH_8U)
+    // destination image should be at least 16 bits to avoid overflow
+    // see e.g. http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvsobel#cvLaplace
+    CvMatDataProperties props = srcPtr.properties();
+    if( props.depth() != CV_32F )
     {
-        throw plv::PlvRuntimeException("Format not supported", __FILE__, __LINE__);
+        props.setDepth( CV_16S );
     }
-
-    // temporary image with extra room (depth)
-    // see e.g. http://www.emgu.com/wiki/files/1.5.0.0/Help/html/8b5dffff-5fa5-f3f1-acb4-9adbc60dd7fd.htm
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
-
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
-
+    CvMatData dstPtr = CvMatData::create( props );
 
     // open for reading
-    const IplImage* iplImg1 = img->getImage();
+    const cv::Mat& src = srcPtr;
 
-    // perform laplace filter
-    IplImage* tmpImg = tmp->getImageForWriting();
+    // open for writing
+    cv::Mat& dst = dstPtr;
 
-    //FIXME: it seems that this is a openCV2.0 function; the 2.1 function looks different
-    //see http://opencv.willowgarage.com/documentation/cpp/image_filtering.html
-    cvLaplace( iplImg1, tmpImg, this->m_apertureSize );
+    assert( m_apertureSize == 1 || m_apertureSize == 3 || m_apertureSize == 5 || m_apertureSize == 7 );
 
-    // scale back to output format
-    IplImage* iplImg2 = img2->getImageForWriting();
-    cvConvertScale( tmpImg, iplImg2, 1, 0 );
+    // do laplace operation
+    //    Calculates the Laplacian of an image
+    //    Parameters:
 
-    // publish the new image
-    m_outputPin->put( img2.getPtr() );
+    //        * src – Source image
+    //        * dst – Destination image; will have the same size and the same number of channels as src
+    //        * ddepth – The desired depth of the destination image
+    //        * ksize – The aperture size used to compute the second-derivative filters, see getDerivKernels() . It must be positive and odd
+    //        * scale – The optional scale factor for the computed Laplacian values (by default, no scaling is applied, see getDerivKernels() )
+    //        * delta – The optional delta value, added to the results prior to storing them in dst
+    //        * borderType – The pixel extrapolation method, see borderInterpolate()
+    int ddepth = srcPtr.depth();
+    cv::Laplacian( src, dst, ddepth, m_apertureSize );
+
+    // publish output
+    m_outputPin->put( dstPtr );
 }
 
 void EdgeDetectorLaplace::setApertureSize(int i)
 {
-    //aperture size must be odd and positive, max 31 (but that is already way too much for sensible results)
-    if (i < 1) i = 1;
-    if (i > 31) i = 31;
-    if (i%2 == 0)
+    QMutexLocker lock( m_propertyMutex );
+
+    //aperture size must be odd and positive,
+    //min 1 and max 7
+    if (i < 1)
+        i = 1;
+    else if (i > 7)
+        i = 7;
+    else if( Util::isEven(i) )
     {   //even: determine appropriate new odd value
-        if (i > m_apertureSize) i++; //we were increasing -- increase to next odd value
-        else i--;                    //we were decreasing -- decrease to next odd value
+        //we were increasing -- increase to next odd value
+        if( i > m_apertureSize )
+            i++;
+        //we were decreasing -- decrease to next odd value
+        else
+            i--;
     }
     m_apertureSize = i;
-    emit(apertureSizeChanged(m_apertureSize));
+    emit(apertureSizeChanged(i));
 }

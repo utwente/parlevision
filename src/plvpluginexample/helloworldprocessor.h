@@ -9,14 +9,17 @@
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 class HelloWorldProcessor : public plv::PipelineProcessor
 {
     Q_OBJECT
     Q_DISABLE_COPY( HelloWorldProcessor )
+
+    Q_CLASSINFO("author", "Your Name")
+    Q_CLASSINFO("name", "HelloWorldProcessor")
     Q_PROPERTY( int someInt READ getSomeInt WRITE setSomeInt NOTIFY someIntChanged  )
     Q_PROPERTY( double someDouble READ getSomeDouble WRITE setSomeDouble NOTIFY someDoubleChanged  )
     Q_PROPERTY( bool someBool READ getSomeBool WRITE setSomeBool NOTIFY someBoolChanged  )
@@ -48,8 +51,8 @@ public slots:
     void setSomeString(QString s) {m_someString = s; emit(someStringChanged(s));}
 
 private:
-    plv::OpenCVImageInputPin* m_inputPin;
-    plv::OpenCVImageOutputPin* m_outputPin;
+    plv::CvMatDataInputPin* m_inputPin;
+    plv::CvMatDataOutputPin* m_outputPin;
 
     int m_someInt;
     double m_someDouble;

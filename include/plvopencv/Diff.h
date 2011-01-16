@@ -27,8 +27,8 @@
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -50,9 +50,9 @@ namespace plvopencv
         Diff();
         virtual ~Diff();
     private:
-        plv::OpenCVImageInputPin* m_inputPin1;
-        plv::OpenCVImageInputPin* m_inputPin2;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatDataInputPin* m_inputPin1;
+        plv::CvMatDataInputPin* m_inputPin2;
+        plv::CvMatDataOutputPin* m_outputPin;
     };
 }
 #endif // DIFF_H

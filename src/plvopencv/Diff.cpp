@@ -22,9 +22,9 @@
 #include <QDebug>
 
 #include "Diff.h"
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -32,9 +32,9 @@ using namespace plvopencv;
 
 Diff::Diff()
 {
-    m_inputPin1 = createOpenCVImageInputPin( "input 1", this );
-    m_inputPin2 = createOpenCVImageInputPin( "input 2", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin1 = createCvMatDataInputPin( "input 1", this );
+    m_inputPin2 = createCvMatDataInputPin( "input 2", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin1->addAllChannels();
     m_inputPin1->addAllDepths();
@@ -68,32 +68,23 @@ void Diff::stop()
 
 void Diff::process()
 {
-    RefPtr<OpenCVImage> img1 = m_inputPin1->get();
-    RefPtr<OpenCVImage> img2 = m_inputPin2->get();
+    CvMatData img1 = m_inputPin1->get();
+    CvMatData img2 = m_inputPin2->get();
 
-    //check format of images?
-    if(!img1->isCompatible(img2))
-    {
-        //TODO: we could use some modifications when the images do not match
-        // -- e.g., copy one of the mismatching images into a duplicate that
-        // DOES match (stretch? shrink? Diff depth?)
-        throw plv::PlvRuntimeException("The two images need to be the same "
-                                       "in depth, size and nr of channels",
-                                       __FILE__, __LINE__ );
-    }
+    //TODO check format of images
 
     // open input images for reading
-    const IplImage* iplImgIn1 = img1->getImage();
-    const IplImage* iplImgIn2 = img2->getImage();
+    const cv::Mat& in1 = img1;
+    const cv::Mat& in2 = img2;
 
     //get a new output image of same depth and size as input image
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::get( img1->getProperties() );
+    CvMatData imgOut = CvMatData::create( img1.properties() );
 
     // open output image for writing
-    IplImage* iplImgOut = imgOut->getImageForWriting();
+    cv::Mat& out = imgOut;
 
     // do the diff function
-    cvAbsDiff(iplImgIn1,iplImgIn2,iplImgOut);
+    cv::absdiff( in1, in2, out );
 
     // publish the new image
     m_outputPin->put( imgOut );

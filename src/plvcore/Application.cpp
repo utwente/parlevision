@@ -27,6 +27,7 @@
 
 #include "Types.h"
 #include "Enum.h"
+#include "CvMatData.h"
 #include "Plugin.h"
 #include "PipelineElement.h"
 #include "RefPtr.h"
@@ -56,23 +57,21 @@ void Application::init()
 
 void Application::deinit()
 {
-    PipelineElementFactory::clear();
 }
 
 void Application::loadBuiltins()
 {
-    PipelineElementFactory::instance();
-
     // register classes with Qt so they can be used in signals and slots
-    qRegisterMetaType< plv::RefPtr<plv::Data> >("plv::RefPtr<plv::Data>");
-    qRegisterMetaType< plv::RefPtr<PlvBoolean> >("plv::RefPtr<PlvBoolean>");
-    qRegisterMetaType< plv::RefPtr<PlvInteger> >("plv::RefPtr<PlvInteger>");
-    qRegisterMetaType< plv::RefPtr<PlvFloat> >("plv::RefPtr<PlvFloat>");
-    qRegisterMetaType< plv::RefPtr<PlvDouble> >("plv::RefPtr<PlvDouble>");
-    qRegisterMetaType< plv::RefPtr<PlvString> >("plv::RefPtr<PlvString>");
-
-    // is copied by value, does not need a RefPtr
+    qRegisterMetaType< plv::Data >("plv::Data");
     qRegisterMetaType< plv::Enum >( "plv::Enum" );
+    qRegisterMetaType< plv::CvMatData >( "plv::CvMatData" );
+    qRegisterMetaType< plv::RectangleData >( "plv::RectangleData" );
+
+    // register stream operators to enable streaming of data types
+    //qRegisterMetaTypeStreamOperators< plv::Data >("plv::Data");
+    //qRegisterMetaTypeStreamOperators< plv::Enum >( "plv::Enum" );
+    //qRegisterMetaTypeStreamOperators< plv::CvMatData >( "plv::CvMatData" );
+    //qRegisterMetaTypeStreamOperators< plv::RectangleData >( "plv::RectangleData" );
 }
 
 void Application::loadPlugins()

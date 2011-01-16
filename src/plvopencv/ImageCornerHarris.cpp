@@ -23,20 +23,29 @@
 
 #include "ImageCornerHarris.h"
 
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
+#include <plvcore/Util.h>
 
 using namespace plv;
 using namespace plvopencv;
 
-//FIXME: [DR] all properties must be validated
 ImageCornerHarris::ImageCornerHarris() :
-        m_apertureSize(3),
+        m_kernelSize(3),
         m_blockSize(3),
         m_k(0.04)
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
+
+    m_inputPin->addSupportedDepth( CV_8U );
+    m_inputPin->addSupportedDepth( CV_8S );
+    m_inputPin->addSupportedChannels( 1 );
+
+    m_outputPin->addSupportedDepth( CV_32F );
+    m_outputPin->addSupportedChannels( 1 );
+
+    Util::addDefaultBorderInterpolationTypes( m_borderType );
 }
 
 ImageCornerHarris::~ImageCornerHarris()
@@ -64,43 +73,94 @@ void ImageCornerHarris::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-    if(img->getDepth() != IPL_DEPTH_8U)
-    {
-        throw plv::PlvRuntimeException("Format not supported", __FILE__, __LINE__);
-    }
+    // get the src image
+    CvMatData in = m_inputPin->get();
 
-    // temporary image with extra room (depth)
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_8U , 1 );
-    RefPtr<OpenCVImage> tmp2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_32F , 1 );
+    // make a target image
+    // cv::CornerHarris expects a 32F dst image
+    CvMatDataProperties props( in.width(), in.height(), CV_32FC1 );
+    CvMatData out = CvMatData::create( props );
 
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_32F, img->getNumChannels() );
-    RefPtr<OpenCVImage> img3 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
-
-
-    // open for reading
-    const IplImage* iplImg1 = img->getImage();
-
-    // open image for writing, lots of unused images
-    IplImage* iplImg2 = img2->getImageForWriting();
-    IplImage* iplImg3 = img3->getImageForWriting();
-    IplImage* iplTmp = tmp->getImageForWriting();
-    IplImage* iplTmp2 = tmp2->getImageForWriting();
-
-    // INPUT REQUIRED TO BE GRAYSCALED! take the first channel as grayscale image
-    cvSplit(iplImg1,iplTmp,NULL,NULL,NULL);
+    const cv::Mat& src = in;
+    cv::Mat& dst = out;
 
     // do a canny edge detection operator of the image
-    cvCornerHarris( iplTmp, iplTmp2, m_blockSize, m_apertureSize, m_k);
-
-    // convert the image back to 8bit depth
-    cvMerge( iplTmp2, iplTmp2, iplTmp2, NULL, iplImg2 );
-    cvConvertScale(iplImg2, iplImg3, 1, 0);
+    cv::cornerHarris( src, dst, m_blockSize, m_kernelSize,
+                      m_k, m_borderType.getSelectedValue() );
 
     // publish the new image
-    m_outputPin->put( img3.getPtr() );
+    m_outputPin->put( out );
+}
+
+int ImageCornerHarris::getKernelSize() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_kernelSize;
+}
+
+int ImageCornerHarris::getBlockSize() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_blockSize;
+}
+
+double ImageCornerHarris::getK() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_k;
+}
+
+plv::Enum ImageCornerHarris::getBorderType() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_borderType;
+}
+
+void ImageCornerHarris::setBlockSize(int i)
+{
+    QMutexLocker lock( m_propertyMutex );
+    if( i < 1 )
+        m_blockSize = 1;
+    else
+        m_blockSize = i;
+    emit(blockSizeChanged(i));
+}
+
+void ImageCornerHarris::setK( double k )
+{
+    QMutexLocker lock( m_propertyMutex );
+    if( k < 0.0 )
+        m_k = 0.0;
+    else
+        m_k = k;
+    emit(kChanged(k));
+}
+
+void ImageCornerHarris::setBorderType(plv::Enum bt)
+{
+    QMutexLocker lock(m_propertyMutex);
+    m_borderType = bt;
+}
+
+void ImageCornerHarris::setKernelSize(int i)
+{
+    QMutexLocker lock( m_propertyMutex );
+
+    //aperture size must be odd and positive,
+    //min 1 and max 7
+    if (i < 1)
+        i = 1;
+    else if (i > 7)
+        i = 7;
+    else if( Util::isEven(i) )
+    {   //even: determine appropriate new odd value
+        //we were increasing -- increase to next odd value
+        if( i > m_kernelSize )
+            i++;
+        //we were decreasing -- decrease to next odd value
+        else
+            i--;
+    }
+    m_kernelSize = i;
+    emit(kernelSizeChanged(i));
 }

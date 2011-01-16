@@ -26,9 +26,8 @@
 
 namespace plv
 {
-    class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -37,9 +36,14 @@ namespace plvopencv
     {
         Q_OBJECT
         Q_DISABLE_COPY( EdgeDetectorLaplace )
-        Q_CLASSINFO("author", "Ported from old version by Wim & Dennis")
-        Q_CLASSINFO("name", "Edge detector Laplace")
-        Q_CLASSINFO("description", "Edge detection using the Laplace method.");
+        Q_CLASSINFO("author", "Richard, Wim, Dennis")
+        Q_CLASSINFO("name", "Laplace edge detector")
+        Q_CLASSINFO("description", "Edge detection using the Laplace method."
+                    "See OpenCV manual at "
+                    "<a href='http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvlaplace#cvLaplace'>"
+                    "http://opencv.willowgarage.com/documentation/image_filtering.html?highlight=cvlaplace#cvLaplace"
+                    "</a> "
+                    "for meaning of parameters and info." );
 
         Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
 
@@ -51,7 +55,7 @@ namespace plvopencv
         virtual ~EdgeDetectorLaplace();
 
         /** propery methods */
-        int getApertureSize() { return m_apertureSize; }
+        int getApertureSize() { QMutexLocker lock( m_propertyMutex ); return m_apertureSize; }
 
     signals:
         void apertureSizeChanged(int newValue);
@@ -60,8 +64,8 @@ namespace plvopencv
         void setApertureSize(int i);
 
     private:
-        plv::OpenCVImageInputPin* m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatDataInputPin* m_inputPin;
+        plv::CvMatDataOutputPin* m_outputPin;
         int m_apertureSize;
     };
 

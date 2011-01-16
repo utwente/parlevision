@@ -87,7 +87,6 @@ namespace plvopencv
 
         bool m_activate;   /** Determines if an activation (true) trigger has to be send. Mostly false. */
         bool m_continuous; /** Determines if the activation trigger automatically has to be switched off (false). */
-
     };
 
 }

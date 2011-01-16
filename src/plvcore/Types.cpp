@@ -23,4 +23,13 @@
 
 using namespace plv;
 
+RectangleData::RectangleData( int width, int height ) :
+    d( new RectangleDataPrivate( width, height ) )
+{
+}
+
+RectangleData::RectangleData( const RectangleData& other ) :
+        d(other.d) {}
+
+RectangleData::~RectangleData() {}
 

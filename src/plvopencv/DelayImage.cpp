@@ -22,9 +22,8 @@
 #include <QDebug>
 
 #include "DelayImage.h"
-#include <plvcore/OpenCVImage.h>
-
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -32,15 +31,12 @@ using namespace plvopencv;
 DelayImage::DelayImage():
         m_steps(5)
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::CONNECTION_REQUIRED,
+                                          IInputPin::CONNECTION_SYNCHRONOUS );
     m_inputPin->addAllChannels();
     m_inputPin->addAllDepths();
 
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
-    m_outputPin->addAllChannels();
-    m_outputPin->addAllDepths();
-
-    m_delayedOutputPin = createOpenCVImageOutputPin( "delayed", this );
+    m_delayedOutputPin = createCvMatDataOutputPin( "delayed", this );
     m_delayedOutputPin->addAllChannels();
     m_delayedOutputPin->addAllDepths();
 }
@@ -67,30 +63,36 @@ void DelayImage::stop()
     m_images.clear();
 }
 
+bool DelayImage::isReadyForProcessing()
+{
+    return m_images.size() >= m_steps;
+}
+
 void DelayImage::process()
 {
-    assert(m_inputPin != 0);
-    assert(m_outputPin != 0);
-
     // get the input image and append it to the list
     // of buffered images
-    RefPtr<OpenCVImage> imgIn = m_inputPin->get();
+    CvMatData imgIn = m_inputPin->get();
     m_images.append( imgIn );
 
     // propagate image if we have an history of m_steps images
-    while( m_images.size() >= m_steps )
+    if( m_images.size() >= m_steps )
     {
-        m_delayedOutputPin->put( m_images.first().getPtr() );
+        m_delayedOutputPin->put( m_images.first() );
         m_images.removeFirst();
-
-        // and propagate non delayed output
-        m_outputPin->put( imgIn.getPtr() );
     }
     // not enough in buffer, do not propagate anything
 }
 
+int DelayImage::getSteps() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_steps;
+}
+
 void DelayImage::setSteps(int i)
 {
+    QMutexLocker lock( m_propertyMutex );
     if( i < 0)
     {
         m_steps = 0;

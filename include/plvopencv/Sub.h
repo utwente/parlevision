@@ -27,8 +27,8 @@
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -42,7 +42,9 @@ namespace plvopencv
         Q_DISABLE_COPY( Sub )
         Q_CLASSINFO("author", "Ported from old version by Dennis")
         Q_CLASSINFO("name", "A sub B")
-        Q_CLASSINFO("description", "A simple processor to subtract two images.");
+        Q_CLASSINFO("description", "A simple processor to subtract two images. See "
+                    "<a href='http://opencv.willowgarage.com/documentation/cpp/"
+                    "core_operations_on_arrays.html#subtract'>here</a> for details");
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -52,9 +54,10 @@ namespace plvopencv
         virtual ~Sub();
 
     private:
-        plv::OpenCVImageInputPin* m_inputPin1;
-        plv::OpenCVImageInputPin* m_inputPin2;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatDataInputPin* m_inputPin1;
+        plv::CvMatDataInputPin* m_inputPin2;
+        plv::CvMatDataInputPin* m_inputPin3;
+        plv::CvMatDataOutputPin* m_outputPin;
     };
 }
 #endif // SUB_H

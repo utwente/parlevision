@@ -79,10 +79,10 @@ void OpenCVCamera::run()
     while( m_state == CAM_RUNNING || m_state == CAM_PAUSED )
     {
         // get a frame, blocking call
-        RefPtr<Data> frame = getFrame();
+        CvMatData frame = getFrame();
 
         // send a signal to subscribers
-        if( frame.isNotNull() )
+        if( frame.isValid() )
         {
             emit newFrame( frame );
         }
@@ -234,7 +234,7 @@ bool OpenCVCamera::setDimensions( int w, int h )
     }
 }
 
-OpenCVImage* OpenCVCamera::getFrame()
+CvMatData OpenCVCamera::getFrame()
 {
     QMutexLocker lock( &m_opencv_mutex );
 
@@ -255,8 +255,8 @@ OpenCVImage* OpenCVCamera::getFrame()
     // copy the image, since the pointer becomes invalid on another
     // call to cvGrabFrame() and this pointer is passed to the pipeline
     // get a reused buffer
-    OpenCVImage* ocvimg = OpenCVImageFactory::instance()->getFromBuffer( image );
-    return ocvimg;
+    CvMatData mat( image );
+    return mat;
 }
 
 /*

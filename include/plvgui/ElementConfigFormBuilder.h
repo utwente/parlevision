@@ -26,7 +26,7 @@
 #include <QMetaType>
 #include <QHash>
 
-#include <plvcore/plvglobal.h>
+#include "plvgui_global.h"
 
 class QString;
 class QWidget;
@@ -73,25 +73,25 @@ namespace plvgui
           */
         static ElementConfigFormBuilder* getBuilderFor(QString elementTypeName);
 
-
-
         ElementConfigFormBuilder() {}
         virtual ~ElementConfigFormBuilder() {}
-        ElementConfigFormBuilder(const ElementConfigFormBuilder&) : QObject() {}
-
+        Q_DISABLE_COPY( ElementConfigFormBuilder );
     private:
         static QHash<QString,QString> s_typeMap;
     };
 }
 
 // usage:
-// plvRegisterConfigFormBuider<CameraConfigFormBuilder>("plv::CameraProducer,
-//                                                      "plv::CameraConfigFormBuilder");
-template<typename CFBT>
-int plvRegisterConfigFormBuilder(const char* elementTypeName, const char* builderTypeName)
+// plvgui::registerConfigFormBuider<CameraConfigFormBuilder>("plv::CameraProducer", "plv::CameraConfigFormBuilder");
+// both types need to be registered using qRegisterMetaType
+namespace plvgui
 {
-    plvgui::ElementConfigFormBuilder::registerType(elementTypeName, builderTypeName);
-    return qRegisterMetaType<CFBT>(builderTypeName);
+    template<typename CFBT>
+    int registerConfigFormBuilder(const char* elementTypeName, const char* builderTypeName)
+    {
+        plvgui::ElementConfigFormBuilder::registerType(elementTypeName, builderTypeName);
+        return qRegisterMetaType<CFBT>(builderTypeName);
+    }
 }
 
 

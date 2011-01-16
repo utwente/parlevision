@@ -46,6 +46,8 @@ namespace plvgui
         float  m_aspectRatio;
         bool   m_zoomToFit;
 
+        void resizeEvent(QResizeEvent * event);
+
         /** Custom paint method inherited from QWidget */
         void paintEvent( QPaintEvent * );
 

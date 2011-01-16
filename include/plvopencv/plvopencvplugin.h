@@ -5,6 +5,11 @@
 #include <QObject>
 #include <plvcore/Plugin.h>
 
+class PLVCORE_EXPORT Test
+{
+
+};
+
 class PLVOPENCV_EXPORT PlvOpenCVPlugin : public QObject, public plv::Plugin
 {
     Q_OBJECT

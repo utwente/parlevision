@@ -23,12 +23,12 @@
 #define IMAGECORNERHARRIS_H
 
 #include <plvcore/PipelineProcessor.h>
+#include <plvcore/Enum.h>
 
 namespace plv
 {
-    class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -37,9 +37,17 @@ namespace plvopencv
     {
         Q_OBJECT
         Q_DISABLE_COPY( ImageCornerHarris )
-        Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
+        Q_CLASSINFO("author", "Richard")
+        Q_CLASSINFO("name", "Harris corner detection")
+        Q_CLASSINFO("description", "Harris corner detection using the cv::cornerHarris method. See "
+                    "<a href='http://opencv.willowgarage.com/documentation/cpp/imgproc_feature_detection.html?highlight=harris#cornerHarris'>"
+                    "OpenCV reference"
+                    "</a> for a detailed explanation of the parameters.");
+
+        Q_PROPERTY( int kernelSize READ getKernelSize WRITE setKernelSize NOTIFY kernelSizeChanged )
         Q_PROPERTY( int blockSize READ getBlockSize WRITE setBlockSize NOTIFY blockSizeChanged )
         Q_PROPERTY( double k READ getK WRITE setK NOTIFY kChanged )
+        Q_PROPERTY( plv::Enum borderType READ getBorderType WRITE setBorderType NOTIFY borderTypeChanged )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -49,29 +57,31 @@ namespace plvopencv
         virtual ~ImageCornerHarris();
 
         /** propery methods */
-        int getApertureSize() { return m_apertureSize; }
-        int getBlockSize() { return m_blockSize; }
-        double getK() { return m_k; }
+        int getKernelSize() const;
+        int getBlockSize() const;
+        double getK() const;
+        plv::Enum getBorderType() const;
 
     signals:
-        void apertureSizeChanged(int newValue);
+        void kernelSizeChanged(int newValue);
         void blockSizeChanged(int newValue);
         void kChanged(double newValue);
+        void borderTypeChanged(plv::Enum e);
 
     public slots:
-        void setApertureSize(int i) { m_apertureSize = i; emit(apertureSizeChanged(i)); }
-        void setBlockSize(int i) { m_blockSize = i; emit(blockSizeChanged(i)); }
-        void setK (double newValue) { m_k = newValue; emit(kChanged(newValue)); }
+        void setKernelSize(int i);
+        void setBlockSize(int i);
+        void setK (double newValue);
+        void setBorderType( plv::Enum e );
 
     private:
-        int nearestOdd(int i);
+        plv::CvMatDataInputPin* m_inputPin;
+        plv::CvMatDataOutputPin* m_outputPin;
 
-        plv::OpenCVImageInputPin* m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
-
-        int m_apertureSize;
+        int m_kernelSize;
         int m_blockSize;
         double m_k;
+        plv::Enum m_borderType;
     };
 }
 #endif // IMAGECORNERHARRIS_H

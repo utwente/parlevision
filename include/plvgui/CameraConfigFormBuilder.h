@@ -43,7 +43,7 @@ namespace plvgui
         plv::RefPtr<plvopencv::CameraProducer> producer;
     };
 
-    class CameraConfigFormBuilder : public ElementConfigFormBuilder
+    class PLVGUI_EXPORT CameraConfigFormBuilder : public ElementConfigFormBuilder
     {
         Q_OBJECT
 

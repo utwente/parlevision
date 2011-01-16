@@ -29,6 +29,7 @@ LIBS += -L../../libs -lplvcore
 
 CONFIG(debug, debug|release):DEFINES += DEBUG
 QT      += xml
+DEFINES += PLVGUI_LIBRARY
 
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
@@ -40,6 +41,8 @@ SOURCES += \
     OpenCVImageRenderer.cpp \
     RendererFactory.cpp \
     DataRenderer.cpp \
+    UnknownDataRenderer.cpp \
+    RectangleDataRenderer.cpp \
     ImageConverter.cpp \
     LibraryWidget.cpp \
     InspectorWidget.cpp \
@@ -62,6 +65,8 @@ HEADERS += \
     ../../include/plvgui/OpenCVImageRenderer.h \
     ../../include/plvgui/RendererFactory.h \
     ../../include/plvgui/DataRenderer.h \
+    ../../include/plvgui/UnknownDataRenderer.h \
+    ../../include/plvgui/RectangleDataRenderer.h \
     ../../include/plvgui/ImageConverter.h \
     ../../include/plvgui/PipelineScene.h \
     ../../include/plvgui/LibraryWidget.h \
@@ -76,7 +81,8 @@ HEADERS += \
     ../../include/plvgui/ElementConfigFormBuilder.h \
     ../../include/plvgui/CameraConfigFormBuilder.h \
     ../../include/plvgui/ImageWidget.h \
-    ../../include/plvgui/Exceptions.h
+    ../../include/plvgui/Exceptions.h \
+    ../../include/plvgui/plvgui_global.h
 
 FORMS += ../../resources/mainwindow.ui \
     ../../resources/librarywidget.ui \

@@ -25,7 +25,7 @@
 #include <QMutex>
 #include <plvcore/PipelineProducer.h>
 #include <plvcore/Pin.h>
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
 namespace plvopencv
 {
@@ -61,8 +61,8 @@ namespace plvopencv
         void directoryChanged(QString newValue);
 
     protected:
-        plv::RefPtr< plv::OpenCVImage > m_loadedImage;
-        plv::RefPtr< plv::OutputPin< plv::OpenCVImage > > m_outputPin;
+        plv::CvMatData m_loadedImage;
+        plv::CvMatDataOutputPin m_outputPin;
 
         //int m_lastProcessedId;
 

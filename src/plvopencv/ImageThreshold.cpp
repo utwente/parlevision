@@ -22,22 +22,19 @@
 #include <QDebug>
 
 #include "ImageThreshold.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
 using namespace plvopencv;
 
-#define PLV_ENUM_ADD( plvEnum, type ) plvEnum.add( #type, type )
-
-/** Constructor **/
 ImageThreshold::ImageThreshold() :
         m_threshold( 0.0 ),
         m_maxValue( 255.0 )
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this,  IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this,  IInputPin::CONNECTION_REQUIRED );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     PLV_ENUM_ADD( m_method, CV_THRESH_BINARY );
     PLV_ENUM_ADD( m_method, CV_THRESH_BINARY_INV );
@@ -46,10 +43,8 @@ ImageThreshold::ImageThreshold() :
     PLV_ENUM_ADD( m_method, CV_THRESH_TOZERO_INV );
 }
 
-/** Destructor **/
 ImageThreshold::~ImageThreshold(){}
 
-/** Mandatory methods with nothing in them. **/
 void ImageThreshold::init() {}
 void ImageThreshold::deinit() throw (){}
 void ImageThreshold::start() {}
@@ -57,32 +52,55 @@ void ImageThreshold::stop() {}
 
 void ImageThreshold::process()
 {
-    assert(m_inputPin != 0);
-    assert(m_outputPin != 0);
+    CvMatData in = m_inputPin->get();
+    CvMatData out = CvMatData::create( in.width(), in.height(), in.type() );
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
-/*    if(img->getDepth() != IPL_DEPTH_8U)
-    {
-        throw std::runtime_error("format not yet supported");
-    }
-
-    // temporary image with extra room (depth)
-    RefPtr<OpenCVImage> tmp = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), IPL_DEPTH_16S , img->getNumChannels() );
-*/
-    RefPtr<OpenCVImage> img2 = OpenCVImageFactory::instance()->get(
-            img->getWidth(), img->getHeight(), img->getDepth(), img->getNumChannels() );
-
-
-    // open received image for reading
-    const IplImage* imgScr = img->getImage();
-
-    // open created image for writing
-    IplImage* imgDst = img2->getImageForWriting();
+    const cv::Mat& src = in;
+    cv::Mat& dst = out;
 
     // perform threshold operation on the image
-    cvThreshold( imgScr, imgDst, m_threshold, m_maxValue, m_method.getSelectedValue() );
+    cv::threshold( src, dst, m_threshold, m_maxValue, m_method.getSelectedValue() );
 
     // publish the new image
-    m_outputPin->put( img2.getPtr() );
+    m_outputPin->put( out );
+}
+
+/** propery methods */
+plv::Enum ImageThreshold::getMethod() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_method;
+}
+
+double ImageThreshold::getThreshold() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_threshold;
+}
+
+double ImageThreshold::getMaxValue() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_maxValue;
+}
+
+void ImageThreshold::setMethod( plv::Enum m )
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_method = m;
+    emit(methodChanged(m_method));
+}
+
+void ImageThreshold::setThreshold(double d)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_threshold = d;
+    emit(thresholdChanged(m_threshold));
+}
+
+void ImageThreshold::setMaxValue(double d)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_maxValue = d;
+    emit(maxValueChanged(m_maxValue));
 }

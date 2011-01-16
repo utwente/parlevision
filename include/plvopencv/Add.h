@@ -27,8 +27,8 @@
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -40,10 +40,19 @@ namespace plvopencv
     {
         Q_OBJECT
         Q_DISABLE_COPY( Add )
-        Q_CLASSINFO("author", "Ported from old version by Dennis")
+        Q_CLASSINFO("author", "Richard")
         Q_CLASSINFO("name", "A add B")
-        Q_CLASSINFO("description", "A simple processor to add two images. Optionally, the result is normalized.");
-        Q_PROPERTY( bool normalizeAfterAdd READ getNormalizeAfterAdd WRITE setNormalizeAfterAdd NOTIFY normalizeAfterAddChanged  )
+        Q_CLASSINFO("description", "Computes the weighted sum of two arrays.\n"
+                    "Parameters: \n"
+                        "alpha – Weight for the first array elements \n"
+                        "beta – Weight for the second array elements \n"
+                        "gamma – Scalar, added to each sum \n"
+                        "See <a href='http://opencv.jp/opencv-2.1_org/cpp/operations_on_arrays.html'>here</a> "
+                        "for a detailed description" )
+
+        Q_PROPERTY( double alpha READ getAlpha WRITE setAlpha NOTIFY alphaChanged )
+        Q_PROPERTY( double beta READ getBeta WRITE setBeta NOTIFY betaChanged )
+        Q_PROPERTY( double gamma READ getGamma WRITE setGamma NOTIFY gammaChanged )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -53,19 +62,28 @@ namespace plvopencv
         virtual ~Add();
 
         /** propery methods */
-        bool getNormalizeAfterAdd() { return m_normalize; }
+        double getAlpha() const;
+        double getBeta() const;
+        double getGamma() const;
 
     signals:
-        void normalizeAfterAddChanged(bool newValue);
+        void alphaChanged(double d);
+        void betaChanged(double d);
+        void gammaChanged(double d);
 
     public slots:
-        void setNormalizeAfterAdd(bool b) {m_normalize = b; emit(normalizeAfterAddChanged(b));}
+        void setAlpha(double a, bool doEmit=false);
+        void setBeta(double b, bool doEmit=false);
+        void setGamma(double g, bool doEmit=false);
 
     private:
-        plv::OpenCVImageInputPin* m_inputPin1;
-        plv::OpenCVImageInputPin* m_inputPin2;
-        plv::OpenCVImageOutputPin* m_outputPin;
-        bool m_normalize;
+        plv::CvMatDataInputPin* m_inputPin1;
+        plv::CvMatDataInputPin* m_inputPin2;
+        plv::CvMatDataOutputPin* m_outputPin;
+
+        double m_alpha;
+        double m_beta;
+        double m_gamma;
     };
 }
 #endif // ADD_H

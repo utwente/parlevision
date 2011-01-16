@@ -26,23 +26,36 @@
 
 #include "OpenCVImageRenderer.h"
 #include "DataRenderer.h"
+#include "UnknownDataRenderer.h"
 
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
 using namespace plvgui;
 
-DataRenderer* RendererFactory::create(QString dataType, QWidget *parent)
-        throw(RendererCreationException)
+RendererFactory* RendererFactory::m_instance = 0;
+
+void RendererFactory::add(DataRendererConstructor* constructor )
 {
-    //TODO make this dynamic
-    qDebug() << "RendererFactory creating "<<dataType;
-    if(dataType == typeid(plv::OpenCVImage).name())
+    const char* dataTypeName = constructor->getDataTypeName();
+    if( m_rendererConstructors.contains(dataTypeName))
     {
-        return new OpenCVImageRenderer(parent);
+        qWarning() << "Renderer for data type " << dataTypeName << " already exists, "
+                      "ignoring.";
+        return;
+    }
+    m_rendererConstructors.insert( dataTypeName, constructor );
+}
+
+DataRenderer* RendererFactory::create(QString dataType, QWidget *parent)
+{
+    if( m_rendererConstructors.contains(dataType) )
+    {
+        DataRendererConstructor* c = m_rendererConstructors[dataType].getPtr();
+        return c->create(parent);
     }
     else
     {
-        QString msg = "Unsupported type '" + dataType + "'";
-        throw RendererCreationException( msg.toStdString() );
+        qWarning() << "No renderer exists for data type " << dataType;
+        return new UnknownDataRenderer(parent);
     }
 }

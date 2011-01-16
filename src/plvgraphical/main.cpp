@@ -23,30 +23,33 @@
 #include <iostream>
 #include <QDebug>
 
-#include <Application.h>
+#include <plvcore/Application.h>
 
-#include <MainWindow.h>
-#include <ElementConfigFormBuilder.h>
-#include <CameraConfigFormBuilder.h>
+#include <plvgui/MainWindow.h>
+#include <plvgui/ElementConfigFormBuilder.h>
+#include <plvgui/CameraConfigFormBuilder.h>
+#include <plvgui/RendererFactory.h>
+#include <plvgui/OpenCVImageRenderer.h>
+#include <plvgui/RectangleDataRenderer.h>
 
 #include "openeventhandler.h"
 
-using namespace plv;
-using namespace plvgui;
-
 int main(int argc, char **argv)
 {
-    Q_INIT_RESOURCE(icons);
+    //Q_INIT_RESOURCE(icons);
     QApplication app(argc, argv);
 
-    plvRegisterConfigFormBuilder<plvgui::CameraConfigFormBuilder>
-                    ("plv::CameraProducer", "plvgui::CameraConfigFormBuilder");
+    // TODO fix this! Maybe custom factory again?
+    //plvgui::registerConfigFormBuilder<plvgui::CameraConfigFormBuilder>("plv::CameraProducer", "plvgui::CameraConfigFormBuilder");
+    plvgui::RendererFactory::add<plv::CvMatData, plvgui::OpenCVImageRenderer>();
+    plvgui::RendererFactory::add<plv::RectangleData, plvgui::RectangleDataRenderer>();
 
-    Application parlevision(&app);
+    plv::Application parlevision(&app);
     parlevision.init();
+
     app.installEventFilter(new OpenEventHandler());
 
-    MainWindow* mainWin = new MainWindow();
+    plvgui::MainWindow* mainWin = new plvgui::MainWindow();
 
     mainWin->show();
     mainWin->showWelcomeScreen();

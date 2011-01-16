@@ -4,12 +4,13 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Types.h>
 #include <opencv/cv.h>
+#include <plvcore/Pin.h>
 
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -37,12 +38,12 @@ namespace plvopencv
         virtual ~ViolaJonesFaceDetector();
 
         /** propery methods */
-        int getMinNeighbours() { return m_minNeighbours; }
-        double getScaleFactor() { return m_scaleFactor; }
-        bool getUseCannyPruning() { return m_useCannyPruning; }
-        int getMinWidth() { return m_minWidth; }
-        int getMinHeight() { return m_minHeight; }
-        QString getHaarCascadeFile() { return m_haarCascadeFile; }
+        int getMinNeighbours();
+        double getScaleFactor();
+        bool getUseCannyPruning();
+        int getMinWidth();
+        int getMinHeight();
+        QString getHaarCascadeFile();
 
     signals:
         void minNeighboursChanged(int newValue);
@@ -53,16 +54,17 @@ namespace plvopencv
         void haarCascadeFileChanged( QString filename );
 
     public slots:
-        void setMinNeighbours(int i) {if (i>0) m_minNeighbours = i; emit(minNeighboursChanged(m_minNeighbours));}
-        void setScaleFactor(double d) {if (d>1) m_scaleFactor = d; emit(scaleFactorChanged(m_scaleFactor));}
-        void setUseCannyPruning(bool b) {m_useCannyPruning = b; emit(useCannyPruningChanged(m_useCannyPruning));}
-        void setMinWidth(int val) {if(val>=0) m_minWidth = val; emit( minWidthChanged(m_minWidth) ); }
-        void setMinHeight(int val) {if(val>=0) m_minHeight = val; emit( minHeightChanged(m_minHeight) ); }
-        void setHaarCascadeFile(QString filename) { m_haarCascadeFile = filename; emit( haarCascadeFileChanged(filename)); }
+        void setMinNeighbours(int i);
+        void setScaleFactor(double d);
+        void setUseCannyPruning(bool b);
+        void setMinWidth(int val);
+        void setMinHeight(int val);
+        void setHaarCascadeFile(QString filename);
 
     private:
-        plv::OpenCVImageInputPin* m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatDataInputPin* m_inputPin;
+        plv::OutputPin<plv::RectangleData>* m_outputPinRectangles;
+        plv::CvMatDataOutputPin* m_outputPinMonitor;
 
         int m_minNeighbours;
         double m_scaleFactor;

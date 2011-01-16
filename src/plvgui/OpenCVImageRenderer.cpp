@@ -22,10 +22,11 @@
 #include "OpenCVImageRenderer.h"
 
 #include <QDebug>
-#include <QtGui>
+#include <QVBoxLayout>
+#include <QScopedPointer>
 
 #include <plvcore/Types.h>
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 #include <plvcore/RefPtr.h>
 
 #include <plvgui/ImageConverter.h>
@@ -75,7 +76,7 @@ void OpenCVImageRenderer::hideEvent(QHideEvent* event)
     QWidget::hideEvent(event);
 }
 
-void OpenCVImageRenderer::newData( plv::RefPtr<plv::Data> data )
+void OpenCVImageRenderer::newData( QVariant v )
 {
     m_busy_mutex.lock();
 
@@ -91,8 +92,11 @@ void OpenCVImageRenderer::newData( plv::RefPtr<plv::Data> data )
     }
 
     // dispatch an asynchronous call
-    plv::OpenCVImage* img = static_cast<plv::OpenCVImage*>(data.getPtr());
-    m_converter->convert_OpenCVImage(img);
+    if( v.canConvert<plv::CvMatData>() )
+    {
+        plv::CvMatData data = v.value<plv::CvMatData>();
+        m_converter->convertCvMatData(data);
+    }
 }
 
 void OpenCVImageRenderer::updateImage( QImage image )

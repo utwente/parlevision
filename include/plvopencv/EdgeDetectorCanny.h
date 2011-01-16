@@ -27,8 +27,8 @@
 namespace plv
 {
     class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
@@ -38,12 +38,16 @@ namespace plvopencv
         Q_OBJECT
         Q_DISABLE_COPY( EdgeDetectorCanny )
         Q_CLASSINFO("author", "Wim, Dennis, Richard")
-        Q_CLASSINFO("name", "Edge detector Canny")
-        Q_CLASSINFO("description", "Edge detection using the Canny method.");
+        Q_CLASSINFO("name", "Canny edge detector")
+        Q_CLASSINFO("description", "Edge detection using the Canny method. See "
+                    "<a href='http://opencv.willowgarage.com/documentation/cpp/imgproc_feature_detection.html?highlight=canny#Canny'>"
+                    "OpenCV reference"
+                    "</a> for a detailed explanation of the parameters.");
 
         Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
         Q_PROPERTY( double thresholdLow READ getThresholdLow WRITE setThresholdLow NOTIFY thresholdLowChanged )
         Q_PROPERTY( double thresholdHigh READ getThresholdHigh WRITE setThresholdHigh NOTIFY thresholdHighChanged )
+        Q_PROPERTY( bool l2Gradient READ getL2Gradient WRITE setL2Gradient NOTIFY l2GradientChanged )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -53,29 +57,31 @@ namespace plvopencv
         virtual ~EdgeDetectorCanny();
 
         /** propery methods */
-        int getApertureSize() { return m_apertureSize; }
-        double getThresholdLow() { return m_thresholdLow; }
-        double getThresholdHigh() { return m_thresholdHigh; }
+        int getApertureSize() const;
+        double getThresholdLow() const;
+        double getThresholdHigh() const;
+        bool getL2Gradient() const;
 
     signals:
-        void apertureSizeChanged(int newValue);
-        void thresholdLowChanged(double newValue);
-        void thresholdHighChanged(double newValue);
+        void apertureSizeChanged(int i);
+        void thresholdLowChanged(double d);
+        void thresholdHighChanged(double d);
+        void l2GradientChanged(bool b);
 
     public slots:
         void setApertureSize(int i);
-        void setThresholdLow (double newValue) { m_thresholdLow  = newValue; emit(thresholdLowChanged(newValue)); }
-        void setThresholdHigh(double newValue) { m_thresholdHigh = newValue; emit(thresholdHighChanged(newValue)); }
+        void setThresholdLow (double d);
+        void setThresholdHigh(double d);
+        void setL2Gradient(bool b);
 
     private:
-        int nearestOdd(int i);
-
-        plv::OpenCVImageInputPin*  m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatDataInputPin*  m_inputPin;
+        plv::CvMatDataOutputPin* m_outputPin;
 
         int m_apertureSize;
         double m_thresholdLow;
         double m_thresholdHigh;
+        bool m_l2Gradient;
     };
 }
 #endif // EDGEDETECTORCANNY_H

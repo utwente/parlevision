@@ -23,29 +23,31 @@
 #define EDGEDETECTORSOBEL_H
 
 #include <plvcore/PipelineProcessor.h>
+#include <plvcore/Enum.h>
 
 namespace plv
 {
-    class OpenCVImage;
-    class OpenCVImageInputPin;
-    class OpenCVImageOutputPin;
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
 }
 
 namespace plvopencv
 {
+    /** Calculates the first, second, third or mixed image derivatives using an extended Sobel operator */
     class EdgeDetectorSobel : public plv::PipelineProcessor
     {
         Q_OBJECT
         Q_DISABLE_COPY( EdgeDetectorSobel )
         Q_CLASSINFO("author", "Richard, Wim, Dennis")
-        Q_CLASSINFO("name", "Edge detector Sobel")
-        Q_CLASSINFO("description", "Edge detection using the Sobel method.");
+        Q_CLASSINFO("name", "Sobel operator")
+        Q_CLASSINFO("description", "Calculates the first, second, third or mixed image derivatives using an extended Sobel operator.");
 
         Q_PROPERTY( bool xOrder READ getXOrder WRITE setXOrder NOTIFY xOrderChanged )
         Q_PROPERTY( bool yOrder READ getYOrder WRITE setYOrder NOTIFY yOrderChanged )
-        Q_PROPERTY( int apertureSize READ getApertureSize WRITE setApertureSize NOTIFY apertureSizeChanged )
-        Q_PROPERTY( bool Scharr READ getScharr WRITE setScharr NOTIFY ScharrChanged )
-        Q_PROPERTY( bool output16bit READ getOutput16bit WRITE setOutput16bit NOTIFY output16bitChanged )
+        Q_PROPERTY( int kernelSize READ getKernelSize WRITE setKernelSize NOTIFY kernelSizeChanged )
+        Q_PROPERTY( double scale READ getScale WRITE setScale NOTIFY scaleChanged )
+        Q_PROPERTY( double delta READ getDelta WRITE setDelta NOTIFY deltaChanged )
+        Q_PROPERTY( plv::Enum borderType READ getBorderType WRITE setBorderType NOTIFY borderTypeChanged )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -55,44 +57,39 @@ namespace plvopencv
         virtual ~EdgeDetectorSobel();
 
         /** propery methods */
-        bool getXOrder() const { return m_xOrder; }
-        bool getYOrder() const { return m_yOrder; }
-        bool getScharr() const { return m_Scharr; }
-        int getApertureSize() const { return m_apertureSize; }
-        bool getOutput16bit() const { return m_output16bit; }
+        bool getXOrder() const;
+        bool getYOrder() const;
+        int getKernelSize() const;
+        double getScale() const;
+        double getDelta() const;
+        plv::Enum getBorderType() const;
 
     signals:
         void xOrderChanged(bool x);
         void yOrderChanged(bool y);
-        void apertureSizeChanged(int newValue);
-        void ScharrChanged(bool useScharr);
-        void output16bitChanged(bool output16bit);
+        void kernelSizeChanged(int ks);
+        void scaleChanged(double s);
+        void deltaChanged(double d);
+        void borderTypeChanged(plv::Enum e);
 
     public slots:
-        /** ApertureSize – Size of the extended Sobel kernel, must be 1, 3, 5 or 7 */
-        void setApertureSize(int a);
-
-        /** xorder – Order of the derivative x */
+        void setKernelSize(int a);
         void setXOrder( bool x );
-
-        /** yorder – Order of the derivative y */
         void setYOrder( bool y );
-
-        /** Use special Scharr kernel. Bypasses aperture size */
-        void setScharr( bool useScharr );
-
-        /** Sets this processor to ouput 16 bit image if incoming image is 8-bit depth */
-        void setOutput16bit( bool b );
+        void setScale( double s );
+        void setDelta( double d );
+        void setBorderType( plv::Enum e );
 
     private:
-        plv::OpenCVImageInputPin* m_inputPin;
-        plv::OpenCVImageOutputPin* m_outputPin;
+        plv::CvMatDataInputPin* m_inputPin;
+        plv::CvMatDataOutputPin* m_outputPin;
 
-        bool m_xOrder;
-        bool m_yOrder;
-        int m_apertureSize;
-        bool m_Scharr;
-        bool m_output16bit;
+        bool m_xOrder; /** Order of the derivative x */
+        bool m_yOrder; /** Order of the derivative y */
+        int m_kernelSize; /** Size of the extended Sobel kernel, must be 1, 3, 5 or 7 */
+        double m_scale; /** The optional scale factor for the computed derivative values (by default, no scaling is applied */
+        double m_delta; /** The optional delta value, added to the results prior to storing them in destination */
+        plv::Enum m_borderType; /** The pixel extrapolation method  */
     };
 }
 #endif // EDGEDETECTORSOBEL_H

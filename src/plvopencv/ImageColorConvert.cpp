@@ -23,8 +23,8 @@
 #include <QMutexLocker>
 
 #include "ImageColorConvert.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 
 #include <opencv/cv.h>
 #include <opencv/cxcore.h>
@@ -129,8 +129,8 @@ CV_HLS2RGB
 
 ImageColorConvert::ImageColorConvert()
 {
-    m_inputPin  = createOpenCVImageInputPin( "input", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin  = createCvMatDataInputPin( "input", this );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
 
     // first one added is default
     PLV_ENUM_ADD( m_conversionType, CV_RGB2GRAY );
@@ -139,7 +139,10 @@ ImageColorConvert::ImageColorConvert()
     setConversionType( m_conversionType );
 
     m_inputPin->addAllDepths();
+    m_inputPin->addAllChannels();
+
     m_outputPin->addAllDepths();
+    m_outputPin->addAllChannels();
 }
 
 ImageColorConvert::~ImageColorConvert()
@@ -364,21 +367,21 @@ void ImageColorConvert::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
-    RefPtr<OpenCVImage> src = m_inputPin->get();
+    CvMatData in = m_inputPin->get();
 
-    OpenCVImageProperties props = src->getProperties();
+    CvMatDataProperties props = in.properties();
     props.setNumChannels( m_outChannels );
-    RefPtr<OpenCVImage> target = OpenCVImageFactory::get( props );
+    CvMatData out = CvMatData::create( props );
 
     // open for reading
-    const IplImage* srcIpl = src->getImage();
+    const cv::Mat& src = in;
 
     // open image for writing
-    IplImage* targetIpl = target->getImageForWriting();
+    cv::Mat& dst = out;
 
     // cvCvtColor function, see OpenCV documentation for details
-    cvCvtColor(srcIpl, targetIpl, m_conversionType.getSelectedValue());
+    cv::cvtColor(src, dst, m_conversionType.getSelectedValue(), m_outChannels );
 
     // publish the new image
-    m_outputPin->put( target );
+    m_outputPin->put( out );
 }

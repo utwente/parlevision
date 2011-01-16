@@ -2,9 +2,9 @@
 #include <QFile>
 
 #include "ViolaJonesFaceDetector.h"
-#include <plvcore/OpenCVImage.h>
+#include <plvcore/CvMatData.h>
 
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatDataPin.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -20,8 +20,15 @@ ViolaJonesFaceDetector::ViolaJonesFaceDetector() :
         m_pCascade( 0 ),
         m_pStorage( 0 )
 {
-    m_inputPin = createOpenCVImageInputPin( "input", this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin = createCvMatDataInputPin( "input", this );
+    m_inputPin->addAllChannels();
+    m_inputPin->addAllDepths();
+
+    m_outputPinRectangles = createOutputPin<RectangleData>( "face rectangles", this );
+
+    m_outputPinMonitor = createCvMatDataOutputPin( "monitor", this );
+    m_outputPinMonitor->addAllChannels();
+    m_outputPinMonitor->addAllDepths();
 }
 
 ViolaJonesFaceDetector::~ViolaJonesFaceDetector()
@@ -49,11 +56,7 @@ void ViolaJonesFaceDetector::init()
         throw PlvInitialisationException( "Failed to load haar cascade file " +
                                            m_haarCascadeFile + ". File does not exist." );
     }
-//    if( !file.isReadable() )
-//    {
-//        throw PlvInitialisationException( "Failed to load haar cascade file " +
-//                                           m_haarCascadeFile + ". File is not readable." );
-//    }
+
     void* cascade = cvLoad( m_haarCascadeFile.toAscii(),0,0,0 );
     if( cascade == 0 )
     {
@@ -89,30 +92,32 @@ void ViolaJonesFaceDetector::stop()
 
 void ViolaJonesFaceDetector::process()
 {
-    assert( m_inputPin != 0 );
-    assert( m_outputPin != 0 );
     assert( m_pCascade != 0 );
     assert( m_pStorage != 0 );
 
-    RefPtr<OpenCVImage> imgIn = m_inputPin->get();
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
-            imgIn->getWidth(), imgIn->getHeight(), imgIn->getDepth(), imgIn->getNumChannels() );
+    CvMatData srcPtr = m_inputPin->get();
+    CvMatData dstPtr = CvMatData::create( srcPtr.properties() );
 
     // open for reading
-    const IplImage* iplImgIn = imgIn->getImage();
+    const cv::Mat& src = srcPtr;
+
 
     // open image for writing
-    IplImage* iplImgOut = imgOut->getImageForWriting();
+    cv::Mat& dst = dstPtr;
 
-    //detect faces
-    CvSeq* faceRectSeq = cvHaarDetectObjects(iplImgIn, m_pCascade, m_pStorage,
+    // detect faces
+    // this still uses old C interface
+    CvMat srcMat = src;
+    CvSeq* faceRectSeq =
+            cvHaarDetectObjects(&srcMat, m_pCascade, m_pStorage,
             m_scaleFactor, /* increase scale by m_scaleFactor each pass */
             m_minNeighbours, /*drop groups fewer than m_minNeighbours detections */
             int (m_useCannyPruning), /* 1 means: CV_HAAR_DO_CANNY_PRUNING */
-            cvSize(m_minWidth,m_minHeight) /* (0,0) means: use default smallest scale for detection */);
+            cv::Size(m_minWidth,m_minHeight) /* (0,0) means: use default smallest scale for detection */);
 
     //copy input image
-    cvCopy( iplImgIn, iplImgOut );
+    src.copyTo(dst);
+    RectangleData rectangles( srcPtr.width(), srcPtr.height() );
 
     //draw face rects
     for (int i = 0; i < ( faceRectSeq ? faceRectSeq->total : 0 ); ++i )
@@ -120,9 +125,89 @@ void ViolaJonesFaceDetector::process()
         CvRect* r = (CvRect*)cvGetSeqElem( faceRectSeq,i );
         CvPoint pt1 = {r->x,r->y};
         CvPoint pt2 = {r->x+r->width,r->y+r->height};
-        cvRectangle( iplImgOut, pt1, pt2, CV_RGB(0,255,0),3,4,0 );
+        cv::rectangle( dst, pt1, pt2, CV_RGB(0,255,0),3,4,0 );
+        rectangles.add( QRect( r->x, r->y, r->width, r->height ) );
     }
 
-    // publish the new image
-    m_outputPin->put( imgOut.getPtr() );
+    // publish the new image and rectangle data
+    m_outputPinRectangles->put( rectangles );
+    m_outputPinMonitor->put( dstPtr );
 }
+
+void ViolaJonesFaceDetector::setMinNeighbours(int i)
+{
+    QMutexLocker lock( m_propertyMutex );
+    if (i>0) m_minNeighbours = i;
+    emit(minNeighboursChanged(m_minNeighbours));
+}
+
+int ViolaJonesFaceDetector::getMinNeighbours()
+{
+    QMutexLocker lock( m_propertyMutex); return m_minNeighbours;
+}
+
+void ViolaJonesFaceDetector::setScaleFactor(double d)
+{
+    QMutexLocker lock( m_propertyMutex );
+    if (d>1) m_scaleFactor = d;
+    emit(scaleFactorChanged(m_scaleFactor));
+}
+
+double ViolaJonesFaceDetector::getScaleFactor()
+{
+    QMutexLocker lock( m_propertyMutex); return m_scaleFactor;
+}
+
+void ViolaJonesFaceDetector::setUseCannyPruning(bool b)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_useCannyPruning = b;
+    emit(useCannyPruningChanged(m_useCannyPruning));
+}
+
+bool ViolaJonesFaceDetector::getUseCannyPruning()
+{
+    QMutexLocker lock( m_propertyMutex);
+    return m_useCannyPruning;
+}
+
+void ViolaJonesFaceDetector::setMinWidth(int val)
+{
+    QMutexLocker lock( m_propertyMutex );
+    if(val>=0) m_minWidth = val;
+    emit( minWidthChanged(m_minWidth) );
+}
+
+int ViolaJonesFaceDetector::getMinWidth()
+{
+    QMutexLocker lock( m_propertyMutex);
+    return m_minWidth;
+}
+
+void ViolaJonesFaceDetector::setMinHeight(int val)
+{
+    QMutexLocker lock( m_propertyMutex );
+    if(val>=0) m_minHeight = val;
+    emit( minHeightChanged(m_minHeight) );
+}
+
+int ViolaJonesFaceDetector::getMinHeight()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_minHeight;
+}
+
+void ViolaJonesFaceDetector::setHaarCascadeFile(QString filename)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_haarCascadeFile = filename;
+    emit( haarCascadeFileChanged(filename));
+}
+
+QString ViolaJonesFaceDetector::getHaarCascadeFile()
+{
+    QMutexLocker lock( m_propertyMutex);
+    return m_haarCascadeFile;
+}
+
+

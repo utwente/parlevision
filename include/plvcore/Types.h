@@ -27,129 +27,50 @@
 #include <QStringBuilder>
 #include <QMetaType>
 #include <QVariant>
+#include <QRect>
+#include <QSharedData>
 
+#include "plvglobal.h"
 #include "RefPtr.h"
 #include "assert.h"
-#include "plvglobal.h"
 
 namespace plv 
 {
-    /** Base class for data resources.
-      * Data resources are not allowed to be deleted explicitly since they can be
-      * shared. Explicit deletion could cause a crash. Reference counting
-      * is used to let data resources delete themselves.
-      */
-    class PLVCORE_EXPORT Data : public RefCounted
+    class RectangleDataPrivate : public QSharedData
     {
-    protected:
-        /** serial number, used for synchronisation */
-        unsigned int m_serial;
-
-        /** mutable flag used for determining if data resource can be written to */
-        bool m_mutable;
-
     public:
-        Data(unsigned int serial = 0) : m_serial(serial), m_mutable(true) {}
+        int m_width;
+        int m_height;
+        QList<QRect> m_rects;
 
-        /** Copy constructor needs to be implemented by super classes
-          * to allow the copying of a data resources when the Pin
-          * connection type is set to copy which can be faster with
-          * simple types.
-          */
-        Data(const Data& other): m_serial(other.m_serial), m_mutable(true) {}
-
-        /** Destructor, should not be called explicitly because of reference counting */
-        virtual ~Data() {}
-
-        /** makes this data unit mutable again. Internal framework method.
-          * Should normally not be called by client code
-          */
-        inline void makeMutable()
-        {
-            QMutexLocker( &this->m_refMutex );
-            m_mutable = true;
-        }
-
-        /** makes this data element immutable. This is called by the framework when this element
-          * is read only shared in multiple threads
-          */
-        inline void makeImmutable()
-        {
-            QMutexLocker( &this->m_refMutex );
-            m_mutable = false;
-        }
-
-        inline bool isMutable() const
-        {
-            QMutexLocker( &this->m_refMutex );
-            return m_mutable;
-        }
-
-        inline unsigned int getSerial() const
-        {
-            QMutexLocker( &this->m_refMutex );
-            return m_serial;
-        }
-
-        inline void setSerial( unsigned int serial )
-        {
-            QMutexLocker( &this->m_refMutex );
-            m_serial = serial;
-        }
-
-        /** used to signal a NULL entry, generally there will be no
-          * data items sent with serial number 0. Null entries are ignored
-          * by viewers but used to synchronize the system. This is done
-          * automatically. Producers should generally never produce a Data item
-          * with serial number 0.
-          */
-        inline bool isNull() const
-        {
-            QMutexLocker( &this->m_refMutex );
-            return m_serial == 0;
-        }
+        RectangleDataPrivate(int w, int h) : m_width(w), m_height(h) {}
     };
 
-    /** Template class to make the implementation of primitive data types
-      * trivial. Do not use for pointer types!
-      */
-    template< class T >
-    class PLVCORE_EXPORT PrimitiveData : public Data
+    /** DataContainer around a QList with QRect rectangle list */
+    class PLVCORE_EXPORT RectangleData
     {
-    protected:
-        mutable QMutex m_sdMutex;
-        T m_value;
+    private:
+        QSharedDataPointer<RectangleDataPrivate> d;
 
     public:
-        PrimitiveData( T value ) : m_value( value ) {}
+        /** Constructor. Takes width and height of the image from which the
+            rectangles are taken if relevant. This is necessary for correct
+            rendering of the rectangles.  */
+        RectangleData( int width=0, int height=0 );
+        RectangleData( const RectangleData& other );
+        ~RectangleData();
 
-        inline T getValue() const
-        {
-            QMutexLocker lock( &m_sdMutex );
-            return m_value;
-        }
+        int width() const { return d->m_width; }
+        int height() const { return d->m_height; }
 
-        inline T setValue(T value)
-        {
-            QMutexLocker lock( &m_sdMutex );
-            m_value = value;
-        }
+        /** adds a rectangle to internal rectangle list */
+        void add( const QRect& rect ) { d->m_rects.append( rect ); }
+
+        /** QList uses implicit sharing so we return by value */
+        QList<QRect> getRects() const { return d->m_rects; }
     };
 }
-
-/** primitive types */
-typedef plv::PrimitiveData<bool> PlvBoolean;
-typedef plv::PrimitiveData<int> PlvInteger;
-typedef plv::PrimitiveData<float> PlvFloat;
-typedef plv::PrimitiveData<double> PlvDouble;
-typedef plv::PrimitiveData<QString> PlvString;
-
 /** Declare as Qt Metatype so we can pass RefPtr<Data> along with signals and slots */
-Q_DECLARE_METATYPE( plv::RefPtr<plv::Data> )
-Q_DECLARE_METATYPE( plv::RefPtr<PlvBoolean> )
-Q_DECLARE_METATYPE( plv::RefPtr<PlvInteger> )
-Q_DECLARE_METATYPE( plv::RefPtr<PlvFloat> )
-Q_DECLARE_METATYPE( plv::RefPtr<PlvDouble> )
-Q_DECLARE_METATYPE( plv::RefPtr<PlvString> )
+Q_DECLARE_METATYPE( plv::RectangleData )
 
 #endif // TYPES_H

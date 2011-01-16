@@ -22,8 +22,8 @@
 #include <QDebug>
 
 #include "Sub.h"
-#include <plvcore/OpenCVImage.h>
-#include <plvcore/OpenCVImagePin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -31,9 +31,23 @@ using namespace plvopencv;
 
 Sub::Sub()
 {
-    m_inputPin1 = createOpenCVImageInputPin( "input 1", this );
-    m_inputPin2 = createOpenCVImageInputPin( "input 2", this );
-    m_outputPin = createOpenCVImageOutputPin( "output", this );
+    m_inputPin1 = createCvMatDataInputPin( "input A", this );
+    m_inputPin2 = createCvMatDataInputPin( "input B", this );
+    m_inputPin3 = createCvMatDataInputPin( "mask" , this, IInputPin::CONNECTION_OPTIONAL );
+    m_outputPin = createCvMatDataOutputPin( "output", this );
+
+    m_inputPin1->addAllChannels();
+    m_inputPin1->addAllDepths();
+
+    m_inputPin2->addAllChannels();
+    m_inputPin2->addAllDepths();
+
+    m_inputPin3->addSupportedChannels(1);
+    m_inputPin3->addSupportedDepth(CV_8U);
+    m_inputPin3->addSupportedDepth(CV_8S);
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 }
 
 Sub::~Sub()
@@ -58,35 +72,44 @@ void Sub::stop()
 
 void Sub::process()
 {
-    assert(m_inputPin1 != 0);
-    assert(m_inputPin2 != 0);
-    assert(m_outputPin != 0);
+    CvMatData in1 = m_inputPin1->get();
+    CvMatData in2 = m_inputPin2->get();
+    CvMatData maskData;
 
-    RefPtr<OpenCVImage> img1 = m_inputPin1->get();
-    RefPtr<OpenCVImage> img2 = m_inputPin2->get();
-
-    // open input images for reading
-    const IplImage* iplImgIn1 = img1->getImage();
-    const IplImage* iplImgIn2 = img2->getImage();
-
-    //check format of images?
-    if( !img1->isCompatible( img2.getPtr() ))
+    // check if there is mask data
+    if( m_inputPin3->isConnected() )
     {
-        // TODO: we could use some modifications when the images do not match --
-        // e.g., copy one of the mismatching images into a duplicate that DOES match (stretch? shrink? Sub depth?)
-        throw std::runtime_error("The two images need to be the same in depth, size and nr of channels");
+        maskData = m_inputPin3->get();
     }
 
-    //get a new output image of same depth and size as input image
-    RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(
-            img1->getWidth(), img1->getHeight(), img1->getDepth(), img1->getNumChannels() );
+    //check format of images
+    if( in1.channels() != in2.channels() )
+    {
+        QString msg = tr("Images do not have same number of channels.");
+        error( PLE_FATAL, msg );
+        return;
+    }
 
-    // open output image for writing
-    IplImage* iplImgOut = imgOut->getImageForWriting();
+    if( in1.depth() != in2.depth() )
+    {
+        QString msg = tr("Input images are not of the same depth. "
+                      "Input 1 has depth %1 and input 2 has depth %2. " )
+                .arg(CvMatData::depthToString(in1.depth()))
+                .arg(CvMatData::depthToString(in2.depth()));
+        error( PLE_FATAL, msg );
+        return;
+    }
 
-    //subtract 2nd source image from 1st. Store in iplImgOut.
-    cvSub(iplImgIn1,iplImgIn2,iplImgOut);
+    CvMatData out = CvMatData::create(in1.properties());
+
+    const cv::Mat& src1 = in1;
+    const cv::Mat& src2 = in2;
+    const cv::Mat& mask = maskData;
+    cv::Mat& dst = out;
+
+    cv::subtract( src1, src2, dst, mask );
 
     // publish the new image
-    m_outputPin->put( imgOut.getPtr() );
+    m_outputPin->put( out );
+
 }

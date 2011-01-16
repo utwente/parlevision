@@ -321,6 +321,7 @@ void PipelineScene::clearLine()
     }
 }
 
+// TODO remove exception throwing all over the place
 void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* target)
            throw (NonFatalException)
 {
@@ -345,22 +346,12 @@ void PipelineScene::handleConnectionCreation(PinWidget* source, PinWidget* targe
             << " -> "
             << toPin->getOwner()->getName() << "/" << toPin->getName();
 
-    try
+    QString error;
+    if( !m_pipeline->canConnectPins(fromPin,toPin,error) )
     {
-        this->m_pipeline->connectPins(fromPin,toPin);
+        throw NonFatalException( error.toStdString() );
     }
-    catch( PinConnection::IncompatibleTypeException e)
-    {
-        throw NonFatalException(e.what());
-    }
-    catch( PinConnection::DuplicateConnectionException e)
-    {
-        throw NonFatalException(e.what());
-    }
-    catch( PinConnection::IllegalConnectionException e )
-    {
-        throw NonFatalException(e.what());
-    }
+    m_pipeline->connectPins(fromPin,toPin);
 }
 
 void PipelineScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
@@ -399,7 +390,7 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
         QString elementName = QString(event->mimeData()->data("x-plv-element-name"));
         qDebug() << elementName;
 
-        int typeId = PipelineElementFactory::isElementRegistered(elementName);
+        int typeId = PipelineElementFactory::elementId(elementName);
         if(typeId == -1)
         {
             throw PlvRuntimeException( "Tried to create unknown element " + elementName,

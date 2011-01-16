@@ -24,6 +24,7 @@
 
 #include <queue>
 #include <QMutexLocker>
+#include <QVariant>
 
 #include "RefPtr.h"
 #include "RefCounted.h"
@@ -31,10 +32,40 @@
 
 namespace plv
 {
-    class Data;
     class Pin;
     class IOutputPin;
     class IInputPin;
+
+    /** Container class for user data */
+    class Data
+    {
+    private:
+        /** serial number, used for synchronisation */
+        unsigned int m_serial;
+
+        /** the actual data being sent wrapped in a QVariant union */
+        QVariant m_payload;
+
+    public:
+        inline Data(unsigned int serial = 0) : m_serial(serial) {}
+        inline Data(unsigned int serial, const QVariant& payload ) : m_serial(serial), m_payload(payload) {}
+        inline Data(const Data& other) : m_serial(other.m_serial), m_payload(other.m_payload) {}
+        inline ~Data() {}
+
+        inline unsigned int getSerial() const { return m_serial; }
+        inline void setSerial( unsigned int serial ) { m_serial = serial; }
+
+        inline QVariant getPayload() const { return m_payload; }
+        inline void setPayload( const QVariant& payload ) { m_payload = payload; }
+
+        /** used to signal a NULL entry, generally there will be no
+          * data items sent with serial number 0. Null entries are ignored
+          * by viewers but used to synchronize the system. This is done
+          * automatically. Producers should generally never produce a Data item
+          * with serial number 0.
+          */
+        inline bool isNull() const { return m_serial == 0; }
+    };
 
     class PLVCORE_EXPORT PinConnection : public RefCounted
     {
@@ -76,9 +107,10 @@ namespace plv
         bool hasData();
         int size();
         inline ConnectionType getType();
-        void get( RefPtr<Data>& rv ) throw ( PlvRuntimeException );
-        void peek( RefPtr<Data>& rv ) const throw ( PlvRuntimeException );
-        void put( const RefPtr<Data>& data );
+
+        Data get();
+        Data peek() const;
+        void put( const Data& data );
 
         bool fastforward( unsigned int target );
 
@@ -92,8 +124,7 @@ namespace plv
         const IInputPin*  toPin() const;
 
     protected:
-        static bool canConnectPins( IOutputPin* out, IInputPin* in,
-                                    QString& errStr );
+        static bool canConnectPins( IOutputPin* out, IInputPin* in, QString& errStr );
 
         void connect() throw ( IllegalConnectionException,
                                IncompatibleTypeException,
@@ -107,9 +138,10 @@ namespace plv
           */
         void disconnect();
 
+    private:
         IOutputPin* m_producer;
         IInputPin*  m_consumer;
-        std::queue< RefPtr<Data> > m_queue;
+        std::queue< Data > m_queue;
         ConnectionType m_type;
         mutable QMutex m_connectionMutex;
     };

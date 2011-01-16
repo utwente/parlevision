@@ -22,7 +22,6 @@
 #ifndef PIPELINEELEMENT_H
 #define PIPELINEELEMENT_H
 
-#include <list>
 #include <map>
 #include <stdexcept>
 #include <assert.h>
@@ -86,6 +85,10 @@ namespace plv
           * call to the set function resulting in a deadlock if we use a normal
           * mutex */
         mutable QMutex* m_propertyMutex;
+
+        /** if an error has occured, this string holds an error message.
+            Errors are also emitted using signal errorOccurred */
+        QString m_errorString;
 
     public:
         friend class Pipeline;
@@ -153,9 +156,11 @@ namespace plv
           */
         virtual void process() = 0;
 
-        /** Get the name that describes this element, in human readable form */
-        virtual QString getName() const;
-
+        /** Get the name that describes this element, in human readable form. This name
+            should be defined as a class property in the processors implementation, e.g
+            Q_CLASSINFO("name", "Example"). If no name is defined, the unmangled C++
+            class name is returned, e.g. plv::ExampleProcessor. */
+        QString getName() const;
 
         /*************** END OF API ******************/
 
@@ -181,7 +186,7 @@ namespace plv
         inline int getId() const { return m_id; }
 
         /** Get a list of properties defined on this element */
-        virtual void getConfigurablePropertyNames(std::list<QString>&);
+        QStringList getConfigurablePropertyNames();
 
         /** @returns the summed total of all connections in all input pins */
         int inputPinsConnectionCount() const;
@@ -193,7 +198,7 @@ namespace plv
         int pinsConnectionCount() const;
 
         /** @returns a list of names of input pins added to this PipelineElement */
-        std::list<QString> getInputPinNames() const;
+        QStringList getInputPinNames() const;
 
         /** returns a copy of the contents of the input pin map
           * This function is thread safe.
@@ -206,14 +211,13 @@ namespace plv
         OutputPinMap getOutputPins() const;
 
         /** @returns a list of names of output pins added to this PipelineElement */
-        std::list<QString> getOutputPinNames() const;
+        QStringList getOutputPinNames() const;
 
         /** returns true if there is at least one Pin with a connection */
         bool hasPinConnections() const;
 
-        /** Get a list of all known PipelineElement Type names
-        */
-        static std::list<QString> types();
+        /** Get a list of all known PipelineElement Type names */
+        //static QStringList types();
 
         /** Register the given type as a PipelineElement Type.
           * The type needs to be known to Qt's MetaType system,
@@ -223,13 +227,13 @@ namespace plv
           * @require typeName is a type registered to the Qt MetaType system
           *     e.g. QMetaType::type(typeName) returns a valid ID
           */
-        static int registerType(QString typeName, QString humanName);
+        //static int registerType(QString typeName, QString humanName);
 
         /** Get a human readable name for the given type
           * @require typeName is a registered type
           * @return a human readable name for the type
           */
-        static QString nameForType(QString typeName);
+        //static QString nameForType(QString typeName);
 
         /** Returns the largest queue size of the connections connected
           * to the input pins. Returns 0 when there are no input pins with
@@ -247,13 +251,16 @@ namespace plv
         inline void setProcessingSerial( unsigned int serial ) { m_serial = serial; }
         inline unsigned int getProcessingSerial() const { return m_serial; }
 
+        void error( ErrorType type, QString msg );
+
     signals:
         void propertyChanged(QString);
+        void errorOccured( ErrorType type, QString message );
 
     protected:
         /** list to keep track of registered types */
-        static std::list<QString> s_types;
-        static std::map<QString,QString> s_names;
+        //static QStringList s_types;
+        //static std::map<QString,QString> s_names;
 
         /** serial number of current processing run. */
         unsigned int m_serial;
@@ -281,11 +288,9 @@ namespace plv
 // get this information within plvRegisterPipelineElement from Q_CLASSINFO"name"?
 // And use actual classname if this Q_CLASSINFO was not set?
 template<typename PET>
-int plvRegisterPipelineElement(const char* typeName, const char* humanName)
+int plvRegisterPipelineElement()
 {
-    plv::PipelineElement::registerType(typeName, humanName);
-    plv::PipelineElementConstructorHelper<PET>* plec
-            = new plv::PipelineElementConstructorHelper<PET>(typeName);
+    plv::PipelineElementConstructorHelper<PET>* plec = new plv::PipelineElementConstructorHelper<PET>();
     int id = plv::PipelineElementFactory::registerElement( plec );
     return id;
 }

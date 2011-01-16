@@ -79,31 +79,17 @@ void IInputPin::flushConnection()
 
 unsigned int IInputPin::getNextSerial() const
 {
-    RefPtr<Data> data;
-    m_connection->peek( data );
-    return data->getSerial();
+    Data d = m_connection->peek();
+    return d.getSerial();
 }
 
 void IInputPin::pre()
 {
-    /**
-     * prepares stack to receive objects
-     * for current scope
-     * extra saveguard against faulty processors which
-     * do not use wrappers for proper reference counting
-     */
-    assert( m_scope.empty() );
     m_called = false;
 }
 
 void IInputPin::post()
 {
-    // release all objects
-    while( !m_scope.empty() )
-    {
-        m_scope.pop();
-    }
-
     // check if mandatory get() method has been called and
     // data has been removed from this pin
     if( this->isConnected() && this->isSynchronous() )
@@ -120,10 +106,8 @@ void IInputPin::post()
     }
 }
 
-void IInputPin::getUntyped( RefPtr<Data>& dataPtr ) throw ( PlvRuntimeException )
+void IInputPin::getVariant( QVariant& v )
 {
-    assert( dataPtr.isNull() );
-
     // check if get is not called twice during one process call
     if( m_called )
     {
@@ -146,16 +130,8 @@ void IInputPin::getUntyped( RefPtr<Data>& dataPtr ) throw ( PlvRuntimeException 
                       " of processor " % processorName;
         throw PlvRuntimeException(msg, __FILE__, __LINE__);
     }
-    m_connection->get( dataPtr );
-    assert( dataPtr.isNotNull() );
-
-    // check data for format contract using the callback functor.
-    // Defaults to none allowed
-    // checkData( dataPtr );
-
-    // push data on stack so we increase refcount to protect against
-    // faulty processors not using RefPtr template
-    m_scope.push( dataPtr );
+    Data d = m_connection->get();
+    v.setValue(d.getPayload());
 }
 
 IOutputPin::~IOutputPin()
@@ -214,6 +190,22 @@ int IOutputPin::connectionCount() const
     return m_connections.size();
 }
 
+int IOutputPin::maxDataOnConnection() const
+{
+    int max = 0;
+
+    for(std::list< RefPtr<PinConnection> >::const_iterator itr = m_connections.begin();
+            itr != m_connections.end(); ++itr)
+    {
+        int size = (*itr)->size();
+        if( size > max ) max = size;
+    }
+
+    return max;
+}
+
+
+
 void IOutputPin::pre()
 {
     m_called = false;
@@ -227,8 +219,7 @@ void IOutputPin::post()
     {
         if( !m_called )
         {
-            RefPtr<Data> nullData = new Data();
-            nullData->makeImmutable();
+            Data nullData;
 
             // publish to all pin connections
             for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
@@ -241,7 +232,7 @@ void IOutputPin::post()
     }
 }
 
-void IOutputPin::putUntyped( const RefPtr<Data>& data )
+void IOutputPin::putVariant( const QVariant& v )
 {
     // check if get is not called twice during one process call
     if( m_called )
@@ -251,22 +242,13 @@ void IOutputPin::putUntyped( const RefPtr<Data>& data )
                       "during process() on OutputPin. Pin name is \"" %
                       this->m_name %
                       "\" of processor \"" % processorName % "\"";
-        throw PlvRuntimeException(msg,__FILE__, __LINE__ );
+        throw PlvRuntimeException( msg,__FILE__, __LINE__ );
     }
     m_called = true;
 
-    // check data for format contract using the callback functor.
-    // Defaults to none allowed
-    // checkData( data );
-
-    // this might be published to multiple processors which might run in
-    // multiple threads. Make immutable to prevent writes corrupting reads
-    // in other threads.
-    data->makeImmutable();
-
     // propagate the serial number
     unsigned int serial = m_owner->getProcessingSerial();
-    data->setSerial( serial  );
+    Data data( serial, v );
 
     // data should never be NULL
     if( serial == 0  )
@@ -275,11 +257,11 @@ void IOutputPin::putUntyped( const RefPtr<Data>& data )
         QString msg = "Illegal: Error in processor " % processorName
                       %"NULL data published during process() on OutputPin \"" %
                       this->m_name % "\"";
-        throw PlvRuntimeException(msg,__FILE__, __LINE__ );
+        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
     }
 
     // publish data to viewers
-    emit( newData( data ) );
+    emit( newData( v ) );
 
     // publish to all pin connections
     for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();

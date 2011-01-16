@@ -36,7 +36,7 @@ QT += xml
 
 INCLUDEPATH += ../../include/plvcore
 
-DEFINES += PLV_DLL PLV_DLL_EXPORTS
+DEFINES += PLVCORE_LIBRARY
 
 SOURCES += \
     Types.cpp \
@@ -52,9 +52,10 @@ SOURCES += \
     PipelineLoader.cpp \
     Scheduler.cpp \
     Plugin.cpp \
-    OpenCVImage.cpp \
+#    OpenCVImage.cpp \
     CvMatData.cpp \
-    OpenCVImagePin.cpp \
+#    OpenCVImagePin.cpp \
+    CvMatDataPin.cpp \
     Enum.cpp \
     Util.cpp
 
@@ -74,8 +75,9 @@ HEADERS += ../../include/plvcore/plvglobal.h \
     ../../include/plvcore/PlvExceptions.h \
     ../../include/plvcore/PipelineLoader.h \
     ../../include/plvcore/Scheduler.h \
-    ../../include/plvcore/OpenCVImage.h \
+#    ../../include/plvcore/OpenCVImage.h \
     ../../include/plvcore/CvMatData.h \
-    ../../include/plvcore/OpenCVImagePin.h \
+#    ../../include/plvcore/OpenCVImagePin.h \
+    ../../include/plvcore/CvMatDataPin.h \
     ../../include/plvcore/Enum.h \
     ../../include/plvcore/Util.h

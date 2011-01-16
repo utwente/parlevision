@@ -24,6 +24,7 @@
 
 #include <list>
 #include <QMutex>
+#include <QSharedData>
 #include <opencv/cv.h>
 
 #include "Types.h"
@@ -34,170 +35,139 @@
 
 namespace plv
 {
-    class CvMatProperties
+    /** helper class for dealing with properties of the cv::Mat */
+    class PLVCORE_EXPORT CvMatDataProperties
     {
     protected:
         int m_width;
         int m_height;
-        int m_type;
+        int m_type; // combination of depth and channels
 
     public:
-        CvMatProperties( int width,int height, int type ) :
-                m_width(width), m_height(height), m_type(type) {}
+        inline CvMatDataProperties( int width,int height, int type ) :
+                m_width(width), m_height(height),
+                m_type(type) {}
 
-        inline bool operator == (const CvMatProperties& rhs ) const
+        inline CvMatDataProperties( const cv::Mat& mat ) :
+                m_width(mat.cols), m_height(mat.rows), m_type(mat.type()) {}
+
+        inline bool operator == (const CvMatDataProperties& rhs ) const
         {
             return m_width == rhs.m_width &&
                    m_height == rhs.m_height &&
                    m_type == rhs.m_type;
         }
 
-        inline int getWidth() const { return m_width; }
-        inline int getHeight() const { return m_height; }
-        inline int getType() const { return m_type; }
-        inline cv::Size getSize() const { return cv::Size( m_width, m_height ); }
+        inline bool operator != (const CvMatDataProperties& rhs ) const
+        {
+            return m_width != rhs.m_width ||
+                   m_height != rhs.m_height ||
+                   m_type != rhs.m_type;
+        }
+
+        inline int width() const { return m_width; }
+        inline int height() const { return m_height; }
+        inline int depth() const { return CV_MAT_DEPTH( m_type ); }
+        inline int channels() const { return CV_MAT_CN( m_type ); }
+        inline int type() const { return m_type; }
+
+        inline void setWidth( int width ) { m_width = width; }
+        inline void setHeight( int height ) { m_height = height; }
+        inline void setDepth( int depth ) { m_type = CV_MAKE_TYPE(depth,  CV_MAT_CN( m_type )); }
+        inline void setNumChannels( int numChannels ) { m_type = CV_MAKE_TYPE( CV_MAT_DEPTH( m_type ), numChannels); }
+        inline void setType( int type ) { m_type = type; }
     };
-}
 
-namespace plv
-{
-
-//    class CvMatData;
-
-//    class PLVCORE_EXPORT CvMatDataFactory
-//    {
-//    public:
-
-//        /** constructs an CvMatData from an existing buffer. Default operation
-//          * is that the newly constructed CvMatData does not own the buffer,
-//          * and that a copy is created of the contents of the buffer. When own
-//          * is true, the newly constructed CvMatData becomes the owner of
-//          * the buffer, meaning it can be deleted by the CvMatData. Deleting
-//          * the buffer externally results in undefined behaviour.
-//          */
-////        CvMatData* getFromBuffer( IplImage* buffer, bool own = false );
-////        CvMatData* getFromBuffer( cv::Mat* buffer, bool own = false );
-
-//        /** Same as getFromBuffer called with non const buffer and own false. It
-//          * will create a copy from the buffer.
-//          */
-////        CvMatData* getFromBuffer( const IplImage* buffer );
-////        CvMatData* getFromBuffer( const cv::Mat* buffer );
-
-//        /** Will return an CvMatData with appropropriate format. Uses object
-//          * pooling to recycle images which are no longer in use by the pipeline.
-//          * @returns an CvMatData with appropriate format
-//          */
-//        CvMatData* get( int width, int height, int depth, int channels );
-//        //CvMatData* get( cv::Size size, int type );
-//        CvMatData* get( const CvMatProperties& props );
-
-////        inline static CvMatData* get( int width, int height, int depth, int channels )
-////        {
-////            return CvMatDataFactory::instance()->get( width, height, depth, channels );
-////        }
-
-////        inline static CvMatData* get( const CvMatProperties& props )
-////        {
-////            return CvMatDataFactory::instance()->get( props );
-////        }
-
-//        /** @returns the number of object in the object pool */
-//        int numObjects();
-
-//        /** @returns the number of objects in the object pool which are in use */
-//        int numObjectsInUse();
-
-//        /** @returns the size of the object pool in bytes */
-//        int objectPoolSize();
-
-//        /** @returns the maximum size of the object pool in bytes */
-//        int maxObjectPoolSize();
-
-//        /** Sets the maximum size of the object pool in bytes. Default is
-//          * CVMATDATA_OBJECT_POOL_SIZE_DEFAULT.
-//          */
-//        void setObjectPoolSize( int bytes );
-
-//        inline static CvMatDataFactory* instance()
-//        {
-//            if( m_instance == 0 )
-//                m_instance = new CvMatDataFactory();
-//            return m_instance;
-//        }
-
-//    private:
-//        CvMatDataFactory( int maxObjectPoolSize = CVMATDATA_MAX_OBJECT_POOL_SIZE );
-//        ~CvMatDataFactory();
-
-//        CvMatData* recycleOrAllocate( cv::Size size, int type );
-
-//        /** Purges all objects which are not in used from the object pool. Not thread safe. */
-//        void purge();
-
-//        /** Purges all objects, even those in use (refcount > 1). Dangerous! */
-//        void purgeAll();
-
-//    private:
-//        static CvMatDataFactory* m_instance;  /** singleton class instance */
-//        std::list<CvMatData*> m_objectPool;
-//        int m_maxObjectPoolSize;    /** max object pool size in bytes */
-//        int m_objectPoolSize;       /** object pool size in bytes */
-//        QMutex m_factoryMutex;
-//    };
-
-    class PLVCORE_EXPORT CvMatData : public Data
+    /** internal class to CvMatData. Not exported */
+    class MatData : public QSharedData
     {
-        friend class CvMatDataFactory;
+    public:
+        inline MatData() : mat(cv::Mat()) {}
+        inline MatData( const cv::Mat& mat ) : mat(mat) {}
+
+        // explicit copy of matrix header and data
+        inline MatData( const MatData& other ) { mat = other.mat.clone(); }
+        inline ~MatData() {}
+
+        /** actual opencv matrix */
+        cv::Mat mat;
+    };
+
+    class PLVCORE_EXPORT CvMatData
+    {
 
     public:
-
-        inline bool isValid() const { return m_mat != 0; }
-
-        const cv::Mat* get() const;
-        cv::Mat* getForWriting() throw ( PlvRuntimeException );
-
-        /** @returns a deep copy of this CvMatData, including a copy of the
-          * internal data.
-          */
-//        CvMatData* deepCopy() const;
-
-//        bool isCompatibleDimensions( const CvMatData* other ) const;
-//        bool isCompatibleDepth( const CvMatData* other ) const;
-//        bool isCompatibleSize( const CvMatData* other ) const;
-
-        /** Compare two opencv images for type equality */
-//        bool isCompatible( const CvMatData* other, ImageCompare compareType = ALL ) const;
-
-        /** Compare this opencv images for type equality to parameters */
-//        bool isCompatible( int width, int height, int depth, int channels ) const;
-
-        /** @returns the size of the contained matrix data in bytes */
-//        int size()const;
-
-    protected:
-        CvMatData( cv::Mat* cvMat );
-
-        /** Constructor. Converts IplImage to cv::Mat. Copies IplImage's data
-            if copyData is true. Protected, use CvMatDataFactory::getFromBuffer
-            instead.
-          */
-        CvMatData( IplImage* img, bool copyData = false );
-
-        /** copy constructor. Copy's the wrapper but not the data which it
-            references. */
+        CvMatData();
+        CvMatData( const cv::Mat& mat, bool copyData = false );
+        CvMatData( const IplImage* img );
         CvMatData( const CvMatData& other );
-
-        /** destructor. Also calls destructor of internal shared matrix data.
-            Is only called when reference count reaches 0 */
         ~CvMatData();
 
-        /** the internal open cv matrix */
-        cv::Mat* m_mat;
+        inline CvMatData& operator=(const CvMatData& other)
+        {
+            if( this != &other )
+            {
+                d = other.d;
+            }
+            return *this;
+        }
 
-        /** mutex for thread safe data sharing */
-        mutable QMutex m_imgLock;
+        inline CvMatData& operator=(const cv::Mat& other)
+        {
+            if( &d->mat != &other )
+            {
+                d->mat = other;
+            }
+            return *this;
+        }
+
+        /** Returns if the contained matrix has allocated data */
+        inline bool isValid() const { return d->mat.cols > 0 && d->mat.rows > 0 && d->mat.data!=0; }
+
+        /** Returns a copy of the cv::Mat header. The actual image data is not copied
+            Warning: do not remove const qualifier since this data might be shared
+            between threads. Beware, this can be done implicitly e.g. by converting to
+            IplImage using the operator IplImage! */
+        inline const cv::Mat get() const { return d->mat; }
+
+        /** returns a header which references the internal cv::Mat data.
+            When the reference count is larger than 1 a copy is made of
+            the matrix data. */
+        inline cv::Mat get() { return d->mat; }
+
+        /** constructs matrix of the specified size and type
+          ( depthAndChannels is CV_8UC1, CV_64FC3, CV_32SC(12) etc.)
+            or CV_MAKETYPE( depth, channels ) where depth is CV_8U etc */
+        static CvMatData create( int width, int height, int depthAndChannels );
+
+        inline static CvMatData create( int width, int height, int depth, int channels )
+        {
+            return create( width, height, CV_MAKETYPE( depth, channels ) );
+        }
+        inline static CvMatData create( const CvMatDataProperties& props )
+        {
+            return create( props.width(), props.height(), props.type() );
+        }
+
+        inline int type() const { return d->mat.type(); }
+        inline int depth() const { return d->mat.depth(); }
+        inline int channels() const { return d->mat.channels(); }
+        inline int width() const { return d->mat.cols; }
+        inline int height() const { return d->mat.rows; }
+        inline int cols() const { return d->mat.cols; }
+        inline int rows() const { return d->mat.rows; }
+        inline CvMatDataProperties properties() const { return CvMatDataProperties(d->mat); }
+
+        static const char* depthToString( int depth );
+
+        inline operator cv::Mat&() { return d->mat; }
+        inline operator const cv::Mat&() const { return d->mat; }
+
+    private:
+        /** the internal open cv matrix */
+        QSharedDataPointer<MatData> d;
     };
 }
+Q_DECLARE_METATYPE( plv::CvMatData )
 
 #endif
