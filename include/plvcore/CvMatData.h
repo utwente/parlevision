@@ -86,7 +86,7 @@ namespace plv
         inline MatData( const cv::Mat& mat ) : mat(mat) {}
 
         // explicit copy of matrix header and data
-        inline MatData( const MatData& other ) { mat = other.mat.clone(); }
+        inline MatData( const MatData& other ) : QSharedData() { mat = other.mat.clone(); }
         inline ~MatData() {}
 
         /** actual opencv matrix */
