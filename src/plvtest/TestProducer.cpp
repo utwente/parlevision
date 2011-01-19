@@ -33,7 +33,12 @@ void TestProducer::stop()
 {
 }
 
-void TestProducer::process()
+bool TestProducer::readyToProduce() const
+{
+    return true;
+}
+
+void TestProducer::produce()
 {
     unsigned int serial = getProcessingSerial();
 

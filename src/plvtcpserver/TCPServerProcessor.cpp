@@ -1,17 +1,15 @@
 #include "TCPServerProcessor.h"
+#include "Proto.h"
 
-#include <plvcore/Pin.h>
 #include <plvcore/CvMatData.h>
 #include <plvcore/CvMatDataPin.h>
-#include <opencv/cv.h>
-
 #include <QNetworkInterface>
 
 using namespace plv;
 
 TCPServerProcessor::TCPServerProcessor() : m_port(1337), m_waiting(false)
 {
-     m_server = new Server(this);
+    m_server = new Server(this);
     this->connect(this,
                   SIGNAL(sendData(const QByteArray&)),
                   m_server,
@@ -19,6 +17,7 @@ TCPServerProcessor::TCPServerProcessor() : m_port(1337), m_waiting(false)
 
     m_inputPinCvMatData = createCvMatDataInputPin( "test", this, IInputPin::CONNECTION_OPTIONAL );
     m_inputPinDouble = createInputPin<double>(  "double_test", this, IInputPin::CONNECTION_OPTIONAL );
+    m_inputPinCvScalar = createInputPin<cv::Scalar>( "cv::Scalar", this );
 }
 
 TCPServerProcessor::~TCPServerProcessor()
@@ -29,8 +28,7 @@ void TCPServerProcessor::init()
 {
     if( !m_server->listen( QHostAddress::LocalHost, m_port ) )
     {
-        error( PLE_ERROR,
-               tr("Unable to start the server: %1.")
+        error( tr("Unable to start the server: %1.")
                .arg(m_server->errorString()));
         return;
     }
@@ -84,9 +82,6 @@ void TCPServerProcessor::process()
             frameData.append(v);
         }
     }
-//    double d = m_inputPinDouble->get();
-//    QVariant v(d);
-//    frameData.append(v);
     sendFrame(frameData);
 }
 
@@ -94,13 +89,14 @@ void TCPServerProcessor::sendFrame( const QVariantList& frameData )
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
+    out.setVersion(QDataStream::Qt_4_7);
 
     // number of arguments in this frame
-    int numargs = frameData.size();
-    int frameNumber = getProcessingSerial();
+    unsigned int numargs = frameData.size();
+    unsigned int frameNumber = getProcessingSerial();
 
     // write the header
+    out << (quint32) PROTO_FRAME;
     out << (quint32)0; // reserved for number of bytes later
     out << (quint32)frameNumber;
     out << (quint32)numargs;

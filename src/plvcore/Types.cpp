@@ -33,3 +33,23 @@ RectangleData::RectangleData( const RectangleData& other ) :
 
 RectangleData::~RectangleData() {}
 
+
+QDataStream &operator<<(QDataStream &out, const cv::Scalar &s)
+{
+    // store 4 doubles in the stream
+    for( int i=0; i < 4; ++i )
+        out << s[i];
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, cv::Scalar &s)
+{
+    // load 4 doubles from the stream
+    for( int i=0; i < 4; ++i )
+    {
+         double d;
+         in >> d;
+         s[i] = d;
+    }
+    return in;
+}

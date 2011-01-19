@@ -55,8 +55,8 @@ namespace plvopencv
         Q_PROPERTY( double threshold READ getThreshold WRITE setThreshold NOTIFY thresholdChanged )
         Q_PROPERTY( double maxValue READ getMaxValue WRITE setMaxValue NOTIFY maxValueChanged )
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
 
     public:
         ImageThreshold();

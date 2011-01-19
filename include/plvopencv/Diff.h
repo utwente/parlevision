@@ -44,8 +44,8 @@ namespace plvopencv
         Q_CLASSINFO("name", "AbsDiff(A, B)")
         Q_CLASSINFO("description", "Calculate absolute difference of two images.");
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
     public:
         Diff();
         virtual ~Diff();

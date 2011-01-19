@@ -61,8 +61,8 @@ namespace plvopencv
         Q_PROPERTY( double sigmaTwo READ getSigmaTwo WRITE setSigmaTwo NOTIFY sigmaTwoChanged )
         Q_PROPERTY( plv::Enum borderType READ getBorderType WRITE setBorderType NOTIFY borderTypeChanged )
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
 
     public:
         GaussianSmooth();

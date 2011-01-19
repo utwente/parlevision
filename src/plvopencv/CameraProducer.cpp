@@ -59,7 +59,7 @@ CameraProducer::~CameraProducer()
 {
 }
 
-void CameraProducer::process()
+void CameraProducer::produce()
 {
     QMutexLocker lock(&m_frameMutex);
     assert( m_lastFrame.isValid() );
@@ -102,7 +102,7 @@ void CameraProducer::stop()
     m_camera->pause();
 }
 
-bool CameraProducer::isReadyForProcessing() const
+bool CameraProducer::readyToProduce() const
 {
     QMutexLocker lock(&m_frameMutex);
     return( m_lastFrame.isValid() );

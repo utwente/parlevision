@@ -49,8 +49,8 @@ namespace plvopencv
 
         Q_PROPERTY( plv::Enum conversionType READ getConversionType WRITE setConversionType NOTIFY conversionTypeChanged )
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
 
     public:
         ImageColorConvert();

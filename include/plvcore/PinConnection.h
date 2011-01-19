@@ -46,10 +46,14 @@ namespace plv
         /** the actual data being sent wrapped in a QVariant union */
         QVariant m_payload;
 
+        /** true when this is a NULL packet which means that
+            m_payload is empty */
+        bool m_null;
+
     public:
-        inline Data(unsigned int serial = 0) : m_serial(serial) {}
-        inline Data(unsigned int serial, const QVariant& payload ) : m_serial(serial), m_payload(payload) {}
-        inline Data(const Data& other) : m_serial(other.m_serial), m_payload(other.m_payload) {}
+        inline Data(unsigned int serial=0, bool isNull = true) : m_serial(serial), m_null(isNull) {}
+        inline Data(unsigned int serial, const QVariant& payload ) : m_serial(serial), m_payload(payload), m_null(false) {}
+        inline Data(const Data& other) : m_serial(other.m_serial), m_payload(other.m_payload), m_null(other.m_null) {}
         inline ~Data() {}
 
         inline unsigned int getSerial() const { return m_serial; }
@@ -58,13 +62,12 @@ namespace plv
         inline QVariant getPayload() const { return m_payload; }
         inline void setPayload( const QVariant& payload ) { m_payload = payload; }
 
-        /** used to signal a NULL entry, generally there will be no
-          * data items sent with serial number 0. Null entries are ignored
+        /** used to signal a NULL entry. Null entries are ignored
           * by viewers but used to synchronize the system. This is done
           * automatically. Producers should generally never produce a Data item
-          * with serial number 0.
-          */
-        inline bool isNull() const { return m_serial == 0; }
+          * which are NULL. Processors automaticall produce them when they generate
+          * no output for a process call */
+        inline bool isNull() const { return m_null; }
     };
 
     class PLVCORE_EXPORT PinConnection : public RefCounted
@@ -104,12 +107,13 @@ namespace plv
                         DuplicateConnectionException );
         virtual ~PinConnection();
 
-        bool hasData();
-        int size();
-        inline ConnectionType getType();
+        bool hasData() const;
+        int size() const;
+        inline ConnectionType getType() const;
 
         Data get();
         Data peek() const;
+        void peek( unsigned int& serial, bool& isNull ) const;
         void put( const Data& data );
 
         bool fastforward( unsigned int target );
@@ -149,7 +153,7 @@ namespace plv
 
 namespace plv
 {
-    PinConnection::ConnectionType PinConnection::getType() { return m_type; }
+    PinConnection::ConnectionType PinConnection::getType() const { return m_type; }
 }
 
 #endif // PINCONNECTION_H

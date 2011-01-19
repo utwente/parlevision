@@ -49,8 +49,8 @@ namespace plvopencv
         Q_PROPERTY( double delta READ getDelta WRITE setDelta NOTIFY deltaChanged )
         Q_PROPERTY( plv::Enum borderType READ getBorderType WRITE setBorderType NOTIFY borderTypeChanged )
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
 
     public:
         EdgeDetectorSobel();

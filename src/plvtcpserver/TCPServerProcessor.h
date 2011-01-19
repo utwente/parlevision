@@ -5,6 +5,7 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/RefPtr.h>
 #include <plvcore/Pin.h>
+#include <opencv/cv.h>
 
 #include "Server.h"
 
@@ -25,8 +26,8 @@ class TCPServerProcessor : public plv::PipelineProcessor
 
     Q_PROPERTY( int port READ getPort WRITE setPort NOTIFY portChanged  )
 
-    /** required standard method declaration for plv::PipelineElement */
-    PLV_PIPELINE_ELEMENT
+    /** required standard method declaration for plv::PipelineProcessor */
+    PLV_PIPELINE_PROCESSOR
 
 public:
     TCPServerProcessor();
@@ -53,6 +54,7 @@ private:
     bool m_waiting;
     plv::CvMatDataInputPin* m_inputPinCvMatData;
     plv::InputPin<double>* m_inputPinDouble;
+    plv::InputPin<cv::Scalar>* m_inputPinCvScalar;
 };
 
 #endif // TCPSERVERPROCESSOR_H

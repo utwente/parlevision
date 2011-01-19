@@ -27,18 +27,19 @@
 #include <QDebug>
 #include <QMetaObject>
 #include <QMetaProperty>
+#include <QtConcurrentRun>
+#include <algorithm>
 
 #include "Pipeline.h"
 #include "RefCounted.h"
 #include "Pin.h"
 
-using namespace plv;
 
-//QStringList PipelineElement::s_types;
-//std::map<QString,QString> PipelineElement::s_names;
+using namespace plv;
 
 PipelineElement::PipelineElement() :
         m_id( -1 ),
+        m_state( UNDEFINED ),
         m_propertyMutex( new QMutex( QMutex::Recursive ) )
 {
 }
@@ -55,8 +56,8 @@ void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentExcept
     InputPinMap::iterator itr = m_inputPins.find( pin->getName() );
     if( itr != m_inputPins.end() )
     {
-        QString err = "Tried to add input pin with name which already exists";
-        err += pin->getName();
+        QString err = QString( tr( "Tried to add output pin with name %1, "
+                              "which already exists")).arg( pin->getName() );
         throw IllegalArgumentException( err );
     }
     RefPtr<IInputPin> rpin( pin );
@@ -70,8 +71,8 @@ void PipelineElement::addOutputPin( IOutputPin* pin ) throw (IllegalArgumentExce
     OutputPinMap::iterator itr = m_outputPins.find( pin->getName() );
     if( itr != m_outputPins.end() )
     {
-        QString err = "Tried to add output pin with name which already exists";
-        err += pin->getName();
+        QString err = QString( tr( "Tried to add output pin with name %1, "
+                              "which already exists")).arg( pin->getName() );
         throw IllegalArgumentException( err );
     }
     RefPtr<IOutputPin> rpin( pin );
@@ -87,7 +88,7 @@ IInputPin* PipelineElement::getInputPin( const QString& name ) const
     {
         return itr->second.getPtr();
     }
-    qDebug() << "could not find pin named " << name;
+    qWarning() << "Could not find pin named " << name << " in PipelineElement::getInputPin";
     return 0;
 }
 
@@ -187,6 +188,20 @@ QSet<PipelineElement*> PipelineElement::getConnectedElementsToInputs() const
     return elements;
 }
 
+bool PipelineElement::isEndNode() const
+{
+    QMutexLocker lock( &m_pleMutex );
+    for( InputPinMap::const_iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end(); ++itr )
+    {
+        RefPtr<IInputPin> in = itr->second;
+        if( in->isConnected() )
+            return false;
+    }
+    return true;
+}
+
+
 bool PipelineElement::requiredPinsConnected() const
 {
     QMutexLocker lock( &m_pleMutex );
@@ -201,10 +216,13 @@ bool PipelineElement::requiredPinsConnected() const
     return true;
 }
 
-bool PipelineElement::dataAvailableOnInputPins() const
+bool PipelineElement::dataAvailableOnInputPins( unsigned int& nextSerial )
 {
     QMutexLocker lock( &m_pleMutex );
 
+    // TODO move this to initialisation
+    bool hasAsynchronous = false;
+    bool hasSynchronous = false;
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
          itr != m_inputPins.end();
          ++itr )
@@ -212,17 +230,122 @@ bool PipelineElement::dataAvailableOnInputPins() const
         IInputPin* in = itr->second.getPtr();
 
         // only automatically check synchronous connections
-        if( in->isConnected() &&
-            in->isSynchronous() )
+        if( in->isConnected() )
         {
-            // check for data
-            if( !in->hasData() )
+            if( in->isSynchronous() )
             {
-                return false;
+                hasSynchronous = true;
+            }
+            else
+            {
+                hasAsynchronous = true;
             }
         }
     }
-    return true;
+
+    // synchronous processor
+    if( hasSynchronous )
+    {
+        std::vector<unsigned int> serials;
+        bool nullDetected = false;
+        for( InputPinMap::const_iterator itr = m_inputPins.begin();
+             itr != m_inputPins.end();
+             ++itr )
+        {
+            IInputPin* in = itr->second.getPtr();
+
+            // only check synchronous connections
+            if( in->isConnected() )
+            {
+                if( in->isSynchronous() )
+                {
+                    if( in->hasData() )
+                    {
+                        unsigned int serial;
+                        bool isNull;
+                        in->peekNext(serial, isNull);
+                        serials.push_back( serial );
+                        if( isNull )
+                            nullDetected = true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // check if all serials are the same (which should be the case)
+        bool valid = true;
+        for( unsigned int i=0; i<serials.size() && valid; ++i)
+        {
+            valid = (serials[0] == serials[i]);
+        }
+
+        // the model should guarantee that
+        // this should never happen obviously
+        if( !valid )
+        {
+            error( "Input corrupted" );
+            return false;
+        }
+
+        // save the serial
+        nextSerial = serials[0];
+
+        // if one data item is a null
+        // we throw away all data from all synchronous pins
+        if( nullDetected )
+        {
+            for( InputPinMap::iterator itr = m_inputPins.begin();
+                 itr != m_inputPins.end(); ++itr )
+            {
+                IInputPin* in = itr->second.getPtr();
+
+                if( in->isConnected() && in->isSynchronous() )
+                {
+                    // just remove first data item in the
+                    QVariant v;
+                    in->getVariant( v );
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+    // asynchronous processor, only has asynchronous pins
+    else if( hasAsynchronous )
+    {
+        std::vector<unsigned int> serials;
+        for( InputPinMap::const_iterator itr = m_inputPins.begin();
+             itr != m_inputPins.end();
+             ++itr )
+        {
+            IInputPin* in = itr->second.getPtr();
+
+            // only check asynchronous connections
+            if( in->isConnected() ) //&& in->isAsynchronous() )
+            {
+                if( in->hasData() )
+                {
+                    unsigned int serial;
+                    bool isNull;
+                    in->peekNext(serial, isNull);
+                    serials.push_back(serial);
+                }
+            }
+        }
+
+        if( serials.size() > 0 )
+        {
+            std::sort( serials.begin(), serials.end() );
+            // return smallest serial
+            nextSerial = serials[0];
+            return true;
+        }
+    }
+    return false;
 }
 
 QStringList PipelineElement::getInputPinNames() const
@@ -290,26 +413,6 @@ int PipelineElement::pinsConnectionCount() const
     return inputPinsConnectionCount() + outputPinsConnectionCount();
 }
 
-//QStringList PipelineElement::types()
-//{
-//    return PipelineElement::s_types;
-//}
-
-//int PipelineElement::registerType(QString typeName, QString humanName)
-//{
-//    qDebug() << "Registering PipelineElement " << typeName
-//             << " as " << "'" << humanName << "'";
-
-//    PipelineElement::s_types.push_back( typeName );
-//    PipelineElement::s_names[typeName] = humanName;
-//    return 0;
-//}
-
-//QString PipelineElement::nameForType(QString typeName)
-//{
-//    return PipelineElement::s_names[typeName];
-//}
-
 int PipelineElement::maxInputQueueSize() const
 {
     QMutexLocker lock( &m_pleMutex );
@@ -348,8 +451,122 @@ void PipelineElement::setProperty(const char *name, const QVariant &value)
     emit(propertyChanged(QString(name)));
 }
 
-void PipelineElement::error( ErrorType type, QString msg )
+void PipelineElement::error( const QString& msg )
 {
     m_errorString = msg;
-    emit( errorOccured( type, msg ) );
+    emit( errorOccured(msg) );
+}
+
+bool PipelineElement::visit( QList< PipelineElement* >& ordering,
+                             QSet< PipelineElement* >& visited )
+{
+    // check if this node is already in partial ordering
+    if( ordering.contains( this ))
+        return true;
+
+    // check for cycles
+    if( visited.contains( this ))
+    {
+        // cycle detected
+        ordering.append( this );
+        return false;
+    }
+    visited.insert( this );
+
+    // visit all incoming connections
+    for( PipelineElement::InputPinMap::const_iterator itr = m_inputPins.begin();
+        itr!=m_inputPins.end(); ++itr )
+    {
+        IInputPin* inputPin = itr->second;
+        if( inputPin->isConnected() )
+        {
+            PipelineElement* node = inputPin->getConnection()->fromPin()->getOwner();
+            // directly quit if cycle detected
+            if( !node->visit( ordering, visited ) )
+                return false;
+        }
+    }
+    // go up in call stack
+    visited.remove( this );
+    ordering.append( this );
+    return true;
+}
+
+void PipelineElement::startTimer()
+{
+    m_timer.start();
+}
+
+void PipelineElement::stopTimer()
+{
+    int elapsed = m_timer.elapsed();
+    m_avgProcessingTime = m_avgProcessingTime > 0 ?
+                          (int) (( elapsed * 0.01f ) + ( m_avgProcessingTime * 0.99f ))
+                              : elapsed;
+    m_lastProcesingTime = elapsed;
+}
+
+PipelineElement::State PipelineElement::getState()
+{
+    QMutexLocker lock( &m_stateMutex );
+    return m_state;
+}
+
+void PipelineElement::setState( State state )
+{
+    QMutexLocker lock( &m_stateMutex );
+    m_state = state;
+}
+
+void PipelineElement::run( unsigned int serial )
+{
+    assert( getState() == DISPATCHED );
+    setState( RUNNING );
+
+    startTimer();
+    try
+    {
+        // calls implementation (producer or procesor) specific private __process method
+        this->__process( serial );
+    }
+    catch( PlvRuntimeException& re )
+    {
+        qDebug() << "Uncaught exception in PipelineElement::process()"
+                 << " of file " << re.getFileName()
+                 << " on line " << re.getLineNumber()
+                 << " of type PlvRuntimeException with message: " << re.what();
+        stopTimer();
+        setState( ERROR );
+        error( re.what() );
+        return;
+    }
+    catch( PlvException& e )
+    {
+        qDebug() << "Uncaught exception in PipelineElement::process()"
+                 << "of type PlvException with message: " << e.what();
+        stopTimer();
+        setState( ERROR );
+        error( e.what() );
+        return;
+    }
+    catch( std::runtime_error& err )
+    {
+        qDebug() << "Uncaught exception in PipelineElement::process()"
+                 << "of type PlvException with message: " << err.what();
+        stopTimer();
+        setState( ERROR );
+        error( err.what() );
+        return;
+    }
+    catch( ... )
+    {
+        qDebug() << "Uncaught exception in PipelineElement::process()"
+                 << "of unknown type.";
+        stopTimer();
+        setState( ERROR );
+        error( "Unknown exception caught" );
+        return;
+    }
+    stopTimer();
+    setState( DONE );
 }

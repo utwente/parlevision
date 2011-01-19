@@ -50,7 +50,6 @@ int main(int argc, char **argv)
     app.installEventFilter(new OpenEventHandler());
 
     plvgui::MainWindow* mainWin = new plvgui::MainWindow();
-
     mainWin->show();
     mainWin->showWelcomeScreen();
 

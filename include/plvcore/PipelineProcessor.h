@@ -24,21 +24,39 @@
 
 #include "PipelineElement.h"
 
+/** Utility macro for implemented pure abstract methods in sub classes */
+#define PLV_PIPELINE_PROCESSOR \
+public: \
+    virtual void init(); \
+    virtual void deinit() throw (); \
+    virtual void start(); \
+    virtual void stop(); \
+    virtual void process();
+
 namespace plv
 {
     class PLVCORE_EXPORT PipelineProcessor : public PipelineElement
     {
+        Q_OBJECT
+
     public:
+        friend class Pipeline;
+
         PipelineProcessor();
         virtual ~PipelineProcessor();
 
-        /** inherited from PipelineElement. Can be overridden if needed. */
-        virtual bool isReadyForProcessing() const { return true; }
+        /** This method can be overridden in PipelineProcessor derived classes to
+          * change the default behaviour that the processor is ready to process when
+          * there is input available on all connected synchronous pins. Warning:
+          * use with caution! */
+        //virtual bool readyToProcess() const { return true; }
+
+        /** does the actual processing */
+        virtual void process() = 0;
 
     private:
-        virtual void __init();
-        virtual bool __isReadyForProcessing() const;
-        virtual void __process();
+        virtual bool __ready( unsigned int& nextSerial );
+        virtual void __process( unsigned int serial );
     };
 
 }

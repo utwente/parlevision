@@ -32,6 +32,8 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QTime>
+#include <QFuture>
+#include <QtConcurrentRun>
 
 #include "RefPtr.h"
 #include "RefCounted.h"
@@ -44,6 +46,32 @@ namespace plv
     class IInputPin;
     class IOutputPin;
     class Scheduler;
+    class PipelineProducer;
+    class PipelineProcessor;
+
+    class RunItem
+    {
+    public:
+        PipelineElement* m_element;
+        unsigned int m_serial;
+        QFuture<void> m_result;
+
+        RunItem( PipelineElement* element, unsigned int serial ) :
+                m_element(element), m_serial(serial) {}
+
+        inline unsigned int serial() const { return m_serial; }
+        inline PipelineElement* element() const { return m_element; }
+
+        bool operator ==(const RunItem& other) const { return other.m_serial == m_serial && other.m_element == m_element; }
+        bool operator < (const RunItem& other) const { return m_serial < other.m_serial; }
+
+        void dispatch()
+        {
+            assert( m_element->getState() == PipelineElement::READY );
+            m_element->setState( PipelineElement::DISPATCHED );
+            m_result = QtConcurrent::run( m_element, &PipelineElement::run, m_serial );
+        }
+    };
 
     class PLVCORE_EXPORT Pipeline : public QThread, public RefCounted
     {
@@ -59,8 +87,7 @@ namespace plv
           */
         virtual ~Pipeline();
 
-        /** Initialise this Pipeline. Not yet reentrant
-          */
+        /** Initialise this Pipeline. */
         //bool init();
 
         /** Removes all PipelineElements and Connections from this pipeline */
@@ -121,39 +148,52 @@ namespace plv
           */
         void disconnect( PinConnection* connection );
 
+        inline bool isRunning() const { QMutexLocker lock( &m_pipelineMutex ); return m_running; }
+
     protected:
         PipelineElementMap m_children;
         PipelineConnectionsList m_connections;
-        QMutex m_pipelineMutex;
+        mutable QMutex m_pipelineMutex;
 
-        /**
-          * The QThread run loop
-          */
+        /** The QThread run loop */
         virtual void run();
 
+        void heartbeat();
+        void step();
+
     private:
+        unsigned int m_serial;
+        bool m_running; /** true when pipeline is running */
         bool m_stopRequested;
-        bool m_running;
-        Scheduler* m_scheduler;
+
+        QList<PipelineElement*> m_ordering;
+        QMap<int, PipelineProducer* > m_producers;
+        QMap<int, PipelineProcessor* > m_processors;
+
+        inline void setStopRequested(bool value) { QMutexLocker lock( &m_pipelineMutex ); m_stopRequested = value; }
+        inline bool isStopRequested() const { QMutexLocker lock( &m_pipelineMutex ); return m_stopRequested; }
+
+        inline void setRunning(bool value) { QMutexLocker lock( &m_pipelineMutex ); m_running = value; }
 
         /** does a disconnect on PinConnection. Private thread unsafe function
           * use disconnect( PinConnection* ) public function when calling
-          * from outside this class
-          */
+          * from outside this class */
         void threadUnsafeDisconnect( PinConnection* connection );
 
-        /** Disconnects and removes all connections for this element
-          */
+        /** Disconnects and removes all connections for this element */
         void removeConnectionsForElement( PipelineElement* element );
 
-        /** Disconnects and removes all connections.
-          */
+        /** Disconnects and removes all connections. */
         void removeAllConnections();
 
         /** Removes all elements from the pipeline */
         void removeAllElements();
 
         int getNewPipelineElementId();
+
+        bool generateGraphOrdering( QList<PipelineElement*>& ordering );
+
+        bool producersReady();
 
     signals:
         void elementAdded(plv::RefPtr<plv::PipelineElement>);
@@ -169,12 +209,11 @@ namespace plv
         void started();
         void stopped();
 
-        void tick();
+        void stepTaken( unsigned int serial );
 
     public slots:
         void start();
         void stop();
-
     };
 }
 #endif // PIPELINE_H

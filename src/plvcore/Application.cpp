@@ -72,6 +72,8 @@ void Application::loadBuiltins()
     //qRegisterMetaTypeStreamOperators< plv::Enum >( "plv::Enum" );
     //qRegisterMetaTypeStreamOperators< plv::CvMatData >( "plv::CvMatData" );
     //qRegisterMetaTypeStreamOperators< plv::RectangleData >( "plv::RectangleData" );
+
+    qRegisterMetaTypeStreamOperators<cv::Scalar>("cv::Scalar");
 }
 
 void Application::loadPlugins()

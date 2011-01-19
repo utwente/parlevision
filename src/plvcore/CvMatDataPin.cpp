@@ -166,7 +166,8 @@ void CvMatDataOutputPin::put( CvMatData img )
 {
     QVariant v;
     v.setValue(img);
-    putVariant(v);
+    unsigned int serial = m_owner->getProcessingSerial();
+    putVariant(serial, v);
 }
 
 void CvMatDataOutputPin::addSupportedDepth(int depth)

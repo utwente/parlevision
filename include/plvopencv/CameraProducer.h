@@ -47,15 +47,12 @@ namespace plvopencv
         Q_PROPERTY( int width READ getWidth WRITE setWidth NOTIFY widthChanged )
         Q_PROPERTY( int height READ getHeight WRITE setHeight NOTIFY heightChanged )
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProducer */
+        PLV_PIPELINE_PRODUCER
 
     public:
         CameraProducer();
         virtual ~CameraProducer();
-
-        /** @returns true if a new frame is available */
-        bool isReadyForProcessing() const;
 
         inline OpenCVCamera* getCamera() const { return m_camera.getPtr(); }
 

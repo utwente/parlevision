@@ -30,8 +30,8 @@ namespace plvopencv
         Q_PROPERTY( int minHeight READ getMinHeight WRITE setMinHeight NOTIFY minHeightChanged )
         Q_PROPERTY( QString haarCascadeFile READ getHaarCascadeFile WRITE setHaarCascadeFile NOTIFY haarCascadeFileChanged )
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
 
     public:
         ViolaJonesFaceDetector();

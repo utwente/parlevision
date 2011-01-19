@@ -30,6 +30,7 @@
 #include <QRect>
 #include <QSharedData>
 
+#include <opencv/cv.h>
 #include "plvglobal.h"
 #include "RefPtr.h"
 #include "assert.h"
@@ -44,6 +45,9 @@ namespace plv
         QList<QRect> m_rects;
 
         RectangleDataPrivate(int w, int h) : m_width(w), m_height(h) {}
+        RectangleDataPrivate( const RectangleDataPrivate& other ) :
+                m_width(other.m_width), m_height(other.m_height),
+                m_rects(other.m_rects) {}
     };
 
     /** DataContainer around a QList with QRect rectangle list */
@@ -70,7 +74,13 @@ namespace plv
         QList<QRect> getRects() const { return d->m_rects; }
     };
 }
-/** Declare as Qt Metatype so we can pass RefPtr<Data> along with signals and slots */
+
+QDataStream &operator<<(QDataStream &out, const cv::Scalar &s);
+QDataStream &operator>>(QDataStream &in, cv::Scalar &s);
+
+/** Declare as Qt Metatype so we can pass data type along with
+    PinConnections and Qt's signals and slots */
 Q_DECLARE_METATYPE( plv::RectangleData )
+Q_DECLARE_METATYPE( cv::Scalar );
 
 #endif // TYPES_H

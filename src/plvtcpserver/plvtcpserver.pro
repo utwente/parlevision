@@ -16,9 +16,12 @@ SOURCES += tcpserverplugin.cpp \
             TCPServerProcessor.cpp \
             Server.cpp \
             ServerConnection.cpp \
+            TCPClientProducer.cpp
 
 HEADERS +=  tcpserverplugin.h \
             tcpserver_global.h \
             TCPServerProcessor.h \
             Server.h \
-            ServerConnection.h
+            ServerConnection.h \
+            TCPClientProducer.h \
+    Proto.h

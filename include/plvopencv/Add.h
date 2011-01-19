@@ -54,8 +54,8 @@ namespace plvopencv
         Q_PROPERTY( double beta READ getBeta WRITE setBeta NOTIFY betaChanged )
         Q_PROPERTY( double gamma READ getGamma WRITE setGamma NOTIFY gammaChanged )
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
 
     public:
         Add();

@@ -225,13 +225,13 @@ void PinConnection::disconnect()
     }
 }
 
-bool PinConnection::hasData()
+bool PinConnection::hasData() const
 {
     QMutexLocker lock( &m_connectionMutex );
     return !m_queue.empty();
 }
 
-int PinConnection::size()
+int PinConnection::size() const
 {
     QMutexLocker lock( &m_connectionMutex );
     return static_cast<int>( m_queue.size() );
@@ -273,6 +273,26 @@ Data PinConnection::peek() const
         throw PlvRuntimeException( msg, __FILE__, __LINE__ );
     }
     return m_queue.front();
+}
+
+void PinConnection::peek( unsigned int& serial, bool& isNull ) const
+{
+    QMutexLocker lock( &m_connectionMutex );
+    if( m_queue.empty() )
+    {
+        QString producerName = m_producer->getOwner()->getName();
+        QString consumerName = m_consumer->getOwner()->getName();
+
+        QString msg = "Illegal: method peek() called on PinConnection"
+                      "which has no data available"
+                      " with producer owner " % producerName %
+                      " and consumer owner " % consumerName;
+
+        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+    }
+    const Data& d = m_queue.front();
+    serial = d.getSerial();
+    isNull = d.isNull();
 }
 
 void PinConnection::put( const Data& data )

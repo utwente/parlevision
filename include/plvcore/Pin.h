@@ -55,11 +55,6 @@ namespace plv
         inline const QString& getName() const { return m_name; }
         inline PipelineElement* getOwner() const { return m_owner; }
 
-        /** @returns the std::type_info struct belonging to the type
-          * this pin is initialized with. Is implemented by
-          * the TypedPin sub class. */
-        //virtual const std::type_info& getTypeInfo() const = 0;
-
         /** @returns the QMetaType typeId of the data type this pin is initialized with */
         virtual int getTypeId() const = 0;
 
@@ -114,8 +109,9 @@ namespace plv
         void removeConnection();
         PinConnection* getConnection() const;
 
+        void peekNext(unsigned int& serial, bool& isNull) const;
+
         bool hasData() const;
-        unsigned int getNextSerial() const;
         void flushConnection();
         bool fastforward( unsigned int target );
 
@@ -140,7 +136,6 @@ namespace plv
         virtual bool acceptsConnectionWith( const IOutputPin* pin, QString& errStr ) const = 0;
 
         /** methods not implemented from abstract Pin class */
-        //virtual const std::type_info& getTypeInfo() const = 0;
         virtual int getTypeId() const = 0;
         virtual QString getTypeName() const = 0;
         virtual bool isDynamicallyTyped() const { return false; }
@@ -192,7 +187,7 @@ namespace plv
         /** this method is called after each call to process() in the owner */
         void post();
 
-        void putVariant( const QVariant& data );
+        void putVariant( unsigned int serial, const QVariant& data );
 
         /** returns wheter put() has been called since last pre() */
         inline bool isCalled() const { return m_called; }
@@ -201,7 +196,6 @@ namespace plv
         virtual bool acceptsConnectionWith( const IInputPin* pin, QString& errStr ) const = 0;
 
         /** methods not implemented from abstract Pin class */
-        //virtual const std::type_info& getTypeInfo() const = 0;
         virtual int getTypeId() const = 0;
         virtual QString getTypeName() const = 0;
 
@@ -227,31 +221,17 @@ namespace plv
         {
             QVariant v;
             v.setValue<T>(data);
-            putVariant( v );
+            unsigned int serial = m_owner->getProcessingSerial();
+            putVariant(serial, v);
         }
-
-//        virtual const std::type_info& getTypeInfo() const
-//        {
-//            return typeid( T );
-//        }
 
         /** @returns the QMetaType typeId of the data type this pin is initialized with */
-        virtual int getTypeId() const
-        {
-            return qMetaTypeId<T>();
-        }
+        virtual int getTypeId() const { return qMetaTypeId<T>(); }
 
         /** @returns the name of the type this pin is initialized with */
-        virtual QString getTypeName() const
-        {
-            return QMetaType::typeName( qMetaTypeId<T>() );
-        }
+        virtual QString getTypeName() const { return QMetaType::typeName( qMetaTypeId<T>() ); }
 
-        virtual bool acceptsConnectionWith( const IInputPin* pin,
-                                            QString& errStr ) const
-        {
-            return true;
-        }
+        virtual bool acceptsConnectionWith( const IInputPin* pin, QString& errStr ) const { return true; }
     };
 
     template< class T >
@@ -263,9 +243,9 @@ namespace plv
         {
         }
 
-        // We can safely do this because this Pin is
-        // guaranteed to be connected to a Pin of the
-        // same type T.
+        /** Gets a value from the connection and tries to convert it to the
+            type id of this pin. Returns an empty newly constructed T if
+            conversion fails */
         inline T get()
         {
             QVariant v;
@@ -274,33 +254,16 @@ namespace plv
             {
                emit( error( "Type conversion error") );
             }
-            // if canConvert returned false, this will
-            // return an empty newly constructed T
             return v.value<T>();
         }
 
-//        virtual const std::type_info& getTypeInfo() const
-//        {
-//            return typeid( T );
-//        }
-
         /** @returns the QMetaType typeId of the data type this pin is initialized with */
-        virtual int getTypeId() const
-        {
-            return qMetaTypeId<T>();
-        }
+        virtual int getTypeId() const { return qMetaTypeId<T>(); }
 
         /** @returns the name of the type this pin is initialized with */
-        virtual QString getTypeName() const
-        {
-            return QMetaType::typeName( qMetaTypeId<T>() );
-        }
+        virtual QString getTypeName() const { return QMetaType::typeName( qMetaTypeId<T>() ); }
 
-        virtual bool acceptsConnectionWith( const IOutputPin* pin,
-                                            QString& errStr ) const
-        {
-            return true;
-        }
+        virtual bool acceptsConnectionWith( const IOutputPin* pin, QString& errStr ) const { return true; }
 
         virtual bool isDynamicallyTyped() const { return false; }
     };
@@ -308,7 +271,8 @@ namespace plv
     class DynamicInputPin : public IInputPin
     {
     private:
-        int m_typeId; /** The dynamically set type id */
+        /** The dynamically set type id */
+        int m_typeId;
     public:
         DynamicInputPin( const QString& name, PipelineElement* owner, Required required, Synchronized sync, int typeId ) :
                   IInputPin( name, owner, required, sync ),
@@ -316,6 +280,9 @@ namespace plv
         {
         }
 
+        /** Gets a value from the connection and tries to convert it to the
+            type id of this pin. Returns an empty newly constructed T if
+            conversion fails */
         template <typename T>
         inline T get()
         {
@@ -325,34 +292,28 @@ namespace plv
             {
                emit( error( "Type conversion error") );
             }
-            // if canConvert returned false, this will
-            // return an empty newly constructed T
             return v.value<T>();
         }
 
         /** @returns the QMetaType typeId of the data type this pin is initialized with */
-        virtual int getTypeId() const
-        {
-            return m_typeId;
-        }
+        virtual int getTypeId() const { return m_typeId; }
 
+        template <typename T> bool setTypeId() { return setTyeId( qMetaTypeId<T>() ); }
+
+        /** sets the type id of this pin. This type id should be a
+            valid id with Qt's metatype system, e.g. the value returned
+            by qMetaTypeId<T>. Also see setTypeId() template method. */
         bool setTypeId( int type )
         {
-            assert( !isConnected() );
-            if( !QMetaType::isRegistered(type) ) return false;
-            if( isConnected() ) return false;
+            if( isConnected() || !QMetaType::isRegistered(type) ) return false;
             m_typeId = type;
             return true;
         }
 
         /** @returns the name of the type this pin is initialized with */
-        virtual QString getTypeName() const
-        {
-            return QMetaType::typeName( m_typeId );
-        }
+        virtual QString getTypeName() const { return QMetaType::typeName( m_typeId ); }
 
-        virtual bool acceptsConnectionWith( const IOutputPin* pin,
-                                            QString& errStr ) const
+        virtual bool acceptsConnectionWith( const IOutputPin* pin,QString& errStr ) const
         {
             return true;
         }

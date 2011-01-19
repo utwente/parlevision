@@ -66,10 +66,5 @@ void PixelSum::process()
     // tuple of 1,2,3 or 4 values depending on the number of channels
     cv::Scalar scalar = cv::sum( src );
 
-    for(int i=0;i<scalar.channels;++i)
-    {
-        qDebug() << scalar[i];
-    }
-
     m_outputPin->put( scalar );
 }

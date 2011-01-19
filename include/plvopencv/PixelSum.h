@@ -24,9 +24,8 @@
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
+#include <plvcore/Types.h>
 #include <opencv/cv.h>
-
-Q_DECLARE_METATYPE( cv::Scalar );
 
 namespace plv
 {
@@ -45,10 +44,11 @@ namespace plvopencv
         Q_DISABLE_COPY( PixelSum )
         Q_CLASSINFO("author", "Richard Loos")
         Q_CLASSINFO("name", "Pixel Sum")
-        Q_CLASSINFO("description", "Does a pixel sum");
+        Q_CLASSINFO("description", "The functions sum calculate and return the sum of array elements, "
+                    "independently for each channel. Returns a CvScalar.");
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
 
     public:
         PixelSum();

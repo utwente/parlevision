@@ -37,158 +37,70 @@ PipelineProcessor::~PipelineProcessor()
 {
 }
 
-void PipelineProcessor::__init()
+bool PipelineProcessor::__ready( unsigned int& nextSerial )
 {
-    QMutexLocker lock( &m_pleMutex );
-
-    if( m_inputPins.size() == 0 )
-    {
-        throw PlvRuntimeException( "Processor " + getName() + " has no input pins defined",
-                                   __FILE__, __LINE__);
-    }
-
-    if( m_outputPins.size() == 0 )
-    {
-        throw PlvRuntimeException( "Processor " + getName() + " has no output pins defined",
-                                   __FILE__, __LINE__);
-    }
-
-    this->init();
-}
-
-bool PipelineProcessor::__isReadyForProcessing() const
-{
+    assert( getState() != READY ); // shouldn't be called twice
     assert( requiredPinsConnected() );
 
     // see if data is available and the processor is ready for processing
-    if( dataAvailableOnInputPins() )
+    PipelineElement::State state = getState();
+    if( state == DONE || state == UNDEFINED )
     {
-        return isReadyForProcessing();
+        if( dataAvailableOnInputPins( nextSerial ) )
+        {
+            setState( READY );
+            return true;
+        }
     }
     return false;
 }
 
-void PipelineProcessor::__process()
+void PipelineProcessor::__process( unsigned int serial )
 {
     assert( requiredPinsConnected() );
-    assert( dataAvailableOnInputPins() );
+    assert( getState() == RUNNING );
 
     QMutexLocker lock( &m_pleMutex );
 
     // we do not want properties to change in the middle of an operation
     QMutexLocker lock2( m_propertyMutex );
 
-    std::vector<unsigned int> serials;
-    serials.reserve( m_inputPins.size() );
-    bool nullDetected = false;
+    // set the serial number
+    m_serial = serial;
+
+    // call pre on input pins
     for( InputPinMap::iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end() && !nullDetected; ++itr )
+         itr != m_inputPins.end(); ++itr )
     {
         IInputPin* in = itr->second.getPtr();
         in->pre();
-        if( in->isConnected() &&
-            in->isSynchronous() )
-        {
-            unsigned int serial = in->getNextSerial();
-            serials.push_back( serial );
-            if( serial == 0 )
-            {
-                nullDetected = true;
-            }
-
-        }
     }
 
-    // if one data item is a null
-    // we throw away all data from all synchronous pins
-    if( nullDetected )
+    // call pre on output pins
+    for( OutputPinMap::iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
     {
-        for( InputPinMap::iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end(); ++itr )
-        {
-            IInputPin* in = itr->second.getPtr();
-
-            // just remove first data item in the
-            QVariant v;
-            in->getVariant( v );
-        }
-
-        // call post on input pins
-        for( InputPinMap::iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end(); ++itr )
-        {
-            IInputPin* in = itr->second.getPtr();
-            in->post();
-        }
+        IOutputPin* out = itr->second.getPtr();
+        out->pre();
     }
-    else
+
+    // do the actual processing
+    this->process();
+
+    // call post on input pins
+    for( InputPinMap::iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end(); ++itr )
     {
-        // sort on serial number
-        std::sort( serials.begin(), serials.end(), std::greater<unsigned int>() );
+        IInputPin* in = itr->second.getPtr();
+        in->post();
+    }
 
-        // check for equality
-        // we are a processor, so there is guaranteed to be at least one input pin
-        unsigned int max = serials[0];
-        bool fastforward = false;
-        for( std::vector<unsigned int>::iterator itr = serials.begin();
-             itr != serials.end(); ++itr )
-        {
-            if( (*itr) < max)
-            {
-                fastforward = true;
-
-                // TODO, will this ever occur in current model?
-                assert( false );
-            }
-
-        }
-
-//        bool fastforwardSucceeded = true;
-//        if(fastforward)
-//        {
-//            qDebug() << "Fastforward needed on pin inputs of processor " << getName();
-
-//            for( InputPinMap::iterator itr = m_inputPins.begin();
-//                 itr != m_inputPins.end(); ++itr )
-//            {
-//                IInputPin* in = itr->second.getPtr();
-//                if( in->isConnected() && in->isSynchronous() )
-//                {
-//                    fastforwardSucceeded = in->fastforward( max ) && fastforwardSucceeded;
-//                }
-//            }
-//        }
-
-        // call pre on output pins
-        for( OutputPinMap::iterator itr = m_outputPins.begin();
-             itr != m_outputPins.end(); ++itr )
-        {
-            IOutputPin* out = itr->second.getPtr();
-            out->pre();
-        }
-
-        // call process function which does the actual work
-        // set the serial number for this processing run
-        this->setProcessingSerial( max );
-
-        // do the actual processing
-        this->process();
-
-        // call post on input pins
-        for( InputPinMap::iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end(); ++itr )
-        {
-            IInputPin* in = itr->second.getPtr();
-            in->post();
-        }
-
-        // call post on output pins
-        for( OutputPinMap::iterator itr = m_outputPins.begin();
-             itr != m_outputPins.end(); ++itr )
-        {
-            IOutputPin* out = itr->second.getPtr();
-            out->post();
-        }
+    // call post on output pins
+    for( OutputPinMap::iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
+    {
+        IOutputPin* out = itr->second.getPtr();
+        out->post();
     }
 }
 

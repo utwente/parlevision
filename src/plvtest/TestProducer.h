@@ -13,14 +13,12 @@ class TestProducer : public plv::PipelineProducer
     Q_CLASSINFO("name", "TestProducer")
     Q_CLASSINFO("description", "A producer to test stuff with")
 
-    /** required standard method declaration for plv::PipelineElement */
-    PLV_PIPELINE_ELEMENT
+    /** required standard method declaration for plv::PipelineProcessor */
+    PLV_PIPELINE_PRODUCER
 
 public:
     TestProducer();
     virtual ~TestProducer();
-
-    virtual bool isReadyForProcessing() const { return true; }
 
 signals:
 

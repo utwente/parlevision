@@ -25,8 +25,8 @@ class HelloWorldProcessor : public plv::PipelineProcessor
     Q_PROPERTY( bool someBool READ getSomeBool WRITE setSomeBool NOTIFY someBoolChanged  )
     Q_PROPERTY( QString someString READ getSomeString WRITE setSomeString NOTIFY someStringChanged )
 
-    /** required standard method declaration for plv::PipelineElement */
-    PLV_PIPELINE_ELEMENT
+    /** required standard method declaration for plv::PipelineProcessor */
+    PLV_PIPELINE_PROCESSOR
 
 public:
     HelloWorldProcessor();

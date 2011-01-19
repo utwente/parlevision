@@ -46,8 +46,8 @@ namespace plvopencv
                     "<a href='http://opencv.willowgarage.com/documentation/cpp/"
                     "core_operations_on_arrays.html#subtract'>here</a> for details");
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
 
     public:
         Sub();

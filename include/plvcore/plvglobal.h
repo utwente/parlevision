@@ -22,12 +22,12 @@
 #ifndef PLVCORE_GLOBAL_H
 #define PLVCORE_GLOBAL_H
 
-typedef enum _ErrorType {
+typedef enum _MessageType {
     PLE_DEBUG,
     PLE_WARNING,
     PLE_ERROR,
     PLE_FATAL
-} ErrorType;
+} MessageType;
 
 // Generic helper definitions for shared library support
 // Adapted from http://gcc.gnu.org/wiki/Visibility

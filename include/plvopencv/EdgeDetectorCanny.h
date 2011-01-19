@@ -49,8 +49,8 @@ namespace plvopencv
         Q_PROPERTY( double thresholdHigh READ getThresholdHigh WRITE setThresholdHigh NOTIFY thresholdHighChanged )
         Q_PROPERTY( bool l2Gradient READ getL2Gradient WRITE setL2Gradient NOTIFY l2GradientChanged )
 
-        /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        /** required standard method declaration for plv::PipelineProcessor */
+        PLV_PIPELINE_PROCESSOR
 
     public:
         EdgeDetectorCanny();

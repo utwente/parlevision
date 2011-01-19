@@ -55,9 +55,6 @@ bool IInputPin::isConnected() const
     return this->m_connection.isNotNull();
 }
 
-/** @returns true if there is a connection and that connection has data
-  * available
-  */
 bool IInputPin::hasData() const
 {
     if( m_connection.isNotNull() )
@@ -77,10 +74,10 @@ void IInputPin::flushConnection()
     m_connection->flush();
 }
 
-unsigned int IInputPin::getNextSerial() const
+void IInputPin::peekNext( unsigned int& serial, bool& isNull ) const
 {
-    Data d = m_connection->peek();
-    return d.getSerial();
+    assert( m_connection != 0 );
+    m_connection->peek(serial, isNull);
 }
 
 void IInputPin::pre()
@@ -204,8 +201,6 @@ int IOutputPin::maxDataOnConnection() const
     return max;
 }
 
-
-
 void IOutputPin::pre()
 {
     m_called = false;
@@ -219,7 +214,8 @@ void IOutputPin::post()
     {
         if( !m_called )
         {
-            Data nullData;
+            unsigned int serial = m_owner->getProcessingSerial();
+            Data nullData( serial );
 
             // publish to all pin connections
             for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
@@ -232,7 +228,7 @@ void IOutputPin::post()
     }
 }
 
-void IOutputPin::putVariant( const QVariant& v )
+void IOutputPin::putVariant( unsigned int serial, const QVariant& v )
 {
     // check if get is not called twice during one process call
     if( m_called )
@@ -247,18 +243,7 @@ void IOutputPin::putVariant( const QVariant& v )
     m_called = true;
 
     // propagate the serial number
-    unsigned int serial = m_owner->getProcessingSerial();
     Data data( serial, v );
-
-    // data should never be NULL
-    if( serial == 0  )
-    {
-        QString processorName = this->m_owner->getName();
-        QString msg = "Illegal: Error in processor " % processorName
-                      %"NULL data published during process() on OutputPin \"" %
-                      this->m_name % "\"";
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
-    }
 
     // publish data to viewers
     emit( newData( v ) );

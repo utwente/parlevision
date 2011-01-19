@@ -24,7 +24,7 @@
 
 using namespace plv;
 
-PipelineProducer::PipelineProducer() : m_serial( 0 )
+PipelineProducer::PipelineProducer()
 {
 }
 
@@ -32,47 +32,25 @@ PipelineProducer::~PipelineProducer()
 {
 }
 
-void PipelineProducer::__init()
+bool PipelineProducer::__ready( unsigned int& serial )
 {
-    QMutexLocker lock( &m_pleMutex );
-
-    if( m_inputPins.size() != 0 )
+    PipelineElement::State state = getState();
+    if(( state == DONE || state == UNDEFINED ) && this->readyToProduce() )
     {
-        throw PlvRuntimeException( "Producer " + getName() + " has input pins defined",
-                                   __FILE__, __LINE__);
+        setState( READY );
+        // serial ignored by producers
+        serial = 0;
+        return true;
     }
-
-    if( m_outputPins.size() == 0 )
-    {
-        throw PlvRuntimeException( "Producer " + getName() + " has no output pins defined",
-                                   __FILE__, __LINE__);
-    }
-
-    this->init();
+    return false;
 }
 
-bool PipelineProducer::__isReadyForProcessing() const
-{
-    // TODO total hack to prevent overflow of producer connection
-    // should be solved in scheduler in the future
-    QMutexLocker lock( &m_pleMutex );
-    PipelineElement::OutputPinMap::const_iterator itr = this->m_outputPins.begin();
-    for( ; itr != this->m_outputPins.end(); ++itr )
-    {
-        if( itr->second->maxDataOnConnection() > 5 )
-        {
-            return false;
-        }
-    }
-    return isReadyForProcessing();
-}
-
-void PipelineProducer::__process()
+void PipelineProducer::__process( unsigned int serial )
 {
     QMutexLocker lock( &m_pleMutex );
 
     // set the serial number for this processing run
-    this->setProcessingSerial( getNextSerial() );
+    setProcessingSerial( serial );
 
     for( OutputPinMap::iterator itr = m_outputPins.begin();
          itr != m_outputPins.end(); ++itr )
@@ -81,8 +59,8 @@ void PipelineProducer::__process()
         out->pre();
     }
 
-    // do the actual processing
-    this->process();
+    // do the actual producing
+    this->produce();
 
     for( OutputPinMap::iterator itr = m_outputPins.begin();
          itr != m_outputPins.end(); ++itr )
