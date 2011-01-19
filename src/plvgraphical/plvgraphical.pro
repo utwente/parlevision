@@ -22,7 +22,7 @@ macx {
 #    UI_DIR = $$BUILDDIR
 #    DESTDIR = $$BUILDDIR
 
-PRE_TARGETDEPS += ../../libs/libplvcore.dylib ../../libs/libplvgui.dylib
+PRE_TARGETDEPS += ../../libs/libplvcore.dylib ../libs/libplvopencv.dylib ../../libs/libplvgui.dylib
 
 MACX_APP_BUNDLE_ROOT = ../../libs/ParleVision.app
 QMAKE_POST_LINK  = mkdir -p $$MACX_APP_BUNDLE_ROOT/Contents/Frameworks
