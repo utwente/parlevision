@@ -46,6 +46,7 @@ namespace plv
 
         RectangleDataPrivate(int w, int h) : m_width(w), m_height(h) {}
         RectangleDataPrivate( const RectangleDataPrivate& other ) :
+                QSharedData(),
                 m_width(other.m_width), m_height(other.m_height),
                 m_rects(other.m_rects) {}
     };
