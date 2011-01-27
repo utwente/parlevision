@@ -20,30 +20,17 @@
   */
 
 #include <QApplication>
-#include <iostream>
-#include <QDebug>
-
 #include <plvcore/Application.h>
-
 #include <plvgui/MainWindow.h>
-#include <plvgui/ElementConfigFormBuilder.h>
-#include <plvgui/CameraConfigFormBuilder.h>
-#include <plvgui/RendererFactory.h>
-#include <plvgui/OpenCVImageRenderer.h>
-#include <plvgui/RectangleDataRenderer.h>
 
 #include "openeventhandler.h"
 
 int main(int argc, char **argv)
 {
-    //Q_INIT_RESOURCE(icons);
     QApplication app(argc, argv);
 
-    // TODO fix this! Maybe custom factory again?
-    //plvgui::registerConfigFormBuilder<plvgui::CameraConfigFormBuilder>("plv::CameraProducer", "plvgui::CameraConfigFormBuilder");
-    plvgui::RendererFactory::add<plv::CvMatData, plvgui::OpenCVImageRenderer>();
-    plvgui::RendererFactory::add<plv::RectangleData, plvgui::RectangleDataRenderer>();
-
+    // custom gui components registration and initialisation
+    // TODO none at this time
     plv::Application parlevision(&app);
     parlevision.init();
 

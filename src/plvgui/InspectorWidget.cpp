@@ -22,7 +22,6 @@
 #include "InspectorWidget.h"
 #include "ui_inspectorwidget.h"
 
-#include "CameraConfigFormBuilder.h"
 #include "ElementConfigFormBuilder.h"
 #include "utils.h"
 

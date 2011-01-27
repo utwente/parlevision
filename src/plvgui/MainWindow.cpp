@@ -32,6 +32,8 @@
 #include <plvgui/PinWidget.h>
 #include <plvgui/PipelineElementWidget.h>
 #include <plvgui/PipelineScene.h>
+#include <plvgui/OpenCVImageRenderer.h>
+#include <plvgui/RectangleDataRenderer.h>
 
 #include <plvcore/Pipeline.h>
 #include <plvcore/PipelineElement.h>
@@ -98,6 +100,9 @@ void MainWindow::initGUI()
     // Restore window geometry and state
     loadSettings();
 
+    // register built in renderers
+    plvgui::RendererFactory::add<plv::CvMatData, plvgui::OpenCVImageRenderer>();
+    plvgui::RendererFactory::add<plv::RectangleData, plvgui::RectangleDataRenderer>();
 }
 
 void MainWindow::changeEvent(QEvent *e)

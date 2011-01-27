@@ -333,7 +333,6 @@ void Pipeline::stop()
 
     foreach(RefPtr<PinConnection> conn, m_connections)
     {
-        qDebug() << "flushing " << conn;
         conn->flush();
         assert(!conn->hasData());
     }
@@ -382,6 +381,12 @@ void Pipeline::run()
     emit( started() );
     QList<RunItem> m_runQueueu;
 
+    int numFrames = 0;
+    float fps = 10.0f;
+    QTime time;
+    time.start();
+
+
     int threshold = m_children.size() * 8;
     while( !isStopRequested() )
     {
@@ -406,6 +411,15 @@ void Pipeline::run()
                     m_runQueueu.append(item);
                 }
                 m_pipelineMutex.unlock();
+
+                if( ++numFrames == 10 )
+                {
+                    int elapsed = time.elapsed();
+                    fps = fps * 0.9f + ( 1000.0f / elapsed );
+                    time.restart();
+                    numFrames = 0;
+                    qDebug() << "FPS: " << (int)fps;
+                }
 
                 emit( stepTaken(m_serial) );
             }

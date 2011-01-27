@@ -54,7 +54,6 @@ SOURCES += \
     PinClickedEvent.cpp \
     InteractiveLine.cpp \
     ViewerWidget.cpp \
-    CameraConfigFormBuilder.cpp \
     ElementConfigFormBuilder.cpp \
     ImageWidget.cpp \
     utils.cpp
@@ -79,7 +78,6 @@ HEADERS += \
     ../../include/plvgui/InteractiveLine.h \
     ../../include/plvgui/ViewerWidget.h \
     ../../include/plvgui/ElementConfigFormBuilder.h \
-    ../../include/plvgui/CameraConfigFormBuilder.h \
     ../../include/plvgui/ImageWidget.h \
     ../../include/plvgui/Exceptions.h \
     ../../include/plvgui/plvgui_global.h
