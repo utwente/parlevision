@@ -2,9 +2,14 @@
 # Builds all libraries and applications.
 TARGET = parlevision-all
 TEMPLATE = subdirs
-SUBDIRS =   src # libraries
-            #app   # applications
+SUBDIRS =   src/plvcore \
+            src/plvopencv \
+            src/plvconsole \
+            src/plvgui \
+            src/plvgraphical
 
+
+CONFIG += ordered
 DESTDIR = dist
 
 macx {
