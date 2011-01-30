@@ -231,7 +231,7 @@ namespace plv
         /** @returns the name of the type this pin is initialized with */
         virtual QString getTypeName() const { return QMetaType::typeName( qMetaTypeId<T>() ); }
 
-        virtual bool acceptsConnectionWith( const IInputPin* pin, QString& errStr ) const { return true; }
+        virtual bool acceptsConnectionWith( const IInputPin*, QString&) const { return true; }
     };
 
     template< class T >
@@ -313,7 +313,7 @@ namespace plv
         /** @returns the name of the type this pin is initialized with */
         virtual QString getTypeName() const { return QMetaType::typeName( m_typeId ); }
 
-        virtual bool acceptsConnectionWith( const IOutputPin* pin,QString& errStr ) const
+        virtual bool acceptsConnectionWith( const IOutputPin*, QString&) const
         {
             return true;
         }
