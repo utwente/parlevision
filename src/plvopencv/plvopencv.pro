@@ -14,7 +14,7 @@ INCLUDEPATH += ../../include/plvopencv
 LIBS += -L../../libs -lplvcore
 
 macx {
-    QMAKE_POST_LINK = install_name_tool -change libplvcore.1.dylib @executable_path/../Frameworks/libplvcore.1.dylib plugins/libplvopencv.dylib
+    QMAKE_POST_LINK = install_name_tool -change libplvcore.1.dylib @executable_path/../Frameworks/libplvcore.1.dylib ../../libs/plugins/libplvopencv.dylib
 }
 
 
