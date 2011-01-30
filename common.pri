@@ -49,6 +49,11 @@ win32 {
 }
 
 #Unix specific libraries
-unix { 
-    LIBS += -lcv -lhighgui
+unix {
+    LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc
+}
+
+macx {
+    QMAKE_LIBDIR += /opt/local/lib
+    INCLUDEPATH += /opt/local/include/opencv
 }
