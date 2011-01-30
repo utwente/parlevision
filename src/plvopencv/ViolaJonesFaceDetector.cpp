@@ -71,7 +71,7 @@ void ViolaJonesFaceDetector::deinit() throw()
 {
     if (m_pCascade != 0)
     {
-        cvReleaseHaarClassifierCascade(&m_pCascade);
+        //cvReleaseHaarClassifierCascade(&m_pCascade);
         m_pCascade = 0;
     }
 
@@ -108,12 +108,12 @@ void ViolaJonesFaceDetector::process()
     // detect faces
     // this still uses old C interface
     CvMat srcMat = src;
-    CvSeq* faceRectSeq =
-            cvHaarDetectObjects(&srcMat, m_pCascade, m_pStorage,
-            m_scaleFactor, /* increase scale by m_scaleFactor each pass */
-            m_minNeighbours, /*drop groups fewer than m_minNeighbours detections */
-            int (m_useCannyPruning), /* 1 means: CV_HAAR_DO_CANNY_PRUNING */
-            cv::Size(m_minWidth,m_minHeight) /* (0,0) means: use default smallest scale for detection */);
+    CvSeq* faceRectSeq = 0;
+//            cvHaarDetectObjects(&srcMat, m_pCascade, m_pStorage,
+//            m_scaleFactor, /* increase scale by m_scaleFactor each pass */
+//            m_minNeighbours, /*drop groups fewer than m_minNeighbours detections */
+//            int (m_useCannyPruning), /* 1 means: CV_HAAR_DO_CANNY_PRUNING */
+//            cv::Size(m_minWidth,m_minHeight) /* (0,0) means: use default smallest scale for detection */);
 
     //copy input image
     src.copyTo(dst);
