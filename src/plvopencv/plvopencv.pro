@@ -13,6 +13,9 @@ DESTDIR = ../../libs/plugins
 INCLUDEPATH += ../../include/plvopencv
 LIBS += -L../../libs -lplvcore
 
+QMAKE_POST_LINK = install_name_tool -change libplvcore.1.dylib @executable_path/../Frameworks/libplvcore.1.dylib plugins/libplvopencv.dylib
+
+
 include(../../ParleVision.local)
 
 #macx {
