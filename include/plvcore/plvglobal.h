@@ -22,12 +22,11 @@
 #ifndef PLVCORE_GLOBAL_H
 #define PLVCORE_GLOBAL_H
 
-typedef enum _MessageType {
-    PLE_DEBUG,
-    PLE_WARNING,
-    PLE_ERROR,
-    PLE_FATAL
-} MessageType;
+enum PipelineErrorType {
+    PlvFatal,   /* fatal errors will change this element's state to ERROR and will stop the pipeline and notify users of the error */
+    PlvWarning, /* warnings will not stop the pipeline but will notifiy users */
+    PlvDebug    /* debug will only inform users when running in debug mode */
+};
 
 // Generic helper definitions for shared library support
 // Adapted from http://gcc.gnu.org/wiki/Visibility

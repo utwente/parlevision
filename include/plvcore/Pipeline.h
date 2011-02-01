@@ -204,16 +204,19 @@ namespace plv
         void connectionRemoved(plv::RefPtr<plv::PinConnection>);
         void connectionChanged(plv::RefPtr<plv::PinConnection>);
 
-        void errorOccurred( QString errorStr );
+        void pipelineMessage(QtMsgType type, QString msg);
 
-        void started();
-        void stopped();
+        void pipelineStarted();
+        void pipelineStopped();
 
         void stepTaken( unsigned int serial );
 
     public slots:
         void start();
         void stop();
+
+        void errorOccurred(PipelineErrorType type, PipelineElement* element);
+        void handleMessage(QtMsgType type, QString msg);
     };
 }
 #endif // PIPELINE_H

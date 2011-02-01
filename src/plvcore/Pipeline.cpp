@@ -72,8 +72,8 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
     //element->moveToThread(this);
 
     // for error reporting to GUI by pipeline elements
-    connect(element.getPtr(), SIGNAL(errorOccurred(QString)),
-            this, SIGNAL(errorOccurred(QString)));
+    connect(element.getPtr(), SIGNAL(errorOccurred(PipelineErrorType, PipelineElement*)),
+            this, SLOT(errorOccurred(PipelineErrorType, PipelineElement*)));
 
     QMutexLocker lock( &m_pipelineMutex );
     m_children.insert( id, element );
@@ -262,15 +262,15 @@ void Pipeline::start()
         if( !element->requiredPinsConnected() )
         {
             QString msg = element->getName() % " required pins are not all connected.";
-            errorOccurred(msg);
+            handleMessage(QtWarningMsg, msg);
             return;
         }
     }
 
     if( !generateGraphOrdering( m_ordering ) )
     {
-        QString errStr = "Cycle detected in pipeline graph";
-        emit( errorOccurred( errStr ) );
+        QString msg = "Cycle detected in pipeline graph";
+        handleMessage( QtWarningMsg, msg );
         lock.unlock();
         stop();
         return;
@@ -292,7 +292,7 @@ void Pipeline::start()
         catch( PlvException& e )
         {
             QString msg = element->getName() % ": " % e.what();
-            errorOccurred(msg);
+            handleMessage(QtCriticalMsg, msg);
             element->deinit();
             error = true;
         }
@@ -316,8 +316,8 @@ void Pipeline::start()
 void Pipeline::stop()
 {
     //TODO more elegant solution here with QTimer
-    m_stopRequested = true;
-    while( m_running )
+    setStopRequested(true);
+    while( isRunning() )
     {
         usleep(100);
     }
@@ -337,7 +337,7 @@ void Pipeline::stop()
         assert(!conn->hasData());
     }
 
-    emit(stopped());
+    emit( pipelineStopped() );
 }
 
 bool Pipeline::producersReady()
@@ -378,7 +378,7 @@ void Pipeline::run()
 {
     m_running = true;
     setStopRequested(false);
-    emit( started() );
+    emit( pipelineStarted() );
     QList<RunItem> m_runQueueu;
 
     int numFrames = 0;
@@ -388,7 +388,8 @@ void Pipeline::run()
 
 
     int threshold = m_children.size() * 8;
-    while( !isStopRequested() )
+    bool error = false;
+    while( !isStopRequested() && !error )
     {
         /** actual scheduling */
 
@@ -414,7 +415,9 @@ void Pipeline::run()
 
                 if( ++numFrames == 10 )
                 {
-                    int elapsed = time.elapsed();
+                    // add one so elapsed is never 0 and
+                    // we do not get div by 0
+                    int elapsed = time.elapsed() + 1;
                     fps = fps * 0.9f + ( 1000.0f / elapsed );
                     time.restart();
                     numFrames = 0;
@@ -465,18 +468,23 @@ void Pipeline::run()
                 {
                     m_runQueueu.removeAt(i);
                 }
+                else if( state == PipelineElement::ERROR )
+                {
+                    error = true;
+                }
             }
         }
     }
 
     // stop requested, wait while all processors finish
+    // TODO insert a timeout here for elements which will not finish
     while( m_runQueueu.size() != 0 )
     {
         usleep(100);
         for( int i=0; i<m_runQueueu.size(); ++i )
         {
             PipelineElement::State state = m_runQueueu.at(i).element()->getState();
-            if( state == PipelineElement::DONE )
+            if( state == PipelineElement::DONE || state == PipelineElement::ERROR )
             {
                 m_runQueueu.removeAt(i);
             }
@@ -598,6 +606,23 @@ bool Pipeline::generateGraphOrdering( QList<PipelineElement*>& ordering )
     qDebug() << "Partial ordering of graph: " << out;
 
     return true;
+}
+
+void Pipeline::errorOccurred(PipelineErrorType type, PipelineElement* element)
+{
+    if(type == PlvFatal)
+    {
+        stop();
+    }
+    QString msg = QString("%1 repors error: %2").arg(element->getName()).arg(element->getErrorString());
+    handleMessage(QtCriticalMsg, msg);
+}
+
+void Pipeline::handleMessage(QtMsgType type, QString msg)
+{
+    QString dbg = QString("Pipeline received and relaying message of type %1: %2").arg(type).arg(msg);
+    qDebug() << dbg;
+    emit pipelineMessage(type, msg);
 }
 
 

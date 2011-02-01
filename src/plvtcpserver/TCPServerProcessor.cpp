@@ -13,11 +13,11 @@ TCPServerProcessor::TCPServerProcessor() : m_port(1337), m_waiting(false)
     this->connect(this,
                   SIGNAL(sendData(const QByteArray&)),
                   m_server,
-                  SLOT( sendData(const QByteArray&)) );
+                  SLOT(sendData(const QByteArray&)) );
 
-    m_inputPinCvMatData = createCvMatDataInputPin( "test", this, IInputPin::CONNECTION_OPTIONAL );
-    m_inputPinDouble = createInputPin<double>(  "double_test", this, IInputPin::CONNECTION_OPTIONAL );
-    m_inputPinCvScalar = createInputPin<cv::Scalar>( "cv::Scalar", this );
+    m_inputPinCvMatData = createCvMatDataInputPin( "image", this, IInputPin::CONNECTION_OPTIONAL );
+    m_inputPinDouble    = createInputPin<double>(  "double_test", this, IInputPin::CONNECTION_OPTIONAL );
+    m_inputPinCvScalar  = createInputPin<cv::Scalar>( "cv::Scalar", this, IInputPin::CONNECTION_OPTIONAL );
 }
 
 TCPServerProcessor::~TCPServerProcessor()
@@ -28,7 +28,7 @@ void TCPServerProcessor::init()
 {
     if( !m_server->listen( QHostAddress::LocalHost, m_port ) )
     {
-        error( tr("Unable to start the server: %1.")
+        error(PlvFatal, tr("Unable to start the server: %1.")
                .arg(m_server->errorString()));
         return;
     }
@@ -96,7 +96,7 @@ void TCPServerProcessor::sendFrame( const QVariantList& frameData )
     unsigned int frameNumber = getProcessingSerial();
 
     // write the header
-    out << (quint32) PROTO_FRAME;
+    out << (quint32)PROTO_FRAME;
     out << (quint32)0; // reserved for number of bytes later
     out << (quint32)frameNumber;
     out << (quint32)numargs;

@@ -357,14 +357,11 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(ui->actionStart, SIGNAL(triggered()),
             pipeline, SLOT(start()));
 
-    connect(pipeline, SIGNAL(started()),
+    connect(pipeline, SIGNAL(pipelineStarted()),
             this, SLOT(pipelineStarted()));
 
-    connect(pipeline, SIGNAL(stopped()),
+    connect(pipeline, SIGNAL(pipelineStopped()),
             this, SLOT(pipelineStopped()));
-
-    connect(pipeline, SIGNAL(errorOccurred(QString)),
-            this, SLOT(criticalError(QString)));
 
     connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(documentChanged()));
@@ -379,10 +376,11 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(documentChanged()));
 
+    connect( pipeline, SIGNAL(pipelineMessage(QtMsgType,QString)),
+             this, SLOT(handleMessage(QtMsgType, QString)));
+
     connect(m_scene, SIGNAL(contentsChanged()),
             this, SLOT(documentChanged()));
-
-    connect( pipeline, SIGNAL(tick()), this, SLOT(tick()) );
 
     qDebug() << "setting documentChanged to false #1";
     m_documentChanged = false;
@@ -400,10 +398,6 @@ void MainWindow::pipelineStopped()
     ui->actionStart->setEnabled(true);
     ui->actionStop->setDisabled(true);
     ui->statusbar->showMessage("Stopped.");
-}
-
-void MainWindow::tick()
-{
 }
 
 void MainWindow::loadFile(QString fileName)

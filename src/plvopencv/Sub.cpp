@@ -86,7 +86,7 @@ void Sub::process()
     if( in1.channels() != in2.channels() )
     {
         QString msg = tr("Images do not have same number of channels.");
-        error( msg );
+        error(PlvFatal, msg);
         return;
     }
 
@@ -96,7 +96,7 @@ void Sub::process()
                       "Input 1 has depth %1 and input 2 has depth %2. " )
                 .arg(CvMatData::depthToString(in1.depth()))
                 .arg(CvMatData::depthToString(in2.depth()));
-        error( msg );
+        error(PlvFatal, msg);
         return;
     }
 

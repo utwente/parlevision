@@ -168,6 +168,9 @@ namespace plv
         QSharedDataPointer<MatData> d;
     };
 }
+PLVCORE_EXPORT QDataStream& operator<<(QDataStream &out, const plv::CvMatData& d);
+PLVCORE_EXPORT QDataStream& operator>>(QDataStream &in, plv::CvMatData& d);
+
 Q_DECLARE_METATYPE( plv::CvMatData )
 
 #endif

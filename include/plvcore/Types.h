@@ -76,8 +76,8 @@ namespace plv
     };
 }
 
-QDataStream &operator<<(QDataStream &out, const cv::Scalar &s);
-QDataStream &operator>>(QDataStream &in, cv::Scalar &s);
+PLVCORE_EXPORT QDataStream &operator<<(QDataStream &out, const cv::Scalar &s);
+PLVCORE_EXPORT QDataStream &operator>>(QDataStream &in, cv::Scalar &s);
 
 /** Declare as Qt Metatype so we can pass data type along with
     PinConnections and Qt's signals and slots */

@@ -72,15 +72,13 @@ namespace plvgui
 
         virtual bool event(QEvent * event);
 
-        void handleMessage(QtMsgType type, const char* msg);
-        void handleMessage(QtMsgType type, QString msg);
-
     public slots:
         void showViewersForElement(plv::RefPtr<plv::PipelineElement>);
         void showViewerForPin(plv::RefPtr<plv::IOutputPin> targetPin);
         void showWelcomeScreen();
-
         void criticalError(QString msg);
+        void handleMessage(QtMsgType type, const char* msg);
+        void handleMessage(QtMsgType type, QString msg);
 
     protected:
         void changeEvent(QEvent* e);
@@ -132,8 +130,6 @@ namespace plvgui
 
         void pipelineStarted();
         void pipelineStopped();
-
-        void tick();
     };
 
 } // namespace plvgui

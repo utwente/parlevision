@@ -5,12 +5,25 @@
 TCPClientProducer::TCPClientProducer() :
     m_tcpSocket( new QTcpSocket(this) ),
     m_ipAddress( QHostAddress(QHostAddress::LocalHost).toString() ),
-    m_port( 1337 )
+    m_port( 1337 ),
+    m_networkSession( 0 ),
+    m_configured( true )
 {
-    m_intOut    = plv::createOutputPin<int>("int", this);
-    m_stringOut = plv::createOutputPin<QString>("QString", this);
-    m_doubleOut = plv::createOutputPin<double>("double", this);
+    m_intOut      = plv::createOutputPin<int>("int", this);
+    m_stringOut   = plv::createOutputPin<QString>("QString", this);
+    m_doubleOut   = plv::createOutputPin<double>("double", this);
     m_cvScalarOut = plv::createOutputPin< cv::Scalar >("cv::Scalar", this);
+    m_imageOut    = plv::createCvMatDataOutputPin("CvMatData", this);
+}
+
+TCPClientProducer::~TCPClientProducer()
+{
+}
+
+void TCPClientProducer::init()
+{
+    assert( m_networkSession == 0 );
+    assert( m_tcpSocket != 0 );
 
     QNetworkConfigurationManager manager;
     if (manager.capabilities() & QNetworkConfigurationManager::NetworkSessionRequired)
@@ -29,7 +42,7 @@ TCPClientProducer::TCPClientProducer() :
             config = manager.defaultConfiguration();
         }
 
-        m_networkSession = new QNetworkSession(config, this);
+        m_networkSession = new QNetworkSession(config);
         connect(m_networkSession, SIGNAL(opened()), this, SLOT(sessionOpened()));
 
         qDebug() << "Opening network session.";
@@ -37,16 +50,14 @@ TCPClientProducer::TCPClientProducer() :
     }
 }
 
-TCPClientProducer::~TCPClientProducer()
-{
-}
-
-void TCPClientProducer::init()
-{
-}
-
 void TCPClientProducer::deinit() throw ()
 {
+    if( m_networkSession )
+    {
+        m_networkSession->close();
+        delete m_networkSession;
+        m_networkSession = 0;
+    }
 }
 
 void TCPClientProducer::start()
@@ -57,9 +68,8 @@ void TCPClientProducer::start()
     if ( m_ipAddress.isEmpty() )
     {
 
-        //m_ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-        error( "No ip address given" );
-        return;
+        m_ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
+        error(PlvWarning, "No valid IP address given, using localhost");
     }
 
     connect(m_tcpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
@@ -82,13 +92,33 @@ void TCPClientProducer::stop()
 bool TCPClientProducer::readyToProduce() const
 {
     // check if there is data available
-
-    return false;
+    return !m_frameList.isEmpty();
 }
 
 void TCPClientProducer::produce()
 {
     // get data from queue
+    QVariantList frame = m_frameList.takeFirst();
+
+    // do primitive dynamic matching of pins with framedata
+    QSet<QString> taken;
+    foreach( const QVariant& v, frame )
+    {
+        for( OutputPinMap::const_iterator itr = m_outputPins.begin();
+            itr != m_outputPins.end(); ++itr )
+        {
+            plv::RefPtr<plv::IOutputPin> out = itr->second;
+            if( !taken.contains(out->getName()) )
+            {
+                if( out->getTypeId() == v.userType() )
+                {
+                    taken.insert( out->getName() );
+                    unsigned int serial = this->getProcessingSerial();
+                    out->putVariant(serial, v);
+                }
+            }
+        }
+    }
 }
 
 void TCPClientProducer::readData()
@@ -118,7 +148,7 @@ void TCPClientProducer::readData()
         switch( opcode )
         {
         case PROTO_INIT:
-            m_configured = parseConfig(in);
+            //m_configured = parseConfig(in);
             break;
         case PROTO_FRAME:
             if( m_configured )
@@ -138,39 +168,37 @@ void TCPClientProducer::readData()
     }
 }
 
-bool TCPClientProducer::parseConfig( QDataStream& in )
-{
+//bool TCPClientProducer::parseConfig( QDataStream& in )
+//{
+//    qint32 numargs;
+//    in >> numargs;
 
-    qint32 numargs;
+//    if( numargs < 1 )
+//    {
+//        // no arguments sent with header, skip this frame
+//        return false;
+//    }
 
-    in >> numargs;
+//    qDebug() << "Parsing argument list of CONFIG message";
+//    for( int i=0; i < numargs; ++i )
+//    {
+//        QVariant::Type type;
+//        in >> type;
 
-    if( numargs < 1 )
-    {
-        // no arguments sent with header, skip this frame
-        return false;
-    }
-
-    qDebug() << "Parsing argument list of CONFIG message";
-    for( int i=0; i < numargs; ++i )
-    {
-        QVariant::Type type;
-        in >> type;
-
-        QString name = QMetaType::typeName(type);
-        if( name != 0 )
-        {
-            qDebug() << "Found type " << type << " with name " << name;
-            m_types.append( type );
-        }
-        else
-        {
-            qDebug() << "Invalid type found with value " << type;
-            return false;
-        }
-    }
-    return true;
-}
+//        QString name = QMetaType::typeName(type);
+//        if( name != 0 )
+//        {
+//            qDebug() << "Found type " << type << " with name " << name;
+//            m_types.append( type );
+//        }
+//        else
+//        {
+//            qDebug() << "Invalid type found with value " << type;
+//            return false;
+//        }
+//    }
+//    return true;
+//}
 
 bool TCPClientProducer::parseFrame( QDataStream& in )
 {
@@ -210,6 +238,9 @@ bool TCPClientProducer::parseFrame( QDataStream& in )
         }
         frame.append(v);
     }
+
+    m_frameList.append(frame);
+
     return true;
 }
 
@@ -234,19 +265,20 @@ void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError)
     switch (socketError)
     {
     case QAbstractSocket::RemoteHostClosedError:
+        error(PlvFatal, tr("The remote host closed the connection."));
         break;
     case QAbstractSocket::HostNotFoundError:
-        error(tr("The host was not found. Please check the "
+        error(PlvFatal, tr("The host was not found. Please check the "
                  "host name and port settings."));
         break;
     case QAbstractSocket::ConnectionRefusedError:
-        error( tr("The connection was refused by the peer. "
-                  "Make sure the fortune server is running, "
+        error(PlvFatal, tr("The connection was refused by the peer. "
+                  "Make sure the Parlevision server is running, "
                   "and check that the host name and port "
                   "settings are correct."));
         break;
     default:
-       error( tr("The following error occurred: %1.")
+       error(PlvFatal, tr("The following error occurred: %1.")
               .arg(m_tcpSocket->errorString()));
     }
 }

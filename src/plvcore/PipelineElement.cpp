@@ -287,7 +287,7 @@ bool PipelineElement::dataAvailableOnInputPins( unsigned int& nextSerial )
         // this should never happen obviously
         if( !valid )
         {
-            error( "Input corrupted" );
+            error( PlvFatal, "Input corrupted" );
             return false;
         }
 
@@ -451,10 +451,17 @@ void PipelineElement::setProperty(const char *name, const QVariant &value)
     emit(propertyChanged(QString(name)));
 }
 
-void PipelineElement::error( const QString& msg )
+void PipelineElement::error( PipelineErrorType type, const QString& msg )
 {
     m_errorString = msg;
-    emit( errorOccured(msg) );
+    if( type <= PlvFatal )
+        setState(ERROR);
+    emit(errorOccurred(type, this));
+}
+
+QString PipelineElement::getErrorString() const
+{
+    return m_errorString;
 }
 
 bool PipelineElement::visit( QList< PipelineElement* >& ordering,
@@ -536,8 +543,7 @@ void PipelineElement::run( unsigned int serial )
                  << " on line " << re.getLineNumber()
                  << " of type PlvRuntimeException with message: " << re.what();
         stopTimer();
-        setState( ERROR );
-        error( re.what() );
+        error(PlvFatal, re.what());
         return;
     }
     catch( PlvException& e )
@@ -545,8 +551,7 @@ void PipelineElement::run( unsigned int serial )
         qDebug() << "Uncaught exception in PipelineElement::process()"
                  << "of type PlvException with message: " << e.what();
         stopTimer();
-        setState( ERROR );
-        error( e.what() );
+        error(PlvFatal, e.what());
         return;
     }
     catch( std::runtime_error& err )
@@ -554,8 +559,7 @@ void PipelineElement::run( unsigned int serial )
         qDebug() << "Uncaught exception in PipelineElement::process()"
                  << "of type PlvException with message: " << err.what();
         stopTimer();
-        setState( ERROR );
-        error( err.what() );
+        error(PlvFatal, err.what());
         return;
     }
     catch( ... )
@@ -563,8 +567,7 @@ void PipelineElement::run( unsigned int serial )
         qDebug() << "Uncaught exception in PipelineElement::process()"
                  << "of unknown type.";
         stopTimer();
-        setState( ERROR );
-        error( "Unknown exception caught" );
+        error(PlvFatal, "Unknown exception caught");
         return;
     }
     stopTimer();

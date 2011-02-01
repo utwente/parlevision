@@ -41,7 +41,7 @@
 #include "Server.h"
 #include "ServerConnection.h"
 
-#include <stdlib.h>
+//#include <stdlib.h>
 
 Server::Server(QObject *parent) : QTcpServer(parent)
 {
@@ -63,30 +63,30 @@ void Server::incomingConnection(int socketDescriptor)
     connection->moveToThread(connectionThread);
 
     // when the connection is done, it stops its thread
-    connectionThread->connect( connection,
-                          SIGNAL(finished()),
-                          SLOT(quit()));
+    connect( connection, SIGNAL(finished()),
+             connectionThread, SLOT(quit()));
 
-    connection->connect( connection,
-                         SIGNAL(finished()),
-                         SLOT(deleteLater()));
+    // when the connection is done it is scheduled for deletion
+    connect( connection, SIGNAL(finished()),
+             connection, SLOT(deleteLater()));
 
-    connection->connect( connectionThread,
-                         SIGNAL(started()),
-                         SLOT(start()));
+    // start the connection when its thread is started
+    connect( connectionThread, SIGNAL(started()),
+             connection, SLOT(start()));
 
+    // inform server when this serverthead is waiting on the client
     connect( connection, SIGNAL( waitingOnClient(ServerConnection*,bool)),
              this, SLOT( serverThreadStalled(ServerConnection*,bool)) );
 
-    connection->connect( this, SIGNAL(stopAllConnections()), SLOT(stop()));
+    // stop this connection when stopAllConnections is called
+    connect( this, SIGNAL(stopAllConnections()), connection, SLOT(stop()));
 
     // start the connection thread and its event loop
     connectionThread->start();
 
     // connection receives all broadcasts and sends it to its connection
-    connection->connect( this,
-                     SIGNAL(broadcast(const QByteArray&)),
-                     SLOT(writeBytes(const QByteArray&)));
+    connect( this, SIGNAL(broadcast(const QByteArray&)),
+             connection, SLOT(writeBytes(const QByteArray&)));
 }
 
  void Server::serverThreadStalled( ServerConnection* connection, bool isStalled )

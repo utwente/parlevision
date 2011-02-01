@@ -56,28 +56,18 @@ namespace plv
         typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
         typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
 
-        typedef enum _State {
+        enum State {
             UNDEFINED,  /* undefined or non initialized */
             READY,      /* ready for processing */
             DISPATCHED, /* dispatched to be processed */
             RUNNING,    /* pipeline element is processing */
             DONE,       /* done processing */
             ERROR       /* an error occured during processing */
-        } State;
-
-//        typedef enum _PipelineElementType {
-//            UNDEFINED,  /* the default */
-//            PRODUCER,   /* no input pins defined or all defined input pins are not required and not connected */
-//            PROCESSOR,  /* input and output pins defined. At least one input pin is required */
-//            CONSUMER    /* only input pins defined */
-//        } PipelineElementType;
+        };
 
     protected:
         /** processor id */
         int m_id;
-
-        ///** The type of pipeline element. Either PRODUCER or PROCESSOR */
-        //PipelineElementType m_type;
 
         /** The element state. See PipelineElementState enumeration for details */
         State m_state;
@@ -182,9 +172,6 @@ namespace plv
         inline void setId( int id ) { assert(m_id == -1); m_id = id; }
         inline int getId() const { return m_id; }
 
-        /** returns the type of this pipeline element, either PRODUCER, PROCESSOR or CONSUMER */
-        //PipelineElementType getType() const { QMutexLocker lock( &m_pleMutex ); return m_type; }
-
         /** Get a list of properties defined on this element */
         QStringList getConfigurablePropertyNames();
 
@@ -228,7 +215,11 @@ namespace plv
         void setProperty(const char *name, const QVariant &value);
 
         /** sets the internal error string to msg and emits errorOccured signal */
-        void error( const QString& msg );
+        void error( PipelineErrorType type, const QString& msg );
+
+        /** returns the error string set by the error which occurred last. The
+            String is empty when no error has occurred */
+        QString getErrorString() const;
 
         /** @returns the state of this element. This method is thread safe. */
         State getState();
@@ -244,7 +235,7 @@ namespace plv
 
     signals:
         void propertyChanged(QString);
-        void errorOccured( const QString& message );
+        void errorOccurred(PipelineErrorType type, PipelineElement* element);
 
     protected:
         /** serial number of current processing run. */

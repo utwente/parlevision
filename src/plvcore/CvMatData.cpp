@@ -94,6 +94,69 @@ const char* CvMatData::depthToString( int depth )
     }
 }
 
+QDataStream &operator<<(QDataStream &out, const CvMatData& d)
+{
+    //enum { MAGIC_VAL=0x42FF0000, AUTO_STEP=0, CONTINUOUS_FLAG=CV_MAT_CONT_FLAG };
+    // includes several bit-fields:
+    //  * the magic signature
+    //  * continuity flag
+    //  * depth
+    //  * number of channels
+    // int flags;
+    // the number of rows and columns
+    // int rows, cols;
+    // a distance between successive rows in bytes; includes the gap if any
+    //size_t step;
+    // pointer to the data
+    //uchar* data;
+
+    // pointer to the reference counter;
+    // when matrix points to user-allocated data, the pointer is NULL
+    //int* refcount;
+
+    // helper fields used in locateROI and adjustROI
+    //uchar* datastart;
+    //uchar* dataend;
+
+    cv::Mat mat = d.get();
+
+    out << (qint32)mat.flags;
+    out << (qint32)mat.rows;
+    out << (qint32)mat.cols;
+    out << (quint32)mat.step;
+
+    int length = mat.dataend - mat.datastart;
+    assert( length > 0 );
+    out << (quint32) length;
+    out.writeBytes( (const char*)mat.data, length );
+
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, CvMatData& d)
+{
+    qint32 type;
+    qint32 rows;
+    qint32 cols;
+    quint32 step;
+    quint32 len;
+
+    in >> type;
+    in >> rows;
+    in >> cols;
+    in >> step;
+    in >> len;
+
+    char* data;
+    uint length = (uint)len;
+    in.readBytes( data, length );
+
+    cv::Mat mat( (int)rows, (int)cols, (int)type, data, (int)step );
+    d = mat;
+
+    return in;
+}
+
 /*
 CV_BGR2BGRA     Convert BGR color to BGRA color
 CV_BGRA2BGR     Convert BGRA color to BGR color

@@ -4,6 +4,7 @@
 #include <plvcore/PipelineProducer.h>
 #include <plvcore/Pin.h>
 #include <plvcore/Types.h>
+#include <plvcore/CvMatDataPin.h>
 
 #include <QAbstractSocket>
 
@@ -29,7 +30,7 @@ public:
     virtual ~TCPClientProducer();
 
     bool parseFrame(QDataStream& in);
-    bool parseConfig(QDataStream& in);
+    //bool parseConfig(QDataStream& in);
 
     int getPort() const;
     QString getServerIP() const;
@@ -50,15 +51,17 @@ private:
     QString m_ipAddress;
     int m_port;
     int m_blockSize;
+    QNetworkSession* m_networkSession;
     bool m_configured;
     QVector<QVariant::Type> m_types;
-    QNetworkSession* m_networkSession;
+    QList<QVariantList> m_frameList;
 
     plv::OutputPin<int>* m_intOut;
     plv::OutputPin<QString>* m_stringOut;
     plv::OutputPin<float>* m_floatOut;
     plv::OutputPin<double>* m_doubleOut;
     plv::OutputPin<cv::Scalar>* m_cvScalarOut;
+    plv::CvMatDataOutputPin* m_imageOut;
 
 };
 
