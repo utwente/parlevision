@@ -22,19 +22,22 @@ macx {
 #    UI_DIR = $$BUILDDIR
 #    DESTDIR = $$BUILDDIR
 
-PRE_TARGETDEPS += ../../libs/libplvcore.dylib ../libs/libplvopencv.dylib ../../libs/libplvgui.dylib
+PRE_TARGETDEPS += ../../libs/libplvcore.dylib ../../libs/libplvgui.dylib
 
 MACX_APP_BUNDLE_ROOT = ../../libs/ParleVision.app
 QMAKE_POST_LINK  = mkdir -p $$MACX_APP_BUNDLE_ROOT/Contents/Frameworks
+QMAKE_POST_LINK += `date` >> $$MACX_APP_BUNDLE_ROOT/timestamp
 QMAKE_POST_LINK += && cp -f ../../libs/*.dylib $$MACX_APP_BUNDLE_ROOT/Contents/Frameworks
 QMAKE_POST_LINK += && install_name_tool -id @executable_path/../Frameworks/libplvcore.dylib $$MACX_APP_BUNDLE_ROOT/Contents/Frameworks/libplvcore.dylib
+QMAKE_POST_LINK += && install_name_tool -id @executable_path/../Frameworks/libplvcore.1.dylib $$MACX_APP_BUNDLE_ROOT/Contents/Frameworks/libplvcore.1.dylib
 QMAKE_POST_LINK += && install_name_tool -id @executable_path/../Frameworks/libplvgui.dylib $$MACX_APP_BUNDLE_ROOT/Contents/Frameworks/libplvgui.dylib
-QMAKE_POST_LINK += && install_name_tool -change libplvcore.dylib @executable_path/../Frameworks/libplvcore.dylib $$MACX_APP_BUNDLE_ROOT/Contents/MacOS/ParleVision
-QMAKE_POST_LINK += && install_name_tool -change libplvcore.dylib @executable_path/../Frameworks/libplvcore.dylib $$MACX_APP_BUNDLE_ROOT/Contents/Frameworks/libplvgui.dylib
-QMAKE_POST_LINK += && install_name_tool -change libplvgui.dylib @executable_path/../Frameworks/libplvgui.dylib $$MACX_APP_BUNDLE_ROOT/Contents/MacOS/ParleVision
+QMAKE_POST_LINK += && install_name_tool -id @executable_path/../Frameworks/libplvgui.1.dylib $$MACX_APP_BUNDLE_ROOT/Contents/Frameworks/libplvgui.1.dylib
+QMAKE_POST_LINK += && install_name_tool -change libplvcore.1.dylib @executable_path/../Frameworks/libplvcore.1.dylib $$MACX_APP_BUNDLE_ROOT/Contents/MacOS/ParleVision
+QMAKE_POST_LINK += && install_name_tool -change libplvcore.1.dylib @executable_path/../Frameworks/libplvcore.1.dylib $$MACX_APP_BUNDLE_ROOT/Contents/Frameworks/libplvgui.1.dylib
+QMAKE_POST_LINK += && install_name_tool -change libplvgui.1.dylib @executable_path/../Frameworks/libplvgui.1.dylib $$MACX_APP_BUNDLE_ROOT/Contents/MacOS/ParleVision
 }
 
-LIBS += -L../../libs -lplvcore -lplvgui -lplvcore
+LIBS += -L../../libs -L../../libs/plugins -lplvcore -lplvgui -lplvcore
 
 CONFIG(debug, debug|release):DEFINES += DEBUG
 QT      += xml
