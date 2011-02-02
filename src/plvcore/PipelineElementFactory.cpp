@@ -8,25 +8,6 @@ using namespace plv;
 QList< PipelineElementConstructor* > PipelineElementFactory::m_elementConstructors;
 QHash<QString, int> PipelineElementFactory::m_nameIdMapping;
 
-//PipelineElementFactory* PipelineElementFactory::m_instance = 0;
-
-//PipelineElementFactory::PipelineElementFactory()
-//{
-//}
-
-//PipelineElementFactory::~PipelineElementFactory()
-//{
-//   // clear instance vars
-//    m_nameIdMapping.clear();
-
-//    for( int i=0; i < m_elementConstructors.size(); ++i )
-//    {
-//        PipelineElementConstructor* plec = m_elementConstructors.at(i);
-//        if( plec != 0 )
-//            delete plec;
-//    }
-//}
-
 int PipelineElementFactory::registerElement( PipelineElementConstructor* constructor )
 {
     QString name = constructor->getClassName();
