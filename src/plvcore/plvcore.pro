@@ -29,6 +29,10 @@ QT += core
 QT -= gui
 QT += xml
 
+#to include qxt project
+CONFIG  += qxt
+QXT     += core
+
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
 # -Wunused-variable
@@ -49,11 +53,8 @@ SOURCES += \
     PipelineProcessor.cpp \
     Pipeline.cpp \
     PipelineLoader.cpp \
-#    Scheduler.cpp \
     Plugin.cpp \
-#    OpenCVImage.cpp \
     CvMatData.cpp \
-#    OpenCVImagePin.cpp \
     CvMatDataPin.cpp \
     Enum.cpp \
     Util.cpp
@@ -73,10 +74,7 @@ HEADERS += ../../include/plvcore/plvglobal.h \
     ../../include/plvcore/Pipeline.h \
     ../../include/plvcore/PlvExceptions.h \
     ../../include/plvcore/PipelineLoader.h \
-#    ../../include/plvcore/Scheduler.h \
-#    ../../include/plvcore/OpenCVImage.h \
     ../../include/plvcore/CvMatData.h \
-#    ../../include/plvcore/OpenCVImagePin.h \
     ../../include/plvcore/CvMatDataPin.h \
     ../../include/plvcore/Enum.h \
     ../../include/plvcore/Util.h

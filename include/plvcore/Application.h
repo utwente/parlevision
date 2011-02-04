@@ -39,6 +39,7 @@ namespace plv
     private:
         void loadBuiltins();
         void loadPlugins();
+        void initLoggers();
         QCoreApplication* app;
     };
 }

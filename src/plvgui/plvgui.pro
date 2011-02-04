@@ -31,6 +31,10 @@ CONFIG(debug, debug|release):DEFINES += DEBUG
 QT      += xml
 DEFINES += PLVGUI_LIBRARY
 
+#to include qxt project
+CONFIG  += qxt
+QXT     += core
+
 #QMAKE_CXXFLAGS_DEBUG += -pedantic \
 # -Wunused-parameter \
 # -Wunused-variable
@@ -56,6 +60,7 @@ SOURCES += \
     ViewerWidget.cpp \
     ElementConfigFormBuilder.cpp \
     ImageWidget.cpp \
+    LogWidget.cpp \
     utils.cpp
 
 HEADERS += \
@@ -79,6 +84,7 @@ HEADERS += \
     ../../include/plvgui/ViewerWidget.h \
     ../../include/plvgui/ElementConfigFormBuilder.h \
     ../../include/plvgui/ImageWidget.h \
+    ../../include/plvgui/LogWidget.h \
     ../../include/plvgui/Exceptions.h \
     ../../include/plvgui/plvgui_global.h
 

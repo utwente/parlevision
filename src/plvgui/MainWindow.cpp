@@ -34,6 +34,7 @@
 #include <plvgui/PipelineScene.h>
 #include <plvgui/OpenCVImageRenderer.h>
 #include <plvgui/RectangleDataRenderer.h>
+#include <plvgui/LogWidget.h>
 
 #include <plvcore/Pipeline.h>
 #include <plvcore/PipelineElement.h>
@@ -96,6 +97,9 @@ void MainWindow::initGUI()
     createWelcomeWidget();
     createLibraryWidget();
     createInspectorWidget();
+
+    LogWidget* log = new LogWidget(this);
+    this->addDockWidget(Qt::BottomDockWidgetArea, log);
 
     // Restore window geometry and state
     loadSettings();

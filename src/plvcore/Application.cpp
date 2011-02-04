@@ -35,6 +35,11 @@
 #include "PipelineLoader.h"
 #include "PipelineElementFactory.h"
 
+#include <QxtLogger>
+#include <QxtXmlFileLoggerEngine>
+#include <QxtBasicFileLoggerEngine>
+#include <QxtBasicSTDLoggerEngine>
+
 using namespace plv;
 
 Application::Application(QCoreApplication* app)
@@ -53,6 +58,7 @@ void Application::init()
 {
     loadBuiltins();
     loadPlugins();
+    initLoggers();
 }
 
 void Application::deinit()
@@ -126,4 +132,19 @@ void Application::loadPlugins()
             qWarning() << "Reason: " << pluginLoader.errorString();
         }
     }
+}
+
+void Application::initLoggers()
+{
+    QxtXmlFileLoggerEngine* xmlLog = new QxtXmlFileLoggerEngine("parlevision_log.xml");
+    QxtBasicFileLoggerEngine* fileLog = new QxtBasicFileLoggerEngine("parlevision_log.txt");
+    QxtBasicSTDLoggerEngine* stdLog = new QxtBasicSTDLoggerEngine();
+
+    // install XML, plaintext and std logging
+    qxtLog->addLoggerEngine("xml", xmlLog );
+    qxtLog->addLoggerEngine("file", fileLog );
+    qxtLog->addLoggerEngine("std", stdLog );
+
+    // take over as Qt message handler
+    qxtLog->installAsMessageHandler();
 }

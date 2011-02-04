@@ -6,7 +6,10 @@ SUBDIRS =   src/plvcore \
             src/plvopencv \
             src/plvconsole \
             src/plvgui \
-            src/plvgraphical
+            src/plvgraphical \
+            src/plvtcpserver \
+            src/plvtest \
+            src/plvpluginexample
 
 
 CONFIG += ordered
