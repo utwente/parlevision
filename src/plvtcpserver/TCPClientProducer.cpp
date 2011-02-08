@@ -3,10 +3,11 @@
 #include "Proto.h"
 
 TCPClientProducer::TCPClientProducer() :
-    m_tcpSocket( new QTcpSocket(this) ),
-    m_ipAddress( QHostAddress(QHostAddress::LocalHost).toString() ),
-    m_port( 1337 ),
-    m_networkSession( 0 ),
+    m_tcpSocket(new QTcpSocket(this)),
+    m_ipAddress(QHostAddress(QHostAddress::LocalHost).toString()),
+    m_port(1337),
+    m_blockSize(0),
+    m_networkSession(0),
     m_configured( true )
 {
     m_intOut      = plv::createOutputPin<int>("int", this);
@@ -78,6 +79,11 @@ void TCPClientProducer::start()
 
     QHostAddress address( m_ipAddress );
 
+    // Try to optimize the socket for low latency.
+    // For a QTcpSocket this would set the TCP_NODELAY option
+    // and disable Nagle's algorithm.
+    m_tcpSocket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+
     // if this fails, error is automatically called
     // by signal slots connection
     m_tcpSocket->connectToHost( address, m_port );
@@ -98,7 +104,9 @@ bool TCPClientProducer::readyToProduce() const
 void TCPClientProducer::produce()
 {
     // get data from queue
+    QMutexLocker lock( &m_frameListMutex );
     QVariantList frame = m_frameList.takeFirst();
+    lock.unlock();
 
     // do primitive dynamic matching of pins with framedata
     QSet<QString> taken;
@@ -124,7 +132,7 @@ void TCPClientProducer::produce()
 void TCPClientProducer::readData()
 {
     QDataStream in(m_tcpSocket);
-    in.setVersion(QDataStream::Qt_4_7);
+    in.setVersion(QDataStream::Qt_4_0);
 
     if( m_blockSize == 0 )
     {
@@ -142,29 +150,66 @@ void TCPClientProducer::readData()
     }
     else
     {
-        quint32 opcode;
-        in >> opcode;
-
-        switch( opcode )
+        bool data = true;
+        int frames = 0;
+        while( data )
         {
-        case PROTO_INIT:
-            //m_configured = parseConfig(in);
-            break;
-        case PROTO_FRAME:
-            if( m_configured )
-                parseFrame(in);
+            quint32 opcode;
+            in >> opcode;
+
+            switch( opcode )
+            {
+            case PROTO_INIT:
+                //m_configured = parseConfig(in);
+                break;
+            case PROTO_FRAME:
+                if( m_configured )
+                    parseFrame(in);
+                else
+                {
+                    qDebug() << "Frame received while not configured.";
+                }
+                break;
+            default:
+                // error, invalid opcode
+                qWarning() << "Invalid opcode, skipping message";
+
+                // skip this message
+                in.skipRawData( m_blockSize - sizeof(quint32) );
+            }
+
+            if( m_tcpSocket->bytesAvailable() >= (int)sizeof(quint32) )
+            {
+                in >> m_blockSize;
+            }
             else
             {
-                qDebug() << "Frame received while not configured.";
+                m_blockSize = 0;
             }
-            break;
-        default:
-            // error, invalid opcode
-            qDebug() << "Invalid opcode, skipping message";
 
-            // skip this message
-            in.skipRawData( m_blockSize - sizeof(quint32) );
+            if( m_tcpSocket->bytesAvailable() < m_blockSize )
+                data = false;
+
+            if( ++frames > 10 )
+                data = false;
         }
+    }
+}
+
+void TCPClientProducer::ackFrame(quint32 frameNumber)
+{
+    QByteArray bytes;
+    QDataStream out(&bytes, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_0);
+
+    // write the header
+    out << (quint32)12; // 12 bytes total size
+    out << (quint32)PROTO_ACK;
+    out << (quint32)frameNumber;
+
+    if( m_tcpSocket->write(bytes) == -1 )
+    {
+        error( PlvFatal, m_tcpSocket->errorString() );
     }
 }
 
@@ -204,11 +249,11 @@ bool TCPClientProducer::parseFrame( QDataStream& in )
 {
     QVariantList frame;
 
-    qint32 numargs;
     quint32 serial;
+    quint32 numargs;
 
-    in >> numargs;
     in >> serial;
+    in >> numargs;
 
     if( numargs < 1 )
     {
@@ -218,7 +263,7 @@ bool TCPClientProducer::parseFrame( QDataStream& in )
 
     // parse all arguments using QVariant
     qDebug() << "TCPClientProducer received input";
-    for( int i=0; i < numargs; ++i )
+    for( unsigned int i=0; i < numargs; ++i )
     {
         QVariant v;
         in >> v;
@@ -230,15 +275,19 @@ bool TCPClientProducer::parseFrame( QDataStream& in )
         }
 
         qDebug() << "Variant parsed: " << v.type();
-        if( v.type() != m_types[i] )
-        {
-            // frame is not according to specifications
-            qDebug() << "Frame is not correct, variant of unexpected type.";
-            return false;
-        }
+        //if( v.type() != m_types[i] )
+        //{
+        //    // frame is not according to specifications
+        //    qDebug() << "Frame is not correct, variant of unexpected type.";
+        //    return false;
+        //}
         frame.append(v);
     }
 
+    // send ack to the server for flow control
+    ackFrame(serial);
+
+    QMutexLocker lock( &m_frameListMutex );
     m_frameList.append(frame);
 
     return true;

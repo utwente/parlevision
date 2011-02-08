@@ -41,8 +41,10 @@
 #ifndef PARLEVISIONSERVER_H
 #define PARLEVISIONSERVER_H
 
+#include <plvcore/plvglobal.h>
 #include <QTcpServer>
 #include <QThread>
+#include <QVariantList>
 
 class ServerConnection;
 
@@ -55,23 +57,24 @@ public:
 
 public slots:
     /** sends the content of the array to all connected clients.
-        Calls writeBytes slot of all server threads */
-    void sendData(const QByteArray& bytes) { emit(broadcast(bytes)); }
+        Calls queueFrame slot of all server threads */
+    void sendFrame(quint32 frameNumber, const QVariantList& frameData);
 
     /** stops all connection threads and disconnects connections */
-    void disconnectAll() { emit( stopAllConnections() ); }
+    void disconnectAll();
 
+    /** called when one of the connection threads has stalled */
     void serverThreadStalled( ServerConnection* connection, bool stalled );
 
 signals:
     /** is fired when an error has occured in this Server or in one
         of its Connection threads */
-    void error(QString string);
+    void error(PipelineErrorType type, const QString& msg);
 
     /** stops all connection threads and disconnects connections */
     void stopAllConnections();
 
-    void broadcast(const QByteArray&);
+    void broadcastFrame(quint32 serial, QByteArray);
 
     void stalled();
     void unstalled();

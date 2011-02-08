@@ -39,15 +39,16 @@ public:
 
 signals:
     void portChanged(int port);
-    void sendData(const QByteArray&);
+    void sendFrame(quint32 frameNumber, const QVariantList& frameData);
 
 public slots:
     void setPort(int port, bool doEmit=false );
     void stalled();
     void unstalled();
+    void serverError(PipelineErrorType type, const QString& msg);
 
 private:
-    void sendFrame( const QVariantList& frameData );
+    void acceptConfigurationRequest();
 
     int m_port;
     Server* m_server;

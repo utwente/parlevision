@@ -35,7 +35,7 @@
 #include "RefPtr.h"
 #include "assert.h"
 
-namespace plv 
+namespace plv
 {
     class RectangleDataPrivate : public QSharedData
     {

@@ -43,6 +43,19 @@
 
 #include <QTcpSocket>
 #include <QByteArray>
+#include <QMutex>
+
+#include <plvcore/plvglobal.h>
+
+class Frame
+{
+public:
+    quint32 serial;
+    QByteArray bytes;
+    qint64 sent;
+
+    Frame(quint32 s, QByteArray& b) : serial(s), bytes(b), sent(0) {}
+};
 
 class ServerConnection : public QObject
 {
@@ -52,26 +65,51 @@ public:
     ServerConnection(int socketDescriptor);
     virtual ~ServerConnection();
 
-    void run();
-    void sendFrame();
-
 public slots:
-    void writeBytes( const QByteArray& bytes );
-    void bytesWritten( qint64 bytes );
-
     void start();
     void stop();
 
+    void connected();
+    void disconnected();
+
+    /** queues the frame in the internal frame queue. The frame will
+        be dropped if the queue is at its maximum size and the connection
+        is not lossless. If the connection is lossless and the queue is full
+        it will emit the waitingOnClient signal */
+    void queueFrame(quint32 frameNumber, QByteArray frameData);
+
+    void sendData();
+
+    void bytesWritten( qint64 bytes );
+    void readyRead();
+
+    void error(QAbstractSocket::SocketError socketError);
+
 signals:
-    void error(QString error);
+    void errorOccurred(PipelineErrorType type, const QString& msg);
     void finished();
+
+    /** emitted when the TCP connection is waiting for the client */
     void waitingOnClient( ServerConnection* connection, bool waiting );
 
+    void configured(bool configured);
+
+    void scheduleSend();
+
 private:
+    void ackFrame(quint32 serial);
+
     QTcpSocket* m_tcpSocket;
     int m_socketDescriptor;
     QString m_errorString;
     int m_frameNumber;
+    //QMutex m_scMutex;
+    bool m_waiting;
+    bool m_lossless;
+    int m_blockSize;
+
+    QList<quint32> m_frameNumbersInFlight; /** framenumbers which have not been ack-ed yet */
+    QList<Frame> m_frameQueue;
 };
 
 #endif

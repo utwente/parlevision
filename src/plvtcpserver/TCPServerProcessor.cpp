@@ -10,10 +10,8 @@ using namespace plv;
 TCPServerProcessor::TCPServerProcessor() : m_port(1337), m_waiting(false)
 {
     m_server = new Server(this);
-    this->connect(this,
-                  SIGNAL(sendData(const QByteArray&)),
-                  m_server,
-                  SLOT(sendData(const QByteArray&)) );
+    connect(this, SIGNAL( sendFrame(quint32,QVariantList)),
+            m_server, SLOT( sendFrame(quint32,QVariantList)) );
 
     m_inputPinCvMatData = createCvMatDataInputPin( "image", this, IInputPin::CONNECTION_OPTIONAL );
     m_inputPinDouble    = createInputPin<double>(  "double_test", this, IInputPin::CONNECTION_OPTIONAL );
@@ -33,8 +31,8 @@ void TCPServerProcessor::init()
         return;
     }
 
-    connect(m_server, SIGNAL( error(QString) ),
-            this, SLOT( error(QString) ));
+    connect(m_server, SIGNAL(error(PipelineErrorType, const QString&)),
+            this, SLOT(serverError(PipelineErrorType, const QString&)));
 
     QString ipAddress;
     QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
@@ -68,6 +66,12 @@ void TCPServerProcessor::stop()
 {
 }
 
+bool TCPServerProcessor::isReadyForProcessing() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return !m_waiting;
+}
+
 void TCPServerProcessor::process()
 {
     QVariantList frameData;
@@ -82,37 +86,13 @@ void TCPServerProcessor::process()
             frameData.append(v);
         }
     }
-    sendFrame(frameData);
+    quint32 frameNumber = (quint32)getProcessingSerial();
+    emit sendFrame(frameNumber, frameData);
 }
 
-void TCPServerProcessor::sendFrame( const QVariantList& frameData )
+void TCPServerProcessor::acceptConfigurationRequest()
 {
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_7);
 
-    // number of arguments in this frame
-    unsigned int numargs = frameData.size();
-    unsigned int frameNumber = getProcessingSerial();
-
-    // write the header
-    out << (quint32)PROTO_FRAME;
-    out << (quint32)0; // reserved for number of bytes later
-    out << (quint32)frameNumber;
-    out << (quint32)numargs;
-
-    // write all data to the stream
-    foreach( const QVariant& v, frameData )
-    {
-        out << v;
-    }
-
-    // calculate size of total data and write it as first 4 bytes
-    out.device()->seek(0);
-    out << (quint32)(block.size() - sizeof(quint32));
-
-    // send it
-    emit( sendData( block ) );
 }
 
 /** propery methods */
@@ -141,8 +121,9 @@ void TCPServerProcessor::unstalled()
     m_waiting = false;
 }
 
-bool TCPServerProcessor::isReadyForProcessing() const
+void TCPServerProcessor::serverError(PipelineErrorType type, const QString& msg)
 {
-    QMutexLocker lock( m_propertyMutex );
-    return !m_waiting;
+    // propagate to pipeline element error handling
+    this->error(type,msg);
 }
+

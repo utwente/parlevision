@@ -118,12 +118,11 @@ QDataStream &operator<<(QDataStream &out, const CvMatData& d)
     //uchar* datastart;
     //uchar* dataend;
 
-    cv::Mat mat = d.get();
+    const cv::Mat& mat = d;
 
     out << (qint32)mat.flags;
     out << (qint32)mat.rows;
     out << (qint32)mat.cols;
-    out << (quint32)mat.step;
 
     int length = mat.dataend - mat.datastart;
     assert( length > 0 );
@@ -138,22 +137,23 @@ QDataStream &operator>>(QDataStream &in, CvMatData& d)
     qint32 type;
     qint32 rows;
     qint32 cols;
-    quint32 step;
     quint32 len;
 
     in >> type;
     in >> rows;
     in >> cols;
-    in >> step;
     in >> len;
 
     char* data;
     uint length = (uint)len;
     in.readBytes( data, length );
 
-    cv::Mat mat( (int)rows, (int)cols, (int)type, data, (int)step );
+    // temporary matrix, we need to explicitly copy the data because
+    // using the constructor with user allocated data disables refcounting
+    cv::Mat mat( (int)rows, (int)cols, (int)type );
+    memcpy( mat.datastart, data, mat.dataend - mat.datastart );
     d = mat;
-
+    delete[] data;
     return in;
 }
 

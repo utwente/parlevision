@@ -47,6 +47,8 @@ public slots:
     void displayError(QAbstractSocket::SocketError socketError);
 
 private:
+    void ackFrame(quint32 frameNumber);
+
     QTcpSocket* m_tcpSocket;
     QString m_ipAddress;
     int m_port;
@@ -55,6 +57,7 @@ private:
     bool m_configured;
     QVector<QVariant::Type> m_types;
     QList<QVariantList> m_frameList;
+    QMutex m_frameListMutex;
 
     plv::OutputPin<int>* m_intOut;
     plv::OutputPin<QString>* m_stringOut;

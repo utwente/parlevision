@@ -421,7 +421,7 @@ void Pipeline::run()
                     fps = fps * 0.9f + ( 1000.0f / elapsed );
                     time.restart();
                     numFrames = 0;
-                    qDebug() << "FPS: " << (int)fps;
+                    //qDebug() << "FPS: " << (int)fps;
                 }
 
                 emit( stepTaken(m_serial) );

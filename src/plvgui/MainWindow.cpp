@@ -41,6 +41,7 @@
 #include <plvcore/Pin.h>
 #include <plvcore/PinConnection.h>
 #include <plvcore/PipelineLoader.h>
+#include <plvcore/Util.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -53,7 +54,7 @@ using namespace plv;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
+    m_ui(new Ui::MainWindow),
     m_documentChanged(false),
     m_fileName("")
 {
@@ -63,31 +64,31 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    delete m_ui;
 }
 
 void MainWindow::initGUI()
 {
     // Load design from Form mainwindow.ui
-    ui->setupUi(this);
+    m_ui->setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
 
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    this->setWindowTitle("ParleVision - no pipeline");
+    setWindowTitle("ParleVision - no pipeline");
 
-    ui->view->setAcceptDrops(true);
-    ui->view->setEnabled(false);
-    ui->view->hide();
-    ui->actionSave->setEnabled(false);
-    ui->actionSaveAs->setEnabled(false);
-    ui->actionStart->setEnabled(false);
-    ui->actionPause->setEnabled(false);
-    ui->actionStop->setEnabled(false);
+    m_ui->view->setAcceptDrops(true);
+    m_ui->view->setEnabled(false);
+    m_ui->view->hide();
+    m_ui->actionSave->setEnabled(false);
+    m_ui->actionSaveAs->setEnabled(false);
+    m_ui->actionStart->setEnabled(false);
+    m_ui->actionPause->setEnabled(false);
+    m_ui->actionStop->setEnabled(false);
 
     QShortcut* shortcut = new QShortcut(QKeySequence(tr("Backspace")),this);
-    connect(shortcut, SIGNAL(activated()), ui->actionDelete, SLOT(trigger()));
+    connect(shortcut, SIGNAL(activated()), m_ui->actionDelete, SLOT(trigger()));
 
     QShortcut* closeShortcut = new QShortcut(QKeySequence(tr("Ctrl+W")),this);
     connect(closeShortcut, SIGNAL(activated()), this, SLOT(close()));
@@ -114,7 +115,7 @@ void MainWindow::changeEvent(QEvent *e)
     QMainWindow::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
-        ui->retranslateUi(this);
+        m_ui->retranslateUi(this);
         break;
     case QEvent::ActivationChange:
         if(this->isActiveWindow() || this->m_libraryWidget->isActiveWindow())
@@ -230,13 +231,13 @@ void MainWindow::updateRecentFileActions()
     for (int i = 0; i < numRecentFiles; ++i)
     {
         QString text = tr("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
-        recentFileActs[i]->setText(text);
-        recentFileActs[i]->setData(files[i]);
-        recentFileActs[i]->setVisible(true);
+        m_recentFileActs[i]->setText(text);
+        m_recentFileActs[i]->setData(files[i]);
+        m_recentFileActs[i]->setVisible(true);
     }
     for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
     {
-        recentFileActs[j]->setVisible(false);
+        m_recentFileActs[j]->setVisible(false);
     }
 
     m_recentFilesSeparator->setVisible(numRecentFiles > 0);
@@ -248,8 +249,8 @@ void MainWindow::createLibraryWidget()
     this->addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
     m_libraryWidget->toggleViewAction()->setIcon(QIcon(":/icons/library.png"));
     m_libraryWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_L));
-    ui->toolBar->addAction(m_libraryWidget->toggleViewAction());
-    ui->menuView->addAction(m_libraryWidget->toggleViewAction());
+    m_ui->toolBar->addAction(m_libraryWidget->toggleViewAction());
+    m_ui->menuView->addAction(m_libraryWidget->toggleViewAction());
     #ifdef Q_OS_MAC
     // Show LibraryWidget as floating window on Mac OS X
     m_libraryWidget->setFloating(true);
@@ -262,8 +263,8 @@ void MainWindow::createInspectorWidget()
     this->addDockWidget(Qt::RightDockWidgetArea, m_inspectorWidget);
     m_inspectorWidget->toggleViewAction()->setIcon(QIcon(":/icons/inspector.png"));
     m_inspectorWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_I));
-    ui->toolBar->addAction(m_inspectorWidget->toggleViewAction());
-    ui->menuView->addAction(m_inspectorWidget->toggleViewAction());
+    m_ui->toolBar->addAction(m_inspectorWidget->toggleViewAction());
+    m_ui->menuView->addAction(m_inspectorWidget->toggleViewAction());
     #ifdef Q_OS_MAC
     // Show LibraryWidget as floating window on Mac OS X
     m_inspectorWidget->setFloating(true);
@@ -272,14 +273,14 @@ void MainWindow::createInspectorWidget()
 
 void MainWindow::createRecentFileActs()
 {
-    m_recentFilesSeparator = ui->menuFile->addSeparator();
+    m_recentFilesSeparator = m_ui->menuFile->addSeparator();
 
     for (int i = 0; i < MaxRecentFiles; ++i)
     {
-        recentFileActs[i] = new QAction(this);
-        recentFileActs[i]->setVisible(false);
-        ui->menuFile->addAction(recentFileActs[i]);
-        connect(recentFileActs[i], SIGNAL(triggered()),
+        m_recentFileActs[i] = new QAction(this);
+        m_recentFileActs[i]->setVisible(false);
+        m_ui->menuFile->addAction(m_recentFileActs[i]);
+        connect(m_recentFileActs[i], SIGNAL(triggered()),
                 this, SLOT(openRecentFile()));
     }
 
@@ -289,8 +290,8 @@ void MainWindow::createRecentFileActs()
 void MainWindow::createWelcomeWidget()
 {
     Ui::WelcomeWidget* w = new Ui::WelcomeWidget();
-    this->welcomeWidget = new QWidget(this);
-    w->setupUi(this->welcomeWidget);
+    m_welcomeWidget = new QWidget(this);
+    w->setupUi(m_welcomeWidget);
 
     QSettings settings;
     QStringList files = settings.value("recentFileList").toStringList();
@@ -299,9 +300,9 @@ void MainWindow::createWelcomeWidget()
 
     for (int i = 0; i < numRecentFiles; ++i)
     {
-        QAction* recentFileAct = recentFileActs[i];
+        QAction* recentFileAct = m_recentFileActs[i];
         assert(recentFileAct != 0);
-        QPushButton* fileLink = new QPushButton(recentFileAct->data().toString(), this->welcomeWidget);
+        QPushButton* fileLink = new QPushButton(recentFileAct->data().toString(), m_welcomeWidget);
         fileLink->setFlat(true);
         fileLink->setCursor(Qt::PointingHandCursor);
         connect(fileLink, SIGNAL(clicked()), recentFileAct, SIGNAL(triggered()));
@@ -311,17 +312,17 @@ void MainWindow::createWelcomeWidget()
     w->recentFilesColumn->addStretch();
     w->scrollArea->horizontalScrollBar()->setValue(w->scrollArea->horizontalScrollBar()->maximum());
 
-    connect(w->newButton, SIGNAL(clicked()), ui->actionNew, SLOT(trigger()));
-    connect(w->openButton, SIGNAL(clicked()), ui->actionLoad, SLOT(trigger()));
+    connect(w->newButton, SIGNAL(clicked()), m_ui->actionNew, SLOT(trigger()));
+    connect(w->openButton, SIGNAL(clicked()), m_ui->actionLoad, SLOT(trigger()));
 
-    this->welcomeWidget->hide();
+    m_welcomeWidget->hide();
 
-    ui->topContainer->insertWidget(0, this->welcomeWidget);
+    m_ui->topContainer->insertWidget(0, m_welcomeWidget);
 }
 
 void MainWindow::showWelcomeScreen()
 {
-    this->welcomeWidget->show();
+    m_welcomeWidget->show();
 }
 
 void MainWindow::openRecentFile()
@@ -334,31 +335,30 @@ void MainWindow::openRecentFile()
 void MainWindow::setPipeline(plv::Pipeline* pipeline)
 {
     //TODO throw exception as well
-    assert(this->m_pipeline.isNull());
+    assert(m_pipeline.isNull());
+    assert(m_ui->view != 0);
 
-    this->m_pipeline = pipeline;
-
-    assert (ui->view != 0);
-    this->m_scene = new PipelineScene(pipeline, ui->view);
+    m_pipeline = pipeline;
+    m_scene = new PipelineScene(pipeline, m_ui->view);
 
     connect(m_scene, SIGNAL(selectionChanged()),
             this, SLOT(sceneSelectionChanged()));
 
-    this->welcomeWidget->hide();
+    m_welcomeWidget->hide();
 
-    ui->view->setScene(m_scene);
-    ui->view->setEnabled(true);
-    ui->view->show();
-    ui->actionSave->setEnabled(true);
-    ui->actionSaveAs->setEnabled(true);
-    ui->actionStart->setEnabled(true);
-    ui->actionPause->setEnabled(false);
-    ui->actionStop->setEnabled(false);
+    m_ui->view->setScene(m_scene);
+    m_ui->view->setEnabled(true);
+    m_ui->view->show();
+    m_ui->actionSave->setEnabled(true);
+    m_ui->actionSaveAs->setEnabled(true);
+    m_ui->actionStart->setEnabled(true);
+    m_ui->actionPause->setEnabled(false);
+    m_ui->actionStop->setEnabled(false);
 
-    connect(ui->actionStop, SIGNAL(triggered()),
+    connect(m_ui->actionStop, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
 
-    connect(ui->actionStart, SIGNAL(triggered()),
+    connect(m_ui->actionStart, SIGNAL(triggered()),
             pipeline, SLOT(start()));
 
     connect(pipeline, SIGNAL(pipelineStarted()),
@@ -386,28 +386,31 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(m_scene, SIGNAL(contentsChanged()),
             this, SLOT(documentChanged()));
 
-    qDebug() << "setting documentChanged to false #1";
+    //plv::QThreadEx* pipelineThread = new plv::QThreadEx();
+    //pipeline->moveToThread(pipelineThread);
+    // when the pipeline is done, it stops its thread
+    //connect(pipeline, SIGNAL(finished()), pipelineThread, SLOT(quit()));
+
     m_documentChanged = false;
 }
 
 void MainWindow::pipelineStarted()
 {
-    ui->actionStart->setDisabled(true);
-    ui->actionStop->setEnabled(true);
-    ui->statusbar->showMessage("Running");
+    m_ui->actionStart->setDisabled(true);
+    m_ui->actionStop->setEnabled(true);
+    m_ui->statusbar->showMessage("Running");
 }
 
 void MainWindow::pipelineStopped()
 {
-    ui->actionStart->setEnabled(true);
-    ui->actionStop->setDisabled(true);
-    ui->statusbar->showMessage("Stopped.");
+    m_ui->actionStart->setEnabled(true);
+    m_ui->actionStop->setDisabled(true);
+    m_ui->statusbar->showMessage("Stopped.");
 }
 
 void MainWindow::loadFile(QString fileName)
 {
-
-    if(this->m_pipeline)
+    if(m_pipeline)
     {
         // already had an open pipeline, open new window
         MainWindow* other = newWindow();
@@ -422,13 +425,13 @@ void MainWindow::loadFile(QString fileName)
 //        bool state = pl->init();
         qDebug() << "Loaded pipeline";
 //        assert(state);
-        this->setCurrentFile(fileName);
-        this->setPipeline(pl);
+        setCurrentFile(fileName);
+        setPipeline(pl);
     }
     catch( std::runtime_error& e )
     {
         qDebug() << "Pipeline loading failed with: " << e.what();
-        this->handleMessage(QtCriticalMsg, "Failed to load load pipeline from "+fileName+":\n" + QString(e.what()));
+        handleMessage(QtCriticalMsg, "Failed to load load pipeline from "+fileName+":\n" + QString(e.what()));
         return;
     }
     catch( ... )
@@ -514,17 +517,17 @@ void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
 //    // note that signals are not yet ever disconnected.
 //    // this will probably change anyway as we want the whole pipeline to stop
 //    // and not just the cameras.
-//    connect(ui->actionStop, SIGNAL(triggered()),
+//    connect(m_ui->actionStop, SIGNAL(triggered()),
 //            camera, SLOT(release()));
 //    connect(this->m_stopAction, SIGNAL(triggered()),
 //            camera, SLOT(release()));
 //
-//    connect(ui->actionStart, SIGNAL(triggered()),
+//    connect(m_ui->actionStart, SIGNAL(triggered()),
 //            camera, SLOT(start()));
 //    connect(this->m_startAction, SIGNAL(triggered()),
 //            camera, SLOT(start()));
 //
-//    connect(ui->actionPause, SIGNAL(triggered()),
+//    connect(m_ui->actionPause, SIGNAL(triggered()),
 //            camera, SLOT(pause()));
 //    connect(this->m_pauseAction, SIGNAL(triggered()),
 //            camera, SLOT(pause()));
@@ -615,7 +618,7 @@ void MainWindow::documentChanged()
         return;
 
     m_documentChanged = true;
-    ui->actionSave->setEnabled(true);
+    m_ui->actionSave->setEnabled(true);
     updateWindowTitle();
 }
 
@@ -631,7 +634,7 @@ void plvgui::MainWindow::sceneSelectionChanged()
 {
     int selectionCount = this->m_scene->selectedItems().size();
 
-    ui->actionDelete->setEnabled(selectionCount > 0);
+    m_ui->actionDelete->setEnabled(selectionCount > 0);
 
     if(selectionCount == 0)
     {

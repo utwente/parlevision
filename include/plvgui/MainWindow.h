@@ -108,14 +108,15 @@ namespace plvgui
         // create a new window
         MainWindow* newWindow();
 
-        Ui::MainWindow* ui;
+        Ui::MainWindow* m_ui;
         PipelineScene* m_scene;
         bool m_documentChanged;
         QString m_fileName;
+
         QAction* m_recentFilesSeparator;
         enum { MaxRecentFiles = 5 };
-        QAction* recentFileActs[MaxRecentFiles];
-        QWidget* welcomeWidget;
+        QAction* m_recentFileActs[MaxRecentFiles];
+        QWidget* m_welcomeWidget;
 
     private slots:
         void on_actionSaveAs_triggered();

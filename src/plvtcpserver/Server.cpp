@@ -40,6 +40,7 @@
 
 #include "Server.h"
 #include "ServerConnection.h"
+#include "Proto.h"
 
 //#include <stdlib.h>
 
@@ -51,12 +52,14 @@ Server::Server(QObject *parent) : QTcpServer(parent)
 
 void Server::incomingConnection(int socketDescriptor)
 {
+    qDebug() << "Server: incoming connection";
+
     ServerConnection* connection = new ServerConnection(socketDescriptor);
 
     // let errors go through the error reporting signal of this class
     this->connect( connection,
-                   SIGNAL(error(QString)),
-                   SIGNAL(error(QString)));
+                   SIGNAL(errorOccurred(PipelineErrorType,QString)),
+                   SIGNAL(error(PipelineErrorType,QString)));
 
     // move the connection to its own thread
     QThreadEx* connectionThread = new QThreadEx();
@@ -85,12 +88,43 @@ void Server::incomingConnection(int socketDescriptor)
     connectionThread->start();
 
     // connection receives all broadcasts and sends it to its connection
-    connect( this, SIGNAL(broadcast(const QByteArray&)),
-             connection, SLOT(writeBytes(const QByteArray&)));
+    connect( this, SIGNAL( broadcastFrame(quint32,QByteArray)),
+             connection, SLOT( queueFrame(quint32,QByteArray)));
+}
+
+void Server::sendFrame(quint32 frameNumber, const QVariantList& frameData)
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_0);
+
+    // write the header
+    out << (quint32)0; // reserved for number of bytes later
+    out << (quint32)PROTO_FRAME;
+    out << (quint32)frameNumber;
+    out << (quint32)frameData.size();
+
+    // write all data to the stream
+    foreach( const QVariant& v, frameData )
+    {
+        out << v;
+    }
+
+    // calculate size of total data and write it as first 4 bytes
+    out.device()->seek(0);
+    out << (quint32)(block.size() - sizeof(quint32));
+
+    emit broadcastFrame(frameNumber, block);
+}
+
+void Server::disconnectAll()
+{
+    emit stopAllConnections();
 }
 
  void Server::serverThreadStalled( ServerConnection* connection, bool isStalled )
  {
+     qDebug() << "Server: a connection stalled";
      if( isStalled ) emit stalled();
      else emit unstalled();
  }

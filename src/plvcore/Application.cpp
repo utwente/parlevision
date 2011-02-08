@@ -56,9 +56,9 @@ Application::~Application()
 
 void Application::init()
 {
+    initLoggers();
     loadBuiltins();
     loadPlugins();
-    initLoggers();
 }
 
 void Application::deinit()
@@ -72,6 +72,8 @@ void Application::loadBuiltins()
     qRegisterMetaType< plv::Enum >( "plv::Enum" );
     qRegisterMetaType< plv::CvMatData >( "plv::CvMatData" );
     qRegisterMetaType< plv::RectangleData >( "plv::RectangleData" );
+
+    qRegisterMetaType< PipelineErrorType >( "PipelineErrorType" );
 
     // register stream operators to enable streaming of data types
     //qRegisterMetaTypeStreamOperators< plv::Data >("plv::Data");
