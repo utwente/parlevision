@@ -4,8 +4,8 @@
 #include <QtNetwork>
 #include <assert.h>
 
-#define MAX_FRAME_QUEUE 10
-#define MAX_BYTES_TO_WRITE 512*1024
+#define MAX_FRAME_QUEUE 100
+#define MAX_FRAMES_IN_FLIGHT 10
 
 ServerConnection::ServerConnection(int socketDescriptor) :
     QObject(0),
@@ -32,24 +32,31 @@ void ServerConnection::queueFrame(quint32 frameNumber, QByteArray frameData)
     Frame f(frameNumber, frameData);
 
     // append to queue of this connection
-    //QMutexLocker lock(&m_scMutex);
     m_frameQueue.append(f);
+
+    if( m_frameNumbersInFlight.size() < MAX_FRAMES_IN_FLIGHT )
+    {
+        sendData();
+    }
 
     // we start dropping frames when the queue is at MAX_FRAME_QUEUE
     // unless we are set to lossless, then we
     // give the server a signal to throttle
-    if(m_frameQueue.size() >= MAX_FRAME_QUEUE)
+    if(m_frameQueue.size() > MAX_FRAME_QUEUE)
     {
         if( m_lossless )
         {
-            m_waiting = true;
-            emit(waitingOnClient(this, m_waiting));
+            if( !m_waiting )
+            {
+                m_waiting = true;
+                emit waitingOnClient(this, m_waiting);
+            }
         }
         else
         {
             // drop the oldest frame
             Frame f = m_frameQueue.takeFirst();
-            qDebug() << "Connection " << m_tcpSocket->peerAddress() << ":"
+            qDebug() << "Connection " << m_tcpSocket->peerAddress().toString() << ":"
                      << m_tcpSocket->peerPort() << " dropped frame " << f.serial;
         }
     }
@@ -64,80 +71,80 @@ void ServerConnection::sendData()
         return;
     }
 
-    if( m_tcpSocket->state() != QAbstractSocket::ConnectedState )
-    {
-        return;
-    }
-
     if( m_waiting )
         return;
 
-    if( m_tcpSocket->bytesToWrite() > MAX_BYTES_TO_WRITE )
-    {
-        m_waiting = true;
-        emit(waitingOnClient(this, m_waiting));
-        return;
-    }
+//    if( m_tcpSocket->bytesToWrite() > MAX_BYTES_TO_WRITE )
+//    {
+//        m_waiting = true;
+//        emit waitingOnClient(this, m_waiting);
+//        return;
+//    }
 
-    //QMutexLocker lock(&m_scMutex);
-    if( m_frameQueue.isEmpty() )
-        return;
-
-    Frame& f = m_frameQueue.first();
-    if( f.sent == 0 )
+    bool overflow = false;
+    while(!( m_frameNumbersInFlight.size() >= MAX_FRAMES_IN_FLIGHT ||
+             m_frameQueue.isEmpty() ||
+             overflow ))
     {
-        qint64 bytesSent = m_tcpSocket->write(f.bytes);
-        if( bytesSent < f.bytes.size() )
+        Frame& f = m_frameQueue.first();
+        if( f.sent == 0 )
         {
-            if( bytesSent == -1 )
-                emit errorOccurred(PlvDebug, m_tcpSocket->errorString());
+            qint64 bytesSent = m_tcpSocket->write(f.bytes);
+            if( bytesSent < f.bytes.size() )
+            {
+                if( bytesSent != -1 )
+                    f.sent = bytesSent;
+                else
+                    overflow = true;
+            }
             else
-                f.sent = bytesSent;
+            {
+                m_frameNumbersInFlight.append(f.serial);
+                m_frameQueue.removeFirst();
+            }
         }
         else
         {
-            m_frameNumbersInFlight.append(f.serial);
-            m_frameQueue.removeFirst();
-        }
-    }
-    else
-    {
-        const char* ptr = f.bytes.data();
-        ptr += f.sent;
-        qint64 len = f.bytes.size() - f.sent;
+            const char* ptr = f.bytes.data();
+            ptr += f.sent;
+            qint64 len = f.bytes.size() - f.sent;
 
-        qint64 bytesSent = m_tcpSocket->write(ptr, len);
+            qint64 bytesSent = m_tcpSocket->write(ptr, len);
 
-        if( bytesSent < len )
-        {
-            if( bytesSent == -1 )
-                emit errorOccurred(PlvDebug, m_tcpSocket->errorString());
+            if( bytesSent < len )
+            {
+                if( bytesSent != -1 )
+                    f.sent = f.sent + bytesSent;
+                else
+                    overflow = true;
+            }
             else
-                f.sent = f.sent + bytesSent;
+            {
+                m_frameNumbersInFlight.append(f.serial);
+                m_frameQueue.removeFirst();
+            }
         }
-        else
+
+        if( overflow )
         {
-            m_frameNumbersInFlight.append(f.serial);
-            m_frameQueue.removeFirst();
+            m_waiting = true;
+            emit waitingOnClient(this, m_waiting);
         }
     }
 }
 
 void ServerConnection::ackFrame(quint32 serial)
 {
-    //QMutexLocker lock(&m_scMutex);
     quint32 expectedSerial = m_frameNumbersInFlight.takeFirst();
-    if( expectedSerial == serial )
-    {
-        if( m_waiting )
-        {
-            m_waiting = false;
-            emit(waitingOnClient(this, m_waiting));
-        }
-    }
-    else
+    if( expectedSerial != serial )
     {
         qWarning() << "Ack received for frame " << serial << " while expected frame " << expectedSerial << ".";
+
+        if( m_lossless && m_waiting )
+        {
+            m_waiting = false;
+            emit waitingOnClient(this, m_waiting);
+        }
     }
 }
 
@@ -157,7 +164,6 @@ void ServerConnection::readyRead()
         return;
 
     bool data = true;
-    int frames = 0;
     while( data )
     {
         quint32 opcode;
@@ -188,22 +194,20 @@ void ServerConnection::readyRead()
         else
         {
             m_blockSize = 0;
+            data = false;
         }
 
         if( m_tcpSocket->bytesAvailable() < m_blockSize )
-            data = false;
-
-        if( ++frames > 10 )
             data = false;
     }
 }
 
 void ServerConnection::bytesWritten(qint64 bytes)
 {
-    if( m_waiting && m_tcpSocket->bytesToWrite() < MAX_BYTES_TO_WRITE )
+    if( m_waiting )
     {
         m_waiting = false;
-        emit(waitingOnClient(this, m_waiting));
+        emit waitingOnClient(this, m_waiting);
     }
 }
 
@@ -236,15 +240,14 @@ void ServerConnection::start()
 
 void ServerConnection::stop()
 {
-    //QMutexLocker lock( &m_scMutex );
     m_tcpSocket->disconnectFromHost();
 }
 
 void ServerConnection::connected()
 {
-    qDebug() << "Server socket connected with address " <<
-            m_tcpSocket->peerAddress() << " and port " <<
-            m_tcpSocket->peerPort();
+    qDebug() << "Server socket connected with address "
+             << m_tcpSocket->peerAddress().toString()
+             << " and port " << m_tcpSocket->peerPort();
 }
 
 void ServerConnection::disconnected()

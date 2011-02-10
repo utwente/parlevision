@@ -103,7 +103,6 @@ private:
     int m_socketDescriptor;
     QString m_errorString;
     int m_frameNumber;
-    //QMutex m_scMutex;
     bool m_waiting;
     bool m_lossless;
     int m_blockSize;

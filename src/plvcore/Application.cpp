@@ -138,14 +138,14 @@ void Application::loadPlugins()
 
 void Application::initLoggers()
 {
-    QxtXmlFileLoggerEngine* xmlLog = new QxtXmlFileLoggerEngine("parlevision_log.xml");
+    //QxtXmlFileLoggerEngine* xmlLog = new QxtXmlFileLoggerEngine("parlevision_log.xml");
     QxtBasicFileLoggerEngine* fileLog = new QxtBasicFileLoggerEngine("parlevision_log.txt");
-    QxtBasicSTDLoggerEngine* stdLog = new QxtBasicSTDLoggerEngine();
+    //QxtBasicSTDLoggerEngine* stdLog = new QxtBasicSTDLoggerEngine();
 
     // install XML, plaintext and std logging
-    qxtLog->addLoggerEngine("xml", xmlLog );
+    //qxtLog->addLoggerEngine("xml", xmlLog );
     qxtLog->addLoggerEngine("file", fileLog );
-    qxtLog->addLoggerEngine("std", stdLog );
+    //qxtLog->addLoggerEngine("std", stdLog );
 
     // take over as Qt message handler
     qxtLog->installAsMessageHandler();

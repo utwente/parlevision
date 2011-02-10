@@ -151,6 +151,7 @@ QDataStream &operator>>(QDataStream &in, CvMatData& d)
     // temporary matrix, we need to explicitly copy the data because
     // using the constructor with user allocated data disables refcounting
     cv::Mat mat( (int)rows, (int)cols, (int)type );
+    assert( (uint)(mat.dataend - mat.datastart) == length );
     memcpy( mat.datastart, data, mat.dataend - mat.datastart );
     d = mat;
     delete[] data;

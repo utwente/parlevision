@@ -614,7 +614,7 @@ void Pipeline::errorOccurred(PipelineErrorType type, PipelineElement* element)
     {
         stop();
     }
-    QString msg = QString("%1 repors error: %2").arg(element->getName()).arg(element->getErrorString());
+    QString msg = QString("%1 reports error %2").arg(element->getName()).arg(element->getErrorString());
     handleMessage(QtCriticalMsg, msg);
 }
 

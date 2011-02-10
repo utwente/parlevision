@@ -141,9 +141,11 @@ void TCPClientProducer::readData()
         in >> m_blockSize;
     }
 
-    if( m_tcpSocket->bytesAvailable() < m_blockSize )
+    qint64 bytesAvailable = m_tcpSocket->bytesAvailable();
+    if( bytesAvailable < m_blockSize )
         return;
 
+    qDebug() << "TCPClientProducer::readData() ready";
     if( !m_configured )
     {
         // send configuration request
@@ -151,7 +153,7 @@ void TCPClientProducer::readData()
     else
     {
         bool data = true;
-        int frames = 0;
+        //int frames = 0;
         while( data )
         {
             quint32 opcode;
@@ -164,7 +166,9 @@ void TCPClientProducer::readData()
                 break;
             case PROTO_FRAME:
                 if( m_configured )
+                {
                     parseFrame(in);
+                }
                 else
                 {
                     qDebug() << "Frame received while not configured.";
@@ -185,13 +189,18 @@ void TCPClientProducer::readData()
             else
             {
                 m_blockSize = 0;
+                data = false;
             }
 
             if( m_tcpSocket->bytesAvailable() < m_blockSize )
                 data = false;
 
-            if( ++frames > 10 )
-                data = false;
+//            if( ++frames > 10 )
+//            {
+//                qint64 bytes = m_tcpSocket->bytesAvailable();
+//                qDebug() << "bytes: " << bytes;
+//                data = false;
+//            }
         }
     }
 }
@@ -203,7 +212,7 @@ void TCPClientProducer::ackFrame(quint32 frameNumber)
     out.setVersion(QDataStream::Qt_4_0);
 
     // write the header
-    out << (quint32)12; // 12 bytes total size
+    out << (quint32)2*sizeof(quint32); // size of message excluding 4 bytes for size
     out << (quint32)PROTO_ACK;
     out << (quint32)frameNumber;
 
@@ -258,11 +267,14 @@ bool TCPClientProducer::parseFrame( QDataStream& in )
     if( numargs < 1 )
     {
         // no arguments sent with header, skip this frame
+        qWarning() << "Invalid frame received. Skipping.";
+
+        // skip this message
+        in.skipRawData( m_blockSize - 2*sizeof(quint32) );
         return false;
     }
 
     // parse all arguments using QVariant
-    qDebug() << "TCPClientProducer received input";
     for( unsigned int i=0; i < numargs; ++i )
     {
         QVariant v;
@@ -274,7 +286,7 @@ bool TCPClientProducer::parseFrame( QDataStream& in )
             return false;
         }
 
-        qDebug() << "Variant parsed: " << v.type();
+        //qDebug() << "Variant parsed: " << v.type();
         //if( v.type() != m_types[i] )
         //{
         //    // frame is not according to specifications
