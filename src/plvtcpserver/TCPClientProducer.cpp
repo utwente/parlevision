@@ -93,6 +93,12 @@ void TCPClientProducer::start()
     // if this fails, error is automatically called
     // by signal slots connection
     m_tcpSocket->connectToHost( address, m_port );
+
+    int timeout = 5*1000;
+    if(!m_tcpSocket->waitForConnected(timeout))
+    {
+         displayError(m_tcpSocket->error());
+    }
 }
 
 void TCPClientProducer::stop()
