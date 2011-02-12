@@ -30,10 +30,8 @@
 #include "CvMatData.h"
 #include "Plugin.h"
 #include "PipelineElement.h"
-#include "RefPtr.h"
 #include "Pipeline.h"
 #include "PipelineLoader.h"
-#include "PipelineElementFactory.h"
 
 #include <QxtLogger>
 #include <QxtXmlFileLoggerEngine>
@@ -42,11 +40,13 @@
 
 using namespace plv;
 
-Application::Application(QCoreApplication* app)
+Application::Application(QCoreApplication* app) :
+        QObject(app),
+        m_app(app),
+        m_pipelineThread(0)
 {
-    this->app = app;
-    app->setApplicationName("ParleVision");
-    app->setOrganizationName("University of Twente");
+    m_app->setApplicationName("ParleVision");
+    m_app->setOrganizationName("University of Twente");
 }
 
 Application::~Application()
@@ -63,6 +63,8 @@ void Application::init()
 
 void Application::deinit()
 {
+    if( m_pipeline != 0 )
+        removePipeline();
 }
 
 void Application::loadBuiltins()
@@ -86,7 +88,7 @@ void Application::loadBuiltins()
 
 void Application::loadPlugins()
 {
-    QDir pluginsDir(app->applicationDirPath());
+    QDir pluginsDir(m_app->applicationDirPath());
 #if defined(Q_OS_WIN)
     if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
         pluginsDir.cdUp();
@@ -149,4 +151,46 @@ void Application::initLoggers()
 
     // take over as Qt message handler
     qxtLog->installAsMessageHandler();
+}
+
+bool Application::setPipeline( const RefPtr<Pipeline>& pipeline )
+{
+    if( m_pipeline.isNotNull() || m_pipelineThread != 0 )
+        return false;
+
+    // move the pipeline to its own thread
+    QThreadEx* pipelineThread = new QThreadEx();
+    pipeline->moveToThread(pipelineThread);
+
+    // when the pipeline is done, it stops its thread
+    connect(pipeline, SIGNAL(finished()), pipelineThread, SLOT(quit()));
+
+    // when the pipeline is done it is scheduled for deletion
+    connect(pipeline, SIGNAL(finished()), pipeline, SLOT(deleteLater()));
+    connect(pipeline, SIGNAL(finished()), this, SLOT(pipelineFinished()));
+
+    connect(pipeline, SIGNAL(finished()), pipelineThread, SLOT(deleteLater()));
+
+
+    // start the event loop
+    pipelineThread->start();
+
+    m_pipeline = pipeline;
+    m_pipelineThread = pipelineThread;
+
+    return true;
+}
+
+void Application::removePipeline()
+{
+    // this will stop the pipeline, delete it and its thread
+    // and call pipelineFinished
+    m_pipeline->finish();
+}
+
+void Application::pipelineFinished()
+{
+    // pipeline and pipelinethread will delete itself with deleteLater()
+    m_pipelineThread = 0;
+    m_pipeline.set(0);
 }

@@ -38,7 +38,8 @@ CameraProducer::CameraProducer() :
         m_cameraId( 0 ),
         m_width( 640 ),
         m_height( 480 ),
-        m_lastProcessedId( 0 )
+        m_lastProcessedId( 0 ),
+        m_maxBufferSize(3)
 {
     // we have one output pin
     m_outputPin = createCvMatDataOutputPin( "output", this );
@@ -62,18 +63,16 @@ CameraProducer::~CameraProducer()
 void CameraProducer::produce()
 {
     QMutexLocker lock(&m_frameMutex);
-    assert( m_lastFrame.isValid() );
-
-    m_outputPin->put( m_lastFrame );
-
-    // clear last frame so we do not process this image twice
-    m_lastFrame = CvMatData();
+    m_outputPin->put( m_frames.takeFirst() );
 }
 
 void CameraProducer::newFrame( plv::CvMatData frame )
 {
     QMutexLocker lock(&m_frameMutex);
-    m_lastFrame = frame;
+    m_frames.append(frame);
+    if( m_frames.size() > m_maxBufferSize )
+        m_frames.removeFirst();
+
 }
 
 void CameraProducer::init()
@@ -105,5 +104,5 @@ void CameraProducer::stop()
 bool CameraProducer::readyToProduce() const
 {
     QMutexLocker lock(&m_frameMutex);
-    return( m_lastFrame.isValid() );
+    return( !m_frames.isEmpty() );
 }

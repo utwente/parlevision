@@ -13,7 +13,7 @@ namespace plvgui
     {
         Q_OBJECT
     public:
-        explicit LogWidget(QWidget *parent = 0);
+        explicit LogWidget(const QString& title, QWidget *parent = 0);
 
         virtual void initLoggerEngine();
         virtual void killLoggerEngine();

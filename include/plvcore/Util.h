@@ -23,13 +23,6 @@ namespace plv
             See http://opencv.willowgarage.com/documentation/cpp/imgproc_image_filtering.html#borderInterpolate */
         static void addDefaultBorderInterpolationTypes( Enum& e );
     };
-
-//    /** Helper class for a QThread to run its own event loop */
-//    class PLVCORE_EXPORT QThreadEx : public QThread
-//    {
-//    protected:
-//        void run() { exec(); }
-//    };
 }
 
 #endif

@@ -37,9 +37,14 @@
 using namespace plv;
 
 Pipeline::Pipeline() :
+        m_pipelineThread(0),
         m_serial( 1 ),
-        m_running( false ),
-        m_stopRequested( false )
+        m_running(false),
+        m_runQueueThreshold(10),
+        m_stepwise(false),
+        m_producersReady(false),
+        m_numFramesSinceLastFPSCalculation(0),
+        m_fps(-1.0f)
 {
 }
 
@@ -47,6 +52,28 @@ Pipeline::~Pipeline()
 {
     assert( !m_running );
     clear();
+}
+
+bool Pipeline::setThread(QThread* thread)
+{
+    assert( !isRunning() );
+    assert( thread != 0 );
+    assert( m_pipelineThread == 0 );
+
+    QMutexLocker lock(&m_pipelineMutex);
+    if( m_pipelineThread != 0 )
+        return false;
+
+    m_pipelineThread = thread;
+
+    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+    while( itr.hasNext() )
+    {
+        itr.next();
+        RefPtr<PipelineElement> elem = itr.value();
+        elem->moveToThread(thread);
+    }
+    return true;
 }
 
 int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentException)
@@ -68,8 +95,8 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
 
     // move the element to this thread
     // and this pipeline's event loop
-    // TODO
-    //element->moveToThread(this);
+    if( m_pipelineThread != 0 )
+        element->moveToThread(m_pipelineThread);
 
     // for error reporting to GUI by pipeline elements
     connect(element.getPtr(), SIGNAL(errorOccurred(PipelineErrorType, PipelineElement*)),
@@ -89,8 +116,6 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
     if( processor.isNotNull() )
     {
         m_processors.insert( id, processor );
-        connect( processor, SIGNAL(ready( PipelineElement*, unsigned int )),
-                 this, SLOT( processorReady(PipelineProcessor, unsigned int)));
     }
     return id;
 }
@@ -150,6 +175,10 @@ void Pipeline::removeElement( int id )
         {
             m_producers.remove(id);
         }
+        else if( m_processors.contains(id) )
+        {
+            m_processors.remove(id);
+        }
         emit( elementRemoved(element) );
     }
 }
@@ -160,13 +189,13 @@ void Pipeline::removeAllElements()
 
     foreach( RefPtr<PipelineElement> element, m_children )
     {
-        removeConnectionsForElement( element );
-        emit( elementRemoved(element) );
+        removeConnectionsForElement(element);
+        emit elementRemoved(element);
     }
     m_children.clear();
+    m_producers.clear();
+    m_processors.clear();
 }
-
-
 
 const Pipeline::PipelineElementMap& Pipeline::getChildren() const
 {
@@ -196,7 +225,7 @@ void Pipeline::connectPins( IOutputPin* outputPin, IInputPin* inputPin)
     emit( connectionAdded(connection) );
 }
 
-void Pipeline::disconnect( PinConnection* connection )
+void Pipeline::pinConnectionDisconnect( PinConnection* connection )
 {
     assert( connection != 0 );
     QMutexLocker lock( &m_pipelineMutex );
@@ -309,17 +338,37 @@ void Pipeline::start()
         return;
     }
 
-    // calls run method
-    QThread::start();
+    // start the heartbeat at 100Hz
+    connect(&m_heartbeat, SIGNAL(timeout()), this, SLOT(schedule()));
+    m_heartbeat.start(10);
+
+    m_running = true;
+    m_timeSinceLastFPSCalculation.start();
+    lock.unlock();
+    emit pipelineStarted();
 }
 
 void Pipeline::stop()
 {
-    //TODO more elegant solution here with QTimer
-    setStopRequested(true);
-    while( isRunning() )
+    QMutexLocker lock( &m_pipelineMutex );
+
+    // stop the heartbeat
+    m_heartbeat.stop();
+    m_heartbeat.disconnect();
+    disconnect(this, SLOT(schedule()));
+
+    // stop requested, wait while all processors finish
+    // TODO insert a timeout here for elements which will not finish
+    while( m_runQueue.size() != 0 )
     {
-        usleep(100);
+        for( int i=0; i<m_runQueue.size(); ++i )
+        {
+            PipelineElement::State state = m_runQueue.at(i).element()->getState();
+            if( state == PipelineElement::DONE || state == PipelineElement::ERROR )
+            {
+                m_runQueue.removeAt(i);
+            }
+        }
     }
 
     // TODO formalize this procedure (s of pipeline) more!
@@ -337,162 +386,261 @@ void Pipeline::stop()
         assert(!conn->hasData());
     }
 
-    emit( pipelineStopped() );
+    m_running = false;
+    lock.unlock();
+    emit pipelineStopped();
 }
 
-bool Pipeline::producersReady()
+void Pipeline::finish()
 {
     QMutexLocker lock( &m_pipelineMutex );
 
-    QMapIterator<int, PipelineProducer* > itr( m_producers );
-    bool ready = true;
-    unsigned int dummy;
-    while( itr.hasNext() && ready )
+    // stop the pipeline
+    if( m_running )
     {
-        itr.next();
-        ready = itr.value()->__ready(dummy);
+        lock.unlock();
+        stop();
+        lock.relock();
     }
-    return ready;
+
+    // clear the pipeline
+    clear();
+
+    // tell everyone we are finished
+    emit finished();
+}
+
+void Pipeline::schedule()
+{
+    QMutexLocker lock( &m_pipelineMutex );
+
+    // schedule processors
+    QList<RunItem> newItems;
+    QMapIterator<int, PipelineProcessor* > procItr( m_processors );
+    while( procItr.hasNext() )
+    {
+        procItr.next();
+        PipelineProcessor* proc = procItr.value();
+        unsigned int serial;
+        if( proc->__ready(serial) )
+        {
+            RunItem item( proc, serial );
+            newItems.append( item );
+        }
+    }
+
+    // sort on serial number, oldest first
+    qSort( newItems.begin(), newItems.end() );
+    for( QList<RunItem>::iterator listItr = newItems.begin();
+         listItr != newItems.end();
+         ++listItr )
+    {
+        RunItem& item = (*listItr);
+        item.dispatch();
+        m_runQueue.append(item);
+    }
+
+    // remove stale entries
+    if( m_runQueue.size() > m_runQueueThreshold )
+    {
+        for( int i=0; i<m_runQueue.size(); ++i )
+        {
+            PipelineElement::State state = m_runQueue.at(i).element()->getState();
+            if( state == PipelineElement::DONE )
+            {
+                m_runQueue.removeAt(i);
+            }
+            else if( state == PipelineElement::ERROR )
+            {
+                // stop on error
+                m_pipelineMutex.unlock();
+                stop();
+                emit errorOccurred(PlvFatal, m_runQueue.at(i).element());
+                return;
+            }
+        }
+    }
+
+    // only if there are not too many processors
+    // processing, call new production run
+    if( m_runQueue.size() <= m_runQueueThreshold )
+    {
+        if(!m_producersReady)
+        {
+            QMapIterator<int, PipelineProducer* > itr( m_producers );
+            bool ready = true;
+            unsigned int dummy;
+            while( itr.hasNext() && ready )
+            {
+                itr.next();
+                ready = itr.value()->__ready(dummy);
+            }
+            m_producersReady = ready;
+        }
+
+        if( m_producersReady )
+        {
+            lock.unlock();
+            step();
+            lock.relock();
+            m_producersReady = false;
+        }
+    }
 }
 
 void Pipeline::step()
 {
-    assert( producersReady() );
+    m_pipelineMutex.lock();
 
-    QMutexLocker lock( &m_pipelineMutex );
-
+    // unsigned int will wrap around
     ++m_serial;
-    /** unsigned int will wrap around, 0 is reserved */
-    if( m_serial == 0 ) ++m_serial;
 
-    QMapIterator<int, PipelineProducer* > itr( m_producers );
-    while( itr.hasNext() )
+    // dispatch producers
+    QMapIterator<int, PipelineProducer* > prodItr( m_producers );
+    while( prodItr.hasNext() )
     {
-        itr.next();
-        itr.value()->__process( m_serial );
+        prodItr.next();
+        RunItem item( prodItr.value(), m_serial );
+        item.dispatch();
+        m_runQueue.append(item);
     }
-    emit( stepTaken(m_serial) );
+    m_pipelineMutex.unlock();
+
+    ++m_numFramesSinceLastFPSCalculation;
+    int elapsed = m_timeSinceLastFPSCalculation.elapsed();
+    if( elapsed > 10000 )
+    {
+        // add one so elapsed is never 0 and
+        // we do not get div by 0
+        float fps = (m_numFramesSinceLastFPSCalculation * 1000) / elapsed;
+        m_fps = m_fps == -1.0f ? fps : m_fps * 0.9f + 0.1f * fps;
+        m_timeSinceLastFPSCalculation.restart();
+        m_numFramesSinceLastFPSCalculation = 0;
+        qDebug() << "FPS: " << (int)m_fps;
+        emit framesPerSecond(m_fps);
+    }
+
+    emit stepTaken(m_serial);
 }
 
-void Pipeline::run()
-{
-    m_running = true;
-    setStopRequested(false);
-    emit( pipelineStarted() );
-    QList<RunItem> m_runQueueu;
+//void Pipeline::run()
+//{
+//    m_running = true;
+//    setStopRequested(false);
+//    emit( pipelineStarted() );
+//    QList<RunItem> m_runQueueu;
 
-    int numFrames = 0;
-    float fps = 10.0f;
-    QTime time;
-    time.start();
+//    int numFrames = 0;
+//    float fps = 10.0f;
+//    QTime time;
+//    time.start();
 
+//    int threshold = m_children.size() * 8;
+//    bool error = false;
+//    while( !isStopRequested() && !error )
+//    {
+//        /** actual scheduling */
 
-    int threshold = m_children.size() * 8;
-    bool error = false;
-    while( !isStopRequested() && !error )
-    {
-        /** actual scheduling */
+//        // produce something
+//        if( m_runQueueu.size() <= threshold )
+//        {
+//            if( producersReady() )
+//            {
+//                m_pipelineMutex.lock();
 
-        // produce something
-        if( m_runQueueu.size() <= threshold )
-        {
-            if( producersReady() )
-            {
-                m_pipelineMutex.lock();
+//                /** unsigned int will wrap around */
+//                ++m_serial;
 
-                /** unsigned int will wrap around */
-                ++m_serial;
+//                QMapIterator<int, PipelineProducer* > itr( m_producers );
+//                while( itr.hasNext() )
+//                {
+//                    itr.next();
+//                    RunItem item( itr.value(), m_serial );
+//                    item.dispatch();
+//                    m_runQueueu.append(item);
+//                }
+//                m_pipelineMutex.unlock();
 
-                QMapIterator<int, PipelineProducer* > itr( m_producers );
-                while( itr.hasNext() )
-                {
-                    itr.next();
-                    RunItem item( itr.value(), m_serial );
-                    item.dispatch();
-                    m_runQueueu.append(item);
-                }
-                m_pipelineMutex.unlock();
+//                if( ++numFrames == 10 )
+//                {
+//                    // add one so elapsed is never 0 and
+//                    // we do not get div by 0
+//                    int elapsed = time.elapsed() + 1;
+//                    fps = fps * 0.9f + ( 1000.0f / elapsed );
+//                    time.restart();
+//                    numFrames = 0;
+//                    //qDebug() << "FPS: " << (int)fps;
+//                }
 
-                if( ++numFrames == 10 )
-                {
-                    // add one so elapsed is never 0 and
-                    // we do not get div by 0
-                    int elapsed = time.elapsed() + 1;
-                    fps = fps * 0.9f + ( 1000.0f / elapsed );
-                    time.restart();
-                    numFrames = 0;
-                    //qDebug() << "FPS: " << (int)fps;
-                }
+//                emit( stepTaken(m_serial) );
+//            }
+//            else
+//            {
+//                usleep(0);
+//            }
 
-                emit( stepTaken(m_serial) );
-            }
-            else
-            {
-                usleep(0);
-            }
+//            m_pipelineMutex.lock();
+//            QList<RunItem> newItems;
+//            QMapIterator<int, PipelineProcessor* > itr( m_processors );
+//            while( itr.hasNext() )
+//            {
+//                itr.next();
+//                PipelineProcessor* proc = itr.value();
+//                unsigned int serial;
+//                if( proc->__ready(serial) )
+//                {
+//                    RunItem item( proc, serial );
+//                    newItems.append( item );
+//                }
+//            }
 
-            m_pipelineMutex.lock();
-            QList<RunItem> newItems;
-            QMapIterator<int, PipelineProcessor* > itr( m_processors );
-            while( itr.hasNext() )
-            {
-                itr.next();
-                PipelineProcessor* proc = itr.value();
-                unsigned int serial;
-                if( proc->__ready(serial) )
-                {
-                    RunItem item( proc, serial );
-                    newItems.append( item );
-                }
-            }
+//            // sort on serial number
+//            qSort( newItems.begin(), newItems.end() );
+//            for( QList<RunItem>::iterator listItr = newItems.begin();
+//                 listItr != newItems.end();
+//                 ++listItr )
+//            {
+//                RunItem& item = (*listItr);
+//                item.dispatch();
+//                m_runQueueu.append(item);
+//            }
+//            m_pipelineMutex.unlock();
+//        }
+//        else
+//        // remove stale entries
+//        {
+//            for( int i=0; i<m_runQueueu.size(); ++i )
+//            {
+//                PipelineElement::State state = m_runQueueu.at(i).element()->getState();
+//                if( state == PipelineElement::DONE )
+//                {
+//                    m_runQueueu.removeAt(i);
+//                }
+//                else if( state == PipelineElement::ERROR )
+//                {
+//                    error = true;
+//                }
+//            }
+//        }
+//    }
 
-            // sort on serial number
-            qSort( newItems.begin(), newItems.end() );
-            for( QList<RunItem>::iterator listItr = newItems.begin();
-                 listItr != newItems.end();
-                 ++listItr )
-            {
-                RunItem& item = (*listItr);
-                item.dispatch();
-                m_runQueueu.append(item);
-            }
-            m_pipelineMutex.unlock();
-        }
-        else
-        // remove stale entries
-        {
-            for( int i=0; i<m_runQueueu.size(); ++i )
-            {
-                PipelineElement::State state = m_runQueueu.at(i).element()->getState();
-                if( state == PipelineElement::DONE )
-                {
-                    m_runQueueu.removeAt(i);
-                }
-                else if( state == PipelineElement::ERROR )
-                {
-                    error = true;
-                }
-            }
-        }
-    }
+//    // stop requested, wait while all processors finish
+//    // TODO insert a timeout here for elements which will not finish
+//    while( m_runQueueu.size() != 0 )
+//    {
+//        usleep(100);
+//        for( int i=0; i<m_runQueueu.size(); ++i )
+//        {
+//            PipelineElement::State state = m_runQueueu.at(i).element()->getState();
+//            if( state == PipelineElement::DONE || state == PipelineElement::ERROR )
+//            {
+//                m_runQueueu.removeAt(i);
+//            }
+//        }
+//    }
 
-    // stop requested, wait while all processors finish
-    // TODO insert a timeout here for elements which will not finish
-    while( m_runQueueu.size() != 0 )
-    {
-        usleep(100);
-        for( int i=0; i<m_runQueueu.size(); ++i )
-        {
-            PipelineElement::State state = m_runQueueu.at(i).element()->getState();
-            if( state == PipelineElement::DONE || state == PipelineElement::ERROR )
-            {
-                m_runQueueu.removeAt(i);
-            }
-        }
-    }
-
-    m_running = false;
-}
+//    m_running = false;
+//}
 
 /****************************************************************************/
 /* PRIVATE FUNCTIONS                                                        */

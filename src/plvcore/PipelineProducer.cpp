@@ -35,6 +35,7 @@ PipelineProducer::~PipelineProducer()
 bool PipelineProducer::__ready( unsigned int& serial )
 {
     PipelineElement::State state = getState();
+    if(state == READY) return true;
     if(( state == DONE || state == UNDEFINED ) && this->readyToProduce() )
     {
         setState( READY );

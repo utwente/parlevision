@@ -32,6 +32,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QTime>
+#include <QTimer>
 #include <QFuture>
 #include <QtConcurrentRun>
 
@@ -73,19 +74,21 @@ namespace plv
         }
     };
 
-    class PLVCORE_EXPORT Pipeline : public QThread, public RefCounted
+    class PLVCORE_EXPORT Pipeline : public QObject, public RefCounted
     {
         Q_OBJECT
+
     public:
         typedef QMap< int , RefPtr<PipelineElement> > PipelineElementMap;
         typedef QList< RefPtr<PinConnection> > PipelineConnectionsList;
 
         Pipeline();
-
-        /** Refcounted so only call this directly if you know what you are
-          * doing
-          */
         virtual ~Pipeline();
+
+        /** sets the pipeline thread. If this pipeline has any elements added to
+            it it will move all these elements to the new threads event loop. This method
+            can only be called once. Once a thread is set, there is no replacing it. */
+        bool setThread(QThread* thread);
 
         /** Initialise this Pipeline. */
         //bool init();
@@ -126,7 +129,6 @@ namespace plv
         /** Get all the PinConnections that make up this Pipeline. */
         const PipelineConnectionsList& getConnections() const;
 
-
         /** returns true if pins can be connected. Returns false if not. If not
           * possible reason contains a message stating the reason for failure
           */
@@ -146,34 +148,36 @@ namespace plv
           * TODO make faster?
           * @emits connectionRemoved(connection)
           */
-        void disconnect( PinConnection* connection );
+        void pinConnectionDisconnect( PinConnection* connection );
 
         inline bool isRunning() const { QMutexLocker lock( &m_pipelineMutex ); return m_running; }
 
-    protected:
+    private:
         PipelineElementMap m_children;
         PipelineConnectionsList m_connections;
         mutable QMutex m_pipelineMutex;
 
-        /** The QThread run loop */
-        virtual void run();
-
-        void heartbeat();
-        void step();
-
-    private:
+        QThread* m_pipelineThread;
         unsigned int m_serial;
         bool m_running; /** true when pipeline is running */
-        bool m_stopRequested;
+        QList<RunItem> m_runQueue;
+        int m_runQueueThreshold;
+
+        QTimer m_heartbeat;
+        bool m_stepwise;
+        bool m_producersReady;
+
+        QTime m_timeSinceLastFPSCalculation;
+        int m_numFramesSinceLastFPSCalculation;
+        float m_fps; /** running avg of fps */
 
         QList<PipelineElement*> m_ordering;
         QMap<int, PipelineProducer* > m_producers;
         QMap<int, PipelineProcessor* > m_processors;
 
-        inline void setStopRequested(bool value) { QMutexLocker lock( &m_pipelineMutex ); m_stopRequested = value; }
-        inline bool isStopRequested() const { QMutexLocker lock( &m_pipelineMutex ); return m_stopRequested; }
-
-        inline void setRunning(bool value) { QMutexLocker lock( &m_pipelineMutex ); m_running = value; }
+        //inline void setStopRequested(bool value) { QMutexLocker lock( &m_pipelineMutex ); m_stopRequested = value; }
+        //inline bool isStopRequested() const { QMutexLocker lock( &m_pipelineMutex ); return m_stopRequested; }
+        //inline void setRunning(bool value) { QMutexLocker lock( &m_pipelineMutex ); m_running = value; }
 
         /** does a disconnect on PinConnection. Private thread unsafe function
           * use disconnect( PinConnection* ) public function when calling
@@ -193,8 +197,6 @@ namespace plv
 
         bool generateGraphOrdering( QList<PipelineElement*>& ordering );
 
-        bool producersReady();
-
     signals:
         void elementAdded(plv::RefPtr<plv::PipelineElement>);
         void elementRemoved(plv::RefPtr<plv::PipelineElement>);
@@ -210,10 +212,17 @@ namespace plv
         void pipelineStopped();
 
         void stepTaken( unsigned int serial );
+        void producersAreReady();
+        void framesPerSecond(float);
+
+        void finished();
 
     public slots:
         void start();
         void stop();
+        void step();
+        void finish();
+        void schedule();
 
         void errorOccurred(PipelineErrorType type, PipelineElement* element);
         void handleMessage(QtMsgType type, QString msg);

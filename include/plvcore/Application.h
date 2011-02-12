@@ -25,22 +25,47 @@
 class QCoreApplication;
 
 #include "plvglobal.h"
+#include "RefPtr.h"
+
+#include <QThread>
 
 namespace plv
 {
-    class PLVCORE_EXPORT Application
+    class Pipeline;
+
+    /** Helper class for a QThread to run its own event loop */
+    class PLVCORE_EXPORT QThreadEx : public QThread
     {
+    protected:
+        void run() { exec(); }
+    };
+
+    class PLVCORE_EXPORT Application : public QObject
+    {
+        Q_OBJECT
     public:
         Application(QCoreApplication* app);
-        ~Application();
+        virtual ~Application();
         void init();
         void deinit();
+
+        bool setPipeline(const RefPtr<Pipeline>& pipeline);
+        void removePipeline();
+
+//        bool loadPipeline(const QString& filename);
+//        bool savePipeline(const QString& filename = QString());
+
+    public slots:
+        void pipelineFinished();
 
     private:
         void loadBuiltins();
         void loadPlugins();
         void initLoggers();
-        QCoreApplication* app;
+
+        QCoreApplication* m_app;
+        QThreadEx* m_pipelineThread;
+        RefPtr<Pipeline> m_pipeline;
     };
 }
 

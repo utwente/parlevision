@@ -34,9 +34,9 @@ int main(int argc, char **argv)
     plv::Application parlevision(&app);
     parlevision.init();
 
-    app.installEventFilter(new OpenEventHandler());
+    app.installEventFilter(new OpenEventHandler(&parlevision));
 
-    plvgui::MainWindow* mainWin = new plvgui::MainWindow();
+    plvgui::MainWindow* mainWin = new plvgui::MainWindow(&parlevision);
     mainWin->show();
     mainWin->showWelcomeScreen();
 

@@ -42,6 +42,7 @@ namespace Ui
 
 namespace plv
 {
+    class Application;
     class Pipeline;
 }
 
@@ -57,7 +58,7 @@ namespace plvgui
     {
         Q_OBJECT
     public:
-        MainWindow(QWidget* parent = 0);
+        MainWindow(plv::Application* app, QWidget* parent = 0);
         ~MainWindow();
 
         /** Set the pipeline for this window
@@ -89,9 +90,6 @@ namespace plvgui
           */
         void loadSettings();
         void updateRecentFileActions();
-        LibraryWidget* m_libraryWidget;
-        InspectorWidget* m_inspectorWidget;
-        plv::RefPtr<plv::Pipeline> m_pipeline;
 
     private:
         void initGUI();
@@ -108,6 +106,10 @@ namespace plvgui
         // create a new window
         MainWindow* newWindow();
 
+        LibraryWidget* m_libraryWidget;
+        InspectorWidget* m_inspectorWidget;
+        plv::RefPtr<plv::Pipeline> m_pipeline;
+        plv::Application* m_application;
         Ui::MainWindow* m_ui;
         PipelineScene* m_scene;
         bool m_documentChanged;

@@ -6,8 +6,8 @@
 
 using namespace plvgui;
 
-LogWidget::LogWidget(QWidget *parent) :
-    QDockWidget(parent),
+LogWidget::LogWidget(const QString& title, QWidget *parent) :
+    QDockWidget(title, parent),
     QxtLoggerEngine(),
     m_textEdit(new QTextEdit(this)),
     m_dateFormat("hh:mm:ss.zzz")

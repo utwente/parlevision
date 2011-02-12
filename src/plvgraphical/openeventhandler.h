@@ -23,11 +23,16 @@
 
 #include <QObject>
 
+namespace plv
+{
+    class Application;
+}
+
 class OpenEventHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit OpenEventHandler(QObject *parent = 0);
+    explicit OpenEventHandler(plv::Application* app );
 
 protected:
     bool eventFilter(QObject* obj, QEvent *event);
@@ -35,6 +40,9 @@ protected:
 signals:
 
 public slots:
+
+private:
+    plv::Application* m_app;
 
 };
 

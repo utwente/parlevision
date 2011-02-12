@@ -36,6 +36,8 @@
 #include <plvgui/RectangleDataRenderer.h>
 #include <plvgui/LogWidget.h>
 
+
+#include <plvcore/Application.h>
 #include <plvcore/Pipeline.h>
 #include <plvcore/PipelineElement.h>
 #include <plvcore/Pin.h>
@@ -52,8 +54,9 @@
 using namespace plvgui;
 using namespace plv;
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(plv::Application* app, QWidget *parent) :
     QMainWindow(parent),
+    m_application(app),
     m_ui(new Ui::MainWindow),
     m_documentChanged(false),
     m_fileName("")
@@ -99,7 +102,7 @@ void MainWindow::initGUI()
     createLibraryWidget();
     createInspectorWidget();
 
-    LogWidget* log = new LogWidget(this);
+    LogWidget* log = new LogWidget("logger", this);
     this->addDockWidget(Qt::BottomDockWidgetArea, log);
 
     // Restore window geometry and state
@@ -118,7 +121,7 @@ void MainWindow::changeEvent(QEvent *e)
         m_ui->retranslateUi(this);
         break;
     case QEvent::ActivationChange:
-        if(this->isActiveWindow() || this->m_libraryWidget->isActiveWindow())
+        if(this->isActiveWindow() || m_libraryWidget->isActiveWindow())
         {
 //            qDebug() << this << " activated";
         }
@@ -154,7 +157,7 @@ bool MainWindow::event(QEvent* event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if(this->m_documentChanged)
+    if(m_documentChanged)
     {
         offerToSave();
     }
@@ -191,7 +194,7 @@ void MainWindow::loadSettings()
 
 void MainWindow::setCurrentFile(QString fileName)
 {
-    this->m_fileName = fileName;
+    m_fileName = fileName;
 
     if(fileName.isEmpty())
         return;
@@ -207,7 +210,6 @@ void MainWindow::setCurrentFile(QString fileName)
     {
         files.removeLast();
     }
-
     settings.setValue("recentFileList", files);
 
     // update all windows
@@ -444,7 +446,7 @@ void MainWindow::loadFile(QString fileName)
 
 MainWindow* MainWindow::newWindow()
 {
-    MainWindow *other = new MainWindow();
+    MainWindow *other = new MainWindow(m_application);
     other->move(x() + 40, y() + 40);
     other->show();
     return other;
@@ -519,17 +521,17 @@ void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
 //    // and not just the cameras.
 //    connect(m_ui->actionStop, SIGNAL(triggered()),
 //            camera, SLOT(release()));
-//    connect(this->m_stopAction, SIGNAL(triggered()),
+//    connect(m_stopAction, SIGNAL(triggered()),
 //            camera, SLOT(release()));
 //
 //    connect(m_ui->actionStart, SIGNAL(triggered()),
 //            camera, SLOT(start()));
-//    connect(this->m_startAction, SIGNAL(triggered()),
+//    connect(m_startAction, SIGNAL(triggered()),
 //            camera, SLOT(start()));
 //
 //    connect(m_ui->actionPause, SIGNAL(triggered()),
 //            camera, SLOT(pause()));
-//    connect(this->m_pauseAction, SIGNAL(triggered()),
+//    connect(m_pauseAction, SIGNAL(triggered()),
 //            camera, SLOT(pause()));
 //}
 
@@ -562,11 +564,11 @@ void plvgui::MainWindow::on_actionLoad_triggered()
 
 void plvgui::MainWindow::on_actionSave_triggered()
 {
-    if(this->m_pipeline.isNull())
+    if(m_pipeline.isNull())
         return;
 
 
-    if(this->m_fileName.isEmpty())
+    if(m_fileName.isEmpty())
     {
         // reroute to Save As to acquire filename
         on_actionSaveAs_triggered();
@@ -579,7 +581,7 @@ void plvgui::MainWindow::on_actionSave_triggered()
 
 void plvgui::MainWindow::on_actionSaveAs_triggered()
 {
-    if(this->m_pipeline.isNull())
+    if(m_pipeline.isNull())
         return;
 
     // get filename
@@ -600,7 +602,7 @@ void plvgui::MainWindow::on_actionSaveAs_triggered()
 void plvgui::MainWindow::on_actionNew_triggered()
 {
     MainWindow* win = this;
-    if(this->m_pipeline.isNotNull())
+    if( m_pipeline.isNotNull() )
     {
         win = newWindow();
     }
@@ -624,15 +626,15 @@ void MainWindow::documentChanged()
 
 void plvgui::MainWindow::on_actionDelete_triggered()
 {
-    if(this->m_scene)
+    if(m_scene)
     {
-        this->m_scene->deleteSelected();
+        m_scene->deleteSelected();
     }
 }
 
 void plvgui::MainWindow::sceneSelectionChanged()
 {
-    int selectionCount = this->m_scene->selectedItems().size();
+    int selectionCount = m_scene->selectedItems().size();
 
     m_ui->actionDelete->setEnabled(selectionCount > 0);
 
@@ -647,7 +649,7 @@ void plvgui::MainWindow::sceneSelectionChanged()
     else if(selectionCount == 1)
     {
         // set inspector target
-        QGraphicsItem* selectedItem = this->m_scene->selectedItems().first();
+        QGraphicsItem* selectedItem = m_scene->selectedItems().first();
         qDebug() << "selected " << selectedItem;
         PipelineElementWidget* pew = dynamic_cast<PipelineElementWidget*>(selectedItem);
         if(pew)
@@ -664,7 +666,7 @@ void plvgui::MainWindow::sceneSelectionChanged()
 
 void MainWindow::save()
 {
-    if(this->m_pipeline.isNull() || this->m_fileName.isNull())
+    if(m_pipeline.isNull() || m_fileName.isNull())
         return;
 
     qDebug() << "Saving to " << m_fileName;
@@ -731,7 +733,7 @@ void MainWindow::handleMessage(QtMsgType type, QString msg)
 
 void MainWindow::offerToSave()
 {
-    if(this->m_pipeline.isNull())
+    if(m_pipeline.isNull())
         return;
 
     QMessageBox msgBox(QMessageBox::Question,
@@ -753,7 +755,7 @@ void MainWindow::offerToSave()
 void MainWindow::updateWindowTitle()
 {
     QString title;
-    if(this->m_fileName.isEmpty())
+    if(m_fileName.isEmpty())
     {
         title = "Untitled";
     }

@@ -22,23 +22,25 @@
 #include <QFileOpenEvent>
 
 #include <MainWindow.h>
+#include <plvcore/Application.h>
 
+using namespace plv;
 using namespace plvgui;
 
-OpenEventHandler::OpenEventHandler(QObject *parent) :
-    QObject(parent)
+OpenEventHandler::OpenEventHandler(plv::Application* app) :
+    QObject(app), m_app(app)
 {
+    assert(m_app!=0);
 }
 
 bool OpenEventHandler::eventFilter(QObject *obj, QEvent *event)
 {
     if(event->type() == QEvent::FileOpen)
     {
-        MainWindow* mainWin = new MainWindow();
+        MainWindow* mainWin = new MainWindow(m_app);
         mainWin->show();
         mainWin->loadFile(static_cast<QFileOpenEvent *>(event)->file());
         return true;
     }
-
     return QObject::eventFilter(obj, event);
 }

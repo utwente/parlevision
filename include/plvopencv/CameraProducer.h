@@ -62,13 +62,14 @@ namespace plvopencv
 
     protected:
         plv::RefPtr<OpenCVCamera> m_camera;
-        plv::CvMatData m_lastFrame;
+        QList<plv::CvMatData> m_frames;
         plv::CvMatDataOutputPin* m_outputPin;
 
         int m_cameraId;
         int m_width;
         int m_height;
         int m_lastProcessedId;
+        int m_maxBufferSize;
 
         mutable QMutex m_frameMutex;
         QWaitCondition m_frameReady;
