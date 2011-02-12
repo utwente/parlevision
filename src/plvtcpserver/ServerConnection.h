@@ -87,7 +87,7 @@ public slots:
 
 signals:
     void errorOccurred(PipelineErrorType type, const QString& msg);
-    void finished();
+    void finished(ServerConnection* connection);
 
     /** emitted when the TCP connection is waiting for the client */
     void waitingOnClient( ServerConnection* connection, bool waiting );

@@ -45,6 +45,8 @@ public slots:
     void readData();
     void sessionOpened();
     void displayError(QAbstractSocket::SocketError socketError);
+    void connected();
+    void disconnected();
 
 private:
     void ackFrame(quint32 frameNumber);

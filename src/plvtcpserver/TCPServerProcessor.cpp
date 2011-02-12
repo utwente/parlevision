@@ -24,32 +24,36 @@ TCPServerProcessor::~TCPServerProcessor()
 
 void TCPServerProcessor::init()
 {
-    if( !m_server->listen( QHostAddress::LocalHost, m_port ) )
+//    QString ipAddress;
+//    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+//
+//    // use the first non-localhost IPv4 address
+//    for (int i = 0; i < ipAddressesList.size(); ++i)
+//    {
+//        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
+//            ipAddressesList.at(i).toIPv4Address()) {
+//            ipAddress = ipAddressesList.at(i).toString();
+//            break;
+//        }
+//    }
+//
+//    // if we did not find one, use IPv4 localhost
+//    if (ipAddress.isEmpty())
+//        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
+
+    if( !m_server->listen( QHostAddress::Any, m_port ) )
     {
         error(PlvFatal, tr("Unable to start the server: %1.")
                .arg(m_server->errorString()));
         return;
     }
 
+    qDebug() << (tr("The server is running on\n\nIP: %1\nport: %2\n\n")
+                 .arg(m_server->serverAddress().toString()).arg(m_server->serverPort()));
+
     connect(m_server, SIGNAL(error(PipelineErrorType, const QString&)),
             this, SLOT(serverError(PipelineErrorType, const QString&)));
 
-    QString ipAddress;
-    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-    // use the first non-localhost IPv4 address
-    for (int i = 0; i < ipAddressesList.size(); ++i) {
-        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
-            ipAddressesList.at(i).toIPv4Address()) {
-            ipAddress = ipAddressesList.at(i).toString();
-            break;
-        }
-    }
-    // if we did not find one, use IPv4 localhost
-    if (ipAddress.isEmpty())
-        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-
-    qDebug() << (tr("The server is running on\n\nIP: %1\nport: %2\n\n")
-                 .arg(ipAddress).arg(m_server->serverPort()));
 }
 
 void TCPServerProcessor::deinit() throw ()

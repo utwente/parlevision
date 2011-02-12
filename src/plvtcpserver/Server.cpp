@@ -65,13 +65,13 @@ void Server::incomingConnection(int socketDescriptor)
     QThreadEx* connectionThread = new QThreadEx();
     connection->moveToThread(connectionThread);
 
-    // when the connection is done, it stops its thread
-    connect( connection, SIGNAL(finished()),
-             connectionThread, SLOT(quit()));
-
     // when the connection is done it is scheduled for deletion
     connect( connection, SIGNAL(finished()),
              connection, SLOT(deleteLater()));
+
+    // when the connection is done, it stops its thread
+    connect( connection, SIGNAL(finished()),
+             connectionThread, SLOT(quit()));
 
     // start the connection when its thread is started
     connect( connectionThread, SIGNAL(started()),

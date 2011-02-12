@@ -99,8 +99,9 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
         element->moveToThread(m_pipelineThread);
 
     // for error reporting to GUI by pipeline elements
+    // we used queued connections here so we do not accidentally deadlock
     connect(element.getPtr(), SIGNAL(errorOccurred(PipelineErrorType, PipelineElement*)),
-            this, SLOT(errorOccurred(PipelineErrorType, PipelineElement*)));
+            this, SLOT(errorOccurred(PipelineErrorType, PipelineElement*)), Qt::QueuedConnection );
 
     QMutexLocker lock( &m_pipelineMutex );
     m_children.insert( id, element );

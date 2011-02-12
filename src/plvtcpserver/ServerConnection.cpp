@@ -233,7 +233,7 @@ void ServerConnection::start()
     if( !m_tcpSocket->setSocketDescriptor(m_socketDescriptor) )
     {
         emit errorOccurred( PlvWarning, m_tcpSocket->errorString() );
-        emit finished();
+        emit finished(this);
         return;
     }
 }
@@ -256,11 +256,8 @@ void ServerConnection::disconnected()
     // Warning: If you need to delete the sender() of
     // this signal in a slot connected to it, use the deleteLater() function.
     m_tcpSocket->deleteLater();
-
-    //QMutexLocker lock( &m_scMutex );
     m_tcpSocket = 0;
-    //lock.unlock();
-    emit finished();
+    emit finished(this);
 }
 
 void ServerConnection::error(QAbstractSocket::SocketError socketError)

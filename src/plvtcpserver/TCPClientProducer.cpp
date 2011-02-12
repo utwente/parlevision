@@ -77,12 +77,18 @@ void TCPClientProducer::start()
     connect(m_tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(displayError(QAbstractSocket::SocketError)));
 
+    connect(m_tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(m_tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
+
     QHostAddress address( m_ipAddress );
 
     // Try to optimize the socket for low latency.
     // For a QTcpSocket this would set the TCP_NODELAY option
     // and disable Nagle's algorithm.
     m_tcpSocket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+
+
+    qDebug() << "Connecting to " << address.toString() << ":" << m_port;
 
     // if this fails, error is automatically called
     // by signal slots connection
@@ -319,6 +325,17 @@ void TCPClientProducer::sessionOpened()
     settings.beginGroup(QLatin1String("QtNetwork"));
     settings.setValue(QLatin1String("DefaultNetworkConfiguration"), id);
     settings.endGroup();
+}
+
+void TCPClientProducer::connected()
+{
+    qDebug() << "TCPClientProducer connected";
+}
+
+void TCPClientProducer::disconnected()
+{
+    qDebug() << "TCPClientProducer disconnected";
+    emit error( PlvFatal, tr("The remote host closed the connection."));
 }
 
 void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError)
