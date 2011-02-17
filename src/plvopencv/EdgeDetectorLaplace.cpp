@@ -52,23 +52,7 @@ EdgeDetectorLaplace::~EdgeDetectorLaplace()
 {
 }
 
-void EdgeDetectorLaplace::init()
-{
-}
-
-void EdgeDetectorLaplace::deinit() throw ()
-{
-}
-
-void EdgeDetectorLaplace::start()
-{
-}
-
-void EdgeDetectorLaplace::stop()
-{
-}
-
-void EdgeDetectorLaplace::process()
+bool EdgeDetectorLaplace::process()
 {
     CvMatData srcPtr = m_inputPin->get();
 
@@ -105,6 +89,8 @@ void EdgeDetectorLaplace::process()
 
     // publish output
     m_outputPin->put( dstPtr );
+
+    return true;
 }
 
 void EdgeDetectorLaplace::setApertureSize(int i)
@@ -127,5 +113,5 @@ void EdgeDetectorLaplace::setApertureSize(int i)
             i--;
     }
     m_apertureSize = i;
-    emit(apertureSizeChanged(i));
+    emit apertureSizeChanged(i);
 }

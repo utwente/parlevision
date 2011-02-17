@@ -69,7 +69,7 @@ public slots:
 signals:
     /** is fired when an error has occured in this Server or in one
         of its Connection threads */
-    void error(PipelineErrorType type, const QString& msg);
+    void onError(PlvErrorType type, const QString& msg);
 
     /** stops all connection threads and disconnects connections */
     void stopAllConnections();

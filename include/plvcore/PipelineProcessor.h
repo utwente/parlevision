@@ -27,11 +27,7 @@
 /** Utility macro for implemented pure abstract methods in sub classes */
 #define PLV_PIPELINE_PROCESSOR \
 public: \
-    virtual void init(); \
-    virtual void deinit() throw (); \
-    virtual void start(); \
-    virtual void stop(); \
-    virtual void process();
+    virtual bool process();
 
 namespace plv
 {
@@ -40,8 +36,6 @@ namespace plv
         Q_OBJECT
 
     public:
-        friend class Pipeline;
-
         PipelineProcessor();
         virtual ~PipelineProcessor();
 
@@ -49,14 +43,14 @@ namespace plv
           * change the default behaviour that the processor is ready to process when
           * there is input available on all connected synchronous pins. Warning:
           * use with caution! */
-        //virtual bool readyToProcess() const { return true; }
+        // virtual bool readyToProcess() const { return true; }
 
-        /** does the actual processing */
-        virtual void process() = 0;
+        virtual bool __ready( unsigned int& nextSerial );
+        virtual bool __process( unsigned int serial );
 
     private:
-        virtual bool __ready( unsigned int& nextSerial );
-        virtual void __process( unsigned int serial );
+        /** does the actual processing */
+        virtual bool process() = 0;
     };
 
 }

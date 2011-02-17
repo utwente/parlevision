@@ -75,7 +75,8 @@ void Application::loadBuiltins()
     qRegisterMetaType< plv::CvMatData >( "plv::CvMatData" );
     qRegisterMetaType< plv::RectangleData >( "plv::RectangleData" );
 
-    qRegisterMetaType< PipelineErrorType >( "PipelineErrorType" );
+    qRegisterMetaType< PlvMessageType >( "PlvMessageType" );
+    qRegisterMetaType< PlvErrorType >( "PlvErrorType" );
 
     // register stream operators to enable streaming of data types
     //qRegisterMetaTypeStreamOperators< plv::Data >("plv::Data");

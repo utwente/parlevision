@@ -48,12 +48,8 @@ Add::Add() :
 }
 
 Add::~Add() {}
-void Add::init() {}
-void Add::deinit() throw () {}
-void Add::start() {}
-void Add::stop() {}
 
-void Add::process()
+bool Add::process()
 {
     // get the inputs
     CvMatData in1 = m_inputPin1->get();
@@ -63,8 +59,8 @@ void Add::process()
     if( in1.channels() != in2.channels() )
     {
         QString msg = tr("Images do not have same number of channels.");
-        error(PlvFatal, msg);
-        return;
+        setError(PlvFatalError, msg);
+        return false;
     }
 
     if( in1.depth() != in2.depth() )
@@ -73,8 +69,8 @@ void Add::process()
                       "Input 1 has depth %1 and input 2 has depth %2. " )
                 .arg(CvMatData::depthToString(in1.depth()))
                 .arg(CvMatData::depthToString(in2.depth()));
-        error(PlvFatal, msg);
-        return;
+        setError(PlvFatalError, msg);
+        return false;
     }
 
     CvMatData out = CvMatData::create(in1.properties());
@@ -88,6 +84,8 @@ void Add::process()
 
     // publish the new image
     m_outputPin->put( out );
+
+    return true;
 }
 
 double Add::getAlpha() const

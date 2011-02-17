@@ -49,12 +49,8 @@ ImageFlip::ImageFlip()
 }
 
 ImageFlip::~ImageFlip() {}
-void ImageFlip::init() {}
-void ImageFlip::deinit() throw () {}
-void ImageFlip::start() {}
-void ImageFlip::stop() {}
 
-void ImageFlip::process()
+bool ImageFlip::process()
 {
     CvMatData in = m_inputPin->get();
     CvMatData out = CvMatData::create(in.properties());
@@ -70,6 +66,8 @@ void ImageFlip::process()
 
     // publish the new image
     m_outputPin->put( target );
+
+    return true;
 }
 
 void ImageFlip::setMethod( plv::Enum e )

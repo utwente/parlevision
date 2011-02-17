@@ -33,6 +33,11 @@ public:
     TCPServerProcessor();
     virtual ~TCPServerProcessor();
 
+    virtual bool init();
+    virtual bool deinit() throw();
+    virtual bool start();
+    virtual bool stop();
+
     /** propery methods */
     int getPort() const;
     virtual bool isReadyForProcessing() const;
@@ -45,7 +50,7 @@ public slots:
     void setPort(int port, bool doEmit=false );
     void stalled();
     void unstalled();
-    void serverError(PipelineErrorType type, const QString& msg);
+    void serverError(PlvErrorType type, const QString& msg);
 
 private:
     void acceptConfigurationRequest();

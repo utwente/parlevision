@@ -58,6 +58,8 @@ namespace plv
 
         enum State {
             UNDEFINED,  /* undefined or non initialized */
+            INITIALIZED,/* initialized(init method executed succesfully) */
+            STARTED,    /* started (start method executed succesfully) */
             READY,      /* ready for processing */
             DISPATCHED, /* dispatched to be processed */
             RUNNING,    /* pipeline element is processing */
@@ -92,37 +94,18 @@ namespace plv
           * mutex */
         mutable QMutex* m_propertyMutex;
 
-        /** if an error has occured, this string holds an error message.
-            Errors are also emitted using signal errorOccurred */
+        /** if an error has occured, this holds the type of error. */
+        PlvErrorType m_errorType;
+
+        /** if an error has occured, this string holds an error message. */
         QString m_errorString;
 
     public:
-        friend class Pipeline;
-        friend class RunItem;
+        //friend class Pipeline;
+        //friend class RunItem;
 
         PipelineElement();
         virtual ~PipelineElement();
-
-        /** Initialise the element so it is ready to receive process() calls.
-          * This allows for late initialization and an empty constructor.
-          * It can be called again after a call to deinit(). Use start for
-          * initialisation of resources which might be changed by the user
-          * before the pipeline is started, such as file locations.
-          * Note: when this method throws an exception,
-          * deinit() is called right after. */
-        virtual void init() = 0;
-
-        /** Deinitalizes an element and frees resources. This method is not
-          * allowed to throw an exception. It is called on PipelineElement
-          * deinitalization and if init() throws an exception. Should deallocate
-          * all resources. */
-        virtual void deinit() throw() = 0;
-
-        /** Start() and stop() are called when the pipeline is started and stopped
-          * by the user. This is useful for opening required input devices,
-          * starting threads etc. A start() call may occur again after every stop(). */
-        virtual void start() = 0;
-        virtual void stop() = 0;
 
         /** returns true if this element has no outgoing connections */
         bool isEndNode() const ;
@@ -208,18 +191,27 @@ namespace plv
           * a connection. */
         int maxInputQueueSize() const;
 
+        /** Returns the largest queue size of the connections connected
+          * to the output pins. Returns 0 when there are no output pins with
+          * a connection. */
+        int maxOutputQueueSize() const;
+
         QString getClassProperty(const char* name) const;
 
         /** Overridden from QObject::setProperty()
           * @emits propertyChanged(QString name) */
-        void setProperty(const char *name, const QVariant &value);
+        void setProperty(const char* name, const QVariant &value);
 
-        /** sets the internal error string to msg and emits errorOccured signal */
-        void error( PipelineErrorType type, const QString& msg );
+        /** sets the internal state to ERROR, error type to type and error string to msg */
+        void setError( PlvErrorType type, const QString& msg );
 
         /** returns the error string set by the error which occurred last. The
             String is empty when no error has occurred */
         QString getErrorString() const;
+
+        /** returns the error type which is set when an error occurs. Returns
+            PlvNoError when no error has occured yet */
+        PlvErrorType getErrorType() const;
 
         /** @returns the state of this element. This method is thread safe. */
         State getState();
@@ -233,27 +225,66 @@ namespace plv
         /** returs the serial number of the current process call. Not thread safe. */
         inline unsigned int getProcessingSerial() const { return m_serial; }
 
-    signals:
-        void propertyChanged(QString);
-        void errorOccurred(PipelineErrorType type, PipelineElement* element);
+        bool __init();
+        bool __deinit() throw();
+        bool __start();
+        bool __stop();
+        virtual bool __ready( unsigned int& serial )    = 0;
+        virtual bool __process( unsigned int serial )   = 0;
 
-    protected:
-        /** serial number of current processing run. */
-        unsigned int m_serial;
+        /** method which is called by the dispatcher to execute the __process() method
+            returns false on error, true on succes */
+        bool run( unsigned int serial );
 
         /** helper function for creating a partial ordering for cycle detection */
         bool visit( QList<PipelineElement*>& ordering, QSet<PipelineElement*>& visited );
 
-        /** method which is called by the dispatcher to execute the __process() method */
-        void run( unsigned int serial );
+   protected:
+        /** serial number of current processing run. */
+        unsigned int m_serial;
 
-        virtual bool __ready( unsigned int& serial )    = 0;
-        virtual void __process( unsigned int serial )   = 0;
+        /** Initialise the element so it is ready to receive process() calls.
+            This allows for late initialization and an empty constructor.
+            It can be called again after a call to deinit(). Use start for
+            initialisation of resources which might be changed by the user
+            before the pipeline is started, such as file locations.
+            Note: when this method throws an exception or returns false,
+            deinit() is called right after.
+            Default implementation just returns true. Override in own class. */
+        virtual bool init() { return true; }
+
+        /** Deinitalizes an element and frees resources. This method is not
+            allowed to throw an exception. It is called on PipelineElement
+            deinitalization and if init() throws an exception or returns false.
+            Should deallocate all resources.
+            Default implementation just returns true. Override in own class. */
+        virtual bool deinit() throw() { return true; }
+
+        /** Start() and stop() are called by the pipeline when the pipeline is
+            started or stopped. This is useful for opening required input devices,
+            starting threads etc. A start() call may occur again after every stop().
+            Default implementation just returns true. Override in own class. */
+        virtual bool start() { return true; }
+        virtual bool stop() { return true; }
 
         void startTimer();
         void stopTimer();
+
+    signals:
+        void propertyChanged(QString);
+
+        /** this signal should be emitted when an error occurs outside of the
+            usual API functions which can signal the presense of an error by
+            returning false. For instance, when a connection fails */
+        void onError(PlvErrorType type, PipelineElement* element);
+
+        /** average and last processing time of process call in milliseconds */
+        void onProcessingTimeUpdate(int avg, int last);
+
+        void onStateChange(PipelineElement::State state);
     };
 }
+Q_DECLARE_METATYPE(plv::PipelineElement::State)
 
 /** template helper function to register PipelineElements */
 template<typename PET>

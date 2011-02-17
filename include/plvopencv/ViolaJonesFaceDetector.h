@@ -37,6 +37,9 @@ namespace plvopencv
         ViolaJonesFaceDetector();
         virtual ~ViolaJonesFaceDetector();
 
+        virtual bool init();
+        virtual bool deinit() throw();
+
         /** propery methods */
         int getMinNeighbours();
         double getScaleFactor();

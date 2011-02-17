@@ -17,20 +17,24 @@ TestProducer::~TestProducer()
 {
 }
 
-void TestProducer::init()
+bool TestProducer::init()
 {
+    return true;
 }
 
-void TestProducer::deinit() throw ()
+bool TestProducer::deinit() throw ()
 {
+    return true;
 }
 
-void TestProducer::start()
+bool TestProducer::start()
 {
+    return true;
 }
 
-void TestProducer::stop()
+bool TestProducer::stop()
 {
+    return true;
 }
 
 bool TestProducer::readyToProduce() const
@@ -38,7 +42,7 @@ bool TestProducer::readyToProduce() const
     return true;
 }
 
-void TestProducer::produce()
+bool TestProducer::produce()
 {
     unsigned int serial = getProcessingSerial();
 
@@ -47,4 +51,5 @@ void TestProducer::produce()
     m_floatOut->put(float(serial));
     m_doubleOut->put(double(serial));
 
+    return true;
 }

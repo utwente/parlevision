@@ -45,22 +45,16 @@ DelayImage::~DelayImage()
 {
 }
 
-void DelayImage::init()
-{
-}
-
-void DelayImage::deinit() throw ()
-{
-}
-
-void DelayImage::start()
+bool DelayImage::start()
 {
     assert( m_images.isEmpty() );
+    return true;
 }
 
-void DelayImage::stop()
+bool DelayImage::stop()
 {
     m_images.clear();
+    return true;
 }
 
 bool DelayImage::isReadyForProcessing()
@@ -68,7 +62,7 @@ bool DelayImage::isReadyForProcessing()
     return m_images.size() >= m_steps;
 }
 
-void DelayImage::process()
+bool DelayImage::process()
 {
     // get the input image and append it to the list
     // of buffered images
@@ -82,6 +76,8 @@ void DelayImage::process()
         m_images.removeFirst();
     }
     // not enough in buffer, do not propagate anything
+
+    return true;
 }
 
 int DelayImage::getSteps() const

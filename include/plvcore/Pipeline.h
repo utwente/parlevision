@@ -55,7 +55,7 @@ namespace plv
     public:
         PipelineElement* m_element;
         unsigned int m_serial;
-        QFuture<void> m_result;
+        QFuture<bool> m_result;
 
         RunItem( PipelineElement* element, unsigned int serial ) :
                 m_element(element), m_serial(serial) {}
@@ -91,7 +91,7 @@ namespace plv
         bool setThread(QThread* thread);
 
         /** Initialise this Pipeline. */
-        //bool init();
+        bool init();
 
         /** Removes all PipelineElements and Connections from this pipeline */
         void clear();
@@ -224,7 +224,8 @@ namespace plv
         void finish();
         void schedule();
 
-        void errorOccurred(PipelineErrorType type, PipelineElement* element);
+        void pipelineElementError( PlvErrorType type, PipelineElement* ple );
+
         void handleMessage(QtMsgType type, QString msg);
     };
 }

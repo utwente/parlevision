@@ -36,23 +36,7 @@ Snapshot::~Snapshot()
 {
 }
 
-void Snapshot::init()
-{
-}
-
-void Snapshot::deinit() throw ()
-{
-}
-
-void Snapshot::start()
-{
-}
-
-void Snapshot::stop()
-{
-}
-
-void Snapshot::process()
+bool Snapshot::process()
 {
     CvMatData in = m_inputPin->get();
 
@@ -64,6 +48,8 @@ void Snapshot::process()
         m_makeSnapshot = false;
     }
     m_outputPin->put( in );
+
+    return true;
 }
 
 /** propery methods */

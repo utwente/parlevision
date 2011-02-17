@@ -149,22 +149,6 @@ ImageColorConvert::~ImageColorConvert()
 {
 }
 
-void ImageColorConvert::init()
-{
-}
-
-void ImageColorConvert::deinit() throw ()
-{
-}
-
-void ImageColorConvert::start()
-{
-}
-
-void ImageColorConvert::stop()
-{
-}
-
 int ImageColorConvert::getInChannels( int code )
 {
     int inChannels;
@@ -362,7 +346,7 @@ void ImageColorConvert::setConversionType(plv::Enum e)
     emit( conversionTypeChanged(e) );
 }
 
-void ImageColorConvert::process()
+bool ImageColorConvert::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
@@ -384,4 +368,6 @@ void ImageColorConvert::process()
 
     // publish the new image
     m_outputPin->put( out );
+
+    return true;
 }

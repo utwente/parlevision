@@ -23,13 +23,23 @@
 
 #include <QMetaType>
 
-enum PipelineErrorType {
-    PlvFatal,   /* fatal errors will change this element's state to ERROR and will stop the pipeline and notify users of the error */
-    PlvWarning, /* warnings will not stop the pipeline but will notifiy users */
-    PlvDebug,   /* debug will only inform users when running in debug mode */
-    PlvNotify   /* notify the user also when not in debug mode */
+enum PlvErrorType {
+    PlvNoError,
+    PlvNonFatalError,
+    PlvInitError,
+    PlvResourceError,
+    PlvExceptionThrownError,
+    PlvFatalError,
 };
-Q_DECLARE_METATYPE( PipelineErrorType );
+Q_DECLARE_METATYPE( PlvErrorType );
+
+enum PlvMessageType {
+    PlvDebugMessage,
+    PlvNotifyMessage,
+    PlvWarningMessage,
+    PlvFatalMessage
+};
+Q_DECLARE_METATYPE( PlvMessageType );
 
 // Generic helper definitions for shared library support
 // Adapted from http://gcc.gnu.org/wiki/Visibility

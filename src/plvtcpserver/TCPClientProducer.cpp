@@ -21,7 +21,7 @@ TCPClientProducer::~TCPClientProducer()
 {
 }
 
-void TCPClientProducer::init()
+bool TCPClientProducer::init()
 {
     assert( m_networkSession == 0 );
     assert( m_tcpSocket != 0 );
@@ -49,9 +49,10 @@ void TCPClientProducer::init()
         qDebug() << "Opening network session.";
         m_networkSession->open();
     }
+    return true;
 }
 
-void TCPClientProducer::deinit() throw ()
+bool TCPClientProducer::deinit() throw ()
 {
     if( m_networkSession )
     {
@@ -59,18 +60,20 @@ void TCPClientProducer::deinit() throw ()
         delete m_networkSession;
         m_networkSession = 0;
     }
+
+    return true;
 }
 
-void TCPClientProducer::start()
+bool TCPClientProducer::start()
 {
     // connect to server
 
     // if we did not find one, use IPv4 localhost
-    if ( m_ipAddress.isEmpty() )
+    if( m_ipAddress.isEmpty() )
     {
-
         m_ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-        error(PlvWarning, "No valid IP address given, using localhost");
+        qWarning() << "No valid IP address given, using localhost";
+        m_ipAddress = QHostAddress::LocalHost;
     }
 
     connect(m_tcpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
@@ -87,7 +90,6 @@ void TCPClientProducer::start()
     // and disable Nagle's algorithm.
     m_tcpSocket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
 
-
     qDebug() << "Connecting to " << address.toString() << ":" << m_port;
 
     // if this fails, error is automatically called
@@ -97,14 +99,25 @@ void TCPClientProducer::start()
     int timeout = 5*1000;
     if(!m_tcpSocket->waitForConnected(timeout))
     {
-         displayError(m_tcpSocket->error());
+        displayError(m_tcpSocket->error(), false);
+        return false;
     }
+    return true;
 }
 
-void TCPClientProducer::stop()
+bool TCPClientProducer::stop()
 {
     // disconnect from server
-    m_tcpSocket->disconnect();
+    qDebug() << "Disconnecting ... ";
+    m_tcpSocket->disconnectFromHost();
+
+    int timeout = 5*1000;
+    if(!m_tcpSocket->waitForDisconnected(timeout))
+    {
+        displayError(m_tcpSocket->error(), false);
+        return false;
+    }
+    return true;
 }
 
 bool TCPClientProducer::readyToProduce() const
@@ -113,7 +126,7 @@ bool TCPClientProducer::readyToProduce() const
     return !m_frameList.isEmpty();
 }
 
-void TCPClientProducer::produce()
+bool TCPClientProducer::produce()
 {
     // get data from queue
     QMutexLocker lock( &m_frameListMutex );
@@ -139,6 +152,7 @@ void TCPClientProducer::produce()
             }
         }
     }
+    return true;
 }
 
 void TCPClientProducer::readData()
@@ -230,7 +244,7 @@ void TCPClientProducer::ackFrame(quint32 frameNumber)
 
     if( m_tcpSocket->write(bytes) == -1 )
     {
-        error( PlvFatal, m_tcpSocket->errorString() );
+        setError( PlvFatalError, m_tcpSocket->errorString() );
     }
 }
 
@@ -341,30 +355,38 @@ void TCPClientProducer::connected()
 void TCPClientProducer::disconnected()
 {
     qDebug() << "TCPClientProducer disconnected";
-    emit error( PlvFatal, tr("The remote host closed the connection."));
+    setError(PlvFatalError, tr("The remote host closed the connection."));
 }
 
-void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError)
+void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError, bool signal)
 {
+    QString msg;
+    PlvErrorType type = PlvNoError;
+
     switch (socketError)
     {
     case QAbstractSocket::RemoteHostClosedError:
-        error(PlvFatal, tr("The remote host closed the connection."));
+        type = PlvFatalError;
+        msg = tr("The remote host closed the connection.");
         break;
     case QAbstractSocket::HostNotFoundError:
-        error(PlvFatal, tr("The host was not found. Please check the "
-                 "host name and port settings."));
+        type = PlvFatalError;
+        msg = tr("The host was not found. Please check the "
+                 "host name and port settings.");
         break;
     case QAbstractSocket::ConnectionRefusedError:
-        error(PlvFatal, tr("The connection was refused by the peer. "
-                  "Make sure the Parlevision server is running, "
-                  "and check that the host name and port "
-                  "settings are correct."));
+        type = PlvFatalError;
+        msg = tr("The connection was refused by the peer. "
+                 "Make sure the Parlevision server is running, "
+                 "and check that the host name and port "
+                 "settings are correct.");
         break;
     default:
-       error(PlvFatal, tr("The following error occurred: %1.")
-              .arg(m_tcpSocket->errorString()));
+       type = PlvFatalError;
+       msg = tr("The following error occurred: %1.").arg(m_tcpSocket->errorString());
     }
+    setError(type,msg);
+    if(signal) emit onError(type,this);
 }
 
 /** propery methods */

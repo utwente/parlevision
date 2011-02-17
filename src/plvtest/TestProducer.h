@@ -20,6 +20,11 @@ public:
     TestProducer();
     virtual ~TestProducer();
 
+    virtual bool init();
+    virtual bool deinit() throw();
+    virtual bool start();
+    virtual bool stop();
+
 signals:
 
 public slots:

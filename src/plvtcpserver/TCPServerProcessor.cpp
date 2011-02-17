@@ -22,52 +22,57 @@ TCPServerProcessor::~TCPServerProcessor()
 {
 }
 
-void TCPServerProcessor::init()
+bool TCPServerProcessor::init()
 {
-//    QString ipAddress;
-//    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-//
-//    // use the first non-localhost IPv4 address
-//    for (int i = 0; i < ipAddressesList.size(); ++i)
-//    {
-//        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
-//            ipAddressesList.at(i).toIPv4Address()) {
-//            ipAddress = ipAddressesList.at(i).toString();
-//            break;
-//        }
-//    }
-//
-//    // if we did not find one, use IPv4 localhost
-//    if (ipAddress.isEmpty())
-//        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
+    QString ipAddress;
+    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+
+    // use the first non-localhost IPv4 address
+    for (int i = 0; i < ipAddressesList.size(); ++i)
+    {
+        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
+            ipAddressesList.at(i).toIPv4Address()) {
+            ipAddress = ipAddressesList.at(i).toString();
+            break;
+        }
+    }
+
+    // if we did not find one, use IPv4 localhost
+    if (ipAddress.isEmpty())
+        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
 
     if( !m_server->listen( QHostAddress::Any, m_port ) )
     {
-        error(PlvFatal, tr("Unable to start the server: %1.")
-               .arg(m_server->errorString()));
-        return;
+        QString msg = tr("Unable to start the server: %1.").arg(m_server->errorString());
+        setError(PlvFatalError, msg);
+        return false;
     }
 
-    qDebug() << (tr("The server is running on\n\nIP: %1\nport: %2\n\n")
-                 .arg(m_server->serverAddress().toString()).arg(m_server->serverPort()));
+    // TODO notify user in normal way
+    qDebug() << tr("The server is running on\nIP: %1\nport: %2\n")
+                .arg(ipAddress).arg(m_port);
 
-    connect(m_server, SIGNAL(error(PipelineErrorType, const QString&)),
-            this, SLOT(serverError(PipelineErrorType, const QString&)));
+    connect(m_server, SIGNAL(onError(PlvErrorType, const QString&)),
+            this, SLOT(serverError(PlvErrorType, const QString&)));
 
+    return true;
 }
 
-void TCPServerProcessor::deinit() throw ()
+bool TCPServerProcessor::deinit() throw ()
 {
     m_server->disconnectAll();
     m_server->close();
+    return true;
 }
 
-void TCPServerProcessor::start()
+bool TCPServerProcessor::start()
 {
+    return true;
 }
 
-void TCPServerProcessor::stop()
+bool TCPServerProcessor::stop()
 {
+    return true;
 }
 
 bool TCPServerProcessor::isReadyForProcessing() const
@@ -76,7 +81,7 @@ bool TCPServerProcessor::isReadyForProcessing() const
     return !m_waiting;
 }
 
-void TCPServerProcessor::process()
+bool TCPServerProcessor::process()
 {
     QVariantList frameData;
 
@@ -92,6 +97,7 @@ void TCPServerProcessor::process()
     }
     quint32 frameNumber = (quint32)getProcessingSerial();
     emit sendFrame(frameNumber, frameData);
+    return true;
 }
 
 void TCPServerProcessor::acceptConfigurationRequest()
@@ -125,9 +131,10 @@ void TCPServerProcessor::unstalled()
     m_waiting = false;
 }
 
-void TCPServerProcessor::serverError(PipelineErrorType type, const QString& msg)
+void TCPServerProcessor::serverError(PlvErrorType type, const QString& msg)
 {
     // propagate to pipeline element error handling
-    this->error(type,msg);
+    setError(type,msg);
+    emit onError(type,this);
 }
 

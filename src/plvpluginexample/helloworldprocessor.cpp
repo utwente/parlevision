@@ -24,23 +24,27 @@ HelloWorldProcessor::~HelloWorldProcessor()
 {
 }
 
-void HelloWorldProcessor::init()
+bool HelloWorldProcessor::init()
 {
+    return true;
 }
 
-void HelloWorldProcessor::deinit() throw ()
+bool HelloWorldProcessor::deinit() throw ()
 {
+    return true;
 }
 
-void HelloWorldProcessor::start()
+bool HelloWorldProcessor::start()
 {
+    return true;
 }
 
-void HelloWorldProcessor::stop()
+bool HelloWorldProcessor::stop()
 {
+    return true;
 }
 
-void HelloWorldProcessor::process()
+bool HelloWorldProcessor::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
@@ -61,4 +65,6 @@ void HelloWorldProcessor::process()
 
     // update our "frame counter"
     this->setSomeInt(this->getSomeInt()+1);
+
+    return true;
 }

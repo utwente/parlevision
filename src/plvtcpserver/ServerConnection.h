@@ -86,7 +86,7 @@ public slots:
     void error(QAbstractSocket::SocketError socketError);
 
 signals:
-    void errorOccurred(PipelineErrorType type, const QString& msg);
+    void onError(const QString& msg);
     void finished(ServerConnection* connection);
 
     /** emitted when the TCP connection is waiting for the client */

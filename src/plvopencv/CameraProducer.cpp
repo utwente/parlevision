@@ -60,10 +60,11 @@ CameraProducer::~CameraProducer()
 {
 }
 
-void CameraProducer::produce()
+bool CameraProducer::produce()
 {
     QMutexLocker lock(&m_frameMutex);
     m_outputPin->put( m_frames.takeFirst() );
+    return true;
 }
 
 void CameraProducer::newFrame( plv::CvMatData frame )
@@ -75,30 +76,33 @@ void CameraProducer::newFrame( plv::CvMatData frame )
 
 }
 
-void CameraProducer::init()
+bool CameraProducer::init()
 {
     if( !m_camera->init(m_cameraId) )
     {
-        QString msg = QString("Camera with id %1 failed to initialise")
-                      .arg(m_cameraId);
-        throw PlvRuntimeException(msg, __FILE__, __LINE__ );
+        setError( PlvInitError, tr("Camera with id %1 failed to initialise").arg(m_cameraId) );
+        return false;
     }
     m_camera->setDimensions(m_width, m_height);
+    return true;
 }
 
-void CameraProducer::deinit() throw()
+bool CameraProducer::deinit() throw()
 {
     m_camera->release();
+    return true;
 }
 
-void CameraProducer::start()
+bool CameraProducer::start()
 {
     m_camera->start();
+    return true;
 }
 
-void CameraProducer::stop()
+bool CameraProducer::stop()
 {
     m_camera->pause();
+    return true;
 }
 
 bool CameraProducer::readyToProduce() const

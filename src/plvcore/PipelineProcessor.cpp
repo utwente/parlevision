@@ -39,31 +39,29 @@ PipelineProcessor::~PipelineProcessor()
 
 bool PipelineProcessor::__ready( unsigned int& nextSerial )
 {
-    assert( getState() != READY ); // shouldn't be called twice
     assert( requiredPinsConnected() );
 
-    // see if data is available and the processor is ready for processing
     PipelineElement::State state = getState();
-    if( state == DONE || state == UNDEFINED )
+
+    if(state == READY)
+        return true;
+    else if( state >= DISPATCHED )
+        return false;
+    // see if data is available and the processor is ready for processing
+    else if( dataAvailableOnInputPins(nextSerial) )
     {
-        if( dataAvailableOnInputPins( nextSerial ) )
-        {
-            setState( READY );
-            return true;
-        }
+        setState(READY);
+        return true;
     }
     return false;
 }
 
-void PipelineProcessor::__process( unsigned int serial )
+bool PipelineProcessor::__process( unsigned int serial )
 {
     assert( requiredPinsConnected() );
     assert( getState() == RUNNING );
 
     QMutexLocker lock( &m_pleMutex );
-
-    // we do not want properties to change in the middle of an operation
-    QMutexLocker lock2( m_propertyMutex );
 
     // set the serial number
     m_serial = serial;
@@ -85,7 +83,13 @@ void PipelineProcessor::__process( unsigned int serial )
     }
 
     // do the actual processing
-    this->process();
+    lock.unlock();
+
+    // we do not want properties to change in the middle of an operation
+    QMutexLocker lock2( m_propertyMutex );
+    bool retval = this->process();
+    lock2.unlock();
+    lock.relock();
 
     // call post on input pins
     for( InputPinMap::iterator itr = m_inputPins.begin();
@@ -102,6 +106,16 @@ void PipelineProcessor::__process( unsigned int serial )
         IOutputPin* out = itr->second.getPtr();
         out->post();
     }
+    lock.unlock();
+
+    if(!retval && getState() != ERROR)
+    {
+        QString msg = tr("Method process() on PipelineProcessor %1 returned false "
+                         "but error state was not set.").arg(this->getName());
+        qWarning() << msg;
+    }
+
+    return retval;
 }
 
 

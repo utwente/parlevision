@@ -8,7 +8,6 @@
 
 namespace plv
 {
-    class OpenCVImage;
     class CvMatDataInputPin;
     class CvMatDataOutputPin;
 }
@@ -31,6 +30,13 @@ class HelloWorldProcessor : public plv::PipelineProcessor
 public:
     HelloWorldProcessor();
     virtual ~HelloWorldProcessor();
+
+    /** these methods can be overridden if they are necessary for
+        your processor */
+    virtual bool init();
+    virtual bool deinit() throw();
+    virtual bool start();
+    virtual bool stop();
 
     /** propery methods */
     int getSomeInt() { return m_someInt; }

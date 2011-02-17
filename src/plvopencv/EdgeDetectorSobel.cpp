@@ -56,22 +56,6 @@ EdgeDetectorSobel::~EdgeDetectorSobel()
 {
 }
 
-void EdgeDetectorSobel::init()
-{
-}
-
-void EdgeDetectorSobel::deinit() throw ()
-{
-}
-
-void EdgeDetectorSobel::start()
-{
-}
-
-void EdgeDetectorSobel::stop()
-{
-}
-
 /**
 Calculates the first, second, third or mixed image derivatives using an extended Sobel operator
 Parameters:
@@ -86,7 +70,7 @@ Parameters:
     * delta – The optional delta value, added to the results prior to storing them in dst
     * borderType – The pixel extrapolation method, see borderInterpolate()
 */
-void EdgeDetectorSobel::process()
+bool EdgeDetectorSobel::process()
 {
     CvMatData srcPtr = m_inputPin->get();
     CvMatData dstPtr = CvMatData::create( srcPtr.properties() );
@@ -108,6 +92,8 @@ void EdgeDetectorSobel::process()
 
     // publish output
     m_outputPin->put( dstPtr );
+
+    return true;
 }
 
 /**** getters ******/

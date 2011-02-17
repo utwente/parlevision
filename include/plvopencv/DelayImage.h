@@ -54,6 +54,9 @@ namespace plvopencv
         DelayImage();
         virtual ~DelayImage();
 
+        virtual bool start();
+        virtual bool stop();
+
         virtual bool isReadyForProcessing();
 
         /** propery methods */

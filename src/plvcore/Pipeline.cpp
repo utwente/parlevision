@@ -50,8 +50,10 @@ Pipeline::Pipeline() :
 
 Pipeline::~Pipeline()
 {
-    assert( !m_running );
-    clear();
+    assert(!m_running );
+    assert(m_children.isEmpty());
+    assert(m_processors.isEmpty());
+    assert(m_producers.isEmpty());
 }
 
 bool Pipeline::setThread(QThread* thread)
@@ -67,7 +69,7 @@ bool Pipeline::setThread(QThread* thread)
     m_pipelineThread = thread;
 
     QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
-    while( itr.hasNext() )
+    while(itr.hasNext())
     {
         itr.next();
         RefPtr<PipelineElement> elem = itr.value();
@@ -100,12 +102,13 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
 
     // for error reporting to GUI by pipeline elements
     // we used queued connections here so we do not accidentally deadlock
-    connect(element.getPtr(), SIGNAL(errorOccurred(PipelineErrorType, PipelineElement*)),
-            this, SLOT(errorOccurred(PipelineErrorType, PipelineElement*)), Qt::QueuedConnection );
+    connect(element.getPtr(), SIGNAL(onError(PlvErrorType, PipelineElement*)),
+            this, SLOT(pipelineElementError(PlvErrorType, PipelineElement*)),
+            Qt::QueuedConnection );
 
     QMutexLocker lock( &m_pipelineMutex );
     m_children.insert( id, element );
-    emit( elementAdded(element) );
+    emit elementAdded(element);
 
     RefPtr<PipelineProducer> producer = ref_ptr_dynamic_cast<PipelineProducer>(element);
     if( producer.isNotNull() )
@@ -233,39 +236,54 @@ void Pipeline::pinConnectionDisconnect( PinConnection* connection )
     threadUnsafeDisconnect( connection );
 }
 
-//bool Pipeline::init()
-//{
-//    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+bool Pipeline::init()
+{
+    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+    QSet<PipelineElement*> initialized;
+    while( itr.hasNext() )
+    {
+        itr.next();
+        RefPtr<PipelineElement> element = itr.value();
 
-//    QList<QString> errors;
-//    if( itr.hasNext() )
-//    {
-//        itr.next();
-//        RefPtr<PipelineElement> element = itr.value();
-//        if( !m_initialized.contains( element->getId() ) )
-//        {
-//            try
-//            {
-//                element->init();
-//                m_initialized.insert(element->getId());
-//            }
-//            catch( PipelineException& e )
-//            {
-//                errors.append( element->getName() + ": " + e.what() );
-//            }
-//        }
-//    }
+        PlvErrorType errType = PlvNoError;
+        QString msg;
 
-//    if( !errors.empty() )
-//    {
-//        foreach( const QString& str, errors )
-//        {
-//            errorOccurred( str );
-//        }
-//        return false;
-//    }
-//    return true;
-//}
+        try
+        {
+            if( !element->__init() )
+            {
+                errType = element->getErrorType();
+                msg = tr("Error in PipelineElement %1: %2")
+                      .arg(element->getName())
+                      .arg(element->getErrorString());
+            }
+        }
+        catch( PlvException& e )
+        {
+            errType = PlvExceptionThrownError;
+            msg = tr("Error in PipelineElement %1: %2").arg(element->getName()).arg(e.what());
+        }
+        catch( ... )
+        {
+            errType = PlvExceptionThrownError;
+            msg = tr("Unknown exception caught in PipelineElement %1" ).arg(element->getName());
+        }
+
+        if( errType != PlvNoError )
+        {
+            element->__deinit();
+            emit handleMessage( QtFatalMsg, msg );
+
+            foreach( PipelineElement* element, initialized )
+            {
+                element->__deinit();
+            }
+            return false;
+        }
+        initialized.insert(element.getPtr());
+    }
+    return true;
+}
 
 void Pipeline::clear()
 {
@@ -284,6 +302,13 @@ void Pipeline::clear()
 
 void Pipeline::start()
 {
+    // TODO call init somwhere else
+    if( !this->init() )
+    {
+        // error already handled in init
+        return;
+    }
+
     QMutexLocker lock( &m_pipelineMutex );
 
     // check if all required pins of all elements are connected
@@ -291,18 +316,17 @@ void Pipeline::start()
     {
         if( !element->requiredPinsConnected() )
         {
-            QString msg = element->getName() % " required pins are not all connected.";
-            handleMessage(QtWarningMsg, msg);
+            QString msg = tr("PipelineElement's' %1 required pins are not all connected.").arg(element->getName());
+            handleMessage(QtFatalMsg, msg);
             return;
         }
     }
 
+    // check for cycles
     if( !generateGraphOrdering( m_ordering ) )
     {
-        QString msg = "Cycle detected in pipeline graph";
-        handleMessage( QtWarningMsg, msg );
-        lock.unlock();
-        stop();
+        QString msg = tr("Cycle detected in pipeline graph");
+        handleMessage(QtFatalMsg, msg);
         return;
     }
 
@@ -315,15 +339,14 @@ void Pipeline::start()
         RefPtr<PipelineElement> element = itr.value();
         try
         {
-            element->init();
-            element->start();
+            element->__start();
             started.insert( element.getPtr() );
         }
         catch( PlvException& e )
         {
             QString msg = element->getName() % ": " % e.what();
             handleMessage(QtCriticalMsg, msg);
-            element->deinit();
+            element->__deinit();
             error = true;
         }
     }
@@ -333,8 +356,8 @@ void Pipeline::start()
     {
         foreach( PipelineElement* element, started )
         {
-            element->stop();
-            element->deinit();
+            element->__stop();
+            element->__deinit();
         }
         return;
     }
@@ -344,6 +367,7 @@ void Pipeline::start()
     m_heartbeat.start(10);
 
     m_running = true;
+    m_runQueueThreshold = m_processors.size();
     m_timeSinceLastFPSCalculation.start();
     lock.unlock();
     emit pipelineStarted();
@@ -352,6 +376,8 @@ void Pipeline::start()
 void Pipeline::stop()
 {
     QMutexLocker lock( &m_pipelineMutex );
+
+    assert(m_running);
 
     // stop the heartbeat
     m_heartbeat.stop();
@@ -364,10 +390,12 @@ void Pipeline::stop()
     {
         for( int i=0; i<m_runQueue.size(); ++i )
         {
-            PipelineElement::State state = m_runQueue.at(i).element()->getState();
+            PipelineElement* element = m_runQueue.at(i).element();
+            PipelineElement::State state = element->getState();
             if( state == PipelineElement::DONE || state == PipelineElement::ERROR )
             {
                 m_runQueue.removeAt(i);
+                element->setState(PipelineElement::STARTED);
             }
         }
     }
@@ -377,8 +405,8 @@ void Pipeline::stop()
     while( itr.hasNext() )
     {
         itr.next();
-        itr.value()->stop();
-        itr.value()->deinit();
+        itr.value()->__stop();
+        itr.value()->__deinit();
     }
 
     foreach(RefPtr<PinConnection> conn, m_connections)
@@ -415,6 +443,29 @@ void Pipeline::schedule()
 {
     QMutexLocker lock( &m_pipelineMutex );
 
+    // remove stale entries
+    //if( m_runQueue.size() > m_runQueueThreshold )
+    //{
+        for( int i=0; i<m_runQueue.size(); ++i )
+        {
+            PipelineElement* ple = m_runQueue.at(i).element();
+            PipelineElement::State state = ple->getState();
+            if( state == PipelineElement::DONE )
+            {
+                m_runQueue.removeAt(i);
+                ple->setState(PipelineElement::STARTED);
+            }
+            else if(state == PipelineElement::ERROR)
+            {
+                // stop on error
+                m_pipelineMutex.unlock();
+                stop();
+                emit pipelineMessage(QtFatalMsg, m_runQueue.at(i).element()->getErrorString() );
+                return;
+            }
+        }
+    //}
+
     // schedule processors
     QList<RunItem> newItems;
     QMapIterator<int, PipelineProcessor* > procItr( m_processors );
@@ -441,30 +492,9 @@ void Pipeline::schedule()
         m_runQueue.append(item);
     }
 
-    // remove stale entries
-    if( m_runQueue.size() > m_runQueueThreshold )
-    {
-        for( int i=0; i<m_runQueue.size(); ++i )
-        {
-            PipelineElement::State state = m_runQueue.at(i).element()->getState();
-            if( state == PipelineElement::DONE )
-            {
-                m_runQueue.removeAt(i);
-            }
-            else if( state == PipelineElement::ERROR )
-            {
-                // stop on error
-                m_pipelineMutex.unlock();
-                stop();
-                emit errorOccurred(PlvFatal, m_runQueue.at(i).element());
-                return;
-            }
-        }
-    }
-
     // only if there are not too many processors
     // processing, call new production run
-    if( m_runQueue.size() <= m_runQueueThreshold )
+    if( m_runQueue.size() == 0 )
     {
         if(!m_producersReady)
         {
@@ -513,8 +543,8 @@ void Pipeline::step()
     {
         // add one so elapsed is never 0 and
         // we do not get div by 0
-        float fps = (m_numFramesSinceLastFPSCalculation * 1000) / elapsed;
-        m_fps = m_fps == -1.0f ? fps : m_fps * 0.9f + 0.1f * fps;
+        m_fps = (m_numFramesSinceLastFPSCalculation * 1000) / elapsed;
+        //m_fps = m_fps == -1.0f ? fps : m_fps * 0.9f + 0.1f * fps;
         m_timeSinceLastFPSCalculation.restart();
         m_numFramesSinceLastFPSCalculation = 0;
         qDebug() << "FPS: " << (int)m_fps;
@@ -757,14 +787,27 @@ bool Pipeline::generateGraphOrdering( QList<PipelineElement*>& ordering )
     return true;
 }
 
-void Pipeline::errorOccurred(PipelineErrorType type, PipelineElement* element)
+void Pipeline::pipelineElementError( PlvErrorType type, PipelineElement* ple )
 {
-    if(type == PlvFatal)
+    QtMsgType qtType = QtDebugMsg;
+
+    switch(type)
     {
-        stop();
+    case PlvNoError:
+    case PlvNonFatalError:
+        break;
+    case PlvInitError:
+    case PlvResourceError:
+    case PlvExceptionThrownError:
+    case PlvFatalError:
+        qtType = QtFatalMsg;
+        break;
+    default:
+        break;
     }
-    QString msg = QString("%1 reports error %2").arg(element->getName()).arg(element->getErrorString());
-    handleMessage(QtCriticalMsg, msg);
+
+    QString msg = ple->getErrorString();
+    handleMessage(qtType, msg);
 }
 
 void Pipeline::handleMessage(QtMsgType type, QString msg)

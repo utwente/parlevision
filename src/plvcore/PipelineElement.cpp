@@ -40,7 +40,11 @@ using namespace plv;
 PipelineElement::PipelineElement() :
         m_id( -1 ),
         m_state( UNDEFINED ),
-        m_propertyMutex( new QMutex( QMutex::Recursive ) )
+        m_avgProcessingTime(0),
+        m_lastProcesingTime(0),
+        m_propertyMutex( new QMutex( QMutex::Recursive ) ),
+        m_errorType(PlvNoError),
+        m_errorString("")
 {
 }
 
@@ -287,7 +291,7 @@ bool PipelineElement::dataAvailableOnInputPins( unsigned int& nextSerial )
         // this should never happen obviously
         if( !valid )
         {
-            error( PlvFatal, "Input corrupted" );
+            setError( PlvFatalError, "Input corrupted" );
             return false;
         }
 
@@ -435,6 +439,23 @@ int PipelineElement::maxInputQueueSize() const
     return maxQueueSize;
 }
 
+int PipelineElement::maxOutputQueueSize() const
+{
+    QMutexLocker lock( &m_pleMutex );
+
+    int maxQueueSize = 0;
+
+    for( PipelineElement::OutputPinMap::const_iterator itr = m_outputPins.begin();
+        itr!=m_outputPins.end(); ++itr )
+    {
+        IOutputPin* outputPin = itr->second;
+        int queueSize = outputPin->maxDataOnConnection();
+        if( queueSize > maxQueueSize )
+            maxQueueSize = queueSize;
+    }
+    return maxQueueSize;
+}
+
 
 QString PipelineElement::getClassProperty(const char* name) const
 {
@@ -451,16 +472,24 @@ void PipelineElement::setProperty(const char *name, const QVariant &value)
     emit(propertyChanged(QString(name)));
 }
 
-void PipelineElement::error( PipelineErrorType type, const QString& msg )
+void PipelineElement::setError( PlvErrorType type, const QString& msg )
 {
+    setState(ERROR);
+
+    QMutexLocker lock( &m_pleMutex );
     m_errorString = msg;
-    if( type <= PlvFatal )
-        setState(ERROR);
-    emit(errorOccurred(type, this));
+    m_errorType = type;
+}
+
+PlvErrorType PipelineElement::getErrorType() const
+{
+    QMutexLocker lock( &m_pleMutex );
+    return m_errorType;
 }
 
 QString PipelineElement::getErrorString() const
 {
+    QMutexLocker lock( &m_pleMutex );
     return m_errorString;
 }
 
@@ -511,6 +540,7 @@ void PipelineElement::stopTimer()
                           (int) (( elapsed * 0.01f ) + ( m_avgProcessingTime * 0.99f ))
                               : elapsed;
     m_lastProcesingTime = elapsed;
+    emit onProcessingTimeUpdate(m_avgProcessingTime, elapsed);
 }
 
 PipelineElement::State PipelineElement::getState()
@@ -525,11 +555,65 @@ void PipelineElement::setState( State state )
     m_state = state;
 }
 
-void PipelineElement::run( unsigned int serial )
+bool PipelineElement::__init()
 {
-    assert( getState() == DISPATCHED );
-    setState( RUNNING );
+    assert( getState() == UNDEFINED );
+    if( !this->init() )
+    {
+        setState(ERROR);
+        return false;
+    }
+    setState(INITIALIZED);
+    return true;
+}
 
+bool PipelineElement::__deinit() throw()
+{
+    assert( getState() == STARTED || getState() == UNDEFINED || getState() == INITIALIZED );
+    if( !this->deinit() )
+    {
+        setState(ERROR);
+        return false;
+    }
+    setState(UNDEFINED);
+
+    QMutexLocker lock(&m_pleMutex);
+    m_avgProcessingTime = 0;
+    m_lastProcesingTime = 0;
+    m_errorType = PlvNoError;
+    m_errorString = "";
+    return true;
+}
+
+bool PipelineElement::__start()
+{
+    assert(getState() == INITIALIZED);
+    if(!this->start())
+    {
+        setState(ERROR);
+        return false;
+    }
+    setState(STARTED);
+    return true;
+}
+
+bool PipelineElement::__stop()
+{
+    assert(getState() >= STARTED);
+    if( !this->stop() )
+    {
+        setState(ERROR);
+        return false;
+    }
+    setState(INITIALIZED);
+    return true;
+}
+
+bool PipelineElement::run( unsigned int serial )
+{
+    assert(getState() == DISPATCHED);
+
+    setState(RUNNING);
     startTimer();
     try
     {
@@ -543,33 +627,34 @@ void PipelineElement::run( unsigned int serial )
                  << " on line " << re.getLineNumber()
                  << " of type PlvRuntimeException with message: " << re.what();
         stopTimer();
-        error(PlvFatal, re.what());
-        return;
+        setError(PlvFatalError, re.what());
+        return false;
     }
     catch( PlvException& e )
     {
         qDebug() << "Uncaught exception in PipelineElement::process()"
                  << "of type PlvException with message: " << e.what();
         stopTimer();
-        error(PlvFatal, e.what());
-        return;
+        setError(PlvFatalError, e.what());
+        return false;
     }
     catch( std::runtime_error& err )
     {
         qDebug() << "Uncaught exception in PipelineElement::process()"
                  << "of type PlvException with message: " << err.what();
         stopTimer();
-        error(PlvFatal, err.what());
-        return;
+        setError(PlvFatalError, err.what());
+        return false;
     }
     catch( ... )
     {
         qDebug() << "Uncaught exception in PipelineElement::process()"
                  << "of unknown type.";
         stopTimer();
-        error(PlvFatal, "Unknown exception caught");
-        return;
+        setError(PlvFatalError, "Unknown exception caught");
+        return false;
     }
     stopTimer();
     setState( DONE );
+    return true;
 }

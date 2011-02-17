@@ -46,23 +46,7 @@ GaussianSmooth::~GaussianSmooth()
 {
 }
 
-void GaussianSmooth::init()
-{
-}
-
-void GaussianSmooth::deinit() throw ()
-{
-}
-
-void GaussianSmooth::start()
-{
-}
-
-void GaussianSmooth::stop()
-{
-}
-
-void GaussianSmooth::process()
+bool GaussianSmooth::process()
 {
     CvMatData srcPtr = m_inputPin->get();
     CvMatData dstPtr = CvMatData::create( srcPtr.properties() );
@@ -87,6 +71,8 @@ void GaussianSmooth::process()
 
     // publish the new image
     m_outputPin->put( dstPtr );
+
+    return true;
 }
 
 void GaussianSmooth::setKernelSizeWidth(int i)

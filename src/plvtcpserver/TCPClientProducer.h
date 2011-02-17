@@ -29,6 +29,11 @@ public:
     TCPClientProducer();
     virtual ~TCPClientProducer();
 
+    virtual bool init();
+    virtual bool deinit() throw();
+    virtual bool start();
+    virtual bool stop();
+
     bool parseFrame(QDataStream& in);
     //bool parseConfig(QDataStream& in);
 
@@ -44,7 +49,7 @@ public slots:
     void setServerIP( const QString& ip, bool doEmit=false );
     void readData();
     void sessionOpened();
-    void displayError(QAbstractSocket::SocketError socketError);
+    void displayError(QAbstractSocket::SocketError socketError, bool signal=true);
     void connected();
     void disconnected();
 

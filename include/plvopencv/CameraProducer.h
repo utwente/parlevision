@@ -54,6 +54,11 @@ namespace plvopencv
         CameraProducer();
         virtual ~CameraProducer();
 
+        virtual bool init();
+        virtual bool deinit() throw();
+        virtual bool start();
+        virtual bool stop();
+
         inline OpenCVCamera* getCamera() const { return m_camera.getPtr(); }
 
         inline int getCameraId() const { return m_cameraId; }

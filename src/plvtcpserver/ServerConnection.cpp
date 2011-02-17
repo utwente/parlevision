@@ -232,7 +232,7 @@ void ServerConnection::start()
 
     if( !m_tcpSocket->setSocketDescriptor(m_socketDescriptor) )
     {
-        emit errorOccurred( PlvWarning, m_tcpSocket->errorString() );
+        emit onError( m_tcpSocket->errorString() );
         emit finished(this);
         return;
     }
@@ -265,9 +265,10 @@ void ServerConnection::error(QAbstractSocket::SocketError socketError)
     switch (socketError)
     {
     case QAbstractSocket::RemoteHostClosedError:
-        emit errorOccurred( PlvNotify, tr("The remote host closed the connection.") );
+        emit onError(tr("The remote host closed the connection."));
         break;
     default:
-        emit errorOccurred( PlvNotify, tr("The following error occurred: %1.").arg(m_tcpSocket->errorString()) );
+        emit onError(tr("The following error occurred: %1.")
+                     .arg(m_tcpSocket->errorString()));
     }
 }

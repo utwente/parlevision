@@ -55,6 +55,12 @@ namespace plvopencv
         ExampleProcessor();
         virtual ~ExampleProcessor();
 
+        /** these methods can be overridden if you need them */
+        virtual bool init();
+        virtual bool deinit() throw();
+        virtual bool start();
+        virtual bool stop();
+
         /** propery methods getters */
         int getSomeInt();
         double getSomeDouble();

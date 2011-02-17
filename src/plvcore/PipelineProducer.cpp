@@ -35,10 +35,14 @@ PipelineProducer::~PipelineProducer()
 bool PipelineProducer::__ready( unsigned int& serial )
 {
     PipelineElement::State state = getState();
-    if(state == READY) return true;
-    if(( state == DONE || state == UNDEFINED ) && this->readyToProduce() )
+
+    if(state == READY)
+        return true;
+    else if( state >= DISPATCHED )
+        return false;
+    else if( this->readyToProduce() )
     {
-        setState( READY );
+        setState(READY);
         // serial ignored by producers
         serial = 0;
         return true;
@@ -46,7 +50,7 @@ bool PipelineProducer::__ready( unsigned int& serial )
     return false;
 }
 
-void PipelineProducer::__process( unsigned int serial )
+bool PipelineProducer::__process( unsigned int serial )
 {
     QMutexLocker lock( &m_pleMutex );
 
@@ -61,7 +65,9 @@ void PipelineProducer::__process( unsigned int serial )
     }
 
     // do the actual producing
-    this->produce();
+    lock.unlock();
+    bool retval = this->produce();
+    lock.relock();
 
     for( OutputPinMap::iterator itr = m_outputPins.begin();
          itr != m_outputPins.end(); ++itr )
@@ -69,4 +75,6 @@ void PipelineProducer::__process( unsigned int serial )
         IOutputPin* out = itr->second.getPtr();
         out->post();
     }
+
+    return retval;
 }

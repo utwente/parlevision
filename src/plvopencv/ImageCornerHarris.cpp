@@ -52,23 +52,7 @@ ImageCornerHarris::~ImageCornerHarris()
 {
 }
 
-void ImageCornerHarris::init()
-{
-}
-
-void ImageCornerHarris::deinit() throw ()
-{
-}
-
-void ImageCornerHarris::start()
-{
-}
-
-void ImageCornerHarris::stop()
-{
-}
-
-void ImageCornerHarris::process()
+bool ImageCornerHarris::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
@@ -90,6 +74,8 @@ void ImageCornerHarris::process()
 
     // publish the new image
     m_outputPin->put( out );
+
+    return true;
 }
 
 int ImageCornerHarris::getKernelSize() const

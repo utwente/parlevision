@@ -45,12 +45,7 @@ ImageThreshold::ImageThreshold() :
 
 ImageThreshold::~ImageThreshold(){}
 
-void ImageThreshold::init() {}
-void ImageThreshold::deinit() throw (){}
-void ImageThreshold::start() {}
-void ImageThreshold::stop() {}
-
-void ImageThreshold::process()
+bool ImageThreshold::process()
 {
     CvMatData in = m_inputPin->get();
     CvMatData out = CvMatData::create( in.width(), in.height(), in.type() );
@@ -63,6 +58,8 @@ void ImageThreshold::process()
 
     // publish the new image
     m_outputPin->put( out );
+
+    return true;
 }
 
 /** propery methods */

@@ -41,23 +41,7 @@ PixelSum::~PixelSum()
 {
 }
 
-void PixelSum::init()
-{
-}
-
-void PixelSum::deinit() throw ()
-{
-}
-
-void PixelSum::start()
-{
-}
-
-void PixelSum::stop()
-{
-}
-
-void PixelSum::process()
+bool PixelSum::process()
 {
     CvMatData in = m_inputPin->get();
 
@@ -67,4 +51,6 @@ void PixelSum::process()
     cv::Scalar scalar = cv::sum( src );
 
     m_outputPin->put( scalar );
+
+    return true;
 }

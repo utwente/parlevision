@@ -50,23 +50,7 @@ Diff::~Diff()
 {
 }
 
-void Diff::init()
-{
-}
-
-void Diff::deinit() throw ()
-{
-}
-
-void Diff::start()
-{
-}
-
-void Diff::stop()
-{
-}
-
-void Diff::process()
+bool Diff::process()
 {
     CvMatData img1 = m_inputPin1->get();
     CvMatData img2 = m_inputPin2->get();
@@ -88,5 +72,7 @@ void Diff::process()
 
     // publish the new image
     m_outputPin->put( imgOut );
+
+    return true;
 }
 

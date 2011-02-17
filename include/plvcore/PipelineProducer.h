@@ -27,12 +27,8 @@
 /** Utility macro for implemented pure abstract methods in sub classes */
 #define PLV_PIPELINE_PRODUCER \
 public: \
-    virtual void init(); \
-    virtual void deinit() throw (); \
-    virtual void start(); \
-    virtual void stop(); \
     virtual bool readyToProduce() const; \
-    virtual void produce();
+    virtual bool produce();
 
 namespace plv
 {
@@ -46,25 +42,19 @@ namespace plv
         PipelineProducer();
         virtual ~PipelineProducer();
 
-        /** inherited from pipeline element, need to be implemented in derived classes */
-        virtual void init()             = 0;
-        virtual void deinit() throw ()  = 0;
-        virtual void start()            = 0;
-        virtual void stop()             = 0;
-
         /** returns true when producer can produce. Will be polled by the pipeline */
-        virtual bool readyToProduce() const   = 0;
+        virtual bool readyToProduce() const = 0;
 
         /** does the actual producing */
-        virtual void produce()          = 0;
+        virtual bool produce() = 0;
 
-    private:
+    protected:
         /** calls pre and post of output pins and calls produce of implementation */
         virtual bool __ready( unsigned int& serial );
 
         /** calls the produce method of the implementation and sets the serial number
             correctly */
-        virtual void __process( unsigned int serial );
+        virtual bool __process( unsigned int serial );
     };
 
 }

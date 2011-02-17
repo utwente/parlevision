@@ -89,23 +89,27 @@ ExampleProcessor::~ExampleProcessor()
     // pins are automatically destructed
 }
 
-void ExampleProcessor::init()
+bool ExampleProcessor::init()
 {
+    return true;
 }
 
-void ExampleProcessor::deinit() throw()
+bool ExampleProcessor::deinit() throw()
 {
+    return true;
 }
 
-void ExampleProcessor::start()
+bool ExampleProcessor::start()
 {
+    return true;
 }
 
-void ExampleProcessor::stop()
+bool ExampleProcessor::stop()
 {
+    return true;
 }
 
-void ExampleProcessor::process()
+bool ExampleProcessor::process()
 {
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
@@ -140,21 +144,23 @@ void ExampleProcessor::process()
     case 1:
         // no emit, do it manually
         ++m_someInt;
-        emit( someIntChanged(m_someInt) );
+        emit someIntChanged(m_someInt);
         break;
     // or
     case 2:
         // setSomeInt won't emit()
         setSomeInt(getSomeInt()+1);
-        emit( someIntChanged( getSomeInt() ));
+        emit someIntChanged( getSomeInt() );
         break;
     // or (slow!)
     case 3:
         // setProperty won't emit()
         this->setProperty("someInt", m_someInt + 1 );
-        emit( someIntChanged( m_someInt ) );
+        emit someIntChanged( m_someInt );
         break;
     }
+
+    return true;
 }
 
 void ExampleProcessor::setSomeString(QString s)

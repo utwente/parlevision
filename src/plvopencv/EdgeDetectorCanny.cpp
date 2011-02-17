@@ -52,23 +52,7 @@ EdgeDetectorCanny::~EdgeDetectorCanny()
 {
 }
 
-void EdgeDetectorCanny::init()
-{
-}
-
-void EdgeDetectorCanny::deinit() throw ()
-{
-}
-
-void EdgeDetectorCanny::start()
-{
-}
-
-void EdgeDetectorCanny::stop()
-{
-}
-
-void EdgeDetectorCanny::process()
+bool EdgeDetectorCanny::process()
 {
     // get the source
     CvMatData in = m_inputPin->get();
@@ -88,6 +72,8 @@ void EdgeDetectorCanny::process()
 
     // publish the new image
     m_outputPin->put( out );
+
+    return true;
 }
 
 int EdgeDetectorCanny::getApertureSize() const
