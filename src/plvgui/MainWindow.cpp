@@ -165,7 +165,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if( m_pipeline.isNotNull() )
     {
         qDebug() << "Stopping pipeline...";
-        m_pipeline->stop();
+        if(m_pipeline->isRunning())
+            m_pipeline->stop();
         m_pipeline->clear();
     }
     QSettings settings;
@@ -388,11 +389,6 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     connect(m_scene, SIGNAL(contentsChanged()),
             this, SLOT(documentChanged()));
 
-    //plv::QThreadEx* pipelineThread = new plv::QThreadEx();
-    //pipeline->moveToThread(pipelineThread);
-    // when the pipeline is done, it stops its thread
-    //connect(pipeline, SIGNAL(finished()), pipelineThread, SLOT(quit()));
-
     m_documentChanged = false;
 }
 
@@ -439,7 +435,7 @@ void MainWindow::loadFile(QString fileName)
     catch( ... )
     {
         qDebug() << "Caught unknown exception.";
-        this->handleMessage(QtFatalMsg, "An unknown error occured while loading " + fileName + ".");
+        handleMessage(QtFatalMsg, "An unknown error occured while loading " + fileName + ".");
         return;
     }
 }
