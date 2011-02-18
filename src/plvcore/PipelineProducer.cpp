@@ -36,15 +36,11 @@ bool PipelineProducer::__ready( unsigned int& serial )
 {
     PipelineElement::State state = getState();
 
-    if(state == READY)
-        return true;
-    else if( state >= DISPATCHED )
+    if( state >= DISPATCHED )
         return false;
     else if( this->readyToProduce() )
     {
-        setState(READY);
         // serial ignored by producers
-        serial = 0;
         return true;
     }
     return false;

@@ -537,10 +537,9 @@ void PipelineElement::stopTimer()
 {
     int elapsed = m_timer.elapsed();
     m_avgProcessingTime = m_avgProcessingTime > 0 ?
-                          (int) (( elapsed * 0.01f ) + ( m_avgProcessingTime * 0.99f ))
-                              : elapsed;
+                          elapsed * 0.01f + m_avgProcessingTime * 0.99f : elapsed;
     m_lastProcesingTime = elapsed;
-    emit onProcessingTimeUpdate(m_avgProcessingTime, elapsed);
+    emit onProcessingTimeUpdate((int)m_avgProcessingTime, elapsed);
 }
 
 PipelineElement::State PipelineElement::getState()
@@ -558,6 +557,31 @@ void PipelineElement::setState( State state )
 bool PipelineElement::__init()
 {
     assert( getState() == UNDEFINED );
+
+    QMutexLocker lock( &m_pleMutex );
+    m_hasAsynchronousPin = false;
+    m_hasSynchronousPin = false;
+    for( InputPinMap::const_iterator itr = m_inputPins.begin();
+         itr != m_inputPins.end();
+         ++itr )
+    {
+        IInputPin* in = itr->second.getPtr();
+
+        // only automatically check synchronous connections
+        if( in->isConnected() )
+        {
+            if( in->isSynchronous() )
+            {
+                m_hasSynchronousPin = true;
+            }
+            else
+            {
+                m_hasAsynchronousPin = true;
+            }
+        }
+    }
+    lock.unlock();
+
     if( !this->init() )
     {
         setState(ERROR);
@@ -655,6 +679,6 @@ bool PipelineElement::run( unsigned int serial )
         return false;
     }
     stopTimer();
-    setState( DONE );
+    setState( STARTED );
     return true;
 }

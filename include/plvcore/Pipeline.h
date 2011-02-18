@@ -68,7 +68,7 @@ namespace plv
 
         void dispatch()
         {
-            assert( m_element->getState() == PipelineElement::READY );
+            assert( m_element->getState() == PipelineElement::STARTED );
             m_element->setState( PipelineElement::DISPATCHED );
             m_result = QtConcurrent::run( m_element, &PipelineElement::run, m_serial );
         }
@@ -172,6 +172,7 @@ namespace plv
         float m_fps; /** running avg of fps */
 
         QList<PipelineElement*> m_ordering;
+        int m_i;
         QMap<int, PipelineProducer* > m_producers;
         QMap<int, PipelineProcessor* > m_processors;
 
@@ -222,6 +223,7 @@ namespace plv
         void stop();
         void step();
         void finish();
+        void scheduleNew();
         void schedule();
 
         void pipelineElementError( PlvErrorType type, PipelineElement* ple );

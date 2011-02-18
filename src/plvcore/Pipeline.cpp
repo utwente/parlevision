@@ -323,6 +323,7 @@ void Pipeline::start()
     }
 
     // check for cycles
+    m_i = 0;
     m_ordering.clear();
     if( !generateGraphOrdering( m_ordering ) )
     {
@@ -364,7 +365,7 @@ void Pipeline::start()
     }
 
     // start the heartbeat at 100Hz
-    connect(&m_heartbeat, SIGNAL(timeout()), this, SLOT(schedule()));
+    connect(&m_heartbeat, SIGNAL(timeout()), this, SLOT(scheduleNew()));
     m_heartbeat.start(10);
 
     m_running = true;
@@ -393,7 +394,7 @@ void Pipeline::stop()
         {
             PipelineElement* element = m_runQueue.at(i).element();
             PipelineElement::State state = element->getState();
-            if( state == PipelineElement::DONE || state == PipelineElement::ERROR )
+            if( state == PipelineElement::STARTED || state == PipelineElement::ERROR )
             {
                 m_runQueue.removeAt(i);
                 element->setState(PipelineElement::STARTED);
@@ -440,33 +441,95 @@ void Pipeline::finish()
     emit finished();
 }
 
+void Pipeline::scheduleNew()
+{
+    QMutexLocker lock( &m_pipelineMutex );
+
+    // remove stale entries
+    for( int i=0; i<m_runQueue.size(); ++i )
+    {
+        PipelineElement* ple = m_runQueue.at(i).element();
+        PipelineElement::State state = ple->getState();
+        if( state == PipelineElement::STARTED )
+        {
+            m_runQueue.removeAt(i);
+        }
+        else if(state == PipelineElement::ERROR)
+        {
+            // stop on error
+            lock.unlock();
+            stop();
+            emit pipelineMessage(QtFatalMsg, m_runQueue.at(i).element()->getErrorString() );
+            return;
+        }
+    }
+
+    // schedule processors
+    lock.unlock();
+    bool stop = false;
+    while(!stop)
+    {
+        lock.relock();
+        PipelineElement* element = m_ordering.at(m_i);
+        unsigned int serial = m_serial;
+        if( !element->__ready(serial) )
+            stop = true;
+        else
+        {
+            RunItem item( element, serial );
+            item.dispatch();
+            m_runQueue.append( item );
+            ++m_i;
+            if( m_i == m_ordering.size() )
+            {
+                m_i = 0;
+
+                // unsigned int will wrap around
+                ++m_serial;
+
+                ++m_numFramesSinceLastFPSCalculation;
+                int elapsed = m_timeSinceLastFPSCalculation.elapsed();
+                if( elapsed > 10000 )
+                {
+                    // add one so elapsed is never 0 and
+                    // we do not get div by 0
+                    m_fps = (m_numFramesSinceLastFPSCalculation * 1000) / elapsed;
+                    //m_fps = m_fps == -1.0f ? fps : m_fps * 0.9f + 0.1f * fps;
+                    m_timeSinceLastFPSCalculation.restart();
+                    m_numFramesSinceLastFPSCalculation = 0;
+                    qDebug() << "FPS: " << (int)m_fps;
+                    emit framesPerSecond(m_fps);
+                }
+
+                emit stepTaken(m_serial);
+            }
+        }
+        lock.unlock();
+    }
+}
+
 void Pipeline::schedule()
 {
     QMutexLocker lock( &m_pipelineMutex );
 
     // remove stale entries
-    //if( m_runQueue.size() > m_runQueueThreshold )
-    //{
-        for( int i=0; i<m_runQueue.size(); ++i )
+    for( int i=0; i<m_runQueue.size(); ++i )
+    {
+        PipelineElement* ple = m_runQueue.at(i).element();
+        PipelineElement::State state = ple->getState();
+        if( state == PipelineElement::STARTED )
         {
-            PipelineElement* ple = m_runQueue.at(i).element();
-            PipelineElement::State state = ple->getState();
-            if( state == PipelineElement::DONE )
-            {
-                m_runQueue.removeAt(i);
-                ple->setState(PipelineElement::STARTED);
-            }
-            else if(state == PipelineElement::ERROR)
-            {
-                // stop on error
-                m_pipelineMutex.unlock();
-                stop();
-                emit pipelineMessage(QtFatalMsg, m_runQueue.at(i).element()->getErrorString() );
-                return;
-            }
+            m_runQueue.removeAt(i);
         }
-    //}
-
+        else if(state == PipelineElement::ERROR)
+        {
+            // stop on error
+            m_pipelineMutex.unlock();
+            stop();
+            emit pipelineMessage(QtFatalMsg, m_runQueue.at(i).element()->getErrorString() );
+            return;
+        }
+    }
     // schedule processors
     QList<RunItem> newItems;
     QMapIterator<int, PipelineProcessor* > procItr( m_processors );

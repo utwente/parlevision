@@ -60,10 +60,8 @@ namespace plv
             UNDEFINED,  /* undefined or non initialized */
             INITIALIZED,/* initialized(init method executed succesfully) */
             STARTED,    /* started (start method executed succesfully) */
-            READY,      /* ready for processing */
             DISPATCHED, /* dispatched to be processed */
             RUNNING,    /* pipeline element is processing */
-            DONE,       /* done processing */
             ERROR       /* an error occured during processing */
         };
 
@@ -80,7 +78,7 @@ namespace plv
         /** map which contains the output pins identified and indexed by their name */
         OutputPinMap m_outputPins;
 
-        int m_avgProcessingTime;
+        float m_avgProcessingTime;
         int m_lastProcesingTime;
 
         QTime m_timer;
@@ -240,7 +238,15 @@ namespace plv
         /** serial number of current processing run. */
         unsigned int m_serial;
 
-        /** Initialise the element so it is ready to receive process() calls.
+        /** True if this element has at least one connected asynchronous pin.
+            Initialized in __init method.  */
+        bool m_hasAsynchronousPin;
+
+        /** true if this element has at least one connected synchronous pin.
+            Initialized in __init method. */
+        bool m_hasSynchronousPin;
+
+        /** Initialises the element so it is ready to receive process() calls.
             This allows for late initialization and an empty constructor.
             It can be called again after a call to deinit(). Use start for
             initialisation of resources which might be changed by the user
@@ -250,7 +256,7 @@ namespace plv
             Default implementation just returns true. Override in own class. */
         virtual bool init() { return true; }
 
-        /** Deinitalizes an element and frees resources. This method is not
+        /** Deinitalises an element and frees resources. This method is not
             allowed to throw an exception. It is called on PipelineElement
             deinitalization and if init() throws an exception or returns false.
             Should deallocate all resources.

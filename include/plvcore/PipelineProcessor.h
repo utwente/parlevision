@@ -45,7 +45,7 @@ namespace plv
           * use with caution! */
         // virtual bool readyToProcess() const { return true; }
 
-        virtual bool __ready( unsigned int& nextSerial );
+        virtual bool __ready( unsigned int& serial );
         virtual bool __process( unsigned int serial );
 
     private:
