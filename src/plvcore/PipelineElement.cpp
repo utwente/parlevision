@@ -195,11 +195,11 @@ QSet<PipelineElement*> PipelineElement::getConnectedElementsToInputs() const
 bool PipelineElement::isEndNode() const
 {
     QMutexLocker lock( &m_pleMutex );
-    for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
+    for( OutputPinMap::const_iterator itr = m_outputPins.begin();
+         itr != m_outputPins.end(); ++itr )
     {
-        RefPtr<IInputPin> in = itr->second;
-        if( in->isConnected() )
+        RefPtr<IOutputPin> out = itr->second;
+        if( out->isConnected() )
             return false;
     }
     return true;

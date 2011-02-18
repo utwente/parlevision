@@ -323,6 +323,7 @@ void Pipeline::start()
     }
 
     // check for cycles
+    m_ordering.clear();
     if( !generateGraphOrdering( m_ordering ) )
     {
         QString msg = tr("Cycle detected in pipeline graph");

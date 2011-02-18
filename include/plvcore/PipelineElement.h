@@ -101,9 +101,6 @@ namespace plv
         QString m_errorString;
 
     public:
-        //friend class Pipeline;
-        //friend class RunItem;
-
         PipelineElement();
         virtual ~PipelineElement();
 
