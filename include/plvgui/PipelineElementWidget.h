@@ -28,12 +28,17 @@
 #include <plvcore/RefPtr.h>
 #include <plvcore/PipelineElement.h>
 
+QT_BEGIN_NAMESPACE
 class QGraphicsSceneDragDropEvent;
 class QVariant;
+class QLabel;
+class QGraphicsTextItem;
+QT_END_NAMESPACE
 
 namespace plv
 {
     class Pin;
+    class PipelineElement;
 }
 
 namespace plvgui
@@ -51,7 +56,8 @@ namespace plvgui
 
         void addLine(ConnectionLine* line, QString pin);
 
-        inline PinWidget* getWidgetFor(const plv::Pin* p) const { return pinWidgets[p]; }
+        inline PinWidget* getWidgetFor(const plv::IInputPin* p) const { return inputPinWidgets[p]; }
+        inline PinWidget* getWidgetFor(const plv::IOutputPin* p) const { return outputPinWidgets[p]; }
         inline plv::RefPtr<plv::PipelineElement> getElement() const { return element; }
 
         virtual QRectF boundingRect() const;
@@ -67,10 +73,27 @@ namespace plvgui
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
         virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
         virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
+
+    private:
+        QHash<const plv::IInputPin*, PinWidget*> inputPinWidgets;
+        QHash<const plv::IOutputPin*, PinWidget*> outputPinWidgets;
+        qreal maxWidth;
+        qreal leftColumnWidth;
+        QGraphicsTextItem* avgProcessingTimeLabel;
+        QGraphicsTextItem* lastProcessingTimeLabel;
+        QString avgTimeString;
+        QString lastTimeString;
+        QGraphicsTextItem* titleLabel;
+
         void addToGroup(QGraphicsItem* item);
-        QHash<const plv::Pin*, PinWidget*> pinWidgets;
+        void addInputPin(plv::IInputPin* in);
+        void addOutputPin(plv::IOutputPin* out);
+        void drawPinsAndInfo();
+
     private slots:
         void savePositionProperties();
+        void onError(PlvErrorType,plv::PipelineElement*);
+        void onProcessingTimeUpdate(int,int);
     };
 }
 

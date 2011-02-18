@@ -229,7 +229,12 @@ PipelineElementWidget* PipelineScene::getWidgetFor(PipelineElement* e) const
     return elementWidgets[e];
 }
 
-PinWidget* PipelineScene::getWidgetFor(const Pin* p) const
+PinWidget* PipelineScene::getWidgetFor(const IInputPin* p) const
+{
+    return getWidgetFor(p->getOwner())->getWidgetFor(p);
+}
+
+PinWidget* PipelineScene::getWidgetFor(const IOutputPin* p) const
 {
     return getWidgetFor(p->getOwner())->getWidgetFor(p);
 }

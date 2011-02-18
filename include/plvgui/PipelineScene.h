@@ -143,7 +143,8 @@ namespace plvgui
         QHash<plv::PinConnection*, ConnectionLine*> connectionLines;
 
         PipelineElementWidget* getWidgetFor(plv::PipelineElement* e) const;
-        PinWidget* getWidgetFor(const plv::Pin* pw) const;
+        PinWidget* getWidgetFor(const plv::IInputPin* pw) const;
+        PinWidget* getWidgetFor(const plv::IOutputPin* pw) const;
         ConnectionLine* getWidgetFor(plv::PinConnection* c) const;
         InteractiveLine* line;
     };

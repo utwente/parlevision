@@ -40,7 +40,9 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
                                              QGraphicsItem* parent,
                                              Qt::WindowFlags wFlags) :
         QGraphicsObject(parent),
-        element(element)
+        element(element),
+        maxWidth(0),
+        leftColumnWidth(0)
 {
     Q_UNUSED(wFlags);
     this->setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
@@ -50,62 +52,93 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
     connect(this, SIGNAL(xChanged()), this, SLOT(savePositionProperties()));
     connect(this, SIGNAL(yChanged()), this, SLOT(savePositionProperties()));
 
-    QGraphicsTextItem* titleLabel = new QGraphicsTextItem(element->getName(), this);
+    //connect(element, SIGNAL(onStateChange(PipelineElement::State)), this, SLOT(onStateChange(PipelineElement::State)));
+    connect(element, SIGNAL(onError(PlvErrorType,PipelineElement*)), this, SLOT(onError(PlvErrorType,PipelineElement*)));
+    connect(element, SIGNAL(onProcessingTimeUpdate(int,int)), this, SLOT(onProcessingTimeUpdate(int,int)));
+
+    titleLabel = new QGraphicsTextItem(element->getName(), this);
     this->addToGroup(titleLabel);
+    this->leftColumnWidth = titleLabel->boundingRect().width()/2.0;
 
-    setFiltersChildEvents(false);
+    avgProcessingTimeLabel  = new QGraphicsTextItem(this);
+    lastProcessingTimeLabel = new QGraphicsTextItem(this);
+    onProcessingTimeUpdate(0,0);
+    avgProcessingTimeLabel->setPlainText(this->avgTimeString);
+    lastProcessingTimeLabel->setPlainText(this->lastTimeString);
+    this->addToGroup(avgProcessingTimeLabel);
+    this->addToGroup(lastProcessingTimeLabel);
 
-    // draw all inputpins
+    // add all inputpins
     const PipelineElement::InputPinMap& inPins = element->getInputPins();
-    int y = 20;
-    qreal leftColumnWidth = 0;
     for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
         ; itr!=inPins.end(); ++itr)
     {
-        RefPtr<IInputPin> pin = itr->second;
-        assert(pin.isNotNull());
-        PinWidget* pw = new PinWidget(this, pin);
-        this->pinWidgets[pin.getPtr()] = pw;
-        pw->translate(0, y);
-        this->addToGroup(pw);
-        leftColumnWidth = max(pw->boundingRect().width(), leftColumnWidth);
-        y+=20;
+        this->addInputPin(itr->second);
     }
 
+    const PipelineElement::OutputPinMap& outPins = element->getOutputPins();
+    for( PipelineElement::OutputPinMap::const_iterator itr = outPins.begin()
+        ; itr!=outPins.end(); ++itr)
+    {
+        this->addOutputPin(itr->second);
+    }
 
-    leftColumnWidth = max(titleLabel->boundingRect().width()/2.0, leftColumnWidth);
+    setFiltersChildEvents(false);
+    drawPinsAndInfo();
+}
+
+void PipelineElementWidget::addInputPin(IInputPin* in)
+{
+    assert(in!=0);
+    PinWidget* pw = new PinWidget(this, in);
+    this->inputPinWidgets[in] = pw;
+    this->addToGroup(pw);
+    this->leftColumnWidth = max(pw->boundingRect().width(), this->leftColumnWidth);
+}
+
+void PipelineElementWidget::addOutputPin(IOutputPin* out)
+{
+    assert(out!=0);
+    PinWidget* pw = new PinWidget(this, out);
+    this->outputPinWidgets[out] = pw;
+    this->addToGroup(pw);
+    this->maxWidth = max(pw->boundingRect().width(), this->maxWidth);
+}
+
+void PipelineElementWidget::drawPinsAndInfo()
+{
+    // draw all inputpins
+    int y = 20;
+    foreach( PinWidget* pw, this->inputPinWidgets )
+    {
+        pw->translate(0, y);
+        y+=20;
+    }
+    int maxy = y;
 
     // outputpins should be aligned right.
     // in order to do this, we first make all the widgets,
     // then add them with proper translation.
-    const PipelineElement::OutputPinMap& outPins = element->getOutputPins();
-    QList<PinWidget*> outWidgets = QList<PinWidget*>();
-    qreal maxWidth = 0;
-    for( PipelineElement::OutputPinMap::const_iterator itr = outPins.begin()
-        ; itr!=outPins.end(); ++itr)
-    {
-        RefPtr<IOutputPin> pin = itr->second;
-        assert(pin.isNotNull());
-        PinWidget* pw = new PinWidget(this, pin);
-        this->pinWidgets[pin.getPtr()] = pw;
-        outWidgets.append(pw);
-        maxWidth = max(pw->boundingRect().width(), maxWidth);
-    }
 
     y = 20;
-    foreach(PinWidget* pw, outWidgets)
+    foreach(PinWidget* pw, outputPinWidgets)
     {
         qreal offset = leftColumnWidth + 20 + maxWidth - pw->boundingRect().width();
         pw->translate(offset, y);
-        this->addToGroup(pw);
         y+=20;
     }
+    if( y > maxy ) maxy = y;
+
+    avgProcessingTimeLabel->setPlainText(avgTimeString);
+    avgProcessingTimeLabel->translate(0,maxy);
+    maxy += 20;
+    lastProcessingTimeLabel->setPlainText(lastTimeString);
+    lastProcessingTimeLabel->translate(0,maxy);
 
     // center the title
     qreal offset = (this->boundingRect().width()-titleLabel->boundingRect().width())/2.0;
     if(offset > 0)
-        titleLabel->translate(offset,0);
-
+        this->titleLabel->translate(offset,0);
 }
 
 void PipelineElementWidget::addLine(ConnectionLine *line, QString pin)
@@ -124,13 +157,11 @@ QVariant PipelineElementWidget::itemChange(GraphicsItemChange change,
 {
     if (change == QGraphicsItem::ItemPositionChange)
     {
-//        qDebug() << "Element changed " << change;
         foreach (ConnectionLine* line, lines)
         {
             line->updatePosition();
         }
     }
-
     return value;
 }
 
@@ -156,7 +187,6 @@ void PipelineElementWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* even
 
 bool PipelineElementWidget::event(QEvent * event)
 {
-//    qDebug() << "PEW got event " << event;
     return QGraphicsObject::event(event);
 }
 
@@ -207,3 +237,18 @@ void PipelineElementWidget::savePositionProperties()
     this->element->setProperty("sceneCoordX", this->scenePos().x());
     this->element->setProperty("sceneCoordY", this->scenePos().y());
 }
+
+void PipelineElementWidget::onError(PlvErrorType,PipelineElement*)
+{
+
+}
+
+void PipelineElementWidget::onProcessingTimeUpdate(int avg, int last)
+{
+    avgTimeString = tr("Average time: %1").arg(avg);
+    lastTimeString = tr("Last time: %1").arg(last);
+    avgProcessingTimeLabel->setPlainText(avgTimeString);
+    lastProcessingTimeLabel->setPlainText(lastTimeString);
+    this->update();
+}
+
