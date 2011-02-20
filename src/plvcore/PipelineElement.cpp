@@ -224,34 +224,10 @@ bool PipelineElement::dataAvailableOnInputPins( unsigned int& nextSerial )
 {
     QMutexLocker lock( &m_pleMutex );
 
-    // TODO move this to initialisation
-    bool hasAsynchronous = false;
-    bool hasSynchronous = false;
-    for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end();
-         ++itr )
-    {
-        IInputPin* in = itr->second.getPtr();
-
-        // only automatically check synchronous connections
-        if( in->isConnected() )
-        {
-            if( in->isSynchronous() )
-            {
-                hasSynchronous = true;
-            }
-            else
-            {
-                hasAsynchronous = true;
-            }
-        }
-    }
-
     // synchronous processor
-    if( hasSynchronous )
+    if( m_hasSynchronousPin )
     {
         std::vector<unsigned int> serials;
-        bool nullDetected = false;
         for( InputPinMap::const_iterator itr = m_inputPins.begin();
              itr != m_inputPins.end();
              ++itr )
@@ -269,8 +245,6 @@ bool PipelineElement::dataAvailableOnInputPins( unsigned int& nextSerial )
                         bool isNull;
                         in->peekNext(serial, isNull);
                         serials.push_back( serial );
-                        if( isNull )
-                            nullDetected = true;
                     }
                     else
                     {
@@ -298,28 +272,10 @@ bool PipelineElement::dataAvailableOnInputPins( unsigned int& nextSerial )
         // save the serial
         nextSerial = serials[0];
 
-        // if one data item is a null
-        // we throw away all data from all synchronous pins
-        if( nullDetected )
-        {
-            for( InputPinMap::iterator itr = m_inputPins.begin();
-                 itr != m_inputPins.end(); ++itr )
-            {
-                IInputPin* in = itr->second.getPtr();
-
-                if( in->isConnected() && in->isSynchronous() )
-                {
-                    // just remove first data item in the
-                    QVariant v;
-                    in->getVariant( v );
-                }
-            }
-            return false;
-        }
         return true;
     }
     // asynchronous processor, only has asynchronous pins
-    else if( hasAsynchronous )
+    else if( m_hasAsynchronousPin )
     {
         std::vector<unsigned int> serials;
         for( InputPinMap::const_iterator itr = m_inputPins.begin();

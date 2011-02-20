@@ -124,6 +124,9 @@ namespace plv
         /** this method is called after each call to process() in the owner */
         void post();
 
+        /** removes first data item on the connection. There needs to be a connection. */
+        void removeFirst();
+
         void getVariant( QVariant& data );
 
         /** set called to value of val */

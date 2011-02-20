@@ -103,6 +103,12 @@ void IInputPin::post()
     }
 }
 
+void IInputPin::removeFirst()
+{
+    assert(m_connection.isNotNull());
+    m_connection->get();
+}
+
 void IInputPin::getVariant( QVariant& v )
 {
     // check if get is not called twice during one process call

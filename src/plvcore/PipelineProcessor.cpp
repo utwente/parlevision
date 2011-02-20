@@ -61,12 +61,41 @@ bool PipelineProcessor::__process( unsigned int serial )
     // set the serial number
     m_serial = serial;
 
-    // call pre on input pins
+    bool nullDetected = false;
+
+    // call pre on input pins and look for null data items
     for( InputPinMap::iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
         IInputPin* in = itr->second.getPtr();
+
+        // only check synchronous connections
+        if( in->isConnected() && in->isSynchronous() )
+        {
+            unsigned int serial;
+            bool isNull;
+            in->peekNext(serial, isNull);
+            if( isNull ) nullDetected = true;
+        }
         in->pre();
+    }
+
+    // if one data item is a null
+    // we throw away all data from all synchronous pins
+    if( nullDetected )
+    {
+        for( InputPinMap::iterator itr = m_inputPins.begin();
+             itr != m_inputPins.end(); ++itr )
+        {
+            IInputPin* in = itr->second.getPtr();
+
+            if( in->isConnected() && in->isSynchronous() )
+            {
+                // just remove first data item in the
+                in->removeFirst();
+            }
+        }
+        return true;
     }
 
     // call pre on output pins
