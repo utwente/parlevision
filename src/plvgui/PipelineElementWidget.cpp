@@ -53,7 +53,7 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
     connect(this, SIGNAL(yChanged()), this, SLOT(savePositionProperties()));
 
     //connect(element, SIGNAL(onStateChange(PipelineElement::State)), this, SLOT(onStateChange(PipelineElement::State)));
-    connect(element, SIGNAL(onError(PlvErrorType,PipelineElement*)), this, SLOT(onError(PlvErrorType,PipelineElement*)));
+    connect(element, SIGNAL(onError(PlvErrorType,plv::PipelineElement*)), this, SLOT(onError(PlvErrorType,plv::PipelineElement*)));
     connect(element, SIGNAL(onProcessingTimeUpdate(int,int)), this, SLOT(onProcessingTimeUpdate(int,int)));
 
     titleLabel = new QGraphicsTextItem(element->getName(), this);

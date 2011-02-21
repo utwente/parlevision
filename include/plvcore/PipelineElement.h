@@ -279,7 +279,7 @@ namespace plv
         /** this signal should be emitted when an error occurs outside of the
             usual API functions which can signal the presense of an error by
             returning false. For instance, when a connection fails */
-        void onError(PlvErrorType type, PipelineElement* element);
+        void onError(PlvErrorType type, plv::PipelineElement* element);
 
         /** average and last processing time of process call in milliseconds */
         void onProcessingTimeUpdate(int avg, int last);

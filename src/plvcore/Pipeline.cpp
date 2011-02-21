@@ -102,8 +102,8 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
 
     // for error reporting to GUI by pipeline elements
     // we used queued connections here so we do not accidentally deadlock
-    connect(element.getPtr(), SIGNAL(onError(PlvErrorType, PipelineElement*)),
-            this, SLOT(pipelineElementError(PlvErrorType, PipelineElement*)),
+    connect(element.getPtr(), SIGNAL(onError(PlvErrorType, plv::PipelineElement*)),
+            this, SLOT(pipelineElementError(PlvErrorType, plv::PipelineElement*)),
             Qt::QueuedConnection );
 
     QMutexLocker lock( &m_pipelineMutex );
