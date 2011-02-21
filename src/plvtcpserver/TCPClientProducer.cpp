@@ -238,7 +238,7 @@ void TCPClientProducer::ackFrame(quint32 frameNumber)
     out.setVersion(QDataStream::Qt_4_0);
 
     // write the header
-    out << (quint32)2*sizeof(quint32); // size of message excluding 4 bytes for size
+    out << (quint32)(2*sizeof(quint32)); // size of message excluding 4 bytes for size
     out << (quint32)PROTO_ACK;
     out << (quint32)frameNumber;
 
