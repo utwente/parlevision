@@ -226,7 +226,7 @@ namespace plv
         void scheduleNew();
         void schedule();
 
-        void pipelineElementError( PlvErrorType type, PipelineElement* ple );
+        void pipelineElementError( PlvErrorType type, plv::PipelineElement* ple );
 
         void handleMessage(QtMsgType type, QString msg);
     };
