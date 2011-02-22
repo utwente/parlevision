@@ -272,7 +272,7 @@ bool Pipeline::init()
         if( errType != PlvNoError )
         {
             element->__deinit();
-            emit handleMessage( QtFatalMsg, msg );
+            emit handleMessage( QtWarningMsg, msg );
 
             foreach( PipelineElement* element, initialized )
             {
