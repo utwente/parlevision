@@ -323,28 +323,28 @@ namespace plv
 
         virtual bool isDynamicallyTyped() const { return true; }
     };
+}
 
-    template <class T>
-    OutputPin<T> * createOutputPin( const QString& name, PipelineElement* owner )
-    throw (IllegalArgumentException)
-    {
-        // if add fails pin is automatically deleted and exception is thrown
-        OutputPin<T> * pin = new OutputPin<T>( name, owner );
-        owner->addOutputPin( pin );
-        return pin;
-    }
+template <class T>
+plv::OutputPin<T> * createOutputPin( const QString& name, plv::PipelineElement* owner )
+throw (plv::IllegalArgumentException)
+{
+    // if add fails pin is automatically deleted and exception is thrown
+    plv::OutputPin<T> * pin = new plv::OutputPin<T>( name, owner );
+    owner->addOutputPin( pin );
+    return pin;
+}
 
-    template<typename T>
-    InputPin<T> * createInputPin( const QString& name, PipelineElement* owner,
-                                  IInputPin::Required required = IInputPin::CONNECTION_REQUIRED,
-                                  IInputPin::Synchronized synchronized = IInputPin::CONNECTION_SYNCHRONOUS )
-    throw (IllegalArgumentException)
-    {
-        // if add fails pin is automatically deleted and exception is thrown
-        InputPin<T> * pin = new InputPin<T>( name, owner, required, synchronized );
-        owner->addInputPin( pin );
-        return pin;
-    }
+template<typename T>
+plv::InputPin<T> * createInputPin( const QString& name, plv::PipelineElement* owner,
+                              plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
+                              plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS )
+throw (plv::IllegalArgumentException)
+{
+    // if add fails pin is automatically deleted and exception is thrown
+    plv::InputPin<T> * pin = new plv::InputPin<T>( name, owner, required, synchronized );
+    owner->addInputPin( pin );
+    return pin;
 }
 
 
