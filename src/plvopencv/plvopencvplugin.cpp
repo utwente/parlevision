@@ -17,7 +17,7 @@
 #include "GaussianSmooth.h"
 #include "ImageThreshold.h"
 //#include "Snapshot.h"
-//#include "ViolaJonesFaceDetector.h"
+#include "ViolaJonesFaceDetector.h"
 //#include "Trigger.h"
 //#include "SaveImageToFile.h"
 //#include "ImageLoader.h"
@@ -56,7 +56,7 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::PixelSum>();
 
 //    plvRegisterPipelineElement<plvopencv::Snapshot>();
-//    plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>();
+    plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>();
 //    plvRegisterPipelineElement<plvopencv::Trigger>();
 //    plvRegisterPipelineElement<plvopencv::SaveImageToFile>();
 //    plvRegisterPipelineElement<plvopencv::ImageLoader>();
