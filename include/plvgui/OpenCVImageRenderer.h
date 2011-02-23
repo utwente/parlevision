@@ -58,11 +58,11 @@ namespace plvgui
         ImageWidget*    m_imageWidget;
         bool            m_busy;
         QMutex          m_busy_mutex;
-        plv::RefPtr<ImageConverter> m_converter;
+        ImageConverter* m_converter;
 
     public slots:
         virtual void newData( QVariant v );
-        void updateImage( QImage img );
+        void updateImage( QImage img, int id );
     };
 }
 #endif // OpenCVImageRenderer_H
