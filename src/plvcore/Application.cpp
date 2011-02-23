@@ -81,8 +81,8 @@ void Application::loadBuiltins()
     // register stream operators to enable streaming of data types
     //qRegisterMetaTypeStreamOperators< plv::Data >("plv::Data");
     //qRegisterMetaTypeStreamOperators< plv::Enum >( "plv::Enum" );
-    //qRegisterMetaTypeStreamOperators< plv::RectangleData >( "plv::RectangleData" );
 
+    qRegisterMetaTypeStreamOperators< plv::RectangleData >( "plv::RectangleData" );
     qRegisterMetaTypeStreamOperators<cv::Scalar>("cv::Scalar");
     qRegisterMetaTypeStreamOperators<plv::CvMatData>("plv::CvMatData");
 }

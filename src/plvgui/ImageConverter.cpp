@@ -29,19 +29,30 @@
 using namespace plvgui;
 using namespace plv;
 
-ImageConverter* ImageConverter::m_instance = 0;
-
-void ImageConverter::convertCvMatData( const plv::CvMatData& data  )
+ImageConverter::ImageConverter( QObject* parent ) : QObject(parent)
 {
-    QtConcurrent::run(this, &ImageConverter::convert, data);
 }
 
-void ImageConverter::convert( const plv::CvMatData data )
+ImageConverter::~ImageConverter()
+{
+}
+
+void ImageConverter::convertCvMatData( const plv::CvMatData& data, int id )
+{
+    QtConcurrent::run(this, &ImageConverter::convert, data, id);
+}
+
+void ImageConverter::convertCvMatDataList( const QList<plv::CvMatData>& dataList, int id )
+{
+    QtConcurrent::run(this, &ImageConverter::convertList, dataList, id);
+}
+
+void ImageConverter::convert( const plv::CvMatData& data, int id )
 {
     try
     {
         QImage qimage = cvMatToQImage( data.get() );
-        emit( converted( qimage ) );
+        emit converted( qimage, id );
     }
     catch( ImageConversionException& e )
     {
@@ -59,8 +70,42 @@ void ImageConverter::convert( const plv::CvMatData data )
         painter.setFont( font );
         painter.drawText( qimage.rect(), Qt::AlignCenter | Qt::TextWordWrap, msg);
         painter.end();
-        emit( converted( qimage ) );
+        emit converted( qimage, id );
     }
+}
+
+// TODO parallelize
+void ImageConverter::convertList( const QList<plv::CvMatData>& dataList, int id )
+{
+    QList<QImage> qimageList;
+
+    foreach( const plv::CvMatData& data, dataList )
+    {
+        QImage qimage;
+        try
+        {
+             qimage = cvMatToQImage( data.get() );
+        }
+        catch( ImageConversionException& e )
+        {
+            QString msg = QString("IplImageConverter failed to convert image with error: %1")
+                          .arg( e.what() );
+
+            QSize size( data.width(), data.height() );
+            qimage = QImage( size, QImage::Format_ARGB32_Premultiplied );
+            qimage.fill( 0 );
+            QPainter painter(&qimage);
+            painter.fillRect( qimage.rect(), QColor( Qt::white ));
+            painter.setPen( Qt::black );
+            QFont font = painter.font();
+            font.setPointSize( 16 );
+            painter.setFont( font );
+            painter.drawText( qimage.rect(), Qt::AlignCenter | Qt::TextWordWrap, msg);
+            painter.end();
+        }
+        qimageList.append(qimage);
+    }
+    emit convertedList( qimageList, id );
 }
 
 QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
