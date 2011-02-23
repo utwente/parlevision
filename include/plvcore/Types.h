@@ -44,7 +44,7 @@ namespace plv
         int m_height;
         QList<QRect> m_rects;
 
-        RectangleDataPrivate(int w, int h) : m_width(w), m_height(h) {}
+        RectangleDataPrivate(int w, int h, QList<QRect> rects ) : m_width(w), m_height(h), m_rects(rects) {}
         RectangleDataPrivate( const RectangleDataPrivate& other ) :
                 QSharedData(),
                 m_width(other.m_width), m_height(other.m_height),
@@ -61,12 +61,16 @@ namespace plv
         /** Constructor. Takes width and height of the image from which the
             rectangles are taken if relevant. This is necessary for correct
             rendering of the rectangles.  */
-        RectangleData( int width=0, int height=0 );
+        RectangleData( int width=0, int height=0, QList<QRect> rects = QList<QRect>() );
         RectangleData( const RectangleData& other );
         ~RectangleData();
 
         int width() const { return d->m_width; }
         int height() const { return d->m_height; }
+
+        void setWidth(int w) { d->m_width = w; }
+        void setHeight(int h) { d->m_height = h; }
+        void setRects( const QList<QRect>& rects) { d->m_rects = rects; }
 
         /** adds a rectangle to internal rectangle list */
         void add( const QRect& rect ) { d->m_rects.append( rect ); }
@@ -75,6 +79,9 @@ namespace plv
         QList<QRect> getRects() const { return d->m_rects; }
     };
 }
+
+PLVCORE_EXPORT QDataStream &operator<<(QDataStream &out, const plv::RectangleData &s);
+PLVCORE_EXPORT QDataStream &operator>>(QDataStream &in, plv::RectangleData &s);
 
 PLVCORE_EXPORT QDataStream &operator<<(QDataStream &out, const cv::Scalar &s);
 PLVCORE_EXPORT QDataStream &operator>>(QDataStream &in, cv::Scalar &s);

@@ -53,23 +53,27 @@ RectangleDataRenderer::~RectangleDataRenderer()
 
 void RectangleDataRenderer::newData( const QVariant data )
 {
-//    plv::RefPtr<plv::RectangleData> rectangles = ref_ptr_static_cast<plv::RectangleData>(data);
+    if( !data.canConvert<plv::RectangleData>() )
+        return;
 
-//    QImage qimage = m_imageWidget->getImage();
-//    if( qimage.isNull() ||
-//        qimage.width() != rectangles->width() ||
-//        qimage.height() != rectangles->height() ||
-//        qimage.depth() != QImage::Format_ARGB32_Premultiplied )
-//    {
-//        qimage = QImage( rectangles->width(), rectangles->height(), QImage::Format_ARGB32_Premultiplied );
-//    }
-//    qimage.fill( QColor( Qt::black ).rgb() );
-//    QPainter painter( &qimage );
-//    painter.setPen( Qt::green );
-//    foreach( const QRect& rect, rectangles->getRects() )
-//    {
-//        painter.drawRect( rect );
-//    }
-//    painter.end();
-//    m_imageWidget->setImage( qimage );
+    plv::RectangleData rectangles = data.value<plv::RectangleData>();
+
+    QImage qimage = m_imageWidget->getImage();
+    if( qimage.isNull() ||
+        qimage.width() != rectangles.width() ||
+        qimage.height() != rectangles.height() ||
+        qimage.depth() != QImage::Format_ARGB32_Premultiplied )
+    {
+        qimage = QImage( rectangles.width(), rectangles.height(), QImage::Format_ARGB32_Premultiplied );
+    }
+    qimage.fill( QColor( Qt::black ).rgb() );
+    QPainter painter( &qimage );
+    painter.setPen( Qt::green );
+    foreach( const QRect& rect, rectangles.getRects() )
+    {
+        painter.fillRect(rect, Qt::red);
+        painter.drawRect( rect );
+    }
+    painter.end();
+    m_imageWidget->setImage( qimage );
 }
