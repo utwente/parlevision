@@ -29,13 +29,11 @@
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 
-#include <plvcore/RefCounted.h>
-#include <plvcore/RefPtr.h>
 #include <plvcore/CvMatData.h>
 
 namespace plvopencv
 {
-    class OpenCVCamera : public QThread, public plv::RefCounted
+    class OpenCVCamera : public QThread
     {
         Q_OBJECT
         Q_DISABLE_COPY( OpenCVCamera )
@@ -51,7 +49,7 @@ namespace plvopencv
         };
 
         /** Constructor default to OpenCV camera with id 0. */
-        OpenCVCamera();
+        OpenCVCamera( QObject* parent = 0);
 
         /** Initializes camera. Allocates resources. */
         bool init( int id );
@@ -111,10 +109,9 @@ namespace plvopencv
          */
         void releaseCapture();
 
-        /** Tries to get an image from OpenCV and copy it into an OpenCVImage.
-          * \return 0 on failure, pointer to an OpenCVImage on success.
-          */
-        plv::CvMatData getFrame();
+        /** Tries to get an image from OpenCV and copy it into CvMatData.
+          * \return false on failure, true on success. */
+        bool getFrame( plv::CvMatData& mat );
 
     signals:
         void newFrame( plv::CvMatData frame );
