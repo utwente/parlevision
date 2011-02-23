@@ -33,9 +33,9 @@
 #include <plvgui/PipelineElementWidget.h>
 #include <plvgui/PipelineScene.h>
 #include <plvgui/OpenCVImageRenderer.h>
+#include <plvgui/OpenCVImageListRenderer.h>
 #include <plvgui/RectangleDataRenderer.h>
 #include <plvgui/LogWidget.h>
-
 
 #include <plvcore/Application.h>
 #include <plvcore/Pipeline.h>
@@ -110,6 +110,7 @@ void MainWindow::initGUI()
 
     // register built in renderers
     plvgui::RendererFactory::add<plv::CvMatData, plvgui::OpenCVImageRenderer>();
+    plvgui::RendererFactory::add<QList<plv::CvMatData>, plvgui::OpenCVImageListRenderer>();
     plvgui::RendererFactory::add<plv::RectangleData, plvgui::RectangleDataRenderer>();
 }
 
