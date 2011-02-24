@@ -459,7 +459,10 @@ void Pipeline::scheduleNew()
             // stop on error
             lock.unlock();
             stop();
-            emit pipelineMessage(QtFatalMsg, m_runQueue.at(i).element()->getErrorString() );
+            QString msg = tr("Pipeline stopped because of an error in %1. The error is %2")
+                          .arg(m_runQueue.at(i).element()->getName())
+                          .arg(m_runQueue.at(i).element()->getErrorString());
+            emit pipelineMessage(QtWarningMsg, msg);
             return;
         }
     }

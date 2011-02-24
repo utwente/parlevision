@@ -114,6 +114,9 @@ bool CameraProducer::readyToProduce() const
 
 void CameraProducer::cameraFinished()
 {
-    setError( PlvResourceError, "Camera quit unexpectedly.");
-    emit onError( PlvResourceError, this );
+    if( getState() >= INITIALIZED )
+    {
+        setError( PlvResourceError, "Camera quit unexpectedly.");
+        emit onError( PlvNonFatalError, this );
+    }
 }
