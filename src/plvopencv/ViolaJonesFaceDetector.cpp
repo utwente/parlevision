@@ -16,7 +16,7 @@ ViolaJonesFaceDetector::ViolaJonesFaceDetector() :
         m_minWidth(20),
         m_minHeight(20),
         //TODO this should be stored somewhere else maybe?
-        m_haarCascadeFile( "C://OpenCV2.0/data/haarcascades/haarcascade_frontalface_alt.xml" ),
+        m_haarCascadeFile( "C:/OpenCV-2.1.0/data/haarcascades/haarcascade_frontalface_alt.xml" ),
         m_pCascade( 0 ),
         m_pStorage( 0 )
 {
@@ -104,8 +104,7 @@ bool ViolaJonesFaceDetector::process()
     // detect faces
     // this still uses old C interface
     CvMat srcMat = src;
-    CvSeq* faceRectSeq = 0;
-            cvHaarDetectObjects(&srcMat, m_pCascade, m_pStorage,
+    CvSeq* faceRectSeq = cvHaarDetectObjects(&srcMat, m_pCascade, m_pStorage,
             m_scaleFactor, /* increase scale by m_scaleFactor each pass */
             m_minNeighbours, /*drop groups fewer than m_minNeighbours detections */
             int (m_useCannyPruning), /* 1 means: CV_HAAR_DO_CANNY_PRUNING */

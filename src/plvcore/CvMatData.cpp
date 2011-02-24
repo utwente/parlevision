@@ -120,7 +120,7 @@ QDataStream &operator<<(QDataStream &out, const CvMatData& d)
 
     const cv::Mat& mat = d;
 
-    out << (qint32)mat.flags;
+    out << (qint32)CV_MAT_TYPE(mat.flags);
     out << (qint32)mat.rows;
     out << (qint32)mat.cols;
 

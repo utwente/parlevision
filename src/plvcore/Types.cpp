@@ -23,8 +23,8 @@
 
 using namespace plv;
 
-RectangleData::RectangleData( int width, int height ) :
-    d( new RectangleDataPrivate( width, height ) )
+RectangleData::RectangleData( int width, int height, QList<QRect> rects ) :
+    d( new RectangleDataPrivate( width, height, rects ) )
 {
 }
 
@@ -33,6 +33,30 @@ RectangleData::RectangleData( const RectangleData& other ) :
 
 RectangleData::~RectangleData() {}
 
+QDataStream &operator<<(QDataStream &out, const RectangleData& d)
+{
+    out << d.width();
+    out << d.height();
+    out << d.getRects();
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, RectangleData& d)
+{
+    int width;
+    int height;
+    QList<QRect> rects;
+
+    in >> width;
+    in >> height;
+    in >> rects;
+
+    d.setWidth(width);
+    d.setHeight(height);
+    d.setRects(rects);
+
+    return in;
+}
 
 QDataStream &operator<<(QDataStream &out, const cv::Scalar &s)
 {

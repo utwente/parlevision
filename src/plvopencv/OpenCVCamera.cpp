@@ -29,7 +29,8 @@
 using namespace plv;
 using namespace plvopencv;
 
-OpenCVCamera::OpenCVCamera() :
+OpenCVCamera::OpenCVCamera(QObject* parent) :
+    QThread(parent),
     m_id( 0 ),
     m_state( CAM_UNINITIALIZED ),
     m_captureDevice( 0 )
@@ -79,7 +80,12 @@ void OpenCVCamera::run()
     while( m_state == CAM_RUNNING || m_state == CAM_PAUSED )
     {
         // get a frame, blocking call
-        CvMatData frame = getFrame();
+        CvMatData frame;
+        if( !getFrame(frame) )
+        {
+            qWarning() << "Camera failed to grab frame. Exiting camera loop.";
+            return;
+        }
 
         // send a signal to subscribers
         if( frame.isValid() )
@@ -234,7 +240,7 @@ bool OpenCVCamera::setDimensions( int w, int h )
     }
 }
 
-CvMatData OpenCVCamera::getFrame()
+bool OpenCVCamera::getFrame( CvMatData& mat )
 {
     QMutexLocker lock( &m_opencv_mutex );
 
@@ -245,18 +251,19 @@ CvMatData OpenCVCamera::getFrame()
     int status = cvGrabFrame( m_captureDevice );
 
     if( !status )
-    {
-        return 0;
-    }
+        return false;
 
     // now do post processing such as decompression
     const IplImage* image = cvRetrieveFrame( m_captureDevice );
 
+    if( image == 0 )
+        return false;
+
     // copy the image, since the pointer becomes invalid on another
     // call to cvGrabFrame() and this pointer is passed to the pipeline
     // get a reused buffer
-    CvMatData mat( image );
-    return mat;
+    mat = image;
+    return true;
 }
 
 /*

@@ -19,18 +19,18 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef OpenCVImageRenderer_H
-#define OpenCVImageRenderer_H
+#ifndef OPENCVIMAGELISTRENDERER_H
+#define OPENCVIMAGELISTRENDERER_H
 
 #include <QMutex>
-#include <plvcore/RefPtr.h>
-
 #include "ImageConverter.h"
 #include "DataRenderer.h"
 
+QT_BEGIN_NAMESPACE
 class QPixmap;
-class QVBoxLayout;
+class QHBoxLayout;
 class QImage;
+QT_END_NAMESPACE
 
 namespace plv
 {
@@ -41,28 +41,28 @@ namespace plvgui
 {
     class ImageWidget;
 
-    class PLVGUI_EXPORT OpenCVImageRenderer : public DataRenderer
+    class PLVGUI_EXPORT OpenCVImageListRenderer : public DataRenderer
     {
         Q_OBJECT
 
     public:
-        OpenCVImageRenderer(QWidget* parent);
-        virtual ~OpenCVImageRenderer();
+        OpenCVImageListRenderer(QWidget* parent);
+        virtual ~OpenCVImageListRenderer();
 
     protected:
         void showEvent(QShowEvent* event);
         void hideEvent(QHideEvent* event);
 
     private:
-        QVBoxLayout*    m_layout;
-        ImageWidget*    m_imageWidget;
-        bool            m_busy;
-        QMutex          m_busy_mutex;
-        ImageConverter* m_converter;
+        QHBoxLayout*          m_layout;
+        QVector<ImageWidget*> m_imageWidgets;
+        bool                  m_busy;
+        QMutex                m_busy_mutex;
+        ImageConverter*       m_converter;
 
     public slots:
         virtual void newData( QVariant v );
-        void updateImage( QImage img, int id );
+        void updateImages( QList<QImage> images, int id );
     };
 }
-#endif // OpenCVImageRenderer_H
+#endif //OPENCVIMAGELISTRENDERER_H

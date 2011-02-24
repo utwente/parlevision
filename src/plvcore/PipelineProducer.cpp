@@ -72,5 +72,8 @@ bool PipelineProducer::__process( unsigned int serial )
         out->post();
     }
 
+    lock.unlock();
+    if(!retval) setState(ERROR);
+
     return retval;
 }

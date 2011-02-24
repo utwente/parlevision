@@ -22,10 +22,7 @@
 #ifndef IMAGECONVERTER_H
 #define IMAGECONVERTER_H
 
-#include <QScopedPointer>
-#include <plvcore/RefPtr.h>
 #include <QObject>
-#include <opencv/cv.h>
 #include <stdexcept>
 #include <QImage>
 #include <plvcore/CvMatData.h>
@@ -39,22 +36,27 @@ namespace plvgui
                 std::runtime_error( why ) {}
     };
 
-    class ImageConverter : public QObject, public plv::RefCounted
+    class ImageConverter : public QObject
     {
         Q_OBJECT
 
     public:
+        ImageConverter( QObject* parent = 0 );
+        ~ImageConverter();
 
         /** Starts converting this image to a QImage.
-          * This call will return immediately
-          * as converting is done asynchronously.
-          * @emits converted(QImage*) when converting has finished;
+          * This call will return immediately as converting is done asynchronously.
+          * The id can be used to track multiple images in flight by the
+          * calling code, but nothing is done with the id here and images
+          * can be converted out of order.
+          * @emits converted(QImage*, id) when converting has finished
           */
-        void convertCvMatData( const plv::CvMatData& data );
+        void convertCvMatData( const plv::CvMatData& data, int id=0 );
+        void convertCvMatDataList( const QList<plv::CvMatData>& data, int id=0 );
 
     private:
-        static ImageConverter* m_instance;
-        void convert( const plv::CvMatData mat );
+        void convert( const plv::CvMatData& mat, int id );
+        void convertList( const QList<plv::CvMatData>& data, int id );
 
         /** Converts an OpenCV iplImage to a QImage.
           * @throw ImageConversionException when conversion fails.
@@ -66,7 +68,8 @@ namespace plvgui
         /** Emitted when converting is done.
           * The contained image might not be valid if an error occurred
           */
-        void converted( QImage img );
+        void converted( QImage img, int id );
+        void convertedList( QList<QImage> img, int id );
     };
 }
 

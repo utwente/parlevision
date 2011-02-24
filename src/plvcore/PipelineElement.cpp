@@ -92,7 +92,7 @@ IInputPin* PipelineElement::getInputPin( const QString& name ) const
     {
         return itr->second.getPtr();
     }
-    qWarning() << "Could not find pin named " << name << " in PipelineElement::getInputPin";
+    qDebug() << tr("Could not find pin with name %1 in PipelineElement::getInputPin").arg(name);
     return 0;
 }
 
@@ -105,6 +105,7 @@ IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
     {
         return itr->second.getPtr();
     }
+    qDebug() << tr("Could not find pin with name %1 in PipelineElement::getOutputPin").arg(name);
     return 0;
 }
 
@@ -549,7 +550,7 @@ bool PipelineElement::__init()
 
 bool PipelineElement::__deinit() throw()
 {
-    assert( getState() == STARTED || getState() == UNDEFINED || getState() == INITIALIZED );
+    assert( getState() == ERROR || getState() == INITIALIZED );
     if( !this->deinit() )
     {
         setState(ERROR);

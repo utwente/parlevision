@@ -53,10 +53,10 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent) :
 
     this->setLayout( m_layout );
 
-    m_converter = new ImageConverter();
+    m_converter = new ImageConverter(this);
 
-    connect(m_converter.getPtr(), SIGNAL( converted( QImage ) ),
-             this,                 SLOT( updateImage( QImage ) ),
+    connect( m_converter, SIGNAL( converted( QImage, int ) ),
+             this,        SLOT( updateImage( QImage, int ) ),
              Qt::UniqueConnection);
 }
 
@@ -78,18 +78,13 @@ void OpenCVImageRenderer::hideEvent(QHideEvent* event)
 
 void OpenCVImageRenderer::newData( QVariant v )
 {
-    m_busy_mutex.lock();
+    QMutexLocker lock( &m_busy_mutex );
 
     if(m_busy || !this->isVisible() )
-    {
-        m_busy_mutex.unlock();
         return;
-    }
-    else
-    {
-        m_busy = true;
-        m_busy_mutex.unlock();
-    }
+
+    m_busy = true;
+    lock.unlock();
 
     // dispatch an asynchronous call
     if( v.canConvert<plv::CvMatData>() )
@@ -99,10 +94,13 @@ void OpenCVImageRenderer::newData( QVariant v )
     }
 }
 
-void OpenCVImageRenderer::updateImage( QImage image )
+void OpenCVImageRenderer::updateImage( QImage image, int id )
 {
-    //TODO better make this a separate mutex, but this will do for now
-    QMutexLocker lock( &m_busy_mutex );
-    m_imageWidget->setImage( image );
+    Q_UNUSED(id)
+
+    m_imageWidget->setImage(image);
+    m_layout->update();
+
+    QMutexLocker lock2(&m_busy_mutex);
     m_busy = false;
 }

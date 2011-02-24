@@ -34,7 +34,6 @@ using namespace plv;
 using namespace plvopencv;
 
 CameraProducer::CameraProducer() :
-        m_camera( new OpenCVCamera() ),
         m_cameraId( 0 ),
         m_width( 640 ),
         m_height( 480 ),
@@ -48,12 +47,14 @@ CameraProducer::CameraProducer() :
     m_outputPin->addAllChannels();
     m_outputPin->addAllDepths();
 
+    m_camera = new OpenCVCamera(this);
+
     // connect the camera to this camera producer using Qt's signals
     // and slots mechanism.
-    connect( m_camera.getPtr(),
-             SIGNAL( newFrame( plv::CvMatData ) ),
-             this,
-             SLOT( newFrame( plv::CvMatData ) ) );
+    connect( m_camera, SIGNAL( newFrame( plv::CvMatData ) ),
+             this,     SLOT( newFrame( plv::CvMatData ) ) );
+
+    connect( m_camera, SIGNAL( finished()), this, SLOT(cameraFinished()));
 }
 
 CameraProducer::~CameraProducer()
@@ -109,4 +110,13 @@ bool CameraProducer::readyToProduce() const
 {
     QMutexLocker lock(&m_frameMutex);
     return( !m_frames.isEmpty() );
+}
+
+void CameraProducer::cameraFinished()
+{
+    if( getState() >= INITIALIZED )
+    {
+        setError( PlvResourceError, "Camera quit unexpectedly.");
+        emit onError( PlvNonFatalError, this );
+    }
 }

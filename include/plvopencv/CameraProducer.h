@@ -41,8 +41,9 @@ namespace plvopencv
         Q_OBJECT
         Q_DISABLE_COPY( CameraProducer )
 
-        Q_CLASSINFO("author", "Richard")
-        Q_CLASSINFO("name", "Camera")
+        Q_CLASSINFO("author", "Richard Loos")
+        Q_CLASSINFO("name", "Camera Producer (OpenCV)")
+        Q_CLASSINFO("description", "This producer produces images from a camera using OpenCV's built in camera support.")
         Q_PROPERTY( int cameraId READ getCameraId WRITE setCameraId NOTIFY cameraIdChanged )
         Q_PROPERTY( int width READ getWidth WRITE setWidth NOTIFY widthChanged )
         Q_PROPERTY( int height READ getHeight WRITE setHeight NOTIFY heightChanged )
@@ -59,14 +60,14 @@ namespace plvopencv
         virtual bool start();
         virtual bool stop();
 
-        inline OpenCVCamera* getCamera() const { return m_camera.getPtr(); }
+        inline OpenCVCamera* getCamera() const { return m_camera; }
 
         inline int getCameraId() const { return m_cameraId; }
         inline int getHeight() const { return m_height; }
         inline int getWidth() const { return m_width; }
 
     protected:
-        plv::RefPtr<OpenCVCamera> m_camera;
+        OpenCVCamera* m_camera;
         QList<plv::CvMatData> m_frames;
         plv::CvMatDataOutputPin* m_outputPin;
 
@@ -81,6 +82,7 @@ namespace plvopencv
 
     public slots:
         void newFrame( plv::CvMatData frame );
+        void cameraFinished();
 
         void setCameraId(int c) { m_cameraId = c; emit(cameraIdChanged(c));}
         void setHeight(int h) { m_height = h; emit(heightChanged(h));}

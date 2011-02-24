@@ -121,6 +121,18 @@ namespace plv
             return *this;
         }
 
+        inline CvMatData& operator=(const IplImage* iplimg)
+        {
+            assert( iplimg != 0 );
+            // copy image data
+            // workaround for bug in OpenCV 2.0 / 2.1 which causes
+            // this cv::Mat mat( img, true ); to not work.
+            cv::Mat tmp(iplimg, false);
+            cv::Mat mat = tmp.clone();
+            d->mat = mat;
+            return *this;
+        }
+
         /** Returns if the contained matrix has allocated data */
         inline bool isValid() const { return d->mat.cols > 0 && d->mat.rows > 0 && d->mat.data!=0; }
 
@@ -172,5 +184,6 @@ PLVCORE_EXPORT QDataStream& operator<<(QDataStream &out, const plv::CvMatData& d
 PLVCORE_EXPORT QDataStream& operator>>(QDataStream &in, plv::CvMatData& d);
 
 Q_DECLARE_METATYPE( plv::CvMatData )
+Q_DECLARE_METATYPE( QList<plv::CvMatData> );
 
 #endif

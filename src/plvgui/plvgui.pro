@@ -44,6 +44,7 @@ INCLUDEPATH +=  ../../include/ ../../include/plvgui
 SOURCES += \
     MainWindow.cpp \
     OpenCVImageRenderer.cpp \
+    OpenCVImageListRenderer.cpp \
     RendererFactory.cpp \
     DataRenderer.cpp \
     UnknownDataRenderer.cpp \
@@ -68,6 +69,7 @@ HEADERS += \
     ../../include/plvgui/utils.h \
     ../../include/plvgui/MainWindow.h \
     ../../include/plvgui/OpenCVImageRenderer.h \
+    ../../include/plvgui/OpenCVImageListRenderer.h \
     ../../include/plvgui/RendererFactory.h \
     ../../include/plvgui/DataRenderer.h \
     ../../include/plvgui/UnknownDataRenderer.h \

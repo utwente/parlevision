@@ -16,12 +16,19 @@
 #include "ImageFlip.h"
 #include "GaussianSmooth.h"
 #include "ImageThreshold.h"
+#include "CropSubImage.h"
+
 //#include "Snapshot.h"
-//#include "ViolaJonesFaceDetector.h"
+#include "ViolaJonesFaceDetector.h"
 //#include "Trigger.h"
 //#include "SaveImageToFile.h"
 //#include "ImageLoader.h"
 #include "PixelSum.h"
+#include "Xor.h"
+#include "Multiply.h"
+#include "Split.h"
+#include "ImageProducer.h"
+#include "ImageDirectoryProducer.h"
 
 PlvOpenCVPlugin::PlvOpenCVPlugin()
 {
@@ -56,11 +63,20 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::PixelSum>();
 
 //    plvRegisterPipelineElement<plvopencv::Snapshot>();
-//    plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>();
+    plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>();
+    plvRegisterPipelineElement<plvopencv::CropSubImage>();
 //    plvRegisterPipelineElement<plvopencv::Trigger>();
 //    plvRegisterPipelineElement<plvopencv::SaveImageToFile>();
 //    plvRegisterPipelineElement<plvopencv::ImageLoader>();
     plvRegisterPipelineElement<plvopencv::ImageThreshold>();
+
+    //Producers
+    plvRegisterPipelineElement<plvopencv::ImageProducer>();
+    plvRegisterPipelineElement<plvopencv::ImageDirectoryProducer>();
+    //Processors
+    plvRegisterPipelineElement<plvopencv::Xor>();
+    plvRegisterPipelineElement<plvopencv::Multiply>();
+    plvRegisterPipelineElement<plvopencv::Split>();
 
     //consumers
 }
