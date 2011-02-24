@@ -17,7 +17,7 @@ macx {
     QMAKE_POST_LINK = install_name_tool -change libplvcore.1.dylib @executable_path/../Frameworks/libplvcore.1.dylib ../../libs/plugins/libplvopencv.dylib
 }
 
-
+include (../../common.pri)
 include(../../ParleVision.local)
 
 #macx {

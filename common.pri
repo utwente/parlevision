@@ -50,7 +50,13 @@ win32 {
 
 #Unix specific libraries
 unix {
-    LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc
+    #LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc
+    LIBS += -lcv \
+                -lcxcore \
+                -lcvaux \
+                -lhighgui \
+                #-lcxts \
+                -lml
 }
 
 macx {

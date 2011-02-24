@@ -6,7 +6,8 @@ DESTDIR= ../../libs/
 
 DEPENDPATH += . \
               ..
-              
+
+include(../../common.pri)
 include(../../ParleVision.local)
 macx { 
 
