@@ -771,7 +771,7 @@ void Pipeline::threadUnsafeDisconnect( PinConnection* connection )
         if(con.getPtr() == con2.getPtr())
         {
             m_connections.erase(itr);
-            emit( connectionRemoved(con) );
+            emit connectionRemoved(con);
             break;
         }
     }

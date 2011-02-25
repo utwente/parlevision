@@ -53,59 +53,145 @@ PipelineElement::~PipelineElement()
     delete m_propertyMutex;
 }
 
-void PipelineElement::addInputPin( IInputPin* pin ) throw (IllegalArgumentException)
+int PipelineElement::addInputPin( IInputPin* pin )
 {
+    assert( pin != 0 );
     QMutexLocker lock( &m_pleMutex );
 
-    InputPinMap::iterator itr = m_inputPins.find( pin->getName() );
-    if( itr != m_inputPins.end() )
+    int id = pin->getId();
+    if( id == -1 )
     {
-        QString err = QString( tr( "Tried to add output pin with name %1, "
-                              "which already exists")).arg( pin->getName() );
-        throw IllegalArgumentException( err );
+        id = getNextInputPinId();
+        pin->setId(id);
+        assert( m_inputPins.find(id) == m_inputPins.end() );
+    }
+    else
+    {
+        InputPinMap::iterator itr = m_inputPins.find(id);
+        if( itr != m_inputPins.end() )
+        {
+            QString err = QString( tr( "Tried to add input pin %1 with id %2 "
+                                       "which already exists. Ignoring."))
+                    .arg( pin->getName() ).arg( pin->getId() );
+            qWarning() << err;
+            return -1;
+        }
     }
     RefPtr<IInputPin> rpin( pin );
-    m_inputPins.insert( std::make_pair( pin->getName(), rpin ));
+    m_inputPins.insert( std::make_pair( id, rpin ));
+    emit inputPinAdded(pin);
+    return id;
 }
 
-void PipelineElement::addOutputPin( IOutputPin* pin ) throw (IllegalArgumentException)
+void PipelineElement::removeInputPin( int id )
 {
     QMutexLocker lock( &m_pleMutex );
-
-    OutputPinMap::iterator itr = m_outputPins.find( pin->getName() );
-    if( itr != m_outputPins.end() )
+    InputPinMap::iterator itr = m_inputPins.find(id);
+    if( itr != m_inputPins.end() )
     {
-        QString err = QString( tr( "Tried to add output pin with name %1, "
-                              "which already exists")).arg( pin->getName() );
-        throw IllegalArgumentException( err );
+        QString err = QString(tr( "Tried to remove an input pin with invalid id %1. "
+                                  "Ignoring.").arg(id));
+        qWarning() << err;
+    }
+    emit inputPinRemoved(itr->first);
+    m_inputPins.erase(itr);
+}
+
+int PipelineElement::addOutputPin( IOutputPin* pin )
+{
+    assert( pin != 0 );
+    QMutexLocker lock( &m_pleMutex );
+
+    int id = pin->getId();
+    if( id == -1 )
+    {
+        id = getNextOutputPinId();
+        assert( m_outputPins.find(id) == m_outputPins.end() );
+        pin->setId(id);
+    }
+    else
+    {
+        OutputPinMap::iterator itr = m_outputPins.find(id);
+        if( itr != m_outputPins.end() )
+        {
+            QString err = QString( tr( "Tried to add output pin %1 with id %2 "
+                                       "which already exists. Ignoring."))
+                    .arg( pin->getName() ).arg( pin->getId() );
+            qWarning() << err;
+            return -1;
+        }
     }
     RefPtr<IOutputPin> rpin( pin );
-    m_outputPins.insert( std::make_pair( pin->getName(), rpin ));
+    m_outputPins.insert( std::make_pair( id, rpin ));
+    emit outputPinAdded(pin);
+    return id;
 }
 
-IInputPin* PipelineElement::getInputPin( const QString& name ) const
+void PipelineElement::removeOutputPin( int id )
+{
+    QMutexLocker lock( &m_pleMutex );
+    OutputPinMap::iterator itr = m_outputPins.find(id);
+    if( itr != m_outputPins.end() )
+    {
+        QString err = QString( tr( "Tried to remove an output pin with invalid id %1. "
+                                   "Ignoring.").arg(id) );
+        qWarning() << err;
+    }
+    emit outputPinRemoved(itr->first);
+    m_outputPins.erase(itr);
+}
+
+int PipelineElement::getNextInputPinId() const
+{
+    int id=0;
+
+    InputPinMap::const_iterator itr = m_inputPins.begin();
+    for( ;itr != m_inputPins.end(); ++itr, ++id)
+    {
+        int cid = itr->first;
+        if( cid > id )
+            return id;
+    }
+    return id;
+}
+
+int PipelineElement::getNextOutputPinId() const
+{
+    int id=0;
+
+    OutputPinMap::const_iterator itr = m_outputPins.begin();
+    for( ;itr != m_outputPins.end(); ++itr, ++id)
+    {
+        int cid = itr->first;
+        if( cid > id )
+            return id;
+    }
+    return id;
+}
+
+IInputPin* PipelineElement::getInputPin( int id ) const
 {
     QMutexLocker lock( &m_pleMutex );
 
-    InputPinMap::const_iterator itr = m_inputPins.find( name );
+    InputPinMap::const_iterator itr = m_inputPins.find( id );
     if( itr != m_inputPins.end() )
     {
         return itr->second.getPtr();
     }
-    qDebug() << tr("Could not find pin with name %1 in PipelineElement::getInputPin").arg(name);
+    qDebug() << tr("Could not find pin with id %1 in PipelineElement::getInputPin").arg(id);
     return 0;
 }
 
-IOutputPin* PipelineElement::getOutputPin( const QString& name ) const
+IOutputPin* PipelineElement::getOutputPin( int id ) const
 {
     QMutexLocker lock( &m_pleMutex );
 
-    OutputPinMap::const_iterator itr = m_outputPins.find( name );
+    OutputPinMap::const_iterator itr = m_outputPins.find( id );
     if( itr != m_outputPins.end() )
     {
         return itr->second.getPtr();
     }
-    qDebug() << tr("Could not find pin with name %1 in PipelineElement::getOutputPin").arg(name);
+    qDebug() << tr("Could not find pin with name %1 in PipelineElement::getOutputPin").arg(id);
     return 0;
 }
 
@@ -317,7 +403,7 @@ QStringList PipelineElement::getInputPinNames() const
     for( InputPinMap::const_iterator itr = m_inputPins.begin();
          itr != m_inputPins.end(); ++itr )
     {
-        names.push_back(itr->first);
+        names.push_back(itr->second->getName());
     }
     return names;
 }
@@ -330,7 +416,7 @@ QStringList PipelineElement::getOutputPinNames() const
     for( OutputPinMap::const_iterator itr = m_outputPins.begin();
          itr != m_outputPins.end(); ++itr )
     {
-        names.push_back(itr->first);
+        names.push_back(itr->second->getName());
     }
     return names;
 }

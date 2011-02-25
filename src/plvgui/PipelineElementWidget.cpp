@@ -53,8 +53,12 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
     connect(this, SIGNAL(yChanged()), this, SLOT(savePositionProperties()));
 
     //connect(element, SIGNAL(onStateChange(PipelineElement::State)), this, SLOT(onStateChange(PipelineElement::State)));
-    connect(element, SIGNAL(onError(PlvErrorType,plv::PipelineElement*)), this, SLOT(onError(PlvErrorType,plv::PipelineElement*)));
-    connect(element, SIGNAL(onProcessingTimeUpdate(int,int)), this, SLOT(onProcessingTimeUpdate(int,int)));
+    connect( element, SIGNAL(onError(PlvErrorType,plv::PipelineElement*)), this, SLOT(onError(PlvErrorType,plv::PipelineElement*)));
+    connect( element, SIGNAL(onProcessingTimeUpdate(int,int)), this, SLOT(onProcessingTimeUpdate(int,int)));
+    connect( element, SIGNAL(inputPinAdded(plv::IInputPin*)), this, SLOT(inputPinAdded(plv::IInputPin*)));
+    connect( element, SIGNAL(outputPinAdded(plv::IOutputPin*)), this, SLOT(outputPinAdded(plv::IOutputPin*)));
+    connect( element, SIGNAL(inputPinRemoved(int)), this, SLOT(inputPinRemoved(int)) );
+    connect( element, SIGNAL(outputPinRemoved(int)), this, SLOT(outputPinRemoved(int)) );
 
     titleLabel = new QGraphicsTextItem(element->getName(), this);
     this->addToGroup(titleLabel);
@@ -87,22 +91,56 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
     drawPinsAndInfo();
 }
 
+PinWidget* PipelineElementWidget::getWidgetFor(const plv::IInputPin* p) const
+{
+    if( !inputPinWidgets.contains(p->getId()))
+    {
+        qWarning() << "PipelineElementWidget::getWidgetFor(const plv::IInputPin* p) widget not found";
+        return 0;
+    }
+    return inputPinWidgets.value(p->getId());
+}
+
+PinWidget* PipelineElementWidget::getWidgetFor(const plv::IOutputPin* p) const
+{
+    if( !outputPinWidgets.contains(p->getId()))
+    {
+        qWarning() << "PipelineElementWidget::getWidgetFor(const plv::IOutputPin* p) widget not found";
+        return 0;
+    }
+    return outputPinWidgets.value(p->getId());
+}
+
 void PipelineElementWidget::addInputPin(IInputPin* in)
 {
     assert(in!=0);
     PinWidget* pw = new PinWidget(this, in);
-    this->inputPinWidgets[in] = pw;
+    this->inputPinWidgets[in->getId()] = pw;
     this->addToGroup(pw);
     this->leftColumnWidth = max(pw->boundingRect().width(), this->leftColumnWidth);
+}
+
+void PipelineElementWidget::removeInputPin(int id)
+{
+    assert( inputPinWidgets.contains(id) );
+    PinWidget* pw = inputPinWidgets.value(id);
+    pw->setParent(0);
+    this->inputPinWidgets.remove(id);
+    delete pw;
 }
 
 void PipelineElementWidget::addOutputPin(IOutputPin* out)
 {
     assert(out!=0);
     PinWidget* pw = new PinWidget(this, out);
-    this->outputPinWidgets[out] = pw;
+    this->outputPinWidgets[out->getId()] = pw;
     this->addToGroup(pw);
     this->maxWidth = max(pw->boundingRect().width(), this->maxWidth);
+}
+
+void PipelineElementWidget::removeOutputPin(int id)
+{
+    this->outputPinWidgets.remove(id);
 }
 
 void PipelineElementWidget::drawPinsAndInfo()
@@ -111,7 +149,7 @@ void PipelineElementWidget::drawPinsAndInfo()
     int y = 20;
     foreach( PinWidget* pw, this->inputPinWidgets )
     {
-        pw->translate(0, y);
+        pw->setPos(0, y);
         y+=20;
     }
     int maxy = y;
@@ -124,27 +162,33 @@ void PipelineElementWidget::drawPinsAndInfo()
     foreach(PinWidget* pw, outputPinWidgets)
     {
         qreal offset = leftColumnWidth + 20 + maxWidth - pw->boundingRect().width();
-        pw->translate(offset, y);
+        pw->setPos(offset, y);
         y+=20;
     }
     if( y > maxy ) maxy = y;
 
     avgProcessingTimeLabel->setPlainText(avgTimeString);
-    avgProcessingTimeLabel->translate(0,maxy);
+    avgProcessingTimeLabel->setPos(0,maxy);
     maxy += 20;
     lastProcessingTimeLabel->setPlainText(lastTimeString);
-    lastProcessingTimeLabel->translate(0,maxy);
+    lastProcessingTimeLabel->setPos(0,maxy);
 
     // center the title
     qreal offset = (this->boundingRect().width()-titleLabel->boundingRect().width())/2.0;
     if(offset > 0)
-        this->titleLabel->translate(offset,0);
+        this->titleLabel->setPos(offset,0);
 }
 
 void PipelineElementWidget::addLine(ConnectionLine *line, QString pin)
 {
     Q_UNUSED(pin);
     this->lines.append(line);
+}
+
+void PipelineElementWidget::removeLine(ConnectionLine *line, QString pin)
+{
+    Q_UNUSED(pin);
+    this->lines.removeAll(line);
 }
 
 QRectF PipelineElementWidget::boundingRect() const
@@ -251,4 +295,33 @@ void PipelineElementWidget::onProcessingTimeUpdate(int avg, int last)
     lastProcessingTimeLabel->setPlainText(lastTimeString);
     this->update();
 }
+
+void PipelineElementWidget::inputPinAdded( plv::IInputPin* pin )
+{
+    this->addInputPin(pin);
+    this->drawPinsAndInfo();
+    this->update();
+}
+
+void PipelineElementWidget::outputPinAdded( plv::IOutputPin* pin )
+{
+    this->addOutputPin(pin);
+    this->drawPinsAndInfo();
+    this->update();
+}
+
+void PipelineElementWidget::inputPinRemoved( int id )
+{
+    this->removeInputPin(id);
+    this->drawPinsAndInfo();
+    this->update();
+}
+
+void PipelineElementWidget::outputPinRemoved( int id )
+{
+    this->removeOutputPin(id);
+    this->drawPinsAndInfo();
+    this->update();
+}
+
 

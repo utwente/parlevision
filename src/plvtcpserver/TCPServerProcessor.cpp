@@ -5,17 +5,18 @@
 #include <plvcore/CvMatDataPin.h>
 #include <QNetworkInterface>
 
-using namespace plv;
-
 TCPServerProcessor::TCPServerProcessor() : m_port(1337), m_waiting(false)
 {
     m_server = new Server(this);
     connect(this, SIGNAL( sendFrame(quint32,QVariantList)),
             m_server, SLOT( sendFrame(quint32,QVariantList)) );
 
-    m_inputPinCvMatData = createCvMatDataInputPin( "image", this, IInputPin::CONNECTION_OPTIONAL );
-    m_inputPinDouble    = createInputPin<double>(  "double_test", this, IInputPin::CONNECTION_OPTIONAL );
-    m_inputPinCvScalar  = createInputPin<cv::Scalar>( "cv::Scalar", this, IInputPin::CONNECTION_OPTIONAL );
+    //m_inputPinCvMatData = createCvMatDataInputPin( "image", this, IInputPin::CONNECTION_OPTIONAL );
+    //m_inputPinDouble    = createInputPin<double>(  "double_test", this, IInputPin::CONNECTION_OPTIONAL );
+    //m_inputPinCvScalar  = createInputPin<cv::Scalar>( "cv::Scalar", this, IInputPin::CONNECTION_OPTIONAL );
+
+
+    plv::createDynamicInputPin( "generic pin", this, plv::IInputPin::CONNECTION_OPTIONAL );
 }
 
 TCPServerProcessor::~TCPServerProcessor()
@@ -79,6 +80,55 @@ bool TCPServerProcessor::isReadyForProcessing() const
 {
     QMutexLocker lock( m_propertyMutex );
     return !m_waiting;
+}
+
+void TCPServerProcessor::inputConnectionSet(plv::IInputPin* pin, plv::PinConnection* connection)
+{
+    QString name = pin->getName();
+    QString otherName = connection->fromPin()->getName();
+
+    QString msg = tr("TCPServerProcessor input pin %1 connection set with %2")
+                  .arg(name).arg(otherName);
+
+    qDebug() << msg;
+
+    QString newName = QString("%1: %2").arg(pin->getId()).arg(pin->getTypeName());
+    pin->setName(newName);
+    plv::createDynamicInputPin( "generic pin", this, plv::IInputPin::CONNECTION_OPTIONAL );
+}
+
+void TCPServerProcessor::inputConnectionRemoved(plv::IInputPin* pin, plv::PinConnection* connection)
+{
+    QString name = pin->getName();
+    QString otherName = connection->fromPin()->getName();
+
+    QString msg = tr("TCPServerProcessor input pin %1 connection removed with %2")
+                  .arg(name).arg(otherName);
+
+    qDebug() << msg;
+    removeInputPin(pin->getId());
+}
+
+void TCPServerProcessor::outputConnectionAdded(plv::IOutputPin* pin, plv::PinConnection* connection)
+{
+    QString name = pin->getName();
+    QString otherName = connection->toPin()->getName();
+
+    QString msg = tr("TCPServerProcessor output pin %1 connection removed with %2")
+                  .arg(name).arg(otherName);
+
+    qDebug() << msg;
+}
+
+void TCPServerProcessor::outputConnectionRemoved(plv::IOutputPin* pin, plv::PinConnection* connection)
+{
+    QString name = pin->getName();
+    QString otherName = connection->toPin()->getName();
+
+    QString msg = tr("TCPServerProcessor output pin %1 connection removed with %2")
+                  .arg(name).arg(otherName);
+
+    qDebug() << msg;
 }
 
 bool TCPServerProcessor::process()

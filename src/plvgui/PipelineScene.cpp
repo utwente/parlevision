@@ -136,6 +136,7 @@ void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
                                               this);
     assert(!this->connectionLines.contains(c.getPtr()));
     this->connectionLines[c.getPtr()] = item;
+
     getWidgetFor(c->fromPin()->getOwner())->addLine(item, c->fromPin()->getName());
     getWidgetFor(c->toPin()->getOwner())->addLine(item, c->fromPin()->getName());
 }
@@ -190,7 +191,14 @@ void PipelineScene::remove(plv::PinConnection* c)
 
 void PipelineScene::remove(plv::RefPtr<plv::PinConnection> c)
 {
+    assert( this->connectionLines.contains(c.getPtr()));
+
+    ConnectionLine* item = this->connectionLines.take(c.getPtr());
+    getWidgetFor(c->fromPin()->getOwner())->removeLine(item, c->fromPin()->getName());
+    getWidgetFor(c->toPin()->getOwner())->removeLine(item, c->fromPin()->getName());
+
     this->m_pipeline->pinConnectionDisconnect(c);
+    delete item;
 }
 
 void PipelineScene::handleRemove(plv::PipelineElement* e)

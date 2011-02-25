@@ -158,10 +158,10 @@ QString PipelineLoader::serialize( Pipeline* pl )
         xmlSink.appendChild( xmlSinkPinName );
         xmlSink.appendChild( xmlSinkId );
 
-        QString sinkPinName = connection->toPin()->getName();
+        QString sinkPinId = connection->toPin()->getName();
         QString sinkId = QVariant( connection->toPin()->getOwner()->getId() ).toString();
 
-        QDomText xmlSinkNameText = doc.createTextNode( sinkPinName );
+        QDomText xmlSinkNameText = doc.createTextNode( sinkPinId );
         QDomText xmlSinkIdText = doc.createTextNode( sinkId );
 
         xmlSinkPinName.appendChild( xmlSinkNameText );
@@ -176,10 +176,10 @@ QString PipelineLoader::serialize( Pipeline* pl )
         xmlSource.appendChild( xmlSourcePinName );
         xmlSource.appendChild( xmlSourceId );
 
-        QString sourcePinName = connection->fromPin()->getName();
+        QString sourcePinId = connection->fromPin()->getName();
         QString sourceId = QVariant( connection->fromPin()->getOwner()->getId() ).toString();
 
-        QDomText xmlSourceNameText = doc.createTextNode( sourcePinName );
+        QDomText xmlSourceNameText = doc.createTextNode( sourcePinId );
         QDomText xmlSourceIdText = doc.createTextNode( sourceId );
 
         xmlSourcePinName.appendChild( xmlSourceNameText );
@@ -337,14 +337,14 @@ void PipelineLoader::parseConnections( QDomNodeList* list, Pipeline* pipeline )
             // error
         }
 
-        QDomElement sinkPinNameNode = sinkNode.firstChildElement( "pinName" );
-        if( sinkPinNameNode.isNull() )
+        QDomElement sinkPinIdNode = sinkNode.firstChildElement( "pinName" );
+        if( sinkPinIdNode.isNull() )
         {
             // error
         }
 
         int sinkProcId = sinkProcIdNode.text().toInt();
-        QString sinkPinName = sinkPinNameNode.text();
+        int sinkPinId  = sinkPinIdNode.text().toInt();
 
         QDomElement sourceNode =connectionNode.firstChildElement( "source" );
         if( sourceNode.isNull() )
@@ -356,21 +356,21 @@ void PipelineLoader::parseConnections( QDomNodeList* list, Pipeline* pipeline )
         {
             //error
         }
-        QDomElement sourcePinNameNode = sourceNode.firstChildElement( "pinName" );
-        if( sourcePinNameNode.isNull() )
+        QDomElement sourcePinIdNode = sourceNode.firstChildElement( "pinId" );
+        if( sourcePinIdNode.isNull() )
         {
             //error
         }
 
         int sourceProcId = sourceProcIdNode.text().toInt();
-        QString sourcePinName = sourcePinNameNode.text();
+        int sourcePinId  = sourcePinIdNode.text().toInt();
 
         qDebug() << "Found connection with source( " << sourceProcId << ","
-                 << sourcePinName << ") and sink( " << sinkProcId << ","
-                 << sinkPinName << ")";
+                 << sourcePinId << ") and sink( " << sinkProcId << ","
+                 << sinkPinId << ")";
 
         PipelineElement* sourceElement = pipeline->getElement( sourceProcId );
-        PipelineElement* sinkElement = pipeline->getElement( sinkProcId );
+        PipelineElement* sinkElement   = pipeline->getElement( sinkProcId );
 
         if( sourceElement == 0 )
         {
@@ -382,21 +382,20 @@ void PipelineLoader::parseConnections( QDomNodeList* list, Pipeline* pipeline )
             throw std::runtime_error( "Connection specified with invalid sink id");
         }
 
-        IOutputPin* iop = sourceElement->getOutputPin( sourcePinName );
-        IInputPin* iip = sinkElement->getInputPin( sinkPinName );
+        IOutputPin* iop = sourceElement->getOutputPin( sourcePinId );
+        IInputPin*  iip = sinkElement->getInputPin( sinkPinId );
 
         if( iop == 0 )
         {
-            QString msg = "No pin with name " % sourcePinName;
+            QString msg = tr("No output pin with id %1").arg(sourcePinId);
             throw std::runtime_error( msg.toStdString() );
         }
 
         if( iip == 0 )
         {
-            QString msg = "No pin with name " % sinkPinName;
+            QString msg = tr("No input pin with id %1").arg(sinkPinId);
             throw std::runtime_error( msg.toStdString() );
         }
-
         pipeline->connectPins( iop, iip );
     }
 }
