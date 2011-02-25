@@ -298,7 +298,7 @@ void PipelineScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
                 {
                     handleConnectionCreation(line->getFromPin(), pw);
                 }
-                catch(NonFatalException e)
+                catch(NonFatalException& e)
                 {
                     MainWindow* mw = getMainWindow();
 

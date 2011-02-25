@@ -19,32 +19,42 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#include "DataRenderer.h"
+#include "VariantDataRenderer.h"
 
 #include <QDebug>
-#include <plvcore/Pin.h>
+#include <plvgui/ImageWidget.h>
+
+#include <QVBoxLayout>
+#include <QPainter>
+#include <QTextEdit>
 
 using namespace plvgui;
 using namespace plv;
 
-DataRenderer::DataRenderer()
+VariantDataRenderer::VariantDataRenderer(QWidget *parent)
+    : DataRenderer(parent),
+    m_layout( new QVBoxLayout(this) ),
+    m_textEdit( new QTextEdit(this) )
+{
+    m_layout->addWidget( m_textEdit );
+
+    // TODO make minimum configurable somewhere
+    m_textEdit->setMinimumSize( 160, 120 );
+
+    this->setLayout( m_layout );
+}
+
+VariantDataRenderer::~VariantDataRenderer()
 {
 }
 
-DataRenderer::DataRenderer(QWidget *parent)
-    : QWidget(parent)
+void VariantDataRenderer::newData( unsigned int serial, const QVariant data )
 {
-}
-
-DataRenderer::~DataRenderer()
-{
-    disconnect();
-}
-
-void DataRenderer::setPin( const plv::Pin* p )
-{
-    qDebug() << "Attaching inspector to pin";
-    disconnect();
-    connect( p, SIGNAL( newData( unsigned int, QVariant )),
-             this, SLOT( newData( unsigned int, QVariant )) );
+    QString dataString = data.toString();
+    if( dataString.isEmpty() )
+    {
+        dataString = tr("Error: cannot convert data to a string representation.");
+    }
+    QString message = tr("%1: %2").arg(serial).arg(dataString);
+    m_textEdit->append(message);
 }

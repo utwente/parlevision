@@ -252,7 +252,7 @@ void IOutputPin::putVariant( unsigned int serial, const QVariant& v )
     Data data( serial, v );
 
     // publish data to viewers
-    emit( newData( v ) );
+    emit newData( serial, v );
 
     // publish to all pin connections
     for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
@@ -263,3 +263,13 @@ void IOutputPin::putVariant( unsigned int serial, const QVariant& v )
     }
 }
 
+plv::DynamicInputPin* plv::createDynamicInputPin( const QString& name, plv::PipelineElement* owner,
+                              plv::IInputPin::Required required,
+                              plv::IInputPin::Synchronized synchronized, int typeId)
+throw (plv::IllegalArgumentException)
+{
+    // if add fails pin is automatically deleted and exception is thrown
+    plv::DynamicInputPin* pin = new plv::DynamicInputPin( name, owner, required, synchronized, typeId );
+    owner->addInputPin( pin );
+    return pin;
+}

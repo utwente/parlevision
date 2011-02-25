@@ -61,7 +61,7 @@ namespace plvgui
         ImageConverter*       m_converter;
 
     public slots:
-        virtual void newData( QVariant v );
+        virtual void newData( unsigned int serial, QVariant v );
         void updateImages( QList<QImage> images, int id );
     };
 }

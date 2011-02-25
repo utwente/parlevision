@@ -51,7 +51,7 @@ RectangleDataRenderer::~RectangleDataRenderer()
 {
 }
 
-void RectangleDataRenderer::newData( const QVariant data )
+void RectangleDataRenderer::newData( unsigned int serial, const QVariant data )
 {
     if( !data.canConvert<plv::RectangleData>() )
         return;

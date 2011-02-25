@@ -133,7 +133,7 @@ namespace plv
           * possible reason contains a message stating the reason for failure
           */
         bool canConnectPins( IOutputPin* outputPin, IInputPin* inputPin,
-                                       QString reason );
+                                       QString& reason );
 
         /** Create a PinConnnection between the given InputPin and outputPin
           * @emits connectionAdded(connection)

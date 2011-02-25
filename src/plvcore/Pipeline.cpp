@@ -212,7 +212,7 @@ const Pipeline::PipelineConnectionsList& Pipeline::getConnections() const
 }
 
 bool Pipeline::canConnectPins( IOutputPin* outputPin, IInputPin* inputPin,
-                               QString reason )
+                               QString& reason )
 {
     return PinConnection::canConnectPins( outputPin, inputPin, reason );
 }

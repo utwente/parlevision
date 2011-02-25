@@ -62,7 +62,7 @@ namespace plv
         virtual QString getTypeName() const = 0;
 
     signals:
-        void newData( QVariant v );
+        void newData( unsigned int serial, QVariant v );
         void error( QString msg );
 
     protected:
@@ -323,29 +323,34 @@ namespace plv
 
         virtual bool isDynamicallyTyped() const { return true; }
     };
-}
 
-template <class T>
-plv::OutputPin<T> * createOutputPin( const QString& name, plv::PipelineElement* owner )
-throw (plv::IllegalArgumentException)
-{
-    // if add fails pin is automatically deleted and exception is thrown
-    plv::OutputPin<T> * pin = new plv::OutputPin<T>( name, owner );
-    owner->addOutputPin( pin );
-    return pin;
-}
+    plv::DynamicInputPin* PLVCORE_EXPORT createDynamicInputPin( const QString& name, plv::PipelineElement* owner,
+                                  plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
+                                  plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS,
+                                  int typeId = 0 )
+    throw (plv::IllegalArgumentException);
 
-template<typename T>
-plv::InputPin<T> * createInputPin( const QString& name, plv::PipelineElement* owner,
-                              plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
-                              plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS )
-throw (plv::IllegalArgumentException)
-{
-    // if add fails pin is automatically deleted and exception is thrown
-    plv::InputPin<T> * pin = new plv::InputPin<T>( name, owner, required, synchronized );
-    owner->addInputPin( pin );
-    return pin;
-}
+    template <class T>
+    plv::OutputPin<T> * createOutputPin( const QString& name, plv::PipelineElement* owner )
+    throw (plv::IllegalArgumentException)
+    {
+        // if add fails pin is automatically deleted and exception is thrown
+        plv::OutputPin<T> * pin = new plv::OutputPin<T>( name, owner );
+        owner->addOutputPin( pin );
+        return pin;
+    }
 
+    template<typename T>
+    plv::InputPin<T> * createInputPin( const QString& name, plv::PipelineElement* owner,
+                                  plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
+                                  plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS )
+    throw (plv::IllegalArgumentException)
+    {
+        // if add fails pin is automatically deleted and exception is thrown
+        plv::InputPin<T> * pin = new plv::InputPin<T>( name, owner, required, synchronized );
+        owner->addInputPin( pin );
+        return pin;
+    }
+}
 
 #endif // PIN_H

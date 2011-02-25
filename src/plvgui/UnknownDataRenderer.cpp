@@ -63,7 +63,8 @@ UnknownDataRenderer::~UnknownDataRenderer()
 {
 }
 
-void UnknownDataRenderer::newData( QVariant data )
+void UnknownDataRenderer::newData( unsigned int serial, QVariant data )
 {
     Q_UNUSED( data );
+    Q_UNUSED( serial );
 }

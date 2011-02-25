@@ -20,7 +20,7 @@
 
 //#include "Snapshot.h"
 #include "ViolaJonesFaceDetector.h"
-//#include "Trigger.h"
+#include "Trigger.h"
 //#include "SaveImageToFile.h"
 //#include "ImageLoader.h"
 #include "PixelSum.h"
@@ -65,14 +65,14 @@ void PlvOpenCVPlugin::onLoad()
 //    plvRegisterPipelineElement<plvopencv::Snapshot>();
     plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>();
     plvRegisterPipelineElement<plvopencv::CropSubImage>();
-//    plvRegisterPipelineElement<plvopencv::Trigger>();
+    plvRegisterPipelineElement<plvopencv::Trigger>();
 //    plvRegisterPipelineElement<plvopencv::SaveImageToFile>();
-//    plvRegisterPipelineElement<plvopencv::ImageLoader>();
     plvRegisterPipelineElement<plvopencv::ImageThreshold>();
 
     //Producers
     plvRegisterPipelineElement<plvopencv::ImageProducer>();
     plvRegisterPipelineElement<plvopencv::ImageDirectoryProducer>();
+
     //Processors
     plvRegisterPipelineElement<plvopencv::Xor>();
     plvRegisterPipelineElement<plvopencv::Multiply>();

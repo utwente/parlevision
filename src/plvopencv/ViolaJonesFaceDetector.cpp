@@ -125,7 +125,10 @@ bool ViolaJonesFaceDetector::process()
     }
 
     // publish the new image and rectangle data
-    m_outputPinRectangles->put( rectangles );
+    if( !rectangles.getRects().isEmpty() )
+    {
+        m_outputPinRectangles->put( rectangles );
+    }
     m_outputPinMonitor->put( dstPtr );
 
     return true;

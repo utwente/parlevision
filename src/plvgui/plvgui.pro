@@ -48,6 +48,7 @@ SOURCES += \
     DataRenderer.cpp \
     UnknownDataRenderer.cpp \
     RectangleDataRenderer.cpp \
+    VariantDataRenderer.cpp \
     ImageConverter.cpp \
     LibraryWidget.cpp \
     InspectorWidget.cpp \
@@ -73,6 +74,7 @@ HEADERS += \
     ../../include/plvgui/DataRenderer.h \
     ../../include/plvgui/UnknownDataRenderer.h \
     ../../include/plvgui/RectangleDataRenderer.h \
+    ../../include/plvgui/VariantDataRenderer.h \
     ../../include/plvgui/ImageConverter.h \
     ../../include/plvgui/PipelineScene.h \
     ../../include/plvgui/LibraryWidget.h \
