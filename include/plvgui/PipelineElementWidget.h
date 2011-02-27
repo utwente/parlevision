@@ -38,6 +38,8 @@ QT_END_NAMESPACE
 namespace plv
 {
     class Pin;
+    class IInputPin;
+    class IOutputPin;
     class PipelineElement;
 }
 
@@ -55,9 +57,10 @@ namespace plvgui
                               Qt::WindowFlags wFlags = 0);
 
         void addLine(ConnectionLine* line, QString pin);
+        void removeLine(ConnectionLine* line, QString pin);
 
-        inline PinWidget* getWidgetFor(const plv::IInputPin* p) const { return inputPinWidgets[p]; }
-        inline PinWidget* getWidgetFor(const plv::IOutputPin* p) const { return outputPinWidgets[p]; }
+        PinWidget* getWidgetFor(const plv::IInputPin* p) const;
+        PinWidget* getWidgetFor(const plv::IOutputPin* p) const;
         inline plv::RefPtr<plv::PipelineElement> getElement() const { return element; }
 
         virtual QRectF boundingRect() const;
@@ -75,8 +78,8 @@ namespace plvgui
         virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
 
     private:
-        QHash<const plv::IInputPin*, PinWidget*> inputPinWidgets;
-        QHash<const plv::IOutputPin*, PinWidget*> outputPinWidgets;
+        QHash<int, PinWidget*> inputPinWidgets;
+        QHash<int, PinWidget*> outputPinWidgets;
         qreal maxWidth;
         qreal leftColumnWidth;
         QGraphicsTextItem* avgProcessingTimeLabel;
@@ -88,12 +91,18 @@ namespace plvgui
         void addToGroup(QGraphicsItem* item);
         void addInputPin(plv::IInputPin* in);
         void addOutputPin(plv::IOutputPin* out);
+        void removeInputPin(int id);
+        void removeOutputPin(int id);
         void drawPinsAndInfo();
 
     private slots:
         void savePositionProperties();
         void onError(PlvErrorType,plv::PipelineElement*);
         void onProcessingTimeUpdate(int,int);
+        void inputPinAdded( plv::IInputPin* pin );
+        void outputPinAdded( plv::IOutputPin* pin );
+        void inputPinRemoved(int id);
+        void outputPinRemoved(int id);
     };
 }
 

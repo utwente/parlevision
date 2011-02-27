@@ -13,6 +13,9 @@ namespace plv
 {
     class CvMatDataInputPin;
     class CvMatDataOutputPin;
+    class IInputPin;
+    class IOutputPin;
+    class PinConnection;
 }
 
 class TCPServerProcessor : public plv::PipelineProcessor
@@ -42,6 +45,12 @@ public:
     int getPort() const;
     virtual bool isReadyForProcessing() const;
 
+    virtual void inputConnectionSet(plv::IInputPin* pin, plv::PinConnection* connection);
+    virtual void inputConnectionRemoved(plv::IInputPin* pin, plv::PinConnection* connection);
+
+    virtual void outputConnectionAdded(plv::IOutputPin* pin, plv::PinConnection* connection);
+    virtual void outputConnectionRemoved(plv::IOutputPin* pin, plv::PinConnection* connection);
+
 signals:
     void portChanged(int port);
     void sendFrame(quint32 frameNumber, const QVariantList& frameData);
@@ -58,9 +67,9 @@ private:
     int m_port;
     Server* m_server;
     bool m_waiting;
-    plv::CvMatDataInputPin* m_inputPinCvMatData;
-    plv::InputPin<double>* m_inputPinDouble;
-    plv::InputPin<cv::Scalar>* m_inputPinCvScalar;
+    //plv::CvMatDataInputPin* m_inputPinCvMatData;
+    //plv::InputPin<double>* m_inputPinDouble;
+    //plv::InputPin<cv::Scalar>* m_inputPinCvScalar;
 };
 
 #endif // TCPSERVERPROCESSOR_H

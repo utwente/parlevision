@@ -132,14 +132,14 @@ bool CvMatDataInputPin::acceptsConnectionWith( const IOutputPin* pin,
         errStr = "Incompatible types between pins";
         return false;
     }
-    const CvMatDataOutputPin* ocvOutPin =
-            dynamic_cast<const CvMatDataOutputPin*>(pin);
+//    const CvMatDataOutputPin* ocvOutPin =
+//            dynamic_cast<const CvMatDataOutputPin*>(pin);
 
-    if( ocvOutPin == 0 )
-    {
-        errStr = "Expected CvMatData output pin";
-        return false;
-    }
+//    if( ocvOutPin == 0 )
+//    {
+//        errStr = "Expected CvMatData output pin";
+//        return false;
+//    }
     return true;
 }
 
@@ -270,14 +270,14 @@ bool CvMatDataOutputPin::acceptsConnectionWith( const IInputPin* pin,
         errStr = "Incompatible types between pins";
         return false;
     }
-    const CvMatDataInputPin* ocvInPin =
-            dynamic_cast<const CvMatDataInputPin*>(pin);
+//    const CvMatDataInputPin* ocvInPin =
+//            dynamic_cast<const CvMatDataInputPin*>(pin);
 
-    if( ocvInPin == 0 )
-    {
-        errStr = "Expected CvMatData input pin";
-        return false;
-    }
+//    if( ocvInPin == 0 )
+//    {
+//        errStr = "Expected CvMatData input pin";
+//        return false;
+//    }
     return true;
 }
 

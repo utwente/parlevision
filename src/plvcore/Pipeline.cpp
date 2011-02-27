@@ -212,7 +212,7 @@ const Pipeline::PipelineConnectionsList& Pipeline::getConnections() const
 }
 
 bool Pipeline::canConnectPins( IOutputPin* outputPin, IInputPin* inputPin,
-                               QString reason )
+                               QString& reason )
 {
     return PinConnection::canConnectPins( outputPin, inputPin, reason );
 }
@@ -771,7 +771,7 @@ void Pipeline::threadUnsafeDisconnect( PinConnection* connection )
         if(con.getPtr() == con2.getPtr())
         {
             m_connections.erase(itr);
-            emit( connectionRemoved(con) );
+            emit connectionRemoved(con);
             break;
         }
     }

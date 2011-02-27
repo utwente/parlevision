@@ -10,11 +10,11 @@ TCPClientProducer::TCPClientProducer() :
     m_networkSession(0),
     m_configured( true )
 {
-    m_intOut      = createOutputPin<int>("int", this);
-    m_stringOut   = createOutputPin<QString>("QString", this);
-    m_doubleOut   = createOutputPin<double>("double", this);
-    m_cvScalarOut = createOutputPin< cv::Scalar >("cv::Scalar", this);
-    m_imageOut    = createCvMatDataOutputPin("CvMatData", this);
+    m_intOut      = plv::createOutputPin<int>("int", this);
+    m_stringOut   = plv::createOutputPin<QString>("QString", this);
+    m_doubleOut   = plv::createOutputPin<double>("double", this);
+    m_cvScalarOut = plv::createOutputPin< cv::Scalar >("cv::Scalar", this);
+    m_imageOut    = plv::createCvMatDataOutputPin("CvMatData", this);
 }
 
 TCPClientProducer::~TCPClientProducer()

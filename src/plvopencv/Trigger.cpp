@@ -20,11 +20,7 @@
   */
 #include "Trigger.h"
 
-#include <QDebug>
-#include <plvcore/Pin.h>
 #include <opencv/cv.h>
-
-#include <plvcore/CvMatData.h>
 
 using namespace plv;
 using namespace plvopencv;
@@ -36,8 +32,8 @@ Trigger::Trigger() :
         m_activate(false),
         m_continuous(false)
 {
-    m_inputPin  = createInputPin<plv::Data>("input", this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOutputPin<PlvBoolean>( "trigger", this );
+    m_inputPin  = createDynamicInputPin( "input", this );
+    m_outputPin = createOutputPin<bool>( "trigger", this );
 }
 
 /**
@@ -47,27 +43,52 @@ Trigger::~Trigger()
 {
 }
 
-/** Mandatory methods. Has nothing to do here. Yet? */
-void Trigger::init()  {}
-void Trigger::deinit() throw(){}
-void Trigger::start()  {}
-void Trigger::stop()  {}
-
 /**
  * Check if the image isn't NULL. Get a new activation trigger data, with
  * the same value as the activation property. If continuous isn't true then
  * the activation property is automatically set to false.
  */
-void Trigger::process()
+bool Trigger::process()
 {
     assert(m_inputPin != 0);
 
     // do this to decrease queue at input pin
-    m_inputPin->get();
+    QVariant v;
+    m_inputPin->getVariant(v);
 
     //send a trigger to the output with the value of activate
-    m_outputPin->put( new PlvBoolean(true) );
+    if( m_activate )
+    {
+        m_outputPin->put( true );
 
-    //check if it is continuous or not
-    if(m_activate && !m_continuous) setActivate(false);
+        //check if it is continuous or not
+        if(!m_continuous) updateActivate(false);
+    }
+
+    return true;
 }
+
+bool Trigger::getActivate() const
+{
+    QMutexLocker lock(m_propertyMutex);
+    return m_activate;
+}
+
+bool Trigger::getContinuous() const
+{
+    QMutexLocker lock(m_propertyMutex);
+    return m_continuous;
+}
+
+void Trigger::setActivate(bool b)
+{
+    QMutexLocker lock(m_propertyMutex);
+    m_activate = b;
+}
+
+void Trigger::setContinuous(bool b)
+{
+    QMutexLocker lock(m_propertyMutex);
+    m_continuous = b;
+}
+

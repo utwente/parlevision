@@ -37,8 +37,9 @@ namespace plv
       * Original idea and source thanks to Matteo Bertozzi
       * (http://th30z.netsons.org/2009/04/qt4-xml-objec-mapper/)
       */
-    class PLVCORE_EXPORT PipelineLoader
+    class PLVCORE_EXPORT PipelineLoader : public QObject
     {
+        Q_OBJECT
     public:
         static RefPtr<Pipeline> deserialize( const QString& filename )
             throw(std::runtime_error); /*TODO checked exceptions*/
@@ -51,7 +52,7 @@ namespace plv
 
     private:
         PipelineLoader();
-        ~PipelineLoader();
+        virtual ~PipelineLoader();
 
         static QString serialize( Pipeline* pipeline )
             throw(std::runtime_error); /*TODO checked exceptions*/

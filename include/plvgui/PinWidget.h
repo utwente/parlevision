@@ -26,7 +26,9 @@
 #include <plvcore/RefPtr.h>
 #include <plvcore/Pin.h>
 
+QT_BEGIN_NAMESPACE
 class QGraphicsItem;
+QT_END_NAMESPACE
 
 namespace plv
 {
@@ -55,6 +57,9 @@ namespace plvgui
 
         void handleMouseDoubleClick();
 
+    public slots:
+        void pinNameChanged(const QString& name);
+
     protected:
         virtual void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
         virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
@@ -67,6 +72,7 @@ namespace plvgui
         plv::RefPtr<plv::Pin> m_pin;
         void init(bool isInput);
         PinCircle* circle;
+        QGraphicsTextItem* label;
     };
 
 

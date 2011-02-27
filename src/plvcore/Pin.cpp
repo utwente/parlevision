@@ -22,6 +22,12 @@
 #include "Pin.h"
 using namespace plv;
 
+void Pin::setName(const QString& name)
+{
+    m_name = name;
+    emit nameChanged(name);
+}
+
 IInputPin::~IInputPin()
 {
 }
@@ -35,13 +41,16 @@ void IInputPin::setConnection(PinConnection* connection)
     assert(!this->isConnected());
     assert(connection != 0);
 
-    this->m_connection = connection;
+    m_connection = connection;
+    m_owner->inputConnectionSet(this,connection);
 }
 
 void IInputPin::removeConnection()
 {
     assert( m_connection.isNotNull() );
+    PinConnection* con = m_connection;
     m_connection.set( 0 );
+    m_owner->inputConnectionRemoved(this, con);
 }
 
 PinConnection* IInputPin::getConnection() const
@@ -149,7 +158,8 @@ void IOutputPin::addConnection( PinConnection* connection )
 {
     assert(connection != 0);
 
-    this->m_connections.push_back(connection);
+    m_connections.push_back(connection);
+    m_owner->outputConnectionAdded(this,connection);
 }
 
 /** Removes the connection from this pin.
@@ -165,6 +175,7 @@ void IOutputPin::removeConnection( PinConnection* connection )
         RefPtr<PinConnection> current = *itr;
         if( current.getPtr() == connection )
         {
+            m_owner->outputConnectionRemoved(this, (*itr).getPtr());
             m_connections.erase( itr );
             return;
         }
@@ -178,6 +189,7 @@ void IOutputPin::removeConnections()
     for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
             itr != m_connections.end(); ++itr)
     {
+        m_owner->outputConnectionRemoved( this, (*itr).getPtr() );
         m_connections.erase( itr );
     }
 }
@@ -252,7 +264,7 @@ void IOutputPin::putVariant( unsigned int serial, const QVariant& v )
     Data data( serial, v );
 
     // publish data to viewers
-    emit( newData( v ) );
+    emit newData( serial, v );
 
     // publish to all pin connections
     for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
@@ -263,3 +275,13 @@ void IOutputPin::putVariant( unsigned int serial, const QVariant& v )
     }
 }
 
+plv::DynamicInputPin* plv::createDynamicInputPin( const QString& name, plv::PipelineElement* owner,
+                              plv::IInputPin::Required required,
+                              plv::IInputPin::Synchronized synchronized, int typeId)
+throw (plv::IllegalArgumentException)
+{
+    // if add fails pin is automatically deleted and exception is thrown
+    plv::DynamicInputPin* pin = new plv::DynamicInputPin( name, owner, required, synchronized, typeId );
+    owner->addInputPin( pin );
+    return pin;
+}

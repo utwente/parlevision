@@ -76,7 +76,7 @@ void OpenCVImageRenderer::hideEvent(QHideEvent* event)
     QWidget::hideEvent(event);
 }
 
-void OpenCVImageRenderer::newData( QVariant v )
+void OpenCVImageRenderer::newData( unsigned int serial, QVariant v )
 {
     QMutexLocker lock( &m_busy_mutex );
 

@@ -41,6 +41,7 @@ namespace plv
     class IInputPin;
     class IOutputPin;
     class Pipeline;
+    class PinConnection;
 
     class PLVCORE_EXPORT PipelineElement : public QObject, public RefCounted
     {
@@ -53,8 +54,8 @@ namespace plv
 
     public:
         /** typedefs to make code more readable */
-        typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
-        typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
+        typedef std::map< int, RefPtr< IInputPin > > InputPinMap;
+        typedef std::map< int, RefPtr< IOutputPin > > OutputPinMap;
 
         enum State {
             UNDEFINED,  /* undefined or non initialized */
@@ -130,22 +131,21 @@ namespace plv
         QString getName() const;
 
         /** Adds the input pin to this processing element.
-          * @throws IllegalArgumentException if an input pin with
-          * the same name already exists
-          */
-        void addInputPin( IInputPin* pin ) throw (IllegalArgumentException);
+            Returns id on success or -1 on failure. */
+        int addInputPin( IInputPin* pin );
 
         /** Adds the output pin to this processing element.
-          * @throws IllegalArgumentException if an input pin with
-          * the same name already exists
-          */
-        void addOutputPin( IOutputPin* pin ) throw (IllegalArgumentException);
+            Returns id on success or -1 on failure. */
+        int addOutputPin( IOutputPin* pin );
 
-        /** @returns the input pin with that name, or null if none exists */
-        IInputPin* getInputPin( const QString& name ) const;
+        void removeInputPin( int id );
+        void removeOutputPin( int id );
 
-        /** @returns the ouput pin with that name, or null if none exists */
-        IOutputPin* getOutputPin( const QString& name ) const;
+        /** @returns the input pin with that id, or null if none exists */
+        IInputPin* getInputPin( int id ) const;
+
+        /** @returns the ouput pin with that id, or null if none exists */
+        IOutputPin* getOutputPin( int id ) const;
 
         inline void setId( int id ) { assert(m_id == -1); m_id = id; }
         inline int getId() const { return m_id; }
@@ -234,6 +234,12 @@ namespace plv
         /** helper function for creating a partial ordering for cycle detection */
         bool visit( QList<PipelineElement*>& ordering, QSet<PipelineElement*>& visited );
 
+        virtual void inputConnectionSet(IInputPin* pin, PinConnection* connection) {}
+        virtual void inputConnectionRemoved(IInputPin* pin, PinConnection* connection) {}
+
+        virtual void outputConnectionAdded(IOutputPin* pin, PinConnection* connection) {}
+        virtual void outputConnectionRemoved(IOutputPin* pin, PinConnection* connection) {}
+
    protected:
         /** serial number of current processing run. */
         unsigned int m_serial;
@@ -273,6 +279,9 @@ namespace plv
         void startTimer();
         void stopTimer();
 
+        int getNextOutputPinId() const;
+        int getNextInputPinId() const;
+
     signals:
         void propertyChanged(QString);
 
@@ -285,6 +294,12 @@ namespace plv
         void onProcessingTimeUpdate(int avg, int last);
 
         void onStateChange(PipelineElement::State state);
+
+        void inputPinAdded( plv::IInputPin* pin );
+        void inputPinRemoved( int id );
+
+        void outputPinAdded( plv::IOutputPin* pin );
+        void outputPinRemoved( int id );
     };
 }
 Q_DECLARE_METATYPE(plv::PipelineElement::State)

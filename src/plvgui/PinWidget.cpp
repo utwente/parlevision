@@ -62,7 +62,7 @@ void PinWidget::init(bool isInput=true)
     setAcceptHoverEvents(true);
 
     assert(m_pin.isNotNull());
-    QGraphicsTextItem* label = new QGraphicsTextItem(m_pin->getName());
+    label = new QGraphicsTextItem(m_pin->getName(), this);
 
     // TODO this is ugly, make PinWidget for each pin type?
     if( isInput )
@@ -77,21 +77,30 @@ void PinWidget::init(bool isInput=true)
     }
 
     this->circle = new PinCircle(0,0,20,20,this);
-    this->circle->translate(0, 4.0);
+    this->circle->setPos(0, 4.0);
 
     if(isInput)
     {
 //        this->circle->translate(6,0);
-        label->translate(12,0);
+        label->setPos(12,0);
     }
     else
     {
-        label->translate(-12,0);
-        this->circle->translate(label->boundingRect().width(), 0);
+        label->setPos(-12,0);
+        this->circle->setPos(label->boundingRect().width(), 0);
     }
 
     this->addToGroup(circle);
     this->addToGroup(label);
+
+    connect(m_pin, SIGNAL(nameChanged(const QString&)),
+            this, SLOT(pinNameChanged(const QString&)));
+}
+
+void PinWidget::pinNameChanged(const QString& name)
+{
+    this->label->setPlainText(name);
+    //this->update( this->boundingRect() );
 }
 
 bool PinWidget::sceneEvent ( QEvent * event )

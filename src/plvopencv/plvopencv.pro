@@ -52,7 +52,7 @@ SOURCES += plvopencvplugin.cpp \
 #    SaveImageToFile.cpp \
 #    ImageLoader.cpp \
     ImageThreshold.cpp \
-#    Trigger.cpp \
+    Trigger.cpp \
     PixelSum.cpp \
     CropSubImage.cpp \
     Xor.cpp \
@@ -82,7 +82,7 @@ HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
         #   ../../include/plvopencv/SaveImageToFile.h  \
         #   ../../include/plvopencv/ImageLoader.h \
             ../../include/plvopencv/ImageThreshold.h \
-        #   ../../include/plvopencv/Trigger.h \
+           ../../include/plvopencv/Trigger.h \
             ../../include/plvopencv/PixelSum.h \
             ../../include/plvopencv/CropSubImage.h \
             ../../include/plvopencv/Xor.h \

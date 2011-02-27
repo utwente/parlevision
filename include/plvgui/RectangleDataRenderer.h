@@ -50,7 +50,7 @@ namespace plvgui
         ImageWidget* m_imageWidget;
 
     public slots:
-        virtual void newData( QVariant data );
+        virtual void newData( unsigned int serial, QVariant data );
 
     };
 }

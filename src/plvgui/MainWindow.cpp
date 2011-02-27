@@ -35,6 +35,7 @@
 #include <plvgui/OpenCVImageRenderer.h>
 #include <plvgui/OpenCVImageListRenderer.h>
 #include <plvgui/RectangleDataRenderer.h>
+#include <plvgui/VariantDataRenderer.h>
 #include <plvgui/LogWidget.h>
 
 #include <plvcore/Application.h>
@@ -112,6 +113,24 @@ void MainWindow::initGUI()
     plvgui::RendererFactory::add<plv::CvMatData, plvgui::OpenCVImageRenderer>();
     plvgui::RendererFactory::add<QList<plv::CvMatData>, plvgui::OpenCVImageListRenderer>();
     plvgui::RendererFactory::add<plv::RectangleData, plvgui::RectangleDataRenderer>();
+
+    // the variant renderer can output any QVariant which can be
+    // converted to a string representation
+    // which are String, Bool, ByteArray, Char, Date, DateTime, Double, Int, LongLong,
+    // StringList, Time, UInt, or ULongLong
+    plvgui::RendererFactory::add<QString,    plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<bool,       plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<QByteArray, plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<char,       plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<QDate,      plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<QDateTime,  plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<double,     plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<int,        plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<long long,  plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<QStringList,plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<QTime,      plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<unsigned int,       plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<unsigned long long, plvgui::VariantDataRenderer>();
 }
 
 void MainWindow::changeEvent(QEvent *e)

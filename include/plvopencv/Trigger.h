@@ -24,12 +24,6 @@
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
-#include <plvcore/Types.h>
-
-namespace plv
-{
-    class OpenCVImage;
-}
 
 namespace plvopencv
 {
@@ -62,7 +56,7 @@ namespace plvopencv
         Q_PROPERTY( bool continuous READ getContinuous WRITE setContinuous NOTIFY continuousChanged  )
 
         /** required standard method declaration for plv::PipelineElement */
-        PLV_PIPELINE_ELEMENT
+        PLV_PIPELINE_PROCESSOR
 
     public:
         /** Constructor/Destructor */
@@ -70,20 +64,23 @@ namespace plvopencv
         virtual ~Trigger();
 
         /** propery methods */
-        bool getActivate(){ return m_activate; }
-        bool getContinuous(){ return m_continuous; }
+        bool getActivate() const;
+        bool getContinuous() const;
 
     signals:
         void activateChanged (bool newValue);
         void continuousChanged (bool newValue);
 
     public slots:
-        void setActivate(bool b) {m_activate = b; emit(activateChanged(b));}
-        void setContinuous(bool b) {m_continuous = b; emit(continuousChanged(b));}
+        void setActivate(bool b);
+        void setContinuous(bool b);
 
     private:
-        plv::InputPin<plv::Data>* m_inputPin;
-        plv::OutputPin<PlvBoolean>* m_outputPin;
+        void updateActivate(bool b){ setActivate(b); activateChanged(b); }
+        void updateContinuous(bool b){ setContinuous(b); continuousChanged(b); }
+
+        plv::DynamicInputPin* m_inputPin;
+        plv::OutputPin<bool>*    m_outputPin;
 
         bool m_activate;   /** Determines if an activation (true) trigger has to be send. Mostly false. */
         bool m_continuous; /** Determines if the activation trigger automatically has to be switched off (false). */

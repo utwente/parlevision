@@ -45,6 +45,7 @@ namespace plv
     public:
 
         Pin( const QString& name, PipelineElement* owner ) :
+            m_id(-1),
             m_name( name ),
             m_owner( owner )
         {
@@ -52,8 +53,21 @@ namespace plv
             assert( m_owner != 0 );
         }
 
+        Pin( int id, const QString& name, PipelineElement* owner ) :
+            m_id( id ),
+            m_name( name ),
+            m_owner( owner )
+        {
+            assert( m_id != -1 );
+            assert( !m_name.isEmpty() );
+            assert( m_owner != 0 );
+        }
+
         inline const QString& getName() const { return m_name; }
         inline PipelineElement* getOwner() const { return m_owner; }
+
+        inline void setId(int id) { m_id = id; }
+        inline int getId() const { return m_id; }
 
         /** @returns the QMetaType typeId of the data type this pin is initialized with */
         virtual int getTypeId() const = 0;
@@ -61,12 +75,18 @@ namespace plv
         /** @returns the name of the type this pin is initialized with */
         virtual QString getTypeName() const = 0;
 
+        void setName(const QString& name);
+
     signals:
-        void newData( QVariant v );
+        void nameChanged(const QString& name);
+        void newData( unsigned int serial, QVariant v );
         void error( QString msg );
 
     protected:
-         /** the name of this Pin e.g. "BlackAndWhite" */
+        /** id of this pin */
+        int m_id;
+
+        /** the name of this Pin e.g. "BlackAndWhite" */
         QString m_name;
 
         /** data received from or delivered to this pipeline element */
@@ -323,29 +343,34 @@ namespace plv
 
         virtual bool isDynamicallyTyped() const { return true; }
     };
-}
 
-template <class T>
-plv::OutputPin<T> * createOutputPin( const QString& name, plv::PipelineElement* owner )
-throw (plv::IllegalArgumentException)
-{
-    // if add fails pin is automatically deleted and exception is thrown
-    plv::OutputPin<T> * pin = new plv::OutputPin<T>( name, owner );
-    owner->addOutputPin( pin );
-    return pin;
-}
+    plv::DynamicInputPin* PLVCORE_EXPORT createDynamicInputPin( const QString& name, plv::PipelineElement* owner,
+                                  plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
+                                  plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS,
+                                  int typeId = 0 )
+    throw (plv::IllegalArgumentException);
 
-template<typename T>
-plv::InputPin<T> * createInputPin( const QString& name, plv::PipelineElement* owner,
-                              plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
-                              plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS )
-throw (plv::IllegalArgumentException)
-{
-    // if add fails pin is automatically deleted and exception is thrown
-    plv::InputPin<T> * pin = new plv::InputPin<T>( name, owner, required, synchronized );
-    owner->addInputPin( pin );
-    return pin;
-}
+    template <class T>
+    plv::OutputPin<T> * createOutputPin( const QString& name, plv::PipelineElement* owner )
+    throw (plv::IllegalArgumentException)
+    {
+        // if add fails pin is automatically deleted and exception is thrown
+        plv::OutputPin<T> * pin = new plv::OutputPin<T>( name, owner );
+        owner->addOutputPin( pin );
+        return pin;
+    }
 
+    template<typename T>
+    plv::InputPin<T> * createInputPin( const QString& name, plv::PipelineElement* owner,
+                                  plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
+                                  plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS )
+    throw (plv::IllegalArgumentException)
+    {
+        // if add fails pin is automatically deleted and exception is thrown
+        plv::InputPin<T> * pin = new plv::InputPin<T>( name, owner, required, synchronized );
+        owner->addInputPin( pin );
+        return pin;
+    }
+}
 
 #endif // PIN_H
