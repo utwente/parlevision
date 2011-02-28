@@ -14,6 +14,7 @@ INCLUDEPATH += ../../include/plvopencv
 LIBS += -lplvcore
 QMAKE_LIBDIR += ../../libs/plugins
 
+include (../../common.pri)
 include(../../ParleVision.local)
 
 #macx {
