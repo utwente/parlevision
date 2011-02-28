@@ -49,8 +49,7 @@ SOURCES += plvopencvplugin.cpp \
     Diff.cpp \
     DelayImage.cpp \
     ViolaJonesFaceDetector.cpp \
-#    SaveImageToFile.cpp \
-#    ImageLoader.cpp \
+    SaveImageToFile.cpp \
     ImageThreshold.cpp \
     Trigger.cpp \
     PixelSum.cpp \
@@ -79,15 +78,14 @@ HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
             ../../include/plvopencv/Diff.h \
             ../../include/plvopencv/DelayImage.h \
             ../../include/plvopencv/ViolaJonesFaceDetector.h  \
-        #   ../../include/plvopencv/SaveImageToFile.h  \
-        #   ../../include/plvopencv/ImageLoader.h \
+            ../../include/plvopencv/SaveImageToFile.h  \
             ../../include/plvopencv/ImageThreshold.h \
-           ../../include/plvopencv/Trigger.h \
+            ../../include/plvopencv/Trigger.h \
             ../../include/plvopencv/PixelSum.h \
             ../../include/plvopencv/CropSubImage.h \
             ../../include/plvopencv/Xor.h \
-           ../../include/plvopencv/Split.h \
-           ../../include/plvopencv/Multiply.h \
-           ../../include/plvopencv/ImageDirectoryProducer.h \
-           ../../include/plvopencv/ImageProducer.h
+            ../../include/plvopencv/Split.h \
+            ../../include/plvopencv/Multiply.h \
+            ../../include/plvopencv/ImageDirectoryProducer.h \
+            ../../include/plvopencv/ImageProducer.h
     

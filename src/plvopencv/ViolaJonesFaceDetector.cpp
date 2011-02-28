@@ -47,7 +47,7 @@ bool ViolaJonesFaceDetector::init()
     if( m_pStorage == 0 )
     {
         QString msg = "Failed to allocate temporary storage in OpenCV for Viola Jones Facedetector processor";
-        setError( PlvInitError, msg );
+        setError( PlvPipelineInitError, msg );
         return false;
     }
 
@@ -55,7 +55,7 @@ bool ViolaJonesFaceDetector::init()
     if( !file.exists() )
     {
         QString msg = QString("Failed to load haar cascade file %1. File does not exist." ).arg(m_haarCascadeFile);
-        setError( PlvInitError, msg );
+        setError( PlvPipelineInitError, msg );
         return false;
     }
 
@@ -64,7 +64,7 @@ bool ViolaJonesFaceDetector::init()
     {
 
         QString msg = QString("Failed to load haar cascade file %1").arg(m_haarCascadeFile);
-        setError( PlvInitError, msg );
+        setError( PlvPipelineInitError, msg );
         return false;
     }
     m_pCascade = (CvHaarClassifierCascade*) cascade;

@@ -29,54 +29,52 @@
 
 namespace plv
 {
-    class PLVCORE_EXPORT PlvException : public std::runtime_error
+    class PLVCORE_EXPORT Exception : public std::runtime_error
     {
 
     public:
-        PlvException(const QString& str) : std::runtime_error(str.toStdString()){}
-        virtual ~PlvException() throw() {}
+        Exception(const QString& str) : std::runtime_error(str.toStdString()){}
+        virtual ~Exception() throw() {}
     };
 
-    class PLVCORE_EXPORT PlvRuntimeException : public PlvException
+    class PLVCORE_EXPORT RuntimeError : public Exception
     {
     protected:
         QString m_fileName;
         int m_lineNumber;
     public:
-        PlvRuntimeException(const QString& str, QString fileName, int lineNumber)
-            : PlvException(str),
+        RuntimeError(const QString& str, QString fileName, int lineNumber)
+            : Exception(str),
             m_fileName(fileName),
             m_lineNumber(lineNumber)
         {
         }
-        virtual ~PlvRuntimeException() throw() {}
+        virtual ~RuntimeError() throw() {}
 
         inline QString getFileName() const { return m_fileName; }
         inline int getLineNumber() const { return m_lineNumber; }
     };
 
-    class PLVCORE_EXPORT PlvFatalException : public PlvRuntimeException
+    class PLVCORE_EXPORT IllegalArgumentException : public Exception
     {
     public:
-        PlvFatalException(const QString& str, QString fileName, int lineNumber )
-            : PlvRuntimeException( str, fileName, lineNumber ) {}
-        virtual ~PlvFatalException() throw() {}
-    };
-
-    class PLVCORE_EXPORT PlvInitialisationException : public PlvException
-    {
-    public:
-        PlvInitialisationException(const QString& str) : PlvException(str) {}
-        virtual ~PlvInitialisationException() throw() {}
-    };
-
-    class PLVCORE_EXPORT IllegalArgumentException : public PlvException
-    {
-    public:
-        IllegalArgumentException(const QString& str) : PlvException(str) {}
+        IllegalArgumentException(const QString& str) : Exception(str) {}
         virtual ~IllegalArgumentException() throw() {}
     };
 
+//    class PLVCORE_EXPORT PlvFatalException : public PlvRuntimeException
+//    {
+//    public:
+//        PlvFatalException(const QString& str, QString fileName, int lineNumber )
+//            : PlvRuntimeException( str, fileName, lineNumber ) {}
+//        virtual ~PlvFatalException() throw() {}
+//    };
+//    class PLVCORE_EXPORT PlvInitialisationException : public PlvException
+//    {
+//    public:
+//        PlvInitialisationException(const QString& str) : PlvException(str) {}
+//        virtual ~PlvInitialisationException() throw() {}
+//    };
 //    class PLVCORE_EXPORT IllegalAccessException : public PlvException
 //    {
 //    public:

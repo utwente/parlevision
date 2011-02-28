@@ -102,12 +102,10 @@ void IInputPin::post()
     {
         if( !m_called )
         {
-            QString processorName = this->getOwner()->getName();
-            QString msg = "Processor " % processorName %
-                          " did not call mandatory get() "
-                          " on input Pin " %
-                          this->getName();
-            throw PlvRuntimeException(msg, __FILE__, __LINE__);
+            QString msg = tr("Processor %1 did not call mandatory get() on input Pin %2.")
+                          .arg(getOwner()->getName())
+                          .arg(getName());
+            throw RuntimeError(msg, __FILE__, __LINE__);
         }
     }
 }
@@ -123,12 +121,10 @@ void IInputPin::getVariant( QVariant& v )
     // check if get is not called twice during one process call
     if( m_called )
     {
-        QString processorName = this->m_owner->getName();
-        QString msg = "Illegal: method get() called twice "
-                      "during process() on InputPin. Pin name is \"" %
-                      this->m_name %
-                      "\" of processor \"" % processorName % "\"";
-        throw PlvRuntimeException(msg,__FILE__, __LINE__ );
+        QString msg = tr("Illegal: method get() called twice during process() on InputPin %1 of processor %2.")
+                      .arg(m_name)
+                      .arg(m_owner->getName());
+        throw RuntimeError(msg,__FILE__, __LINE__ );
     }
     m_called = true;
     if( !(this->m_connection.isNotNull() &&
@@ -140,7 +136,7 @@ void IInputPin::getVariant( QVariant& v )
                       "which has no data available. Pin name is " %
                       this->m_name %
                       " of processor " % processorName;
-        throw PlvRuntimeException(msg, __FILE__, __LINE__);
+        throw RuntimeError(msg, __FILE__, __LINE__);
     }
     Data d = m_connection->get();
     v.setValue(d.getPayload());
@@ -256,7 +252,7 @@ void IOutputPin::putVariant( unsigned int serial, const QVariant& v )
                       "during process() on OutputPin. Pin name is \"" %
                       this->m_name %
                       "\" of processor \"" % processorName % "\"";
-        throw PlvRuntimeException( msg,__FILE__, __LINE__ );
+        throw RuntimeError( msg,__FILE__, __LINE__ );
     }
     m_called = true;
 

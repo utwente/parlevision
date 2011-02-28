@@ -250,7 +250,7 @@ Data PinConnection::get()
                       " with producer owner " % producerName %
                       " and consumer owner " % consumerName;
 
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
     Data d = m_queue.front();
     m_queue.pop();
@@ -270,7 +270,7 @@ Data PinConnection::peek() const
                       " with producer owner " % producerName %
                       " and consumer owner " % consumerName;
 
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
     return m_queue.front();
 }
@@ -288,7 +288,7 @@ void PinConnection::peek( unsigned int& serial, bool& isNull ) const
                       " with producer owner " % producerName %
                       " and consumer owner " % consumerName;
 
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
     const Data& d = m_queue.front();
     serial = d.getSerial();

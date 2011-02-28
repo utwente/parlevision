@@ -140,7 +140,7 @@ bool ImageProducer::init()
     cv::Mat image = cv::imread(path.toStdString(), CV_LOAD_IMAGE_UNCHANGED);
     if(image.data == 0)
     {
-        setError( PlvFatalError, tr("Failed to load image %1.").arg(path));
+        setError( PlvPipelineInitError, tr("Failed to load image %1.").arg(path));
         return false;
     }
     m_loadedImage = image;

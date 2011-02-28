@@ -43,13 +43,13 @@ namespace plv
 
         int getSelectedIndex() const;
 
-        int getSelectedValue() const throw (PlvRuntimeException);
+        int getSelectedValue() const throw (RuntimeError);
 
-        QString getItemName( int index ) const throw (PlvRuntimeException);
+        QString getItemName( int index ) const throw (RuntimeError);
 
-        QString getSelectedItemName() const throw (PlvRuntimeException);
+        QString getSelectedItemName() const throw (RuntimeError);
 
-        int getItemValue( int index ) const throw (PlvRuntimeException);
+        int getItemValue( int index ) const throw (RuntimeError);
 
         QStringList getItemNames() const;
 

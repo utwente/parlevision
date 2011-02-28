@@ -70,7 +70,7 @@ bool ImageDirectoryProducer::init()
     QDir dir(m_directory);
     if( !dir.exists() )
     {
-        setError( PlvInitError, "Directory is invalid");
+        setError( PlvPipelineInitError, "Directory is invalid");
         return false;
     }
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks | QDir::Readable);
@@ -106,7 +106,7 @@ bool ImageDirectoryProducer::produce()
     cv::Mat image = cv::imread(path, CV_LOAD_IMAGE_UNCHANGED);
     if(image.data == 0)
     {
-        setError( PlvFatalError, tr("Failed to load image %1.").arg(fileInfo.absolutePath()));
+        setError( PlvPipelineRuntimeError, tr("Failed to load image %1.").arg(fileInfo.absolutePath()));
         return false;
     }
 

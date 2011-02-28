@@ -73,28 +73,31 @@ void LibraryWidget::createItem(QString typeName)
         int id = PipelineElementFactory::elementId( typeName );
         if( id == -1 )
         {
-            qWarning() << "Ignoring unknown element " << typeName;
+            qWarning() << tr("Ignoring unknown element %1").arg(typeName);
             return;
         }
 
-        RefPtr<PipelineElement> element = PipelineElementFactory::construct( typeName );
+        PipelineElement* element = PipelineElementFactory::construct( typeName );
+        if( element == 0 )
+        {
+            qWarning() << tr("Failed to create pipeline element %1").arg(typeName);
+            return;
+        }
         LibraryElement* w = new LibraryElement(element, this);
         connect(w, SIGNAL(pressed()), this, SLOT(elementPressed()));
         connect(w, SIGNAL(moved()), this, SLOT(elementMoved()));
         connect(w, SIGNAL(released()), this, SLOT(elementReleased()));
-    //    ui->container->addWidget(w);
         this->allElements.insert(w->getElement()->getName().toLower(), w);
     }
-    catch( PlvException& e )
+    catch( Exception& e )
     {
-        emit(errorOccurred(typeName + ": " + e.what()));
+        emit errorOccurred(typeName + ": " + e.what());
         return;
     }
     catch( ... )
     {
-        qDebug() << "Uncaught exception in LibraryWidget"
-                 << "of unknown type.";
-        emit(errorOccurred(typeName + ": failed to load processor"));
+        QString msg = tr("Caught exception in %1 of unknown type.").arg(__FILE__);
+        emit errorOccurred(msg);
         return;
     }
 }
