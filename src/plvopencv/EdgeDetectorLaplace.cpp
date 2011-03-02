@@ -36,15 +36,15 @@ EdgeDetectorLaplace::EdgeDetectorLaplace() :
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
     // formats directly supported by cvLaplace function
-    m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
-    m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
-    m_inputPin->addSupportedDepth( IPL_DEPTH_32F );
+    m_inputPin->addSupportedDepth( CV_8S );
+    m_inputPin->addSupportedDepth( CV_8U );
+    m_inputPin->addSupportedDepth( CV_32F );
     m_inputPin->addSupportedChannels( 1 );
 
     // function outputs 16 bit image when input is 8-bit
     // and 32F when input is 32-bit float
-    m_outputPin->addSupportedDepth( IPL_DEPTH_16S );
-    m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
+    m_outputPin->addSupportedDepth( CV_16S );
+    m_outputPin->addSupportedDepth( CV_32F );
     m_outputPin->addSupportedChannels( 1 );
 }
 

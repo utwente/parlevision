@@ -39,12 +39,12 @@ EdgeDetectorCanny::EdgeDetectorCanny() :
     m_inputPin  = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
-    m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
-    m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
+    m_inputPin->addSupportedDepth( CV_8S );
+    m_inputPin->addSupportedDepth( CV_8U );
     m_inputPin->addSupportedChannels( 1 );
 
-    m_outputPin->addSupportedDepth( IPL_DEPTH_8S );
-    m_outputPin->addSupportedDepth( IPL_DEPTH_8U );
+    m_outputPin->addSupportedDepth( CV_8S );
+    m_outputPin->addSupportedDepth( CV_8U );
     m_outputPin->addSupportedChannels( 1 );
 }
 

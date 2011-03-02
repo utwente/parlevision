@@ -291,6 +291,33 @@ bool Pipeline::init()
     return true;
 }
 
+void Pipeline::deinit()
+{
+    QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
+    while( itr.hasNext() )
+    {
+        itr.next();
+        RefPtr<PipelineElement> element = itr.value();
+
+        PlvErrorType errType = PlvNoError;
+        QString msg;
+
+
+        if( !element->__deinit() )
+        {
+            errType = element->getErrorType();
+            msg = tr("Error in PipelineElement %1: %2")
+                  .arg(element->getName())
+                  .arg(element->getErrorString());
+
+            if( errType != PlvNoError )
+            {
+                emit handleMessage( QtWarningMsg, msg );
+            }
+        }
+    }
+}
+
 void Pipeline::clear()
 {
     assert( !m_running );
@@ -324,6 +351,7 @@ void Pipeline::start()
         {
             QString msg = tr("PipelineElement's' %1 required pins are not all connected.").arg(element->getName());
             handleMessage(QtWarningMsg, msg);
+            deinit();
             return;
         }
     }

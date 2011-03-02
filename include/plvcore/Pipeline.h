@@ -93,6 +93,7 @@ namespace plv
 
         /** Initialise this Pipeline. */
         bool init();
+        void deinit();
 
         /** Removes all PipelineElements and Connections from this pipeline */
         void clear();

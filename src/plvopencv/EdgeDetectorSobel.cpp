@@ -42,13 +42,13 @@ EdgeDetectorSobel::EdgeDetectorSobel():
 
     Util::addDefaultBorderInterpolationTypes( m_borderType );
 
-    m_inputPin->addSupportedDepth( IPL_DEPTH_8S );
-    m_inputPin->addSupportedDepth( IPL_DEPTH_8U );
-    m_inputPin->addSupportedDepth( IPL_DEPTH_32F );
+    m_inputPin->addSupportedDepth( CV_8S );
+    m_inputPin->addSupportedDepth( CV_8U );
+    m_inputPin->addSupportedDepth( CV_32F );
     m_inputPin->addSupportedChannels( 1 );
 
-    m_outputPin->addSupportedDepth( IPL_DEPTH_16S );
-    m_outputPin->addSupportedDepth( IPL_DEPTH_32F );
+    m_outputPin->addSupportedDepth( CV_16S );
+    m_outputPin->addSupportedDepth( CV_32F );
     m_outputPin->addSupportedChannels( 1 );
 }
 
