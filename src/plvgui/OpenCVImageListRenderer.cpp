@@ -131,7 +131,7 @@ void OpenCVImageListRenderer::updateImages( QList<QImage> images, int id )
         ImageWidget* iw = m_imageWidgets.at(i);
         iw->setImage( images.at(i) );
     }
-    m_layout->update();
+    //m_layout->update();
 
     QMutexLocker lock( &m_busy_mutex );
     m_busy = false;
