@@ -99,7 +99,6 @@ void OpenCVImageRenderer::updateImage( QImage image, int id )
     Q_UNUSED(id)
 
     m_imageWidget->setImage(image);
-    m_layout->update();
 
     QMutexLocker lock2(&m_busy_mutex);
     m_busy = false;
