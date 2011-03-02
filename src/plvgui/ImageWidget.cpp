@@ -70,10 +70,8 @@ void ImageWidget::paintEvent(QPaintEvent *)
 
     w = m_image.width() * m_zoomFactor;
     h = m_image.height()* m_zoomFactor;
-    x = (rect.width() - w ) / 2;
-    y = (rect.height()- h ) / 2;
-    x = qMax(x,0);
-    y = qMax(y,0);
+    x = 0;
+    y = 0;
 
     QRectF target(x,y,w,h);
     QPainter p(this);
