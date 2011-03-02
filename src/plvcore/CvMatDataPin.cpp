@@ -22,9 +22,17 @@ CvMatData CvMatDataInputPin::get()
     getVariant(v);
     if( !v.canConvert<CvMatData>() )
     {
-        qWarning("CvMatDataOutputPin expected data with type CvMatData");
+        QString msg = tr("CvMatDataOutputPin expected data with type CvMatData");
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
-    return v.value<CvMatData>();
+    CvMatData data = v.value<CvMatData>();
+    if( !data.isValid() )
+    {
+        QString msg = tr("CvMatDataOutputPin received invalid data");
+        throw RuntimeError( msg, __FILE__, __LINE__ );
+    }
+    checkImageFormat(data);
+    return data;
 }
 
 void CvMatDataInputPin::addSupportedDepth(int depth)

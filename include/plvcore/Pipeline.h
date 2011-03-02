@@ -60,8 +60,9 @@ namespace plv
         RunItem( PipelineElement* element, unsigned int serial ) :
                 m_element(element), m_serial(serial) {}
 
-        inline unsigned int serial() const { return m_serial; }
-        inline PipelineElement* element() const { return m_element; }
+        inline unsigned int getSerial() const { return m_serial; }
+        inline PipelineElement* getElement() const { return m_element; }
+        QFuture<bool> getResult() const { return m_result; }
 
         bool operator ==(const RunItem& other) const { return other.m_serial == m_serial && other.m_element == m_element; }
         bool operator < (const RunItem& other) const { return m_serial < other.m_serial; }
@@ -224,7 +225,7 @@ namespace plv
         void step();
         void finish();
         void scheduleNew();
-        void schedule();
+        //void schedule();
 
         void pipelineElementError( PlvErrorType type, plv::PipelineElement* ple );
 

@@ -398,7 +398,7 @@ void Pipeline::stop()
     {
         for( int i=0; i<m_runQueue.size(); ++i )
         {
-            PipelineElement* element = m_runQueue.at(i).element();
+            PipelineElement* element = m_runQueue.at(i).getElement();
             PipelineElement::State state = element->getState();
             if( state == PipelineElement::STARTED || state == PipelineElement::ERROR )
             {
@@ -454,23 +454,19 @@ void Pipeline::scheduleNew()
     // remove stale entries
     for( int i=0; i<m_runQueue.size(); ++i )
     {
-        PipelineElement* ple = m_runQueue.at(i).element();
-        PipelineElement::State state = ple->getState();
-        if( state == PipelineElement::STARTED )
-        {
-            m_runQueue.removeAt(i);
-        }
-        else if(state == PipelineElement::ERROR)
+        RunItem item = m_runQueue.at(i);
+        if( !item.getResult().result() )
         {
             // stop on error
             lock.unlock();
-            stop();
             QString msg = tr("Pipeline stopped because of an error in %1. The error is %2")
-                          .arg(m_runQueue.at(i).element()->getName())
-                          .arg(m_runQueue.at(i).element()->getErrorString());
+                          .arg(item.getElement()->getName())
+                          .arg(item.getElement()->getErrorString());
+            stop();
             emit pipelineMessage(QtWarningMsg, msg);
             return;
         }
+        m_runQueue.removeAt(i);
     }
 
     // schedule processors
@@ -517,80 +513,80 @@ void Pipeline::scheduleNew()
     }
 }
 
-void Pipeline::schedule()
-{
-    QMutexLocker lock( &m_pipelineMutex );
+//void Pipeline::schedule()
+//{
+//    QMutexLocker lock( &m_pipelineMutex );
 
-    // remove stale entries
-    for( int i=0; i<m_runQueue.size(); ++i )
-    {
-        PipelineElement* ple = m_runQueue.at(i).element();
-        PipelineElement::State state = ple->getState();
-        if( state == PipelineElement::STARTED )
-        {
-            m_runQueue.removeAt(i);
-        }
-        else if(state == PipelineElement::ERROR)
-        {
-            // stop on error
-            m_pipelineMutex.unlock();
-            stop();
-            emit pipelineMessage(QtWarningMsg, m_runQueue.at(i).element()->getErrorString() );
-            return;
-        }
-    }
-    // schedule processors
-    QList<RunItem> newItems;
-    QMapIterator<int, PipelineProcessor* > procItr( m_processors );
-    while( procItr.hasNext() )
-    {
-        procItr.next();
-        PipelineProcessor* proc = procItr.value();
-        unsigned int serial;
-        if( proc->__ready(serial) )
-        {
-            RunItem item( proc, serial );
-            newItems.append( item );
-        }
-    }
+//    // remove stale entries
+//    for( int i=0; i<m_runQueue.size(); ++i )
+//    {
+//        PipelineElement* ple = m_runQueue.at(i).getElement();
+//        PipelineElement::State state = ple->getState();
+//        if( state == PipelineElement::STARTED )
+//        {
+//            m_runQueue.removeAt(i);
+//        }
+//        else if(state == PipelineElement::ERROR)
+//        {
+//            // stop on error
+//            lock.unlock();
+//            stop();
+//            emit pipelineMessage(QtWarningMsg, m_runQueue.at(i).getElement()->getErrorString() );
+//            return;
+//        }
+//    }
+//    // schedule processors
+//    QList<RunItem> newItems;
+//    QMapIterator<int, PipelineProcessor* > procItr( m_processors );
+//    while( procItr.hasNext() )
+//    {
+//        procItr.next();
+//        PipelineProcessor* proc = procItr.value();
+//        unsigned int serial;
+//        if( proc->__ready(serial) )
+//        {
+//            RunItem item( proc, serial );
+//            newItems.append( item );
+//        }
+//    }
 
-    // sort on serial number, oldest first
-    qSort( newItems.begin(), newItems.end() );
-    for( QList<RunItem>::iterator listItr = newItems.begin();
-         listItr != newItems.end();
-         ++listItr )
-    {
-        RunItem& item = (*listItr);
-        item.dispatch();
-        m_runQueue.append(item);
-    }
+//    // sort on serial number, oldest first
+//    qSort( newItems.begin(), newItems.end() );
+//    for( QList<RunItem>::iterator listItr = newItems.begin();
+//         listItr != newItems.end();
+//         ++listItr )
+//    {
+//        RunItem& item = (*listItr);
+//        item.dispatch();
+//        m_runQueue.append(item);
+//    }
 
-    // only if there are not too many processors
-    // processing, call new production run
-    if( m_runQueue.size() == 0 )
-    {
-        if(!m_producersReady)
-        {
-            QMapIterator<int, PipelineProducer* > itr( m_producers );
-            bool ready = true;
-            unsigned int dummy;
-            while( itr.hasNext() && ready )
-            {
-                itr.next();
-                ready = itr.value()->__ready(dummy);
-            }
-            m_producersReady = ready;
-        }
+//    // only if there are not too many processors
+//    // processing, call new production run
+//    if( m_runQueue.size() == 0 )
+//    {
+//        if(!m_producersReady)
+//        {
+//            QMapIterator<int, PipelineProducer* > itr( m_producers );
+//            bool ready = true;
+//            unsigned int dummy;
+//            while( itr.hasNext() && ready )
+//            {
+//                itr.next();
+//                ready = itr.value()->__ready(dummy);
+//            }
+//            m_producersReady = ready;
+//        }
 
-        if( m_producersReady )
-        {
-            lock.unlock();
-            step();
-            lock.relock();
-            m_producersReady = false;
-        }
-    }
-}
+//        if( m_producersReady )
+//        {
+//            lock.unlock();
+//            step();
+//            lock.relock();
+//            m_producersReady = false;
+//        }
+//    }
+//}
 
 void Pipeline::step()
 {
