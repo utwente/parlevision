@@ -73,24 +73,24 @@ namespace plv
     class PLVCORE_EXPORT PinConnection : public RefCounted
     {
       public:
-        class PLVCORE_EXPORT IllegalConnectionException : public PlvException
+        class PLVCORE_EXPORT IllegalConnectionException : public plv::Exception
         {
         public:
-            IllegalConnectionException(const QString& str) : PlvException(str) {}
+            IllegalConnectionException(const QString& str) : plv::Exception(str) {}
             virtual ~IllegalConnectionException() throw() {}
         };
 
-        class PLVCORE_EXPORT IncompatibleTypeException : public PlvException
+        class PLVCORE_EXPORT IncompatibleTypeException : public plv::Exception
         {
         public:
-            IncompatibleTypeException(const QString& str) : PlvException(str) {}
+            IncompatibleTypeException(const QString& str) : plv::Exception(str) {}
             virtual ~IncompatibleTypeException() throw() {}
         };
 
-        class PLVCORE_EXPORT DuplicateConnectionException : public PlvException
+        class PLVCORE_EXPORT DuplicateConnectionException : public plv::Exception
         {
         public:
-            DuplicateConnectionException(const QString& str) : PlvException(str) {}
+            DuplicateConnectionException(const QString& str) : plv::Exception(str) {}
             virtual ~DuplicateConnectionException() throw() {}
         };
 

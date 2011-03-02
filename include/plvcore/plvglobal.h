@@ -26,10 +26,9 @@
 enum PlvErrorType {
     PlvNoError,
     PlvNonFatalError,
-    PlvInitError,
-    PlvResourceError,
-    PlvExceptionThrownError,
-    PlvFatalError,
+    PlvPipelineInitError,   /** failed to init or free resources during pipeline initialisation */
+    PlvPipelineRuntimeError,/** something went wrong during pipeline execution */
+    PlvFatalError           /** a fatal error will close the application */
 };
 Q_DECLARE_METATYPE( PlvErrorType );
 
@@ -37,7 +36,7 @@ enum PlvMessageType {
     PlvDebugMessage,
     PlvNotifyMessage,
     PlvWarningMessage,
-    PlvFatalMessage
+    PlvErrorMessage
 };
 Q_DECLARE_METATYPE( PlvMessageType );
 
@@ -63,16 +62,16 @@ Q_DECLARE_METATYPE( PlvMessageType );
 // PLVCORE_EXPORT is used for the public API symbols. It either DLL imports or
 // DLL exports (or does nothing for static build)
 // PLVCORE_LOCAL is used for non-api symbols.
-//#ifdef PLV_SHARED_LIBRARY // defined if PLV is compiled as a DLL or shared object
-  #ifdef PLVCORE_LIBRARY // defined if we are building the PLVx DLLs (instead of using it)
+#ifdef PLV_SHARED_LIBRARY // defined if PLV is compiled as a DLL or shared object
+  #ifdef PLV_DLL_EXPORTS // defined if we are building the PLVx DLLs (instead of using it)
     #define PLVCORE_EXPORT PLV_DECL_EXPORT
   #else
     #define PLVCORE_EXPORT PLV_DECL_IMPORT
   #endif // PLV_DLL_EXPORTS
   #define PLVCORE_LOCAL PLV_DECL_LOCAL
-//#else // PLV_DLL is not defined: this means PLV is a static lib.
-//  #define PLVCORE_EXPORT
-//  #define PLVCORE_LOCAL
-//#endif // PLVCORE_DLL
+#else // PLV_SHARED_LIBRARY is not defined: this means PLV is a static lib.
+  #define PLVCORE_EXPORT
+  #define PLVCORE_LOCAL
+#endif // PLV_SHARED_LIBRARY
 
 #endif // PLVCORE_GLOBAL_H

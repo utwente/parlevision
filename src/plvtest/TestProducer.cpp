@@ -47,7 +47,7 @@ bool TestProducer::produce()
     unsigned int serial = getProcessingSerial();
 
     m_intOut->put(int(serial));
-    m_stringOut->put(QString(serial));
+    m_stringOut->put(QString("%1").arg(serial));
     m_floatOut->put(float(serial));
     m_doubleOut->put(double(serial));
 

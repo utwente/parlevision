@@ -50,7 +50,7 @@ bool Split::process()
 
     if(numChannels < 2)
     {
-        setError(PlvFatalError, "Input image is single channel, expected a multi channel image.");
+        setError(PlvPipelineRuntimeError, "Input image is single channel, expected a multi channel image.");
         return false;
     }
 

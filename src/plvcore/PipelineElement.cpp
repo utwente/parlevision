@@ -352,7 +352,7 @@ bool PipelineElement::dataAvailableOnInputPins( unsigned int& nextSerial )
         // this should never happen obviously
         if( !valid )
         {
-            setError( PlvFatalError, "Input corrupted" );
+            setError( PlvPipelineRuntimeError, "Input corrupted" );
             return false;
         }
 
@@ -687,41 +687,41 @@ bool PipelineElement::run( unsigned int serial )
         // calls implementation (producer or procesor) specific private __process method
         this->__process( serial );
     }
-    catch( PlvRuntimeException& re )
+    catch( RuntimeError& re )
     {
-        qDebug() << "Uncaught exception in PipelineElement::process()"
+        qWarning() << "Uncaught exception in PipelineElement::process()"
                  << " of file " << re.getFileName()
                  << " on line " << re.getLineNumber()
                  << " of type PlvRuntimeException with message: " << re.what();
         stopTimer();
-        setError(PlvFatalError, re.what());
+        setError(PlvPipelineRuntimeError, re.what());
         return false;
     }
-    catch( PlvException& e )
+    catch( Exception& e )
     {
-        qDebug() << "Uncaught exception in PipelineElement::process()"
-                 << "of type PlvException with message: " << e.what();
+        qWarning() << "Uncaught exception in PipelineElement::process()"
+                   << "of type PlvException with message: " << e.what();
         stopTimer();
-        setError(PlvFatalError, e.what());
+        setError(PlvPipelineRuntimeError, e.what());
         return false;
     }
     catch( std::runtime_error& err )
     {
-        qDebug() << "Uncaught exception in PipelineElement::process()"
-                 << "of type PlvException with message: " << err.what();
+        qWarning() << "Uncaught exception in PipelineElement::process()"
+                 << "of type std::runtime_error with message: " << err.what();
         stopTimer();
-        setError(PlvFatalError, err.what());
+        setError(PlvPipelineRuntimeError, err.what());
         return false;
     }
     catch( ... )
     {
-        qDebug() << "Uncaught exception in PipelineElement::process()"
-                 << "of unknown type.";
+        qWarning() << "Uncaught exception in PipelineElement::process()"
+                   << "of unknown type.";
         stopTimer();
-        setError(PlvFatalError, "Unknown exception caught");
+        setError(PlvPipelineRuntimeError, "Unknown exception caught");
         return false;
     }
     stopTimer();
-    setState( STARTED );
+    setState(STARTED);
     return true;
 }

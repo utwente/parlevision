@@ -48,17 +48,17 @@ int Enum::getSelectedIndex() const
     return m_selectedIndex;
 }
 
-QString Enum::getSelectedItemName() const throw (PlvRuntimeException)
+QString Enum::getSelectedItemName() const throw (RuntimeError)
 {
     return getItemName( getSelectedIndex() );
 }
 
-int Enum::getSelectedValue() const throw (PlvRuntimeException)
+int Enum::getSelectedValue() const throw (RuntimeError)
 {
     return getItemValue( m_selectedIndex );
 }
 
-QString Enum::getItemName( int i ) const throw (PlvRuntimeException)
+QString Enum::getItemName( int i ) const throw (RuntimeError)
 {
     if( m_items.contains(i) )
     {
@@ -67,12 +67,11 @@ QString Enum::getItemName( int i ) const throw (PlvRuntimeException)
     else
     {
         QString msg( "Invalid index" );
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
 }
 
-int Enum::getItemValue( int i ) const
-        throw (PlvRuntimeException)
+int Enum::getItemValue( int i ) const throw (RuntimeError)
 {
     if( m_items.contains(i) )
     {
@@ -80,8 +79,8 @@ int Enum::getItemValue( int i ) const
     }
     else
     {
-        QString msg( "Invalid index" );
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+        QString msg = QObject::tr("Invalid index %1 in Enum::getItemValue()").arg(i);
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
 }
 

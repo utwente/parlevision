@@ -58,8 +58,6 @@ void PipelineLoader::serialize( const QString& filename, Pipeline* pipeline )
 QString PipelineLoader::serialize( Pipeline* pl )
     throw(std::runtime_error) /*TODO checked exceptions*/
 {
-    //RefPtr<Pipeline> pl = pipeline;
-
     QDomDocument doc;
 
     QDomElement xmlPipeline = doc.createElement( "pipeline" );
@@ -99,9 +97,6 @@ QString PipelineLoader::serialize( Pipeline* pl )
             // custom types are saved here
             if( propertyType == QVariant::UserType )
             {
-                // TODO: pass control here to pipeline element
-                // to parse custom types?
-
                 QVariant value = property.read( ple );
                 if( value.canConvert<plv::Enum>() )
                 {
@@ -152,37 +147,37 @@ QString PipelineLoader::serialize( Pipeline* pl )
         QDomElement xmlSink = doc.createElement("sink");
         xmlConnection.appendChild( xmlSink );
 
-        QDomElement xmlSinkPinName = doc.createElement( "pinName" );
+        QDomElement xmlSinkPinId = doc.createElement( "pinId" );
         QDomElement xmlSinkId = doc.createElement( "processorId" );
 
-        xmlSink.appendChild( xmlSinkPinName );
+        xmlSink.appendChild( xmlSinkPinId );
         xmlSink.appendChild( xmlSinkId );
 
-        QString sinkPinId = connection->toPin()->getName();
-        QString sinkId = QVariant( connection->toPin()->getOwner()->getId() ).toString();
+        QString sinkPinId = QString::number( connection->toPin()->getId() );
+        QString sinkId = QString::number( connection->toPin()->getOwner()->getId() );
 
-        QDomText xmlSinkNameText = doc.createTextNode( sinkPinId );
+        QDomText xmlSinkPinIdText = doc.createTextNode( sinkPinId );
         QDomText xmlSinkIdText = doc.createTextNode( sinkId );
 
-        xmlSinkPinName.appendChild( xmlSinkNameText );
+        xmlSinkPinId.appendChild( xmlSinkPinIdText );
         xmlSinkId.appendChild( xmlSinkIdText );
 
         QDomElement xmlSource = doc.createElement("source");
         xmlConnection.appendChild( xmlSource );
 
-        QDomElement xmlSourcePinName = doc.createElement( "pinName" );
+        QDomElement xmlSourcePinId = doc.createElement( "pinId" );
         QDomElement xmlSourceId = doc.createElement( "processorId" );
 
-        xmlSource.appendChild( xmlSourcePinName );
+        xmlSource.appendChild( xmlSourcePinId );
         xmlSource.appendChild( xmlSourceId );
 
-        QString sourcePinId = connection->fromPin()->getName();
-        QString sourceId = QVariant( connection->fromPin()->getOwner()->getId() ).toString();
+        QString sourcePinId = QString::number(connection->fromPin()->getId());
+        QString sourceId = QString::number(connection->fromPin()->getOwner()->getId());
 
-        QDomText xmlSourceNameText = doc.createTextNode( sourcePinId );
+        QDomText xmlSourcePinIdText = doc.createTextNode( sourcePinId );
         QDomText xmlSourceIdText = doc.createTextNode( sourceId );
 
-        xmlSourcePinName.appendChild( xmlSourceNameText );
+        xmlSourcePinId.appendChild( xmlSourcePinIdText );
         xmlSourceId.appendChild( xmlSourceIdText );
     }
     return doc.toString();

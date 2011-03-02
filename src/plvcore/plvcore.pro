@@ -40,7 +40,7 @@ QXT     += core
 
 INCLUDEPATH += ../../include/plvcore
 
-DEFINES += PLVCORE_LIBRARY
+DEFINES += PLV_SHARED_LIBRARY PLV_DLL_EXPORTS
 
 SOURCES += \
     Types.cpp \

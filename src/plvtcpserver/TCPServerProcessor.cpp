@@ -45,7 +45,7 @@ bool TCPServerProcessor::init()
     if( !m_server->listen( QHostAddress::Any, m_port ) )
     {
         QString msg = tr("Unable to start the server: %1.").arg(m_server->errorString());
-        setError(PlvFatalError, msg);
+        setError(PlvPipelineInitError, msg);
         return false;
     }
 

@@ -51,6 +51,12 @@ Pipeline::Pipeline() :
 Pipeline::~Pipeline()
 {
     assert(!m_running );
+
+    if(!m_children.isEmpty())
+    {
+        clear();
+    }
+
     assert(m_children.isEmpty());
     assert(m_processors.isEmpty());
     assert(m_producers.isEmpty());
@@ -258,14 +264,14 @@ bool Pipeline::init()
                       .arg(element->getErrorString());
             }
         }
-        catch( PlvException& e )
+        catch(Exception& e)
         {
-            errType = PlvExceptionThrownError;
-            msg = tr("Error in PipelineElement %1: %2").arg(element->getName()).arg(e.what());
+            errType = PlvPipelineRuntimeError;
+            msg = tr("Exception caught in PipelineElement %1: %2").arg(element->getName()).arg(e.what());
         }
-        catch( ... )
+        catch(...)
         {
-            errType = PlvExceptionThrownError;
+            errType = PlvPipelineRuntimeError;
             msg = tr("Unknown exception caught in PipelineElement %1" ).arg(element->getName());
         }
 
@@ -344,10 +350,10 @@ void Pipeline::start()
             element->__start();
             started.insert( element.getPtr() );
         }
-        catch( PlvException& e )
+        catch( Exception& e )
         {
             QString msg = element->getName() % ": " % e.what();
-            handleMessage(QtCriticalMsg, msg);
+            handleMessage(QtWarningMsg, msg);
             element->__deinit();
             error = true;
         }
@@ -860,12 +866,11 @@ void Pipeline::pipelineElementError( PlvErrorType type, PipelineElement* ple )
 
     switch(type)
     {
-    case PlvNoError:
     case PlvNonFatalError:
+    case PlvPipelineInitError:
+    case PlvPipelineRuntimeError:
+        qtType = QtWarningMsg;
         break;
-    case PlvInitError:
-    case PlvResourceError:
-    case PlvExceptionThrownError:
     case PlvFatalError:
         qtType = QtFatalMsg;
         break;

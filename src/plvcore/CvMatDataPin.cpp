@@ -4,11 +4,6 @@
 
 using namespace plv;
 
-//const std::type_info& CvMatDataInputPin::getTypeInfo() const
-//{
-//    return typeid(CvMatData);
-//}
-
 /** @returns the QMetaType typeId of the data type this pin is initialized with */
 int CvMatDataInputPin::getTypeId() const
 {
@@ -98,7 +93,7 @@ void CvMatDataInputPin::checkImageFormat( const CvMatData& mat )
         QString msg = QString("Depth \"%1\" unsupported by input pin \"%2\"")
                       .arg( CvMatData::depthToString( mat.depth() ) )
                       .arg( this->getName() );
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
 
     if( !supportsChannels(mat.channels()) )
@@ -119,7 +114,7 @@ void CvMatDataInputPin::checkImageFormat( const CvMatData& mat )
                 channelsStr += ",";
         }
         msg += channelsStr + ").";
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
 }
 
@@ -132,23 +127,10 @@ bool CvMatDataInputPin::acceptsConnectionWith( const IOutputPin* pin,
         errStr = "Incompatible types between pins";
         return false;
     }
-//    const CvMatDataOutputPin* ocvOutPin =
-//            dynamic_cast<const CvMatDataOutputPin*>(pin);
-
-//    if( ocvOutPin == 0 )
-//    {
-//        errStr = "Expected CvMatData output pin";
-//        return false;
-//    }
     return true;
 }
 
 /******************** CvMatDataOutputPin ********************************/
-
-//const std::type_info& CvMatDataOutputPin::getTypeInfo() const
-//{
-//    return typeid( CvMatData );
-//}
 
 /** @returns the QMetaType typeId of the data type this pin is initialized with */
 int CvMatDataOutputPin::getTypeId() const
@@ -236,7 +218,7 @@ void CvMatDataOutputPin::checkImageFormat( const CvMatData& mat )
         QString msg = QString("Depth \"%1\" unsupported by output pin \"%2\"")
                       .arg( CvMatData::depthToString( mat.depth() ) )
                       .arg( this->getName() );
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
 
     if( !supportsChannels(mat.channels()) )
@@ -257,7 +239,7 @@ void CvMatDataOutputPin::checkImageFormat( const CvMatData& mat )
                 channelsStr += ",";
         }
         msg += channelsStr + ").";
-        throw PlvRuntimeException( msg, __FILE__, __LINE__ );
+        throw RuntimeError( msg, __FILE__, __LINE__ );
     }
 }
 
@@ -270,14 +252,6 @@ bool CvMatDataOutputPin::acceptsConnectionWith( const IInputPin* pin,
         errStr = "Incompatible types between pins";
         return false;
     }
-//    const CvMatDataInputPin* ocvInPin =
-//            dynamic_cast<const CvMatDataInputPin*>(pin);
-
-//    if( ocvInPin == 0 )
-//    {
-//        errStr = "Expected CvMatData input pin";
-//        return false;
-//    }
     return true;
 }
 

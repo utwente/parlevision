@@ -42,130 +42,97 @@ using namespace plvopencv;
 #   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp/"
 #endif
 
+enum ImageFormat {
+    BMP,
+    JPG,
+    PNG,
+    PBM,
+    SR,
+    TIFF
+};
+
 /**
  * Constructor.
  */
 SaveImageToFile::SaveImageToFile() :
-        m_doSave(false),
-        m_filename("img"),
-        m_directory(SAVEIMAGETOFILE_DEFAULT_DIR),
-        m_suffixNr(1001),
-        m_autoIncSuf(true)
+        m_directory(""),
+        m_fileExt(".bmp")
 {
-    m_inputImage = createCvMatDataInputPin("image", this, IInputPin::INPUT_REQUIRED );
-    m_inputTrigger = createInputPin<PlvBoolean>("trigger", this, IInputPin::INPUT_OPTIONAL );
+    m_inputImage    = createInputPin<CvMatData>("image", this, IInputPin::CONNECTION_OPTIONAL );
+    m_inputImages   = createInputPin< QList<CvMatData> >("image list", this, IInputPin::CONNECTION_OPTIONAL );
+    m_inputFilename = createInputPin<QString>("name", this, IInputPin::CONNECTION_OPTIONAL );
+    m_inputPath     = createInputPin<QString>("path", this, IInputPin::CONNECTION_OPTIONAL );
 
-    m_fileFormat.addLast("Windows Bitmap - *.bmp");
-    m_fileFormat.addLast("JPEG Files - *.jpg");
-    m_fileFormat.addLast("Portable Network Graphics - *.png");
-    m_fileFormat.addLast("Portable Image Format - *.pbm");
-    m_fileFormat.addLast("Sun Rasters - *.sr");
-    m_fileFormat.addLast("TIFF Files - *.tiff");
-
-    m_fileExt.clear();
-    m_fileExt = ".bmp";
+    m_fileFormat.add("Windows Bitmap - *.bmp", BMP);
+    m_fileFormat.add("JPEG Files - *.jpg", JPG);
+    m_fileFormat.add("Portable Network Graphics - *.png", PNG);
+    m_fileFormat.add("Portable Image Format - *.pbm", PBM);
+    m_fileFormat.add("Sun Rasters - *.sr", SR);
+    m_fileFormat.add("TIFF Files - *.tiff", TIFF);
 }
 
-/**
- * Destructor.
- */
-SaveImageToFile::~SaveImageToFile(){}
+SaveImageToFile::~SaveImageToFile()
+{
+}
+
+QString SaveImageToFile::getDirectory() const
+{
+    QMutexLocker lock(m_propertyMutex);
+    return m_directory;
+}
+
+plv::Enum SaveImageToFile::getFileFormat() const
+{
+    QMutexLocker lock(m_propertyMutex);
+    return m_fileFormat;
+}
 
 /**
  * Deals with the change of the directory property.
  */
 void SaveImageToFile::setDirectory(QString s)
 {
-    //Clear the string before assigning a new value to it.
-    m_directory.clear();
     //replace all '\' characters with '/' characters
     m_directory = s.replace('\\','/');
-    emit( directoryChanged(m_directory) );
+    emit directoryChanged(m_directory);
 }
 
 /**
  * Deals with the change of the fileFomat property.
  */
-void SaveImageToFile::setFileFormat(plv::Enum e){
+void SaveImageToFile::setFileFormat(plv::Enum e)
+{
     m_fileFormat = e;
 
     //clear the additional properties
-    m_fileExt.clear();
-    switch(e.getSelectedIndex()){
-    case 1: //JPEG Files
+    switch(e.getSelectedIndex())
+    {
+    case JPG: //JPEG Files
         m_fileExt = ".jpg";
         break;
-    case 2: //Portable Network Graphics
+    case PNG: //Portable Network Graphics
         m_fileExt = ".png";
         break;
-    case 3: //Portable Image Format
+    case PBM: //Portable Image Format
         m_fileExt = ".pbm";
         break;
-    case 4: //Sun Rasters
+    case SR: //Sun Rasters
         m_fileExt = ".sr";
         break;
-    case 5: //TIFF Files
+    case TIFF: //TIFF Files
         m_fileExt = ".tiff";
+        break;
+    case BMP: // Bitmap files
+        m_fileExt = ".bmp";
         break;
     default: //Defaulting to Windows bitmap
         m_fileExt = ".bmp";
         break;
     }
-    emit( fileFormatChanged(m_fileFormat) );
+    emit fileFormatChanged(m_fileFormat);
 }
 
-/** Mandatory methods. Has nothing to do here. Yet? */
-void SaveImageToFile::init()  {}
-void SaveImageToFile::deinit() throw(){}
-void SaveImageToFile::start()  {}
-void SaveImageToFile::stop()  {}
-
-/**
- * The method in steps:
- *  - Check if input is initialized and retrieve the image data.
- *  - Check if the trigger input is active
- *     # Set doSave corresponding to the value of the trigger
- *  - Check if the image has to be saved.
- *     # Build the save path.
- *     # Save image to the correct file format
- *     # Check if the suffixNr needs to be increased and increase it.
- */
-void SaveImageToFile::process()
+bool SaveImageToFile::process()
 {
-    assert(m_inputImage != 0);
-    CvMatData img = m_inputImage->get();
-    if( m_inputTrigger->isConnected() )
-    {
-        if( !m_inputTrigger->getConnection()->hasData() )
-        {
-            return;
-        }
-
-        //If the trigger has been connected check if the trigger sent an activation.
-        RefPtr<PlvBoolean> trig = m_inputTrigger->get();
-        if( trig->getValue() )
-            setDoSave(true);
-    }
-
-    if(m_doSave)
-    {
-        QString fn = m_directory;
-        //Check if the string ends with a '/' character
-        if(!fn.endsWith('/'))
-            fn.append('/');
-        fn.append(m_filename);
-        fn.append(QString::number(m_suffixNr));
-        fn.append(m_fileExt);
-
-        const IplImage* saveImg = img->getImage();
-        if(!cvSaveImage(fn.toAscii(), saveImg))
-        {
-            qDebug() << "Something went wrong with writing to a file: " << fn;
-        }
-
-        if(m_autoIncSuf)
-            setSuffixNr(m_suffixNr+1);
-
-        setDoSave(false);
-    }
+    return true;
 }

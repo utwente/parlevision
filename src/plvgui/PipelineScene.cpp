@@ -99,7 +99,7 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
 
     if(this->elementWidgets.contains(e))
     {
-        throw PlvRuntimeException("Cannot add duplicate pipeline element to the scene.",
+        throw plv::RuntimeError("Cannot add duplicate pipeline element to the scene.",
                                   __FILE__, __LINE__);
     }
 
@@ -389,7 +389,7 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
 
     if( m_pipeline->isRunning() )
     {
-        QString msg = "You are not allowed to edit the pipeline while it is running.";
+        QString msg = tr("You are not allowed to edit the pipeline while it is running.");
         MainWindow* mw = getMainWindow();
 
         if(mw)
@@ -399,14 +399,13 @@ void PipelineScene::dropEvent(QGraphicsSceneDragDropEvent* event)
     }
     else if(event->mimeData()->hasFormat("x-plv-element-name"))
     {
-    //    qDebug() << event->mimeData()->data("x-plv-element-name");
         QString elementName = QString(event->mimeData()->data("x-plv-element-name"));
         qDebug() << elementName;
 
         int typeId = PipelineElementFactory::elementId(elementName);
         if(typeId == -1)
         {
-            throw PlvRuntimeException( "Tried to create unknown element " + elementName,
+            throw plv::RuntimeError( tr("Tried to create unknown element %1.").arg(elementName),
                                        __FILE__, __LINE__ );
         }
 

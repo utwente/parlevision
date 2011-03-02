@@ -48,7 +48,7 @@ bool Xor::process()
 
     if( img1.properties() != img2.properties() )
     {
-        setError(PlvFatalError,"Input images do not have equal in properties");
+        setError(PlvPipelineRuntimeError, "Input images do not have equal in properties");
         return false;
     }
 

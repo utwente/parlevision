@@ -74,14 +74,13 @@ void CameraProducer::newFrame( plv::CvMatData frame )
     m_frames.append(frame);
     if( m_frames.size() > m_maxBufferSize )
         m_frames.removeFirst();
-
 }
 
 bool CameraProducer::init()
 {
     if( !m_camera->init(m_cameraId) )
     {
-        setError( PlvInitError, tr("Camera with id %1 failed to initialise").arg(m_cameraId) );
+        setError( PlvPipelineInitError, tr("Camera with id %1 failed to initialise").arg(m_cameraId) );
         return false;
     }
     m_camera->setDimensions(m_width, m_height);
@@ -116,7 +115,7 @@ void CameraProducer::cameraFinished()
 {
     if( getState() >= INITIALIZED )
     {
-        setError( PlvResourceError, "Camera quit unexpectedly.");
+        setError( PlvNonFatalError, "Camera quit unexpectedly.");
         emit onError( PlvNonFatalError, this );
     }
 }

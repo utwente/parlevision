@@ -1,35 +1,31 @@
 <pipeline>
  <elements>
-  <element id="0" name="plv::DummyProcessor">
+  <element id="0" name="plvopencv::CameraProducer">
    <properties>
-    <someInt>1337</someInt>
-    <someDouble>1.23456</someDouble>
-    <someBool>true</someBool>
-    <someString>hello</someString>
-    <someVarWithNr1>0</someVarWithNr1>
-    <someVarWithNr2>0</someVarWithNr2>
-    <customEnum></customEnum>
-    <priority>2</priority>
-    <sceneCoordX>233</sceneCoordX>
-    <sceneCoordY>396</sceneCoordY>
+    <cameraId>0</cameraId>
+    <width>640</width>
+    <height>480</height>
+    <sceneCoordX>57</sceneCoordX>
+    <sceneCoordY>149</sceneCoordY>
    </properties>
   </element>
-  <element id="1" name="plv::CameraProducer">
+  <element id="1" name="plvopencv::ImageColorConvert">
    <properties>
-    <sceneCoordX>55</sceneCoordX>
-    <sceneCoordY>400</sceneCoordY>
+    <conversionType>CV_RGB2GRAY</conversionType>
+    <sceneCoordX>225</sceneCoordX>
+    <sceneCoordY>145</sceneCoordY>
    </properties>
   </element>
  </elements>
  <connections>
   <connection>
    <sink>
-    <pinName>input</pinName>
-    <processorId>0</processorId>
+    <pinId>0</pinId>
+    <processorId>1</processorId>
    </sink>
    <source>
-    <pinName>output</pinName>
-    <processorId>1</processorId>
+    <pinId>0</pinId>
+    <processorId>0</processorId>
    </source>
   </connection>
  </connections>

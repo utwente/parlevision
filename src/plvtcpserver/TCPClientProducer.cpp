@@ -244,7 +244,7 @@ void TCPClientProducer::ackFrame(quint32 frameNumber)
 
     if( m_tcpSocket->write(bytes) == -1 )
     {
-        setError( PlvFatalError, m_tcpSocket->errorString() );
+        setError( PlvNonFatalError, m_tcpSocket->errorString() );
     }
 }
 
@@ -355,7 +355,7 @@ void TCPClientProducer::connected()
 void TCPClientProducer::disconnected()
 {
     qDebug() << "TCPClientProducer disconnected";
-    setError(PlvFatalError, tr("The remote host closed the connection."));
+    setError( PlvPipelineRuntimeError, tr("The remote host closed the connection."));
 }
 
 void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError, bool signal)
@@ -366,23 +366,23 @@ void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError, b
     switch (socketError)
     {
     case QAbstractSocket::RemoteHostClosedError:
-        type = PlvFatalError;
+        type = PlvPipelineRuntimeError;
         msg = tr("The remote host closed the connection.");
         break;
     case QAbstractSocket::HostNotFoundError:
-        type = PlvFatalError;
+        type = PlvPipelineRuntimeError;
         msg = tr("The host was not found. Please check the "
                  "host name and port settings.");
         break;
     case QAbstractSocket::ConnectionRefusedError:
-        type = PlvFatalError;
+        type = PlvPipelineRuntimeError;
         msg = tr("The connection was refused by the peer. "
                  "Make sure the Parlevision server is running, "
                  "and check that the host name and port "
                  "settings are correct.");
         break;
     default:
-       type = PlvFatalError;
+       type = PlvPipelineRuntimeError;
        msg = tr("The following error occurred: %1.").arg(m_tcpSocket->errorString());
     }
     setError(type,msg);
