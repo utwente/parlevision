@@ -6,9 +6,7 @@ INCLUDEPATH += ../../include
 QMAKE_LIBDIR += ../../libs
 
 #Windows specific libraries, library paths and include paths
-
 win32 {
-
     ## Windows common build here
     CONFIG(debug, debug|release) {
         LIBS += -lcv210d \
@@ -35,18 +33,35 @@ win32 {
 
     INCLUDEPATH += c:/develop/OpenCV-2.1.0/include
 
-#    !contains(QMAKE_HOST.arch, x86_64) {
-#        message("x86 build")
-#
-#        ## Windows x86 (32bit) specific build here
-#
-#    } else {
-#        message("x86_64 build")
-#
-#        ## Windows x64 (64bit) specific build here
-#
-#    }
+    !contains(QMAKE_HOST.arch, x86_64) {
+        message("x86 build")
+
+        ## Windows x86 (32bit) specific build here
+
+    } else {
+        message("x86_64 build")
+
+        ## Windows x64 (64bit) specific build here
+
+    }
 }
+
+#win32 {
+#    ## Windows common build here
+#    CONFIG(debug, debug|release) {
+#        LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_objdetect -lopencv_ml
+#        QMAKE_LIBDIR += c:/develop/OpenCV-2.2.0/lib
+#        QMAKE_LIBDIR += c:/develop/OpenCV-2.2.0/bin
+#        LIBS += -Lc:/develop/OpenCV-2.2.0/bin
+#    }
+#    CONFIG(release, debug|release) {
+#        LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_objdetect -lopencv_ml
+#        QMAKE_LIBDIR += c:/develop/OpenCV-2.2.0/lib
+#        QMAKE_LIBDIR += c:/develop/OpenCV-2.2.0/bin
+#        LIBS += -Lc:/develop/OpenCV-2.2.0/bin
+#    }
+#    INCLUDEPATH += c:/develop/OpenCV-2.2.0/include
+#}
 
 #Unix specific libraries
 unix {

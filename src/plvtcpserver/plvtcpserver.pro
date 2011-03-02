@@ -8,7 +8,7 @@ INCLUDEPATH += ../../include/plvopencv
 LIBS += -lplvcore
 QMAKE_LIBDIR += ../../libs/plugins
 
-include(../../ParleVision.local)
+include(../../common.pri)
 
 DEFINES += TCP_SERVER_PLUGIN_LIBRARY
 

@@ -14,8 +14,6 @@ DEPENDPATH +=   . \
 INCLUDEPATH += ../../include
 LIBS += -L../../libs/ -lplvcore
 
-include(../../ParleVision.local)
-
 macx {
 
     # Make sure there is no mess in ./

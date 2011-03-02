@@ -18,7 +18,6 @@ macx {
 }
 
 include (../../common.pri)
-include(../../ParleVision.local)
 
 #macx {
 #    LITERAL_DOT=.

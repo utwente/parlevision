@@ -8,7 +8,7 @@ INCLUDEPATH += ../../include/
 LIBS += -lplvcore
 QMAKE_LIBDIR += ../../libs/plugins
 
-include(../../ParleVision.local)
+include(../../common.pri)
 
 DEFINES += PLV_TEST_PLUGIN_LIBRARY
 

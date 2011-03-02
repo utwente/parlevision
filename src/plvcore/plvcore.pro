@@ -6,7 +6,6 @@ DEPENDPATH +=   .\
                 ..
 
 include (../../common.pri)
-include(../../ParleVision.local)
 macx {
     
     # Make sure there is no mess in ./
