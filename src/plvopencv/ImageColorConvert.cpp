@@ -135,6 +135,7 @@ ImageColorConvert::ImageColorConvert()
     // first one added is default
     PLV_ENUM_ADD( m_conversionType, CV_RGB2GRAY );
     PLV_ENUM_ADD( m_conversionType, CV_RGB2RGBA );
+    PLV_ENUM_ADD( m_conversionType, CV_RGB2BGR );
 
     setConversionType( m_conversionType );
 

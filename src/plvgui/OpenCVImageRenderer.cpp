@@ -22,7 +22,7 @@
 #include "OpenCVImageRenderer.h"
 
 #include <QDebug>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QScopedPointer>
 
 #include <plvcore/Types.h>
@@ -39,7 +39,7 @@ OpenCVImageRenderer::OpenCVImageRenderer(QWidget* parent) :
     m_busy(false)
 
 {
-    m_layout      = new QVBoxLayout(this);
+    m_layout      = new QHBoxLayout(this);
     m_imageWidget = new ImageWidget;
 
     m_layout->addWidget( m_imageWidget );

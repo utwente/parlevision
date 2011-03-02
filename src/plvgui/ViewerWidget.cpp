@@ -44,7 +44,6 @@ ViewerWidget::ViewerWidget(IOutputPin* pin, QWidget *parent) :
     DataRenderer* renderer = RendererFactory::instance()->create( pin->getTypeName(), this );
     renderer->setPin(pin);
 
-//    QVBoxLayout*
     this->setWidget(renderer);
     this->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     this->setWindowTitle(pin->getOwner()->getName() + "-" + pin->getName());
