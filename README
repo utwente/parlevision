@@ -1,35 +1,62 @@
-This will contain the source for the main Parlevision project
+PARLEVISION
 
+ParleVision is a graphical computer vision pipeline editor. It was based on ideas which came about while designing systems for emergent interaction in which the rapid prototyping of computer vision pipelines played an important role. The source code here is a complete rewrite of its predecessor, also called ParleVision of which examples can be seen at http://hmi.ewi.utwente.nl/showcases/parlevision which was Windows only and not open source. The primary design goals were the ease of use in relation to composing and editing of computer vision pipelines and multi-platform support.
 
-Icons: Symbolize Icon Set, version 1.0
-http://dryicons.com/free-icons/preview/symbolize-icons-set/
+ParleVision is written in C++ and uses the Qt library for the GUI and to abstract away the underlying operating system. It uses the OpenCV library for its computer vision algorithms. While the primary focus in on ease of use and rapid prototyping, the pipeline model can take advantage of modern processors and scales well on multiple cores.
 
+Right now ParleVision is in alpha stage of development. We do not distribute a precompiled version yet. Below are the compilation instructions, beware these are not for the faint of heart and some experience in compiling C/C++ software is recommended.
 
 DEPENDENCIES
-
 ParleVision depends on:
-* Qt      >= 4.6    # parlevision-core depends on Qt-core for signals&slots, 
-                    # parlevision-gui depends on the Qt-GUI bindings as well
-* OpenCV  >= 2.0
+* Qt      >= 4.6    # parlevision-core depends on QtCore and QtXML
+                    # parlevision-gui depends on the QtGUI
+					(we recommend 4.7.1)
+* OpenCV  >= 2.0	(we recommend 2.1)
+* Qxt	  >= 0.6    # parlevision-core depends on the Qxt library for advanced logging features
+
+SUPPORTED PLATFORMS
+It has been compiled and seen working on Windows XP, Windows Vista, Windows 7, MacOSX 10.6 and Linux (Ubuntu 9.10). However we do NOT give any guarantees that the current source will build or work correctly on any of these platforms.
 
 INSTALLING DEPENDENCIES
-1. Download and install Qt from http://qt.nokia.com/downloads
+1. Download and install the QtSDK from http://qt.nokia.com/downloads. We recommend the latest SDK v1.1 (beta).
 2. Install OpenCV. This depends on your OS:
     * Mac OS X - the easiest way is to install through MacPorts
     * Windows - You can get GCC or Visual Studio binaries from http://opencv.willowgarage.com/
-                If you want to build using Qt Creator, use the GCC ones.
+                If you want to build using QtCreator, use the GCC/MingW ones.
+	We recommend OpenCV 2.1, Parlevision builds with OpenCV 2.2 on MaxOSX but not on Windows.
+
+3. Download, compile and install Qxt from http://dev.libqxt.org/libqxt
+
+QTSDK
+- Parlevision has been built and tested using the QtSDK v1.0 and v1.1beta using QtCreator and Mingw in 32-bit.
+
+OPENCV
+Unfortunately, OpenCV2.x is a broken mess.
+OpenCV2.0 and 2.1 for MingW do not export all C++ support in precompiled libraries. You will need to recompile OpenCV yourself if you want to build ParleVision with it. You will need to install CMake and follow the build instructions of OpenCV. Unfortunately there are several errors in the build system for OpenCV2.0 and 2.1, one of the libraries bundled with OpenCV will has been compiled in an incompatible fashion and there and there are missing libraries in build files. See https://code.ros.org/trac/opencv/ticket/587 for solutions.
+
+ParleVision does not build with OpenCV2.2 using MingW. The MingW package for Windows misses header files and does not build at all with the current version of ParleVision when those header files are added from the Visual Studio package.
+
+OpenCV camera's support fails on MaxOSX. See http://stackoverflow.com/questions/3363637/opencv-2-1-mac-os-x-webcam-issues-32-and-64-bit. Also, there are numurous problems with the MacPorts versions of OpenCV 2.0 and 2.1. However, ParleVision does built with OpenCV2.2.0 on MaxOSX 10.6 using Brew. [to be continued]
+
+LIBQXT
+- Follow the build instruction in the documentation. (configure, make, make install)
+- Libqxt will add itself to the Qt features directory. In order for correct makefile generation by QMake you need to run Qmake on Parlevision-all.pro after installation of libqxt.
 
 FIXING BUILD ENVIRONMENT
-If your libraries are in different locations, you might have to tell the build system where to find them. You can make a personal ParleVision.local (see ParleVision.local.example).
+If your libraries are in different locations than the default, you might have to tell the build system where to find them. You can edit common.pri to adjust the default library locations.
                 
 BUILDING PARLEVISION
-To build ParleVision from source, you need the Qt SDK, which can be obtained from http://qt.nokia.com/. Depending on your platform, there are different options for building:
+Depending on your platform, there are different options for building:
 
 A. Using Qt Creator (all platforms)
-Open ParleVision.pro in the Qt Creator IDE. Choose whether you want to build in Debug or Release mode using the "Build/Run Target Selector" and then select "Build Project 'ParleVision'".
+Open ParleVision-all.pro in the QtCreator IDE. Choose whether you want to build in Debug or Release mode using the "Build/Run Target Selector" and then select "Build Project 'ParleVision'".
 
 B. Using Make (unix)
 ...
 
 C. Using XCode
 ...
+
+ICONSET
+Icons: Symbolize Icon Set, version 1.0
+http://dryicons.com/free-icons/preview/symbolize-icons-set/
