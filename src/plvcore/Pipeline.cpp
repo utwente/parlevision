@@ -323,7 +323,7 @@ void Pipeline::start()
         if( !element->requiredPinsConnected() )
         {
             QString msg = tr("PipelineElement's' %1 required pins are not all connected.").arg(element->getName());
-            handleMessage(QtFatalMsg, msg);
+            handleMessage(QtWarningMsg, msg);
             return;
         }
     }
@@ -334,7 +334,7 @@ void Pipeline::start()
     if( !generateGraphOrdering( m_ordering ) )
     {
         QString msg = tr("Cycle detected in pipeline graph");
-        handleMessage(QtFatalMsg, msg);
+        handleMessage(QtWarningMsg, msg);
         return;
     }
 
@@ -535,7 +535,7 @@ void Pipeline::schedule()
             // stop on error
             m_pipelineMutex.unlock();
             stop();
-            emit pipelineMessage(QtFatalMsg, m_runQueue.at(i).element()->getErrorString() );
+            emit pipelineMessage(QtWarningMsg, m_runQueue.at(i).element()->getErrorString() );
             return;
         }
     }
