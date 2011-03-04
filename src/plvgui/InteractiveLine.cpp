@@ -57,5 +57,9 @@ void InteractiveLine::paint(QPainter *painter,
 void InteractiveLine::updateTarget(QPointF pos)
 {
     this->targetPos = pos;
+
+    QLineF line(mapFromItem(fromPin, 0, 0), targetPos);
+    setLine(line);
+
     update();
 }
