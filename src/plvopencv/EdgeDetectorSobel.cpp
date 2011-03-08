@@ -46,10 +46,17 @@ EdgeDetectorSobel::EdgeDetectorSobel():
     m_inputPin->addSupportedDepth( CV_8U );
     m_inputPin->addSupportedDepth( CV_32F );
     m_inputPin->addSupportedChannels( 1 );
+    m_inputPin->addSupportedChannels( 2 );
+    m_inputPin->addSupportedChannels( 3 );
+    m_inputPin->addSupportedChannels( 4 );
 
     m_outputPin->addSupportedDepth( CV_16S );
     m_outputPin->addSupportedDepth( CV_32F );
-    m_outputPin->addSupportedChannels( 1 );
+    m_inputPin->addSupportedChannels( 1 );
+    m_inputPin->addSupportedChannels( 2 );
+    m_inputPin->addSupportedChannels( 3 );
+    m_inputPin->addSupportedChannels( 4 );
+
 }
 
 EdgeDetectorSobel::~EdgeDetectorSobel()

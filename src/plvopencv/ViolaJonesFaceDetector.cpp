@@ -15,7 +15,7 @@ ViolaJonesFaceDetector::ViolaJonesFaceDetector() :
         m_useCannyPruning(true),
         m_minWidth(20),
         m_minHeight(20),
-        //TODO this should be stored somewhere else maybe?
+        //TODO this should be stored somewhere else !!!
         m_haarCascadeFile( "C:/OpenCV-2.1.0/data/haarcascades/haarcascade_frontalface_alt.xml" ),
         m_pCascade( 0 ),
         m_pStorage( 0 )

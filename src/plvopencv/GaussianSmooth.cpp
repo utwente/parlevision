@@ -39,6 +39,12 @@ GaussianSmooth::GaussianSmooth() :
     m_inputPin  = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
+    m_inputPin->addAllChannels();
+    m_inputPin->addAllDepths();
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
+
     Util::addDefaultBorderInterpolationTypes( m_borderType );
 }
 

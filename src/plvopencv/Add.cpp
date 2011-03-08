@@ -55,7 +55,7 @@ bool Add::process()
     CvMatData in1 = m_inputPin1->get();
     CvMatData in2 = m_inputPin2->get();
 
-    //check format of images?
+    //check format of images
     if( in1.channels() != in2.channels() )
     {
         QString msg = tr("Images do not have same number of channels.");
