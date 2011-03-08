@@ -13,9 +13,14 @@ LogWidget::LogWidget(const QString& title, QWidget *parent) :
     m_dateFormat("hh:mm:ss.zzz")
 {
     this->setWindowTitle("Logger");
+    this->setObjectName("LogWindow");
     m_textEdit->setReadOnly(true);
     this->setWidget(m_textEdit);
     qxtLog->addLoggerEngine("plvgui", this);
+}
+
+LogWidget::~LogWidget()
+{
 }
 
 void LogWidget::initLoggerEngine()
