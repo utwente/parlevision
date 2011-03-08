@@ -14,6 +14,7 @@ namespace plvgui
         Q_OBJECT
     public:
         explicit LogWidget(const QString& title, QWidget *parent = 0);
+        virtual ~LogWidget();
 
         virtual void initLoggerEngine();
         virtual void killLoggerEngine();
