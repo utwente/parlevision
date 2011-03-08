@@ -106,6 +106,9 @@ int Pipeline::addElement( PipelineElement* child ) throw (IllegalArgumentExcepti
     if( m_pipelineThread != 0 )
         element->moveToThread(m_pipelineThread);
 
+    // set the object name for easier debugging
+    element->setObjectName(element->getName());
+
     // for error reporting to GUI by pipeline elements
     // we used queued connections here so we do not accidentally deadlock
     connect(element.getPtr(), SIGNAL(onError(PlvErrorType, plv::PipelineElement*)),
@@ -195,13 +198,12 @@ void Pipeline::removeElement( int id )
 
 void Pipeline::removeAllElements()
 {
-    QMutexLocker lock( &m_pipelineMutex );
-
     foreach( RefPtr<PipelineElement> element, m_children )
     {
         removeConnectionsForElement(element);
         emit elementRemoved(element);
     }
+    m_ordering.clear();
     m_children.clear();
     m_producers.clear();
     m_processors.clear();
@@ -320,6 +322,8 @@ void Pipeline::deinit()
 
 void Pipeline::clear()
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
     assert( !m_running );
 
     // we need to explicitly remove the connections
@@ -327,22 +331,24 @@ void Pipeline::clear()
     // to Pipeline and will prevent us from deleting ourselves
     removeAllConnections();
     removeAllElements();
-
-    m_ordering.clear();
-    m_producers.clear();
-    m_processors.clear();
 }
 
 void Pipeline::start()
 {
+    QMutexLocker lock( &m_pipelineMutex );
+
+    if( m_children.size() == 0 )
+        return;
+
+    lock.unlock();
     // TODO call init somwhere else
     if( !this->init() )
     {
         // error already handled in init
         return;
     }
+    lock.relock();
 
-    QMutexLocker lock( &m_pipelineMutex );
 
     // check if all required pins of all elements are connected
     foreach( RefPtr<PipelineElement> element, m_children )
@@ -418,7 +424,7 @@ void Pipeline::stop()
     // stop the heartbeat
     m_heartbeat.stop();
     m_heartbeat.disconnect();
-    disconnect(this, SLOT(schedule()));
+    disconnect(this, SLOT(scheduleNew()));
 
     // stop requested, wait while all processors finish
     // TODO insert a timeout here for elements which will not finish
@@ -458,14 +464,10 @@ void Pipeline::stop()
 
 void Pipeline::finish()
 {
-    QMutexLocker lock( &m_pipelineMutex );
-
     // stop the pipeline
-    if( m_running )
+    if( isRunning() )
     {
-        lock.unlock();
         stop();
-        lock.relock();
     }
 
     // clear the pipeline

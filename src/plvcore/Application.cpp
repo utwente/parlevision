@@ -161,7 +161,8 @@ bool Application::setPipeline( const RefPtr<Pipeline>& pipeline )
 
     // move the pipeline to its own thread
     QThreadEx* pipelineThread = new QThreadEx();
-    pipeline->moveToThread(pipelineThread);
+    pipelineThread->setObjectName("PipelineThread");
+    pipeline->setThread(pipelineThread);
 
     // when the pipeline is done, it stops its thread
     connect(pipeline, SIGNAL(finished()), pipelineThread, SLOT(quit()));
@@ -186,12 +187,44 @@ void Application::removePipeline()
 {
     // this will stop the pipeline, delete it and its thread
     // and call pipelineFinished
+    // pipeline and pipelinethread will delete itself with deleteLater()
     m_pipeline->finish();
+    m_pipeline.set(0);
+    m_pipelineThread = 0;
+}
+
+Pipeline* Application::loadPipeline(const QString& filename)
+{
+    if( m_pipeline.isNotNull() )
+        removePipeline();
+
+    RefPtr<Pipeline> pipeline = PipelineLoader::deserialize(filename);
+    setPipeline(pipeline);
+    return pipeline;
+}
+
+void Application::savePipeline(const QString& filename)
+{
+    assert( m_pipeline.isNotNull() );
+    qDebug() << "Saving pipeline to " << filename;
+
+    if( m_pipeline.isNull() )
+    {
+        qWarning() << "Tried to save pipeline while no pipeline exists.";
+        return;
+    }
+
+    try
+    {
+        PipelineLoader::serialize( filename, m_pipeline );
+    }
+    catch( std::runtime_error& e )
+    {
+        qCritical() << "Pipeline saving failed with " << e.what();
+        throw;
+    }
 }
 
 void Application::pipelineFinished()
 {
-    // pipeline and pipelinethread will delete itself with deleteLater()
-    m_pipelineThread = 0;
-    m_pipeline.set(0);
 }

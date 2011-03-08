@@ -61,14 +61,8 @@ namespace plvgui
         MainWindow(plv::Application* app, QWidget* parent = 0);
         ~MainWindow();
 
-        /** Set the pipeline for this window
-          * This can only be done once for every MainWindow.
-          * If you need to load another pipeline, make a new MainWindow.
-          */
         void setPipeline(plv::Pipeline* pipeline);
-        /** Loads pipeline from fileName and opens it in this window
-          * or a new window if this window already had a pipeline
-          */
+        void closePipeline();
         void loadFile(QString fileName);
 
         virtual bool event(QEvent * event);
@@ -129,6 +123,8 @@ namespace plvgui
         void on_actionDelete_triggered();
         void on_actionNew_triggered();
         void on_actionLoad_triggered();
+        void on_actionClosePipeline_triggered();
+        void on_actionExit_triggered();
         void sceneSelectionChanged();
 
         void pipelineStarted();

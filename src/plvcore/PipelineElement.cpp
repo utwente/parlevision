@@ -512,7 +512,7 @@ QString PipelineElement::getClassProperty(const char* name) const
 void PipelineElement::setProperty(const char *name, const QVariant &value)
 {
     QObject::setProperty(name, value);
-    emit(propertyChanged(QString(name)));
+    emit propertyChanged(QString(name));
 }
 
 void PipelineElement::setError( PlvErrorType type, const QString& msg )

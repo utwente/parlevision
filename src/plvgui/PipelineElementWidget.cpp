@@ -52,6 +52,9 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
     connect(this, SIGNAL(xChanged()), this, SLOT(savePositionProperties()));
     connect(this, SIGNAL(yChanged()), this, SLOT(savePositionProperties()));
 
+    connect(this, SIGNAL( plePropertyChanged(const char*,QVariant)),
+            element, SLOT(setProperty(const char*,QVariant)));
+
     //connect(element, SIGNAL(onStateChange(PipelineElement::State)), this, SLOT(onStateChange(PipelineElement::State)));
     connect( element, SIGNAL(onError(PlvErrorType,plv::PipelineElement*)), this, SLOT(onError(PlvErrorType,plv::PipelineElement*)));
     connect( element, SIGNAL(onProcessingTimeUpdate(int,int)), this, SLOT(onProcessingTimeUpdate(int,int)));
@@ -278,8 +281,12 @@ void PipelineElementWidget::paint(QPainter *painter, const QStyleOptionGraphicsI
 
 void PipelineElementWidget::savePositionProperties()
 {
-    this->element->setProperty("sceneCoordX", this->scenePos().x());
-    this->element->setProperty("sceneCoordY", this->scenePos().y());
+    // causes an error Cannot send events to objects owned by a different thread
+    //    this->element->setProperty("sceneCoordX", );
+    //    this->element->setProperty("sceneCoordY", this->scenePos().y());
+
+    emit plePropertyChanged("sceneCoordX", this->scenePos().x());
+    emit plePropertyChanged("sceneCoordY", this->scenePos().y());
 }
 
 void PipelineElementWidget::onError(PlvErrorType,PipelineElement*)

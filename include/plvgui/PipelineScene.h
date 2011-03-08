@@ -60,7 +60,12 @@ namespace plvgui
         Q_OBJECT
 
     public:
-        PipelineScene(plv::Pipeline* pipeline, QObject* parent);
+        PipelineScene(QObject* parent);
+        virtual ~PipelineScene();
+
+        void setPipeline(plv::Pipeline* pipeline);
+        void reset();
+
         plv::RefPtr<plv::Pipeline> getPipeline() { return m_pipeline; }
         virtual bool event(QEvent * event);
 

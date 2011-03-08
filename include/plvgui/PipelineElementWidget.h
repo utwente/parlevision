@@ -103,6 +103,9 @@ namespace plvgui
         void outputPinAdded( plv::IOutputPin* pin );
         void inputPinRemoved(int id);
         void outputPinRemoved(int id);
+
+    signals:
+        void plePropertyChanged(const char* name, const QVariant& value);
     };
 }
 

@@ -193,10 +193,6 @@ namespace plv
 
         QString getClassProperty(const char* name) const;
 
-        /** Overridden from QObject::setProperty()
-          * @emits propertyChanged(QString name) */
-        void setProperty(const char* name, const QVariant &value);
-
         /** sets the internal state to ERROR, error type to type and error string to msg */
         void setError( PlvErrorType type, const QString& msg );
 
@@ -239,6 +235,11 @@ namespace plv
 
         virtual void outputConnectionAdded(IOutputPin* pin, PinConnection* connection) {}
         virtual void outputConnectionRemoved(IOutputPin* pin, PinConnection* connection) {}
+
+    public slots:
+        /** Overridden from QObject::setProperty()
+          * @emits propertyChanged(QString name) */
+        void setProperty(const char* name, const QVariant &value);
 
    protected:
         /** serial number of current processing run. */

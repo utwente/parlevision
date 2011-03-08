@@ -52,7 +52,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -63,6 +63,9 @@
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
     <addaction name="actionLoad"/>
+    <addaction name="actionClosePipeline"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
@@ -244,6 +247,22 @@
    </property>
    <property name="text">
     <string>Recent Files...</string>
+   </property>
+   <property name="toolTip">
+    <string>Recent files</string>
+   </property>
+  </action>
+  <action name="actionClosePipeline">
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="toolTip">
+    <string>Close pipeline</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
    </property>
   </action>
  </widget>

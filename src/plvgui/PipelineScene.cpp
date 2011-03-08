@@ -40,16 +40,29 @@
 using namespace plvgui;
 using namespace plv;
 
-PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
+PipelineScene::PipelineScene(QObject* parent) :
         QGraphicsScene(parent),
-        m_pipeline(pipeline),
+        m_pipeline(0),
         line(0)
 {
+}
+
+PipelineScene::~PipelineScene()
+{
+    this->elementWidgets.clear();
+    this->connectionLines.clear();
+    this->clear();
+}
+
+void PipelineScene::setPipeline(plv::Pipeline* pipeline)
+{
     assert( pipeline != 0 );
+    assert( m_pipeline.isNull() );
+
+    m_pipeline = pipeline;
 
     // add renderers for all elements in the pipeline
     const Pipeline::PipelineElementMap& elements = pipeline->getChildren();
-
     QMapIterator< int, RefPtr<PipelineElement> > itr( elements );
     while( itr.hasNext() )
     {
@@ -70,7 +83,6 @@ PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
     connect(m_pipeline, SIGNAL(connectionAdded(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(add(plv::RefPtr<plv::PinConnection>)));
 
-
     // make sure we stay in sync with the underlying pipeline when stuff gets removed
     connect(m_pipeline, SIGNAL(elementRemoved(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(handleRemove(plv::RefPtr<plv::PipelineElement>)));
@@ -81,7 +93,32 @@ PipelineScene::PipelineScene(plv::Pipeline* pipeline, QObject* parent) :
     connect(this, SIGNAL(sceneRectChanged(QRectF)), this, SLOT(update(QRectF)));
 
     connect(this, SIGNAL(changed(QList<QRectF>)), this, SLOT(recalculateSceneRect()));
+}
 
+void PipelineScene::reset()
+{
+    // make sure future additions to underlying pipeline get added as well
+    disconnect(m_pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(add(plv::RefPtr<plv::PipelineElement>)));
+
+    disconnect(m_pipeline, SIGNAL(connectionAdded(plv::RefPtr<plv::PinConnection>)),
+            this, SLOT(add(plv::RefPtr<plv::PinConnection>)));
+
+    // make sure we stay in sync with the underlying pipeline when stuff gets removed
+    disconnect(m_pipeline, SIGNAL(elementRemoved(plv::RefPtr<plv::PipelineElement>)),
+            this, SLOT(handleRemove(plv::RefPtr<plv::PipelineElement>)));
+
+    disconnect(m_pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
+            this, SLOT(handleRemove(plv::RefPtr<plv::PinConnection>)));
+
+    disconnect(this, SIGNAL(sceneRectChanged(QRectF)), this, SLOT(update(QRectF)));
+
+    disconnect(this, SIGNAL(changed(QList<QRectF>)), this, SLOT(recalculateSceneRect()));
+
+    this->elementWidgets.clear();
+    this->connectionLines.clear();
+    this->clear();
+    m_pipeline.set(0);
 }
 
 void PipelineScene::add(plv::PipelineElement* e)
@@ -139,6 +176,8 @@ void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
 
     getWidgetFor(c->fromPin()->getOwner())->addLine(item, c->fromPin()->getName());
     getWidgetFor(c->toPin()->getOwner())->addLine(item, c->fromPin()->getName());
+
+    update(item->boundingRect());
 }
 
 void PipelineScene::deleteSelected()
@@ -256,22 +295,22 @@ bool PipelineScene::event(QEvent* event)
 {
     // qDebug() << "Scene got event " << event << " ut=" << PinClickedEvent::user_type();
     // return QObject::event(event);
-    assert( m_pipeline != 0 );
-
-    if(event->type() == PinClickedEvent::user_type())
+    if( m_pipeline.isNotNull() )
     {
-        PinClickedEvent* pce = static_cast<PinClickedEvent*>(event);
-        qDebug() << pce->getSource()->getPin()->getName();
-
-        // if the event originated from an outputpin, start dragging a line
-        if(ref_ptr_dynamic_cast<IOutputPin>(pce->getSource()->getPin()).isNotNull())
+        if(event->type() == PinClickedEvent::user_type())
         {
-            event->accept();
-            clearLine();
-            this->line = new InteractiveLine(pce->getSource(), 0, this);
+            PinClickedEvent* pce = static_cast<PinClickedEvent*>(event);
+            qDebug() << pce->getSource()->getPin()->getName();
+
+            // if the event originated from an outputpin, start dragging a line
+            if(ref_ptr_dynamic_cast<IOutputPin>(pce->getSource()->getPin()).isNotNull())
+            {
+                event->accept();
+                clearLine();
+                this->line = new InteractiveLine(pce->getSource(), 0, this);
+            }
         }
     }
-
     return QGraphicsScene::event(event);
 }
 

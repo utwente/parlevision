@@ -90,6 +90,8 @@ void MainWindow::initGUI()
     m_ui->actionStart->setEnabled(false);
     m_ui->actionPause->setEnabled(false);
     m_ui->actionStop->setEnabled(false);
+    m_ui->actionClosePipeline->setEnabled(false);
+    m_ui->actionExit->setEnabled(true);
 
     QShortcut* shortcut = new QShortcut(QKeySequence(tr("Backspace")),this);
     connect(shortcut, SIGNAL(activated()), m_ui->actionDelete, SLOT(trigger()));
@@ -363,8 +365,8 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
     assert(m_ui->view != 0);
 
     m_pipeline = pipeline;
-    m_scene = new PipelineScene(pipeline, m_ui->view);
-
+    m_scene    = new PipelineScene(m_ui->view);
+    m_scene->setPipeline(pipeline);
     connect(m_scene, SIGNAL(selectionChanged()),
             this, SLOT(sceneSelectionChanged()));
 
@@ -372,25 +374,23 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
 
     m_ui->view->setScene(m_scene);
     m_ui->view->setEnabled(true);
+    m_ui->view->setAcceptDrops(true);
     m_ui->view->show();
     m_ui->actionSave->setEnabled(true);
     m_ui->actionSaveAs->setEnabled(true);
     m_ui->actionStart->setEnabled(true);
     m_ui->actionPause->setEnabled(false);
     m_ui->actionStop->setEnabled(false);
+    m_ui->actionClosePipeline->setEnabled(true);
 
     connect(m_ui->actionStop, SIGNAL(triggered()),
             pipeline, SLOT(stop()));
-
     connect(m_ui->actionStart, SIGNAL(triggered()),
             pipeline, SLOT(start()));
-
     connect(pipeline, SIGNAL(pipelineStarted()),
             this, SLOT(pipelineStarted()));
-
     connect(pipeline, SIGNAL(pipelineStopped()),
             this, SLOT(pipelineStopped()));
-
     connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
             this, SLOT(documentChanged()));
     connect(pipeline, SIGNAL(elementChanged(plv::RefPtr<plv::PipelineElement>)),
@@ -403,14 +403,47 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
             this, SLOT(documentChanged()));
     connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
             this, SLOT(documentChanged()));
-
-    connect( pipeline, SIGNAL(pipelineMessage(QtMsgType,QString)),
-             this, SLOT(handleMessage(QtMsgType, QString)));
-
+    connect(pipeline, SIGNAL(pipelineMessage(QtMsgType,QString)),
+            this, SLOT(handleMessage(QtMsgType, QString)));
     connect(m_scene, SIGNAL(contentsChanged()),
             this, SLOT(documentChanged()));
 
     m_documentChanged = false;
+    m_application->setPipeline(pipeline);
+}
+
+void MainWindow::closePipeline()
+{
+    if( m_pipeline.isNull() )
+        return;
+
+    if( m_pipeline->isRunning() )
+        m_pipeline->stop();
+
+    if( m_documentChanged )
+    {
+        offerToSave();
+    }
+
+    m_scene->reset();
+
+    m_ui->view->setAcceptDrops(false);
+    m_ui->view->setEnabled(false);
+    m_ui->view->hide();
+    m_ui->actionSave->setEnabled(false);
+    m_ui->actionSaveAs->setEnabled(false);
+    m_ui->actionStart->setEnabled(false);
+    m_ui->actionPause->setEnabled(false);
+    m_ui->actionStop->setEnabled(false);
+    m_ui->actionClosePipeline->setEnabled(false);
+
+    m_documentChanged = false;
+
+    m_pipeline.set(0);
+    m_application->removePipeline();
+
+    setWindowTitle("ParleVision - no pipeline");
+    updateWindowTitle();
 }
 
 void MainWindow::pipelineStarted()
@@ -429,21 +462,15 @@ void MainWindow::pipelineStopped()
 
 void MainWindow::loadFile(QString fileName)
 {
-    if(m_pipeline)
+    if( m_pipeline != 0 )
     {
-        // already had an open pipeline, open new window
-        MainWindow* other = newWindow();
-        other->loadFile(fileName);
-        return;
+        closePipeline();
     }
 
     try
     {
-        // this window did not yet have a pipeline loaded yet
-        RefPtr<Pipeline> pl = PipelineLoader::deserialize(fileName);
-//        bool state = pl->init();
+        RefPtr<Pipeline> pl = m_application->loadPipeline(fileName);
         qDebug() << "Loaded pipeline";
-//        assert(state);
         setCurrentFile(fileName);
         setPipeline(pl);
     }
@@ -531,41 +558,8 @@ void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
     }
 }
 
-//void MainWindow::addCamera(plv::OpenCVCamera* camera)
-//{
-//    // note that signals are not yet ever disconnected.
-//    // this will probably change anyway as we want the whole pipeline to stop
-//    // and not just the cameras.
-//    connect(m_ui->actionStop, SIGNAL(triggered()),
-//            camera, SLOT(release()));
-//    connect(m_stopAction, SIGNAL(triggered()),
-//            camera, SLOT(release()));
-//
-//    connect(m_ui->actionStart, SIGNAL(triggered()),
-//            camera, SLOT(start()));
-//    connect(m_startAction, SIGNAL(triggered()),
-//            camera, SLOT(start()));
-//
-//    connect(m_ui->actionPause, SIGNAL(triggered()),
-//            camera, SLOT(pause()));
-//    connect(m_pauseAction, SIGNAL(triggered()),
-//            camera, SLOT(pause()));
-//}
-
 void plvgui::MainWindow::on_actionLoad_triggered()
 {
-    /*
-    QString fileName = QFileDialog::getOpenFileName(this,
-                            tr("Open Pipeline"),
-                            "",
-                            tr("ParleVision Pipeline (*.plv *.pipeline)"));
-    if(filenName != "")
-    {
-        qDebug() << "User selected " << fileName;
-        loadFile(fileName);
-    }
-    */
-
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setNameFilter(tr("ParleVision Pipeline (*.plv *.pipeline)"));
@@ -618,17 +612,26 @@ void plvgui::MainWindow::on_actionSaveAs_triggered()
 
 void plvgui::MainWindow::on_actionNew_triggered()
 {
-    MainWindow* win = this;
-    if( m_pipeline.isNotNull() )
-    {
-        win = newWindow();
-    }
-
-    RefPtr<Pipeline> pipeline = new Pipeline();
-    win->setCurrentFile("");
-    win->setPipeline(pipeline);
+    closePipeline();
+    setCurrentFile("");
+    setPipeline(new Pipeline());
     m_documentChanged = false;
     updateWindowTitle();
+}
+
+void plvgui::MainWindow::on_actionClosePipeline_triggered()
+{
+    closePipeline();
+}
+
+void plvgui::MainWindow::on_actionExit_triggered()
+{
+    if( m_documentChanged )
+    {
+        offerToSave();
+    }
+    closePipeline();
+    QApplication::exit();
 }
 
 void MainWindow::documentChanged()
@@ -686,23 +689,18 @@ void MainWindow::save()
     if(m_pipeline.isNull() || m_fileName.isNull())
         return;
 
-    qDebug() << "Saving to " << m_fileName;
-
     try
     {
-        PipelineLoader::serialize( m_fileName, m_pipeline );
+        m_application->savePipeline( m_fileName );
         m_documentChanged = false;
         updateWindowTitle();
     }
     catch( std::runtime_error& e )
     {
         qCritical() << "Pipeline saving failed with " << e.what();
-        this->handleMessage(QtCriticalMsg, "Could not save pipeline: "
-                            + QString(e.what()));
+        this->handleMessage(QtCriticalMsg, tr("Could not save pipeline: %1").arg(e.what()));
     }
-
 }
-
 
 void MainWindow::criticalError(QString msg)
 {
@@ -717,7 +715,7 @@ void MainWindow::handleMessage(QtMsgType type, const char* msg)
 void MainWindow::handleMessage(QtMsgType type, QString msg)
 {
     QMessageBox msgBox(QMessageBox::Critical,
-                       QString("Error"),
+                       tr("Error"),
                        msg,
                        QMessageBox::Ok,
                        this);
@@ -739,8 +737,7 @@ void MainWindow::handleMessage(QtMsgType type, QString msg)
         break;
     case QtFatalMsg:
         msgBox.setIcon(QMessageBox::Critical);
-        msgBox.setText("Fatal Error: " + QString(msg)
-                                + "\nThe application will now close");
+        msgBox.setText(tr("Fatal Error: %1. \n The application will now close").arg(msg));
         msgBox.exec();
 
         this->offerToSave();
@@ -755,7 +752,7 @@ void MainWindow::offerToSave()
 
     QMessageBox msgBox(QMessageBox::Question,
                        QString("Save"),
-                       tr("Would you like to save before closing?"),
+                       tr("Would you like to save the changes before closing the pipeline?"),
                        QMessageBox::Save | QMessageBox::Discard,
                        this);
     msgBox.setWindowModality(Qt::WindowModal);

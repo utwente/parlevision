@@ -52,8 +52,11 @@ namespace plv
         bool setPipeline(const RefPtr<Pipeline>& pipeline);
         void removePipeline();
 
-//        bool loadPipeline(const QString& filename);
-//        bool savePipeline(const QString& filename = QString());
+        /** throws std::runtime_error */
+        plv::Pipeline* loadPipeline(const QString& filename);
+
+        /** throws std::runtime_error */
+        void savePipeline(const QString& filename = QString());
 
     public slots:
         void pipelineFinished();
