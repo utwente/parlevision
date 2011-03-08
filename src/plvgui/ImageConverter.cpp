@@ -49,29 +49,8 @@ void ImageConverter::convertCvMatDataList( const QList<plv::CvMatData>& dataList
 
 void ImageConverter::convert( const plv::CvMatData& data, int id )
 {
-    try
-    {
-        QImage qimage = cvMatToQImage( data.get() );
-        emit converted( qimage, id );
-    }
-    catch( ImageConversionException& e )
-    {
-        QString msg = QString("IplImageConverter failed to convert image with error: %1")
-                      .arg( e.what() );
-
-        QSize size( data.width(), data.height() );
-        QImage qimage( size, QImage::Format_ARGB32_Premultiplied );
-        qimage.fill( 0 );
-        QPainter painter(&qimage);
-        painter.fillRect( qimage.rect(), QColor( Qt::white ));
-        painter.setPen( Qt::black );
-        QFont font = painter.font();
-        font.setPointSize( 16 );
-        painter.setFont( font );
-        painter.drawText( qimage.rect(), Qt::AlignCenter | Qt::TextWordWrap, msg);
-        painter.end();
-        emit converted( qimage, id );
-    }
+    QImage qimage = cvMatToQImageNoThrow( data );
+    emit converted( qimage, id );
 }
 
 // TODO parallelize
@@ -81,45 +60,54 @@ void ImageConverter::convertList( const QList<plv::CvMatData>& dataList, int id 
 
     foreach( const plv::CvMatData& data, dataList )
     {
-        QImage qimage;
-        try
-        {
-             qimage = cvMatToQImage( data.get() );
-        }
-        catch( ImageConversionException& e )
-        {
-            QString msg = QString("IplImageConverter failed to convert image with error: %1")
-                          .arg( e.what() );
-
-            QSize size( data.width(), data.height() );
-            qimage = QImage( size, QImage::Format_ARGB32_Premultiplied );
-            qimage.fill( 0 );
-            QPainter painter(&qimage);
-            painter.fillRect( qimage.rect(), QColor( Qt::white ));
-            painter.setPen( Qt::black );
-            QFont font = painter.font();
-            font.setPointSize( 16 );
-            painter.setFont( font );
-            painter.drawText( qimage.rect(), Qt::AlignCenter | Qt::TextWordWrap, msg);
-            painter.end();
-        }
+        QImage qimage = ImageConverter::cvMatToQImageNoThrow(data);
         qimageList.append(qimage);
     }
     emit convertedList( qimageList, id );
 }
 
-QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
+QImage ImageConverter::cvMatToQImageNoThrow( const cv::Mat& mat ) throw ()
+{
+    QImage qimage;
+    try
+    {
+        qimage = cvMatToQImage( mat );
+    }
+    catch( ImageConversionException& e )
+    {
+        QString msg = tr("plvgui::ImageConverter failed to convert cv::Mat to QImage with error: %1")
+                      .arg( e.what() );
+
+        qWarning() << msg;
+
+        QSize size( mat.cols, mat.rows );
+        qimage = QImage( size, QImage::Format_ARGB32_Premultiplied );
+        qimage.fill( 0 );
+        QPainter painter(&qimage);
+        painter.fillRect( qimage.rect(), QColor( Qt::white ));
+        painter.setPen( Qt::black );
+        QFont font = painter.font();
+        font.setPointSize( 16 );
+        painter.setFont( font );
+        painter.drawText( qimage.rect(), Qt::AlignCenter | Qt::TextWordWrap, msg);
+        painter.end();
+    }
+    return qimage;
+}
+
+QImage ImageConverter::cvMatToQImage( const cv::Mat& mat )
         throw( ImageConversionException )
 {
     QImage qimg;
     QString errStr;
 
-    int depth = mat.depth();
-    int channels = mat.channels();
+//    int depth = mat.depth();
+//    int channels = mat.channels();
+//    ;
 
-    int type = CV_MAKETYPE(depth,channels);
+//    int type = CV_MAKETYPE(depth,channels);
 
-    switch( type )
+    switch( mat.type() )
     {
     case CV_8UC1:
     {
@@ -333,13 +321,13 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat mat )
     }
     break;
     default:
-        errStr = QString("Conversion not supported: depth %1 "
+        errStr = tr("Conversion not supported: depth %1 "
                          "and number of channels is %2")
                 .arg(CvMatData::depthToString(mat.depth()))
                 .arg(mat.channels());
         throw ImageConversionException( errStr.toStdString() );
     }
-    if( channels == 1 )
+    if( mat.channels() == 1 )
     {
         QVector<QRgb> colorTable;
         for (int i = 0; i < 256; i++)

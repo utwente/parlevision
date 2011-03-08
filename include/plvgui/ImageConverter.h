@@ -22,6 +22,7 @@
 #ifndef IMAGECONVERTER_H
 #define IMAGECONVERTER_H
 
+#include "plvgui_global.h"
 #include <QObject>
 #include <stdexcept>
 #include <QImage>
@@ -29,14 +30,14 @@
 
 namespace plvgui
 {
-    class ImageConversionException : public std::runtime_error
+    class PLVGUI_EXPORT ImageConversionException : public std::runtime_error
     {
     public:
         ImageConversionException( const std::string& why ) :
                 std::runtime_error( why ) {}
     };
 
-    class ImageConverter : public QObject
+    class PLVGUI_EXPORT ImageConverter : public QObject
     {
         Q_OBJECT
 
@@ -54,15 +55,19 @@ namespace plvgui
         void convertCvMatData( const plv::CvMatData& data, int id=0 );
         void convertCvMatDataList( const QList<plv::CvMatData>& data, int id=0 );
 
-    private:
-        void convert( const plv::CvMatData& mat, int id );
-        void convertList( const QList<plv::CvMatData>& data, int id );
-
         /** Converts an OpenCV iplImage to a QImage.
           * @throw ImageConversionException when conversion fails.
           */
-        static QImage cvMatToQImage( const cv::Mat mat )
+        static QImage cvMatToQImage( const cv::Mat& mat )
                 throw( ImageConversionException );
+
+        /** The same as cvMatToQImage except it does not throw an exception
+            but returns an image with the error text rendered into it */
+        static QImage cvMatToQImageNoThrow( const cv::Mat& mat ) throw();
+
+    private:
+        void convert( const plv::CvMatData& mat, int id );
+        void convertList( const QList<plv::CvMatData>& data, int id );
 
     signals:
         /** Emitted when converting is done.
