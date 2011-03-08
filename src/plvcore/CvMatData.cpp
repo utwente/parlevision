@@ -126,7 +126,8 @@ QDataStream &operator<<(QDataStream &out, const CvMatData& d)
 
     int length = mat.dataend - mat.datastart;
     assert( length > 0 );
-    out << (quint32) length;
+    assert( length <= INT_MAX );
+    out << (qint32) length;
     out.writeBytes( (const char*)mat.data, length );
 
     return out;
@@ -137,7 +138,7 @@ QDataStream &operator>>(QDataStream &in, CvMatData& d)
     qint32 type;
     qint32 rows;
     qint32 cols;
-    quint32 len;
+    qint32 len;
 
     in >> type;
     in >> rows;
