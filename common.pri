@@ -8,6 +8,14 @@ QMAKE_LIBDIR += ../../libs
 #Windows specific libraries, library paths and include paths
 win32 {
     ## Windows common build here
+    INCLUDEPATH += c:/OpenCV-2.1.0/include
+
+    LIBS += -Lc:/OpenCV-2.1.0/lib
+    LIBS += -Lc:/Qxt/lib
+
+    LIBS += -Lc:/OpenCV-2.1.0/bin
+    LIBS += -Lc:/Qxt/bin
+
     CONFIG(debug, debug|release) {
         LIBS += -lcv210d \
                 -lcxcore210d \
@@ -15,23 +23,16 @@ win32 {
                 -lhighgui210d \
                 -lcxts210d \
                 -lml210d
-        QMAKE_LIBDIR += c:/develop/OpenCV-2.1.0/lib
-        QMAKE_LIBDIR += c:/develop/OpenCV-2.1.0/bin
-        LIBS += -Lc:/develop/OpenCV-2.1.0/bin
     }
     CONFIG(release, debug|release) {
+
         LIBS += -lcv210 \
                 -lcxcore210 \
                 -lcvaux210 \
                 -lhighgui210 \
                 -lcxts210 \
                 -lml210
-        QMAKE_LIBDIR += c:/develop/OpenCV-2.1.0/lib
-        QMAKE_LIBDIR += c:/develop/OpenCV-2.1.0/bin
-        LIBS += -Lc:/develop/OpenCV-2.1.0/bin
     }
-
-    INCLUDEPATH += c:/develop/OpenCV-2.1.0/include
 
     !contains(QMAKE_HOST.arch, x86_64) {
         message("x86 build")
