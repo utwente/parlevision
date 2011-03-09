@@ -4,7 +4,6 @@ TARGET = parlevision-all
 TEMPLATE = subdirs
 SUBDIRS =   src/plvcore \
             src/plvopencv \
-            src/plvconsole \
             src/plvgui \
             src/plvgraphical \
             src/plvtcpserver \
