@@ -1,11 +1,10 @@
 TEMPLATE = lib
 TARGET = tcp_server_plugin
 CONFIG += plugin
-QT += core network
-QT -= gui
+QT += core gui network
 DESTDIR = ../../libs/plugins
 INCLUDEPATH += ../../include/plvopencv
-LIBS += -lplvcore
+LIBS += -lplvcore -lplvgui
 QMAKE_LIBDIR += ../../libs/plugins
 
 macx {

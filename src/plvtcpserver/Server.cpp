@@ -1,60 +1,46 @@
-/****************************************************************************
-**
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of Nokia Corporation and its Subsidiary(-ies) nor
-**     the names of its contributors may be used to endorse or promote
-**     products derived from this software without specific prior written
-**     permission.
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+/**
+  * Copyright (C)2011 by Richard Loos
+  * All rights reserved.
+  *
+  * This file is part of the plvtcpserver plugin of ParleVision.
+  *
+  * ParleVision is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * (at your option) any later version.
+  *
+  * ParleVision is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * A copy of the GNU General Public License can be found in the root
+  * of this software package directory in the file LICENSE.LGPL.
+  * If not, see <http://www.gnu.org/licenses/>.
+  */
 
 #include "Server.h"
 #include "ServerConnection.h"
 #include "Proto.h"
+#include <QImage>
+#include <QImageWriter>
 
-//#include <stdlib.h>
-
-Server::Server(QObject *parent) : QTcpServer(parent)
+Server::Server(QObject *parent) : QTcpServer(parent),
+    m_lossless(false),
+    m_maxFramesInQueue(1),
+    m_maxFramesInFlight(1)
 {
-    connect( this, SIGNAL( stalled() ), parent, SLOT( stalled() ) );
-    connect( this, SIGNAL( unstalled() ), parent, SLOT( unstalled() ) );
+    connect( this, SIGNAL( stalled(ServerConnection*) ), parent, SLOT( stalled(ServerConnection*) ) );
+    connect( this, SIGNAL( unstalled(ServerConnection*) ), parent, SLOT( unstalled(ServerConnection*) ) );
 }
 
 void Server::incomingConnection(int socketDescriptor)
 {
     qDebug() << "Server: incoming connection";
 
-    ServerConnection* connection = new ServerConnection(socketDescriptor);
+    QMutexLocker lock(&m_serverPropMutex);
+    ServerConnection* connection = new ServerConnection(socketDescriptor, m_lossless, m_maxFramesInQueue, m_maxFramesInFlight);
+    lock.unlock();
 
     // let errors go through the error reporting signal of this class
     this->connect( connection,
@@ -81,6 +67,15 @@ void Server::incomingConnection(int socketDescriptor)
     connect( connection, SIGNAL( waitingOnClient(ServerConnection*,bool)),
              this, SLOT( serverThreadStalled(ServerConnection*,bool)) );
 
+    connect( parent(), SIGNAL( maxFrameQueueChanged(int) ),
+             connection, SLOT( setMaxFrameQueue(int) ) );
+
+    connect( parent(), SIGNAL( maxFramesInFlightChanged(int) ),
+             connection, SLOT( setMaxFramesInFlight(int)) );
+
+    connect( parent(), SIGNAL( losslessChanged(bool) ),
+             connection, SLOT( setLossless(bool)) );
+
     // stop this connection when stopAllConnections is called
     connect( this, SIGNAL(stopAllConnections()), connection, SLOT(stop()));
 
@@ -92,29 +87,47 @@ void Server::incomingConnection(int socketDescriptor)
              connection, SLOT( queueFrame(quint32,QByteArray)));
 }
 
-void Server::sendFrame(quint32 frameNumber, const QVariantList& frameData)
+void Server::setMaxFramesInQueue(int max)
 {
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
+    Q_ASSERT_X(max >= 1, "Server::setMaxFramesInQueue", "max frames in queue should be larger than 0");
+    QMutexLocker lock(&m_serverPropMutex);
+    m_maxFramesInQueue = max;
+}
 
-    // write the header
-    out << (quint32)0; // reserved for number of bytes later
-    out << (quint32)PROTO_FRAME;
-    out << (quint32)frameNumber;
-    out << (quint32)frameData.size();
+void Server::setMaxFramesInFlight(int max)
+{
+    Q_ASSERT_X(max >= 1, "Server::setMaxFramesInFlight", "max frames in flight should be larger than 0");
+    QMutexLocker lock(&m_serverPropMutex);
+    m_maxFramesInFlight = max;
+}
 
-    // write all data to the stream
-    foreach( const QVariant& v, frameData )
-    {
-        out << v;
-    }
+void Server::setLossless(bool lossless)
+{
+    QMutexLocker lock(&m_serverPropMutex);
+    m_lossless = lossless;
+}
 
-    // calculate size of total data and write it as first 4 bytes
-    out.device()->seek(0);
-    out << (quint32)(block.size() - sizeof(quint32));
+int Server::getMaxFramesInFlight() const
+{
+    QMutexLocker lock(&m_serverPropMutex);
+    return m_maxFramesInFlight;
+}
 
-    emit broadcastFrame(frameNumber, block);
+int Server::getMaxFramesInQueue() const
+{
+    QMutexLocker lock(&m_serverPropMutex);
+    return m_maxFramesInQueue;
+}
+
+bool Server::getLossless() const
+{
+    QMutexLocker lock(&m_serverPropMutex);
+    return m_lossless;
+}
+
+void Server::sendFrame(quint32 frameNumber, const QByteArray& data)
+{
+    emit broadcastFrame(frameNumber, data);
 }
 
 void Server::disconnectAll()
@@ -122,9 +135,10 @@ void Server::disconnectAll()
     emit stopAllConnections();
 }
 
- void Server::serverThreadStalled( ServerConnection* connection, bool isStalled )
- {
-     qDebug() << "Server: a connection stalled";
-     if( isStalled ) emit stalled();
-     else emit unstalled();
- }
+void Server::serverThreadStalled( ServerConnection* connection, bool isStalled )
+{
+    if( isStalled )
+        emit stalled(connection);
+    else
+        emit unstalled(connection);
+}

@@ -1,19 +1,39 @@
+/**
+  * Copyright (C)2011 by Richard Loos
+  * All rights reserved.
+  *
+  * This file is part of the plvtcpserver plugin of ParleVision.
+  *
+  * ParleVision is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * (at your option) any later version.
+  *
+  * ParleVision is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * A copy of the GNU General Public License can be found in the root
+  * of this software package directory in the file LICENSE.LGPL.
+  * If not, see <http://www.gnu.org/licenses/>.
+  */
+
 #include "ServerConnection.h"
 #include "Proto.h"
 
 #include <QtNetwork>
 #include <assert.h>
 
-#define MAX_FRAME_QUEUE 100
-#define MAX_FRAMES_IN_FLIGHT 10
-
-ServerConnection::ServerConnection(int socketDescriptor) :
+ServerConnection::ServerConnection(int socketDescriptor, bool lossless, int maxFrameQueue, int maxFramesInFlight) :
     QObject(0),
     m_tcpSocket(0),
     m_socketDescriptor(socketDescriptor),
-    m_errorString("No error string set"),
+    m_errorString("no error"),
     m_waiting(false),
-    m_lossless(false),
+    m_lossless(lossless),
+    m_maxFramesInQueue(maxFrameQueue),
+    m_maxFramesInFlight(maxFramesInFlight),
     m_blockSize(0)
 {
     connect( this, SIGNAL( scheduleSend()), this, SLOT(sendData()), Qt::QueuedConnection );
@@ -29,20 +49,23 @@ ServerConnection::~ServerConnection()
 
 void ServerConnection::queueFrame(quint32 frameNumber, QByteArray frameData)
 {
+    if( m_tcpSocket == 0 )
+        return;
+
     Frame f(frameNumber, frameData);
 
     // append to queue of this connection
     m_frameQueue.append(f);
 
-    if( m_frameNumbersInFlight.size() < MAX_FRAMES_IN_FLIGHT )
+    if( m_frameNumbersInFlight.size() < m_maxFramesInFlight )
     {
         sendData();
     }
 
-    // we start dropping frames when the queue is at MAX_FRAME_QUEUE
+    // we start dropping frames when the queue is at m_maxFramesInQueue
     // unless we are set to lossless, then we
     // give the server a signal to throttle
-    if(m_frameQueue.size() > MAX_FRAME_QUEUE)
+    if(m_frameQueue.size() > m_maxFramesInQueue)
     {
         if( m_lossless )
         {
@@ -82,7 +105,7 @@ void ServerConnection::sendData()
 //    }
 
     bool overflow = false;
-    while(!( m_frameNumbersInFlight.size() >= MAX_FRAMES_IN_FLIGHT ||
+    while(!( m_frameNumbersInFlight.size() >= m_maxFramesInFlight ||
              m_frameQueue.isEmpty() ||
              overflow ))
     {
@@ -135,16 +158,25 @@ void ServerConnection::sendData()
 
 void ServerConnection::ackFrame(quint32 serial)
 {
-    quint32 expectedSerial = m_frameNumbersInFlight.takeFirst();
-    if( expectedSerial != serial )
+    if( m_frameNumbersInFlight.isEmpty() )
     {
-        qWarning() << "Ack received for frame " << serial << " while expected frame " << expectedSerial << ".";
+        qWarning() << "Ignoring ack received for frame " << serial << " while no ack was expected.";
+        return;
+    }
+    quint32 expectedSerial = m_frameNumbersInFlight.first();
+    if( expectedSerial == serial )
+    {
+        m_frameNumbersInFlight.removeFirst();
+    }
+    else
+    {
+        qWarning() << "Ignoring ack received for frame " << serial << " while expected frame " << expectedSerial << ".";
+    }
 
-        if( m_lossless && m_waiting )
-        {
-            m_waiting = false;
-            emit waitingOnClient(this, m_waiting);
-        }
+    if( m_lossless && m_waiting )
+    {
+        m_waiting = false;
+        emit waitingOnClient(this, m_waiting);
     }
 }
 
@@ -204,11 +236,11 @@ void ServerConnection::readyRead()
 
 void ServerConnection::bytesWritten(qint64 bytes)
 {
-    if( m_waiting )
-    {
-        m_waiting = false;
-        emit waitingOnClient(this, m_waiting);
-    }
+//    if( m_waiting && m_tcpSocket->bytesToWrite() < MAX_BYTES_TO_WRITE )
+//    {
+//        m_waiting = false;
+//        emit waitingOnClient(this, m_waiting);
+//    }
 }
 
 void ServerConnection::start()
@@ -255,9 +287,25 @@ void ServerConnection::disconnected()
     // schedule for deletion according to documentation of disconnected:
     // Warning: If you need to delete the sender() of
     // this signal in a slot connected to it, use the deleteLater() function.
+    m_tcpSocket->disconnect();
     m_tcpSocket->deleteLater();
     m_tcpSocket = 0;
     emit finished(this);
+}
+
+void ServerConnection::setMaxFrameQueue(int max)
+{
+    m_maxFramesInQueue = max;
+}
+
+void ServerConnection::setMaxFramesInFlight(int max)
+{
+    m_maxFramesInFlight = max;
+}
+
+void ServerConnection::setLossless(bool lossless)
+{
+    m_lossless = lossless;
 }
 
 void ServerConnection::error(QAbstractSocket::SocketError socketError)

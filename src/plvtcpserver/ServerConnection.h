@@ -1,42 +1,23 @@
-/****************************************************************************
-**
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of Nokia Corporation and its Subsidiary(-ies) nor
-**     the names of its contributors may be used to endorse or promote
-**     products derived from this software without specific prior written
-**     permission.
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+/**
+  * Copyright (C)2011 by Richard Loos
+  * All rights reserved.
+  *
+  * This file is part of the plvtcpserver plugin of ParleVision.
+  *
+  * ParleVision is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * (at your option) any later version.
+  *
+  * ParleVision is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * A copy of the GNU General Public License can be found in the root
+  * of this software package directory in the file LICENSE.LGPL.
+  * If not, see <http://www.gnu.org/licenses/>.
+  */
 
 #ifndef SERVERCONNECTION_H
 #define SERVERCONNECTION_H
@@ -46,6 +27,10 @@
 #include <QMutex>
 
 #include <plvcore/plvglobal.h>
+
+//#define MAX_FRAMES_IN_QUEUE 1
+//#define MAX_FRAMES_IN_FLIGHT 1
+//#define MAX_BYTES_TO_WRITE 64
 
 class Frame
 {
@@ -62,7 +47,7 @@ class ServerConnection : public QObject
     Q_OBJECT
 
 public:
-    ServerConnection(int socketDescriptor);
+    ServerConnection(int socketDescriptor, bool lossless, int maxFrameQueue, int maxFramesInFlight);
     virtual ~ServerConnection();
 
 public slots:
@@ -85,6 +70,10 @@ public slots:
 
     void error(QAbstractSocket::SocketError socketError);
 
+    void setMaxFrameQueue(int max);
+    void setMaxFramesInFlight(int max);
+    void setLossless(bool lossless);
+
 signals:
     void onError(const QString& msg);
     void finished(ServerConnection* connection);
@@ -105,6 +94,8 @@ private:
     int m_frameNumber;
     bool m_waiting;
     bool m_lossless;
+    int m_maxFramesInQueue;
+    int m_maxFramesInFlight;
     int m_blockSize;
 
     QList<quint32> m_frameNumbersInFlight; /** framenumbers which have not been ack-ed yet */
