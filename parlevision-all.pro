@@ -5,7 +5,7 @@ TEMPLATE = subdirs
 SUBDIRS =   src/plvcore \
             src/plvopencv \
             src/plvgui \
-            src/plvgraphical \
+            src/parlevision \
             src/plvtcpserver \
             src/plvtest \
             src/plvpluginexample
