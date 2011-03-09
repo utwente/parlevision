@@ -72,8 +72,14 @@ bool Pipeline::setThread(QThread* thread)
     if( m_pipelineThread != 0 )
         return false;
 
+    // move this and all its children to
+    // the new thread
+    this->moveToThread(thread);
+
     m_pipelineThread = thread;
 
+    // since our children are not children in the Qt
+    // sense do this by hand
     QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
     while(itr.hasNext())
     {

@@ -184,7 +184,7 @@ QString PipelineLoader::serialize( Pipeline* pl )
 }
 
 
-RefPtr<Pipeline> PipelineLoader::deserialize( const QString& filename )
+void PipelineLoader::deserialize( const QString& filename, Pipeline* pipeline )
         throw(std::runtime_error) /*TODO checked exceptions*/
 {
     if( !QFile::exists( filename ) )
@@ -202,27 +202,30 @@ RefPtr<Pipeline> PipelineLoader::deserialize( const QString& filename )
 
     QDomDocument doc;
     doc.setContent( &file );
-    RefPtr<Pipeline> pl = deserialize( &doc );
+    try
+    {
+        deserialize( &doc, pipeline );
+    }
+    catch( ... )
+    {
+        file.close();
+        throw;
+    }
     file.close();
-    return pl;
 }
 
-RefPtr<Pipeline> PipelineLoader::deserialize( QDomDocument* document )
+void PipelineLoader::deserialize( QDomDocument* document, Pipeline* pipeline )
     throw(std::runtime_error) /*TODO checked exceptions*/
 {
-    RefPtr<Pipeline> pipeline = new Pipeline();
-
     qDebug() << document->elementsByTagName("pipeline").count() << " pipeline, "
              << document->elementsByTagName("element").count() << " elements and "
              << document->elementsByTagName("connection").count() << " connections.";
 
     QDomNodeList elementsList = document->elementsByTagName( "element" );
-    parseElements( &elementsList, pipeline.getPtr() );
+    parseElements( &elementsList, pipeline );
 
     QDomNodeList connectionsList = document->elementsByTagName( "connection" );
-    parseConnections( &connectionsList, pipeline.getPtr() );
-
-    return pipeline;
+    parseConnections( &connectionsList, pipeline );
 }
 
 void PipelineLoader::parseElements( QDomNodeList* list, Pipeline* pipeline )

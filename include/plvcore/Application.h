@@ -49,7 +49,7 @@ namespace plv
         void init();
         void deinit();
 
-        bool setPipeline(const RefPtr<Pipeline>& pipeline);
+        bool setPipeline(Pipeline* pipeline);
         void removePipeline();
 
         /** throws std::runtime_error */

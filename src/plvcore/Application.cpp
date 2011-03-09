@@ -154,31 +154,29 @@ void Application::initLoggers()
     qxtLog->installAsMessageHandler();
 }
 
-bool Application::setPipeline( const RefPtr<Pipeline>& pipeline )
+bool Application::setPipeline( Pipeline* pipeline )
 {
     if( m_pipeline.isNotNull() || m_pipelineThread != 0 )
         return false;
 
     // move the pipeline to its own thread
-    QThreadEx* pipelineThread = new QThreadEx();
-    pipelineThread->setObjectName("PipelineThread");
-    pipeline->setThread(pipelineThread);
+//    QThreadEx* pipelineThread = new QThreadEx();
+//    pipelineThread->setObjectName("PipelineThread");
+//    pipeline->setThread(pipelineThread);
 
-    // when the pipeline is done, it stops its thread
-    connect(pipeline, SIGNAL(finished()), pipelineThread, SLOT(quit()));
+//    // when the pipeline is done, it stops its thread
+//    connect(pipeline, SIGNAL(finished()), pipelineThread, SLOT(quit()));
 
-    // when the pipeline is done it is scheduled for deletion
-    connect(pipeline, SIGNAL(finished()), pipeline, SLOT(deleteLater()));
-    connect(pipeline, SIGNAL(finished()), this, SLOT(pipelineFinished()));
-
-    connect(pipeline, SIGNAL(finished()), pipelineThread, SLOT(deleteLater()));
-
+//    // when the pipeline is done it is scheduled for deletion
+//    connect(pipeline, SIGNAL(finished()), pipeline, SLOT(deleteLater()));
+//    connect(pipeline, SIGNAL(finished()), this, SLOT(pipelineFinished()));
+//    connect(pipeline, SIGNAL(finished()), pipelineThread, SLOT(deleteLater()));
 
     // start the event loop
-    pipelineThread->start();
+//    pipelineThread->start();
 
     m_pipeline = pipeline;
-    m_pipelineThread = pipelineThread;
+//    m_pipelineThread = pipelineThread;
 
     return true;
 }
@@ -190,7 +188,7 @@ void Application::removePipeline()
     // pipeline and pipelinethread will delete itself with deleteLater()
     m_pipeline->finish();
     m_pipeline.set(0);
-    m_pipelineThread = 0;
+    //m_pipelineThread = 0;
 }
 
 Pipeline* Application::loadPipeline(const QString& filename)
@@ -198,8 +196,9 @@ Pipeline* Application::loadPipeline(const QString& filename)
     if( m_pipeline.isNotNull() )
         removePipeline();
 
-    RefPtr<Pipeline> pipeline = PipelineLoader::deserialize(filename);
+    RefPtr<Pipeline> pipeline = new Pipeline();
     setPipeline(pipeline);
+    PipelineLoader::deserialize(filename, pipeline);
     return pipeline;
 }
 
