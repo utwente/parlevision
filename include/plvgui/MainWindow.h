@@ -53,6 +53,7 @@ namespace plvgui
     class PipelineScene;
     class NonFatalException;
     class FatalError;
+    class LogWidget;
 
     class PLVGUI_EXPORT MainWindow : public QMainWindow
     {
@@ -90,6 +91,7 @@ namespace plvgui
         void createWelcomeWidget();
         void createLibraryWidget();
         void createInspectorWidget();
+        void createLogWidget();
         void createRecentFileActs();
         // set the file belonging to the active pipeline;
         // empty string means no file
@@ -102,6 +104,7 @@ namespace plvgui
 
         LibraryWidget* m_libraryWidget;
         InspectorWidget* m_inspectorWidget;
+        LogWidget* m_logWidget;
         plv::RefPtr<plv::Pipeline> m_pipeline;
         plv::Application* m_application;
         Ui::MainWindow* m_ui;

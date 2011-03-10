@@ -104,9 +104,7 @@ void MainWindow::initGUI()
     createWelcomeWidget();
     createLibraryWidget();
     createInspectorWidget();
-
-    LogWidget* log = new LogWidget("logger", this);
-    this->addDockWidget(Qt::BottomDockWidgetArea, log);
+    createLogWidget();
 
     // Restore window geometry and state
     loadSettings();
@@ -294,6 +292,20 @@ void MainWindow::createInspectorWidget()
     #ifdef Q_OS_MAC
     // Show LibraryWidget as floating window on Mac OS X
     m_inspectorWidget->setFloating(true);
+    #endif
+}
+
+void MainWindow::createLogWidget()
+{
+    m_logWidget = new LogWidget("logger", this);
+    this->addDockWidget(Qt::BottomDockWidgetArea, m_logWidget);
+    m_logWidget->toggleViewAction()->setIcon(QIcon(":/icons/log.png"));
+    m_logWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_O));
+    m_ui->toolBar->addAction(m_logWidget->toggleViewAction());
+    m_ui->menuView->addAction(m_logWidget->toggleViewAction());
+    #ifdef Q_OS_MAC
+    // Show LibraryWidget as floating window on Mac OS X
+    m_logWidget->setFloating(true);
     #endif
 }
 
