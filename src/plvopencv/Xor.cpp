@@ -35,6 +35,15 @@ Xor::Xor()
     m_inputPin1 = createCvMatDataInputPin( "image_input 1", this );
     m_inputPin2 = createCvMatDataInputPin( "image_input 2", this );
     m_outputPin = createCvMatDataOutputPin( "image_output", this );
+
+    m_inputPin1->addAllChannels();
+    m_inputPin1->addAllDepths();
+
+    m_inputPin2->addAllChannels();
+    m_inputPin2->addAllDepths();
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 }
 
 Xor::~Xor()
