@@ -85,6 +85,9 @@ namespace plvopencv
         QString getDirectory() const;
         plv::Enum getFileFormat() const;
 
+        /** checks if directory exists */
+        virtual bool init();
+
     signals:
         void directoryChanged(QString newValue);
         void fileFormatChanged(plv::Enum newValue);

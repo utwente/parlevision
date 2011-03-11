@@ -28,6 +28,7 @@
 #include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
+#include <QDir>
 
 using namespace plv;
 using namespace plvopencv;
@@ -35,7 +36,7 @@ using namespace plvopencv;
 /** default directory for saving data to */
 //TODO replace with global config
 #ifdef Q_OS_WIN
-#   define SAVEIMAGETOFILE_DEFAULT_DIR "c:/tmp/"
+#   define SAVEIMAGETOFILE_DEFAULT_DIR "c:/Temp/"
 #elif defined(Q_OS_DARWIN)
 #   define SAVEIMAGETOFILE_DEFAULT_DIR "/tmp/"
 #elif defined(Q_OS_UNIX)
@@ -55,7 +56,7 @@ enum ImageFormat {
  * Constructor.
  */
 SaveImageToFile::SaveImageToFile() :
-        m_directory(""),
+        m_directory(SAVEIMAGETOFILE_DEFAULT_DIR),
         m_fileExt(".bmp")
 {
     m_inputImage    = createInputPin<CvMatData>("image", this, IInputPin::CONNECTION_OPTIONAL );
@@ -75,6 +76,20 @@ SaveImageToFile::~SaveImageToFile()
 {
 }
 
+bool SaveImageToFile::init()
+{
+    //replace all '\' characters with '/' characters
+    m_directory = m_directory.replace('\\','/');
+    if(!m_directory.endsWith('/'))
+    {
+        m_directory.append('/');
+    }
+    emit directoryChanged(m_directory);
+
+    QDir dir(m_directory);
+    return dir.exists();
+}
+
 QString SaveImageToFile::getDirectory() const
 {
     QMutexLocker lock(m_propertyMutex);
@@ -92,8 +107,11 @@ plv::Enum SaveImageToFile::getFileFormat() const
  */
 void SaveImageToFile::setDirectory(QString s)
 {
-    //replace all '\' characters with '/' characters
-    m_directory = s.replace('\\','/');
+    if( getState() > UNDEFINED )
+        return;
+
+    QMutexLocker lock(m_propertyMutex);
+    m_directory = s;
     emit directoryChanged(m_directory);
 }
 
@@ -134,5 +152,95 @@ void SaveImageToFile::setFileFormat(plv::Enum e)
 
 bool SaveImageToFile::process()
 {
+    QList<plv::CvMatData> images;
+
+    if( m_inputImage->isConnected() )
+    {
+        images.append(m_inputImage->get());
+    }
+
+    if( m_inputImages->isConnected() )
+    {
+        images.append(m_inputImages->get());
+    }
+
+    QString path;
+    if( m_inputPath->isConnected() )
+    {
+        path = m_inputPath->get();
+        path = path.replace('\\','/');
+        if(!path.endsWith('/'))
+        {
+            path.append('/');
+        }
+        QDir dir(path);
+        if( !dir.exists() )
+        {
+            qWarning() << "plv::opencv::SaveImageToFile::process() invalid path given to processor, ignoring.";
+            return true;
+        }
+    }
+    else
+    {
+        path = m_directory;
+    }
+
+    QString filenameBegin;
+
+    if( m_inputFilename->isConnected() )
+    {
+        filenameBegin = m_inputFilename->get();
+        if( !filenameBegin.isEmpty() )
+        {
+            QStringList parts = filenameBegin.split(".");
+            filenameBegin = parts.at(0);
+        }
+        else
+        {
+            qWarning() << "plv::opencv::SaveImageToFile::process() empty string received";
+            filenameBegin = QString::number(this->getProcessingSerial());
+        }
+    }
+    else
+    {
+        filenameBegin = QString::number(this->getProcessingSerial());
+    }
+
+    bool success = false;
+    bool multi_image = images.size() > 1;
+    for(int i=0; i<images.size(); ++i)
+    {
+        QString filename;
+        if(multi_image)
+            filename = QString("%1%2_%3%4").arg(path).arg(filenameBegin).arg(i).arg(m_fileExt);
+        else
+            filename = QString("%1%2.%3").arg(path).arg(filenameBegin).arg(m_fileExt);
+
+        QFile file(filename);
+        if( !file.exists() )
+        {
+            if( file.open(QIODevice::WriteOnly) )
+            {
+                file.close();
+                const cv::Mat& mat = images.at(i);
+
+                // The function imwrite saves the image to the specified file.
+                // The image format is chosen based on the filename extension,
+                // see imread for the list of extensions.
+                // Only 8-bit (or 16-bit in the case of PNG, JPEG 2000 and TIFF) single-channel
+                // or 3-channel (with ‘BGR’ channel order) images can be saved using this function.
+                // If the format, depth or channel order is different, use Mat::convertTo ,
+                // and cvtColor to convert it before saving, or use the universal XML I/O functions
+                // to save the image to XML or YAML format.
+
+                success = cv::imwrite(filename.toStdString(), mat);
+            }
+        }
+
+        if( !success )
+        {
+            qWarning() << "plv::opencv::SaveImageToFile::process() failed to save image " << filename;
+        }
+    }
     return true;
 }
