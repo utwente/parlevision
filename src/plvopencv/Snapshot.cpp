@@ -30,6 +30,12 @@ Snapshot::Snapshot() :
 {
     m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::CONNECTION_REQUIRED );
     m_outputPin = createCvMatDataOutputPin( "output", this );
+
+    m_inputPin->addAllChannels();
+    m_inputPin->addAllDepths();
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 }
 
 Snapshot::~Snapshot()

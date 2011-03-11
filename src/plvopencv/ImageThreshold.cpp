@@ -41,6 +41,12 @@ ImageThreshold::ImageThreshold() :
     PLV_ENUM_ADD( m_method, CV_THRESH_TRUNC );
     PLV_ENUM_ADD( m_method, CV_THRESH_TOZERO );
     PLV_ENUM_ADD( m_method, CV_THRESH_TOZERO_INV );
+
+    m_inputPin->addAllChannels();
+    m_inputPin->addAllDepths();
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 }
 
 ImageThreshold::~ImageThreshold(){}
