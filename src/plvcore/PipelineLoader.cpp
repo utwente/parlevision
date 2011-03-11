@@ -335,7 +335,7 @@ void PipelineLoader::parseConnections( QDomNodeList* list, Pipeline* pipeline )
             // error
         }
 
-        QDomElement sinkPinIdNode = sinkNode.firstChildElement( "pinName" );
+        QDomElement sinkPinIdNode = sinkNode.firstChildElement( "pinId" );
         if( sinkPinIdNode.isNull() )
         {
             // error
@@ -393,6 +393,11 @@ void PipelineLoader::parseConnections( QDomNodeList* list, Pipeline* pipeline )
         {
             QString msg = tr("No input pin with id %1").arg(sinkPinId);
             throw std::runtime_error( msg.toStdString() );
+        }
+        QString errstr;
+        if( !pipeline->canConnectPins(iop, iip, errstr ))
+        {
+            throw std::runtime_error( tr("Cannot connect pins because : %1").arg(errstr).toStdString() );
         }
         pipeline->connectPins( iop, iip );
     }
