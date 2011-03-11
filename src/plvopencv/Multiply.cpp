@@ -36,6 +36,15 @@ Multiply::Multiply()
     m_outputPin = createCvMatDataOutputPin( "image_output", this );
 
     m_scale = 1.0/255.0;
+
+    m_inputPin1->addAllChannels();
+    m_inputPin1->addAllDepths();
+
+    m_inputPin2->addAllChannels();
+    m_inputPin2->addAllDepths();
+
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 }
 
 Multiply::~Multiply()
