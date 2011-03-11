@@ -37,6 +37,9 @@ ImageDirectoryProducer::ImageDirectoryProducer() : m_idx(0)
     m_imgOutputPin = createCvMatDataOutputPin("image_output", this );
     m_fileNameOutputPin  = createOutputPin<QString>("file name", this );
     m_filePathOutputPin  = createOutputPin<QString>("file path", this );
+
+    m_imgOutputPin->addAllChannels();
+    m_imgOutputPin->addAllDepths();
 }
 
 ImageDirectoryProducer::~ImageDirectoryProducer()
