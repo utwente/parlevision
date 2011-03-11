@@ -20,12 +20,7 @@
   */
 
 #include "PipelineProcessor.h"
-
 #include "Pin.h"
-
-#include <vector>
-#include <algorithm>
-#include <functional>
 
 using namespace plv;
 
@@ -95,6 +90,16 @@ bool PipelineProcessor::__process( unsigned int serial )
                 in->removeFirst();
             }
         }
+
+        // call post on output pins to propagate NULL down pipeline
+        for( OutputPinMap::iterator itr = m_outputPins.begin();
+             itr != m_outputPins.end(); ++itr )
+        {
+            IOutputPin* out = itr->second.getPtr();
+            out->pre();
+            out->post();
+        }
+
         return true;
     }
 
