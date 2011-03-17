@@ -138,7 +138,7 @@ QString PipelineLoader::serialize( Pipeline* pl )
     QDomElement xmlConnections = doc.createElement( "connections" );
     xmlPipeline.appendChild( xmlConnections );
 
-    const Pipeline::PipelineConnectionsList& connections = pl->getConnections();
+    const Pipeline::PipelineConnectionMap& connections = pl->getConnections();
     foreach( RefPtr<PinConnection> connection, connections )
     {
         QDomElement xmlConnection = doc.createElement( "connection" );

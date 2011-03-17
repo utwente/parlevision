@@ -65,7 +65,7 @@ namespace plv
         /** used to signal a NULL entry. Null entries are ignored
           * by viewers but used to synchronize the system. This is done
           * automatically. Producers should generally never produce a Data item
-          * which are NULL. Processors automaticall produce them when they generate
+          * which is NULL. Processors automaticall produce them when they generate
           * no output for a process call */
         inline bool isNull() const { return m_null; }
     };
@@ -94,28 +94,21 @@ namespace plv
             virtual ~DuplicateConnectionException() throw() {}
         };
 
-        enum ConnectionType {
-            LOSSLESS,
-            LOSSY_FIFO,
-            LOSSY_LIFO
-        };
         friend class Pipeline;
 
-        PinConnection( IOutputPin* producer, IInputPin* consumer )
+        PinConnection( int id, IOutputPin* producer, IInputPin* consumer )
                 throw ( IllegalConnectionException,
                         IncompatibleTypeException,
                         DuplicateConnectionException );
         virtual ~PinConnection();
 
+        int getId() const { return m_id; }
         bool hasData() const;
         int size() const;
-        inline ConnectionType getType() const;
-
         Data get();
         Data peek() const;
         void peek( unsigned int& serial, bool& isNull ) const;
         void put( const Data& data );
-
         bool fastforward( unsigned int target );
 
         /** Throw away all data in this connection. */
@@ -143,17 +136,12 @@ namespace plv
         void disconnect();
 
     private:
+        int m_id;
         IOutputPin* m_producer;
         IInputPin*  m_consumer;
         std::queue< Data > m_queue;
-        ConnectionType m_type;
         mutable QMutex m_connectionMutex;
     };
-}
-
-namespace plv
-{
-    PinConnection::ConnectionType PinConnection::getType() const { return m_type; }
 }
 
 #endif // PINCONNECTION_H

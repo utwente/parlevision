@@ -33,13 +33,6 @@ namespace plv
 {
     class Pipeline;
 
-    /** Helper class for a QThread to run its own event loop */
-    class PLVCORE_EXPORT QThreadEx : public QThread
-    {
-    protected:
-        void run() { exec(); }
-    };
-
     class PLVCORE_EXPORT Application : public QObject
     {
         Q_OBJECT
@@ -49,26 +42,12 @@ namespace plv
         void init();
         void deinit();
 
-        bool setPipeline(Pipeline* pipeline);
-        void removePipeline();
-
-        /** throws std::runtime_error */
-        plv::Pipeline* loadPipeline(const QString& filename);
-
-        /** throws std::runtime_error */
-        void savePipeline(const QString& filename = QString());
-
-    public slots:
-        void pipelineFinished();
-
     private:
         void loadBuiltins();
         void loadPlugins();
         void initLoggers();
 
         QCoreApplication* m_app;
-        QThreadEx* m_pipelineThread;
-        RefPtr<Pipeline> m_pipeline;
     };
 }
 

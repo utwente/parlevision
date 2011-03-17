@@ -34,16 +34,13 @@ PipelineProcessor::~PipelineProcessor()
 
 bool PipelineProcessor::__ready( unsigned int& serial )
 {
-    assert( requiredPinsConnected() );
-
-    PipelineElement::State state = getState();
-
-    if( state >= DISPATCHED )
+    if( getState() >= DISPATCHED )
         return false;
 
     // see if data is available and the processor is ready for processing
     unsigned int nextSerial;
-    return dataAvailableOnInputPins(nextSerial) && nextSerial == serial;
+    bool retval = dataAvailableOnInputPins(nextSerial) && nextSerial == serial;
+    return retval;
 }
 
 bool PipelineProcessor::__process( unsigned int serial )

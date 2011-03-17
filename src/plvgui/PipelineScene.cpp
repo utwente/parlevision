@@ -63,32 +63,30 @@ void PipelineScene::setPipeline(plv::Pipeline* pipeline)
 
     // add renderers for all elements in the pipeline
     const Pipeline::PipelineElementMap& elements = pipeline->getChildren();
-    QMapIterator< int, RefPtr<PipelineElement> > itr( elements );
-    while( itr.hasNext() )
+    foreach( RefPtr<PipelineElement> element, elements )
     {
-        itr.next();
-        this->add( itr.value() );
+        this->add(element);
     }
 
-    const Pipeline::PipelineConnectionsList& connections = m_pipeline->getConnections();
+    const Pipeline::PipelineConnectionMap& connections = m_pipeline->getConnections();
     foreach( RefPtr<PinConnection> connection, connections )
     {
-        this->add( connection );
+        this->add(connection);
     }
 
     // make sure future additions to underlying pipeline get added as well
-    connect(m_pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
-            this, SLOT(add(plv::RefPtr<plv::PipelineElement>)));
+    connect(pipeline, SIGNAL(elementAdded(const plv::RefPtr<plv::PipelineElement>&)),
+            this, SLOT(add(const plv::RefPtr<plv::PipelineElement>&)));
 
-    connect(m_pipeline, SIGNAL(connectionAdded(plv::RefPtr<plv::PinConnection>)),
-            this, SLOT(add(plv::RefPtr<plv::PinConnection>)));
+    connect(pipeline, SIGNAL(connectionAdded(const plv::RefPtr<plv::PinConnection>&)),
+            this, SLOT(add(const plv::RefPtr<plv::PinConnection>&)));
 
     // make sure we stay in sync with the underlying pipeline when stuff gets removed
-    connect(m_pipeline, SIGNAL(elementRemoved(plv::RefPtr<plv::PipelineElement>)),
-            this, SLOT(handleRemove(plv::RefPtr<plv::PipelineElement>)));
+    connect(pipeline, SIGNAL(elementRemoved(const plv::RefPtr<plv::PipelineElement>&)),
+            this, SLOT(handleRemove(const plv::RefPtr<plv::PipelineElement>&)));
 
-    connect(m_pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
-            this, SLOT(handleRemove(plv::RefPtr<plv::PinConnection>)));
+    connect(pipeline, SIGNAL(connectionRemoved(const plv::RefPtr<plv::PinConnection>&)),
+            this, SLOT(handleRemove(const plv::RefPtr<plv::PinConnection>&)));
 
     connect(this, SIGNAL(sceneRectChanged(QRectF)), this, SLOT(update(QRectF)));
 
@@ -97,23 +95,8 @@ void PipelineScene::setPipeline(plv::Pipeline* pipeline)
 
 void PipelineScene::reset()
 {
-    // make sure future additions to underlying pipeline get added as well
-    disconnect(m_pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
-            this, SLOT(add(plv::RefPtr<plv::PipelineElement>)));
-
-    disconnect(m_pipeline, SIGNAL(connectionAdded(plv::RefPtr<plv::PinConnection>)),
-            this, SLOT(add(plv::RefPtr<plv::PinConnection>)));
-
-    // make sure we stay in sync with the underlying pipeline when stuff gets removed
-    disconnect(m_pipeline, SIGNAL(elementRemoved(plv::RefPtr<plv::PipelineElement>)),
-            this, SLOT(handleRemove(plv::RefPtr<plv::PipelineElement>)));
-
-    disconnect(m_pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
-            this, SLOT(handleRemove(plv::RefPtr<plv::PinConnection>)));
-
-    disconnect(this, SIGNAL(sceneRectChanged(QRectF)), this, SLOT(update(QRectF)));
-
-    disconnect(this, SIGNAL(changed(QList<QRectF>)), this, SLOT(recalculateSceneRect()));
+    // disconnect all signals between the pipeline and this
+    disconnect(m_pipeline.getPtr(), 0, this, 0);
 
     this->elementWidgets.clear();
     this->connectionLines.clear();
@@ -121,23 +104,23 @@ void PipelineScene::reset()
     m_pipeline.set(0);
 }
 
-void PipelineScene::add(plv::PipelineElement* e)
+void PipelineScene::add(const plv::RefPtr<plv::PipelineElement>& e)
 {
-    add(RefPtr<PipelineElement>(e));
-}
-
-void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
-{
-    //TODO
-    qDebug() << "PipelineScene: adding element " << e;
-//    QGraphicsTextItem* item = this->addText(e->metaObject()->className());
-//    item->setFlag(QGraphicsItem::ItemIsMovable, true);
-//    item->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
-    if(this->elementWidgets.contains(e))
+    if(this->elementWidgets.contains(e.getPtr()))
     {
-        throw plv::RuntimeError("Cannot add duplicate pipeline element to the scene.",
-                                  __FILE__, __LINE__);
+        qWarning("plvgui::PipelineScene::addElement(plv::RefPtr<plv::PipelineElement>)"
+                 " Cannot add duplicate pipeline element to the scene" );
+        Q_ASSERT_X(false,
+                   "plvgui::PipelineScene::addElement(plv::RefPtr<plv::PipelineElement>)",
+                   "Duplicate element" );
+        return;
+    }
+
+    if( e.isNull() )
+    {
+        qWarning("plvgui::PipelineScene::addElement");
+        Q_ASSERT_X(false,"plvgui::PipelineScene::addElement","null pointer");
+        return;
     }
 
     PipelineElementWidget* pew = new PipelineElementWidget(e.getPtr());
@@ -152,20 +135,13 @@ void PipelineScene::add(plv::RefPtr<plv::PipelineElement> e)
     connect(e.getPtr(), SIGNAL(propertyChanged(QString)),
             this, SLOT(setChanged()));
 
-    pew->translate(x,y);
+    pew->setPos(x,y);
     this->ensureFit();
 }
 
-void PipelineScene::add(plv::PinConnection* c)
-{
-    add(RefPtr<PinConnection>(c));
-}
-
-void PipelineScene::add(plv::RefPtr<plv::PinConnection> c)
+void PipelineScene::add(const plv::RefPtr<plv::PinConnection>& c)
 {
     RefPtr<const Pin> from = c->fromPin();
-//    const QString& desc = from->getName();
-//    QGraphicsTextItem* item = this->addText(desc);
     ConnectionLine* item = new ConnectionLine(getWidgetFor(c->fromPin()),
                                               getWidgetFor(c->toPin()),
                                               c.getPtr(),
@@ -213,62 +189,38 @@ void PipelineScene::deleteSelected()
     }
 }
 
-void PipelineScene::remove(plv::PipelineElement* e)
-{
-    remove(RefPtr<PipelineElement>(e));
-}
-
-void PipelineScene::remove(plv::RefPtr<plv::PipelineElement> e)
+void PipelineScene::remove(const plv::RefPtr<plv::PipelineElement>& e)
 {
     this->m_pipeline->removeElement( e->getId() );
 }
 
-void PipelineScene::remove(plv::PinConnection* c)
+void PipelineScene::remove(const plv::RefPtr<plv::PinConnection>& c)
 {
-    remove(RefPtr<PinConnection>(c));
-}
+    assert(connectionLines.contains(c.getPtr()));
 
-void PipelineScene::remove(plv::RefPtr<plv::PinConnection> c)
-{
-    assert( this->connectionLines.contains(c.getPtr()));
-
-    ConnectionLine* item = this->connectionLines.take(c.getPtr());
+    ConnectionLine* item = connectionLines.take(c.getPtr());
     getWidgetFor(c->fromPin()->getOwner())->removeLine(item, c->fromPin()->getName());
     getWidgetFor(c->toPin()->getOwner())->removeLine(item, c->fromPin()->getName());
 
-    this->m_pipeline->pinConnectionDisconnect(c);
+    m_pipeline->pinConnectionDisconnect(c->getId());
     delete item;
 }
 
-void PipelineScene::handleRemove(plv::PipelineElement* e)
-{
-    handleRemove(RefPtr<PipelineElement>(e));
-}
-
-void PipelineScene::handleRemove(plv::RefPtr<plv::PipelineElement> e)
+void PipelineScene::handleRemove(const plv::RefPtr<plv::PipelineElement>& e)
 {
     // disconnect all signals between e and this
     disconnect(e, 0, this, 0);
 
     QGraphicsItem* item = this->getWidgetFor(e);
     if(item)
-    {
         this->removeItem(item);
-    }
 }
 
-void PipelineScene::handleRemove(plv::PinConnection* c)
-{
-    handleRemove(RefPtr<PinConnection>(c));
-}
-
-void PipelineScene::handleRemove(plv::RefPtr<plv::PinConnection> c)
+void PipelineScene::handleRemove(const plv::RefPtr<plv::PinConnection>& c)
 {
     QGraphicsItem* item = this->getWidgetFor(c);
     if(item)
-    {
         this->removeItem(item);
-    }
 }
 
 PipelineElementWidget* PipelineScene::getWidgetFor(PipelineElement* e) const
@@ -357,7 +309,6 @@ void PipelineScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
             }
         }
     }
-
     clearLine();
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
     ensureFit();
@@ -367,7 +318,7 @@ void PipelineScene::clearLine()
 {
     if(this->line != 0)
     {
-        this->removeItem(this->line);
+        removeItem(this->line);
         delete this->line;
         this->line = 0;
     }
@@ -470,7 +421,6 @@ MainWindow* PipelineScene::getMainWindow()
             return mw;
         }
     }
-
     return 0;
 }
 

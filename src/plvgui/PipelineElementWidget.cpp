@@ -36,11 +36,11 @@ using namespace plvgui;
 using namespace plv;
 using namespace std;
 
-PipelineElementWidget::PipelineElementWidget(PipelineElement* element,
+PipelineElementWidget::PipelineElementWidget(PipelineElement* e,
                                              QGraphicsItem* parent,
                                              Qt::WindowFlags wFlags) :
         QGraphicsObject(parent),
-        element(element),
+        element(e),
         maxWidth(0),
         leftColumnWidth(0)
 {

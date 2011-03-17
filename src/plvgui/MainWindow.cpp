@@ -403,17 +403,17 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
             this, SLOT(pipelineStarted()));
     connect(pipeline, SIGNAL(pipelineStopped()),
             this, SLOT(pipelineStopped()));
-    connect(pipeline, SIGNAL(elementAdded(plv::RefPtr<plv::PipelineElement>)),
+    connect(pipeline, SIGNAL(elementAdded(int)),
             this, SLOT(documentChanged()));
-    connect(pipeline, SIGNAL(elementChanged(plv::RefPtr<plv::PipelineElement>)),
+    connect(pipeline, SIGNAL(elementChanged(int)),
             this, SLOT(documentChanged()));
-    connect(pipeline, SIGNAL(elementRemoved(plv::RefPtr<plv::PipelineElement>)),
+    connect(pipeline, SIGNAL(elementRemoved(int)),
             this, SLOT(documentChanged()));
-    connect(pipeline, SIGNAL(connectionAdded(plv::RefPtr<plv::PinConnection>)),
+    connect(pipeline, SIGNAL(connectionAdded(int)),
             this, SLOT(documentChanged()));
-    connect(pipeline, SIGNAL(connectionChanged(plv::RefPtr<plv::PinConnection>)),
+    connect(pipeline, SIGNAL(connectionChanged(int)),
             this, SLOT(documentChanged()));
-    connect(pipeline, SIGNAL(connectionRemoved(plv::RefPtr<plv::PinConnection>)),
+    connect(pipeline, SIGNAL(connectionRemoved(int)),
             this, SLOT(documentChanged()));
     connect(pipeline, SIGNAL(pipelineMessage(QtMsgType,QString)),
             this, SLOT(handleMessage(QtMsgType, QString)));
@@ -421,7 +421,6 @@ void MainWindow::setPipeline(plv::Pipeline* pipeline)
             this, SLOT(documentChanged()));
 
     m_documentChanged = false;
-    m_application->setPipeline(pipeline);
 }
 
 void MainWindow::closePipeline()
@@ -450,9 +449,7 @@ void MainWindow::closePipeline()
     m_ui->actionClosePipeline->setEnabled(false);
 
     m_documentChanged = false;
-
     m_pipeline.set(0);
-    m_application->removePipeline();
 
     setWindowTitle("ParleVision - no pipeline");
     updateWindowTitle();
@@ -479,25 +476,10 @@ void MainWindow::loadFile(QString fileName)
         closePipeline();
     }
 
-    try
-    {
-        RefPtr<Pipeline> pl = m_application->loadPipeline(fileName);
-        qDebug() << "Loaded pipeline";
-        setCurrentFile(fileName);
-        setPipeline(pl);
-    }
-    catch( std::runtime_error& e )
-    {
-        qDebug() << "Pipeline loading failed with: " << e.what();
-        handleMessage(QtCriticalMsg, "Failed to load load pipeline from "+fileName+":\n" + QString(e.what()));
-        return;
-    }
-    catch( ... )
-    {
-        qDebug() << "Caught unknown exception.";
-        handleMessage(QtFatalMsg, "An unknown error occured while loading " + fileName + ".");
-        return;
-    }
+    Pipeline* pl = new Pipeline();
+    pl->load(fileName);
+    setCurrentFile(fileName);
+    setPipeline(pl);
 }
 
 MainWindow* MainWindow::newWindow()
@@ -703,7 +685,7 @@ void MainWindow::save()
 
     try
     {
-        m_application->savePipeline( m_fileName );
+        m_pipeline->saveAs( m_fileName );
         m_documentChanged = false;
         updateWindowTitle();
     }

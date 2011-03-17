@@ -73,44 +73,37 @@ namespace plvgui
         /** Add the given element to this scene
           * and to the underlying pipeline
           */
-        void add(plv::PipelineElement* e);
-        void add(plv::RefPtr<plv::PipelineElement> e);
+        void add(const plv::RefPtr<plv::PipelineElement>& e);
 
         /** Add the given connection to this scene
           * and to the underlying pipeline
           */
-        void add(plv::PinConnection* c);
-        void add(plv::RefPtr<plv::PinConnection> c);
+        void add(const plv::RefPtr<plv::PinConnection>& c);
 
         /** Deletes the currently selected items (elements, connections etc.)
           * Has no effect if nothing is selected.
           */
         void deleteSelected();
 
-
         /** Remove the given element from this scene
           * and from the underlying pipeline
           */
-        void remove(plv::PipelineElement* e);
-        void remove(plv::RefPtr<plv::PipelineElement> e);
+        void remove(const plv::RefPtr<plv::PipelineElement>& e);
 
         /** Remove the given connection from this scene
           * and from the underlying pipeline
           */
-        void remove(plv::PinConnection* c);
-        void remove(plv::RefPtr<plv::PinConnection> c);
+        void remove(const plv::RefPtr<plv::PinConnection>& c);
 
         /** Remove the given element from this scene
           * but not from the underlying pipeline
           */
-        void handleRemove(plv::PipelineElement* e);
-        void handleRemove(plv::RefPtr<plv::PipelineElement> e);
+        void handleRemove(const plv::RefPtr<plv::PipelineElement>& e);
 
         /** Remove the given connection from this scene
           * but not from the underlying pipeline
           */
-        void handleRemove(plv::PinConnection* c);
-        void handleRemove(plv::RefPtr<plv::PinConnection> c);
+        void handleRemove(const plv::RefPtr<plv::PinConnection>& c);
 
         /** Recalculates the scene rect based on its contents.
           * This is a relatively expensive method that ensures
@@ -144,6 +137,7 @@ namespace plvgui
         void ensureFit();
 
         plv::RefPtr<plv::Pipeline> m_pipeline;
+
         QHash<plv::PipelineElement*, PipelineElementWidget*> elementWidgets;
         QHash<plv::PinConnection*, ConnectionLine*> connectionLines;
 

@@ -34,9 +34,7 @@ PipelineProducer::~PipelineProducer()
 
 bool PipelineProducer::__ready( unsigned int& serial )
 {
-    PipelineElement::State state = getState();
-
-    if( state >= DISPATCHED )
+    if( getState() >= DISPATCHED )
         return false;
     else if( this->readyToProduce() )
     {

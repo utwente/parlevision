@@ -309,8 +309,6 @@ bool PipelineElement::requiredPinsConnected() const
 
 bool PipelineElement::dataAvailableOnInputPins( unsigned int& nextSerial )
 {
-    QMutexLocker lock( &m_pleMutex );
-
     // synchronous processor
     if( m_hasSynchronousPin )
     {
@@ -679,6 +677,9 @@ bool PipelineElement::__stop()
 bool PipelineElement::run( unsigned int serial )
 {
     assert(getState() == DISPATCHED);
+
+    //qDebug() << "PipelineElement::run for object " << this->getName()
+    //         << " running in thread " << QThread::currentThread();
 
     setState(RUNNING);
     startTimer();

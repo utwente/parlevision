@@ -28,13 +28,13 @@
 
 using namespace plv;
 
-PinConnection::PinConnection( IOutputPin* producer, IInputPin* consumer )
+PinConnection::PinConnection( int id, IOutputPin* producer, IInputPin* consumer )
     throw ( IllegalConnectionException,
             IncompatibleTypeException,
             DuplicateConnectionException ) :
+        m_id(id),
         m_producer( producer ),
-        m_consumer( consumer ),
-        m_type( LOSSLESS )
+        m_consumer( consumer )
 {
     assert(m_consumer != 0);
     assert(m_producer != 0);
