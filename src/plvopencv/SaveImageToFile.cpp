@@ -214,7 +214,7 @@ bool SaveImageToFile::process()
         if(multi_image)
             filename = QString("%1%2_%3%4").arg(path).arg(filenameBegin).arg(i).arg(m_fileExt);
         else
-            filename = QString("%1%2.%3").arg(path).arg(filenameBegin).arg(m_fileExt);
+            filename = QString("%1%2%3").arg(path).arg(filenameBegin).arg(m_fileExt);
 
         QFile file(filename);
         if( !file.exists() )
