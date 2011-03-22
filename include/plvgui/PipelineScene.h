@@ -25,9 +25,10 @@
 #include <QGraphicsScene>
 #include <QHash>
 
-#include "RefPtr.h"
-#include "Pipeline.h"
-#include "PinConnection.h"
+#include <plvcore/RefPtr.h>
+#include <plvcore/Pipeline.h>
+#include <plvcore/PinConnection.h>
+
 #include "Exceptions.h"
 
 class QObject;
@@ -59,7 +60,12 @@ namespace plvgui
         Q_OBJECT
 
     public:
-        PipelineScene(plv::Pipeline* pipeline, QObject* parent);
+        PipelineScene(QObject* parent);
+        virtual ~PipelineScene();
+
+        void setPipeline(plv::Pipeline* pipeline);
+        void reset();
+
         plv::RefPtr<plv::Pipeline> getPipeline() { return m_pipeline; }
         virtual bool event(QEvent * event);
 
@@ -67,44 +73,37 @@ namespace plvgui
         /** Add the given element to this scene
           * and to the underlying pipeline
           */
-        void add(plv::PipelineElement* e);
-        void add(plv::RefPtr<plv::PipelineElement> e);
+        void add(const plv::RefPtr<plv::PipelineElement>& e);
 
         /** Add the given connection to this scene
           * and to the underlying pipeline
           */
-        void add(plv::PinConnection* c);
-        void add(plv::RefPtr<plv::PinConnection> c);
+        void add(const plv::RefPtr<plv::PinConnection>& c);
 
         /** Deletes the currently selected items (elements, connections etc.)
           * Has no effect if nothing is selected.
           */
         void deleteSelected();
 
-
         /** Remove the given element from this scene
           * and from the underlying pipeline
           */
-        void remove(plv::PipelineElement* e);
-        void remove(plv::RefPtr<plv::PipelineElement> e);
+        void remove(const plv::RefPtr<plv::PipelineElement>& e);
 
         /** Remove the given connection from this scene
           * and from the underlying pipeline
           */
-        void remove(plv::PinConnection* c);
-        void remove(plv::RefPtr<plv::PinConnection> c);
+        void remove(const plv::RefPtr<plv::PinConnection>& c);
 
         /** Remove the given element from this scene
           * but not from the underlying pipeline
           */
-        void handleRemove(plv::PipelineElement* e);
-        void handleRemove(plv::RefPtr<plv::PipelineElement> e);
+        void handleRemove(const plv::RefPtr<plv::PipelineElement>& e);
 
         /** Remove the given connection from this scene
           * but not from the underlying pipeline
           */
-        void handleRemove(plv::PinConnection* c);
-        void handleRemove(plv::RefPtr<plv::PinConnection> c);
+        void handleRemove(const plv::RefPtr<plv::PinConnection>& c);
 
         /** Recalculates the scene rect based on its contents.
           * This is a relatively expensive method that ensures
@@ -138,11 +137,13 @@ namespace plvgui
         void ensureFit();
 
         plv::RefPtr<plv::Pipeline> m_pipeline;
+
         QHash<plv::PipelineElement*, PipelineElementWidget*> elementWidgets;
         QHash<plv::PinConnection*, ConnectionLine*> connectionLines;
 
         PipelineElementWidget* getWidgetFor(plv::PipelineElement* e) const;
-        PinWidget* getWidgetFor(const plv::Pin* pw) const;
+        PinWidget* getWidgetFor(const plv::IInputPin* pw) const;
+        PinWidget* getWidgetFor(const plv::IOutputPin* pw) const;
         ConnectionLine* getWidgetFor(plv::PinConnection* c) const;
         InteractiveLine* line;
     };

@@ -25,17 +25,22 @@
 #include <QGraphicsObject>
 #include <QString>
 
-#include "RefPtr.h"
-#include "PipelineElement.h"
+#include <plvcore/RefPtr.h>
+#include <plvcore/PipelineElement.h>
 
+QT_BEGIN_NAMESPACE
 class QGraphicsSceneDragDropEvent;
 class QVariant;
-
-using namespace plv;
+class QLabel;
+class QGraphicsTextItem;
+QT_END_NAMESPACE
 
 namespace plv
 {
     class Pin;
+    class IInputPin;
+    class IOutputPin;
+    class PipelineElement;
 }
 
 namespace plvgui
@@ -52,8 +57,11 @@ namespace plvgui
                               Qt::WindowFlags wFlags = 0);
 
         void addLine(ConnectionLine* line, QString pin);
-        PinWidget* getWidgetFor(const Pin* p) const { return pinWidgets[p]; }
-        plv::RefPtr<plv::PipelineElement> getElement() const { return element; }
+        void removeLine(ConnectionLine* line, QString pin);
+
+        PinWidget* getWidgetFor(const plv::IInputPin* p) const;
+        PinWidget* getWidgetFor(const plv::IOutputPin* p) const;
+        inline plv::RefPtr<plv::PipelineElement> getElement() const { return element; }
 
         virtual QRectF boundingRect() const;
         virtual bool event(QEvent * event);
@@ -68,10 +76,36 @@ namespace plvgui
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
         virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
         virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
+
+    private:
+        QHash<int, PinWidget*> inputPinWidgets;
+        QHash<int, PinWidget*> outputPinWidgets;
+        qreal maxWidth;
+        qreal leftColumnWidth;
+        QGraphicsTextItem* avgProcessingTimeLabel;
+        QGraphicsTextItem* lastProcessingTimeLabel;
+        QString avgTimeString;
+        QString lastTimeString;
+        QGraphicsTextItem* titleLabel;
+
         void addToGroup(QGraphicsItem* item);
-        QHash<const plv::Pin*, PinWidget*> pinWidgets;
+        void addInputPin(plv::IInputPin* in);
+        void addOutputPin(plv::IOutputPin* out);
+        void removeInputPin(int id);
+        void removeOutputPin(int id);
+        void drawPinsAndInfo();
+
     private slots:
         void savePositionProperties();
+        void onError(PlvErrorType,plv::PipelineElement*);
+        void onProcessingTimeUpdate(int,int);
+        void inputPinAdded( plv::IInputPin* pin );
+        void outputPinAdded( plv::IOutputPin* pin );
+        void inputPinRemoved(int id);
+        void outputPinRemoved(int id);
+
+    signals:
+        void plePropertyChanged(const char* name, const QVariant& value);
     };
 }
 

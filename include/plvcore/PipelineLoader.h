@@ -33,17 +33,15 @@ namespace plv
     class PipelineElement;
     class Pipeline;
 
-    /** Class which parses XML and maps XML data to properties in QObject classes.
-      * Original idea and source thanks to Matteo Bertozzi
-      * (http://th30z.netsons.org/2009/04/qt4-xml-objec-mapper/)
-      */
-    class PipelineLoader
+    /** Serializes and deserializes Pipeline to and from XML */
+    class PLVCORE_EXPORT PipelineLoader : public QObject
     {
+        Q_OBJECT
     public:
-        static RefPtr<Pipeline> deserialize( const QString& filename )
+        static void deserialize( const QString& filename, Pipeline* pipeline )
             throw(std::runtime_error); /*TODO checked exceptions*/
 
-        static RefPtr<Pipeline> deserialize( QDomDocument* doc )
+        static void deserialize( QDomDocument* doc, Pipeline* pipeline )
             throw(std::runtime_error); /*TODO checked exceptions*/
 
         static void serialize( const QString& filename, Pipeline* pipeline )
@@ -51,7 +49,7 @@ namespace plv
 
     private:
         PipelineLoader();
-        ~PipelineLoader();
+        virtual ~PipelineLoader();
 
         static QString serialize( Pipeline* pipeline )
             throw(std::runtime_error); /*TODO checked exceptions*/

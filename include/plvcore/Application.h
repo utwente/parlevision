@@ -24,18 +24,30 @@
 
 class QCoreApplication;
 
+#include "plvglobal.h"
+#include "RefPtr.h"
+
+#include <QThread>
+
 namespace plv
 {
-    class Application
+    class Pipeline;
+
+    class PLVCORE_EXPORT Application : public QObject
     {
+        Q_OBJECT
     public:
         Application(QCoreApplication* app);
+        virtual ~Application();
         void init();
+        void deinit();
 
     private:
         void loadBuiltins();
         void loadPlugins();
-        QCoreApplication* app;
+        void initLoggers();
+
+        QCoreApplication* m_app;
     };
 }
 

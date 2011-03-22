@@ -23,21 +23,16 @@
 #define CONNECTIONLINE_H
 
 #include <QGraphicsLineItem>
+#include <plvcore/RefPtr.h>
 
-#include "RefPtr.h"
-
-using namespace plv;
-
-//QT_BEGIN_NAMESPACE
-class QGraphicsPolygonItem;
-class QGraphicsLineItem;
-class QGraphicsScene;
-class QRectF;
-class QGraphicsSceneMouseEvent;
-class QPainter;
-class QPainterPath;
-class QStyleOptionGraphicsItem;
-//QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS( QGraphicsPolygonItem )
+QT_FORWARD_DECLARE_CLASS( QGraphicsLineItem )
+QT_FORWARD_DECLARE_CLASS( QGraphicsScene )
+QT_FORWARD_DECLARE_CLASS( QRectF )
+QT_FORWARD_DECLARE_CLASS( QGraphicsSceneMouseEvent )
+QT_FORWARD_DECLARE_CLASS( QPainter )
+QT_FORWARD_DECLARE_CLASS( QPainterPath )
+QT_FORWARD_DECLARE_CLASS( QStyleOptionGraphicsItem )
 
 namespace plv
 {
@@ -46,37 +41,36 @@ namespace plv
 
 namespace plvgui
 {
-//    class PipelineElementWidget;
     class PinWidget;
 
     /** A line that represents the connection between two pins.
       */
     class ConnectionLine : public QGraphicsLineItem
     {
-//        Q_OBJECT
 
     public:
-        ConnectionLine(PinWidget* fromPin,
-                              PinWidget* toPin,
-                              PinConnection* connection,
-                              QGraphicsItem *parent,
-                              QGraphicsScene *scene);
+        ConnectionLine(PinWidget* fromPin, PinWidget* toPin,
+                       plv::PinConnection* connection,
+                       QGraphicsItem *parent,
+                       QGraphicsScene *scene);
+        virtual ~ConnectionLine();
 
         QPainterPath shape() const;
         QRectF boundingRect() const;
-        RefPtr<PinConnection> getPinConnection() const { return connection; }
 
-    public slots:
+        inline plv::RefPtr<plv::PinConnection> getPinConnection() const { return connection; }
+
         void updatePosition();
 
     protected:
-        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+        void paint(QPainter *painter,
+                   const QStyleOptionGraphicsItem *option,
                    QWidget *widget = 0);
 
     private:
         PinWidget* fromPin;
         PinWidget* toPin;
-        RefPtr<PinConnection> connection;
+        plv::RefPtr<plv::PinConnection> connection;
     };
 }
 #endif // CONNECTIONLINE_H

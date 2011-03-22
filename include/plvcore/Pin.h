@@ -26,357 +26,348 @@
 #include <typeinfo>
 #include <stack>
 
+#include <QSet>
+#include <QStringBuilder>
+
 #include "RefPtr.h"
 #include "RefCounted.h"
 #include "PinConnection.h"
 #include "PipelineElement.h"
-#include "Types.h"
 #include "PlvExceptions.h"
 
 namespace plv
 {
-    class Pin : public QObject, public RefCounted
+    /** abstract base class of input and output pins */
+    class PLVCORE_EXPORT Pin : public QObject, public RefCounted
     {
         Q_OBJECT
 
     public:
 
         Pin( const QString& name, PipelineElement* owner ) :
+            m_id(-1),
             m_name( name ),
             m_owner( owner )
         {
-            assert( m_owner.isNotNull() );
+            assert( !m_name.isEmpty() );
+            assert( m_owner != 0 );
         }
 
-        const QString& getName() const { return m_name; }
+        Pin( int id, const QString& name, PipelineElement* owner ) :
+            m_id( id ),
+            m_name( name ),
+            m_owner( owner )
+        {
+            assert( m_id != -1 );
+            assert( !m_name.isEmpty() );
+            assert( m_owner != 0 );
+        }
+
+        inline const QString& getName() const { return m_name; }
+        inline PipelineElement* getOwner() const { return m_owner; }
+
+        inline void setId(int id) { m_id = id; }
+        inline int getId() const { return m_id; }
+
+        /** @returns the QMetaType typeId of the data type this pin is initialized with */
+        virtual int getTypeId() const = 0;
+
+        /** @returns the name of the type this pin is initialized with */
+        virtual QString getTypeName() const = 0;
+
+        void setName(const QString& name);
+
+    signals:
+        void nameChanged(const QString& name);
+        void newData( unsigned int serial, QVariant v );
+        void error( QString msg );
 
     protected:
-         /** the name of this Pin e.g. "BlackAndWhite" */
+        /** id of this pin */
+        int m_id;
+
+        /** the name of this Pin e.g. "BlackAndWhite" */
         QString m_name;
 
         /** data received from or delivered to this pipeline element */
-        RefPtr<PipelineElement> m_owner;
-
-        /** RefCounted objects have protected destructor */
-        ~Pin() {qDebug() << "Destroying Pin " << m_name;}
-
-    public:
-        inline PipelineElement* getOwner() const { return m_owner.getPtr(); }
-
-        virtual bool isConnected() const = 0;
-
-        /** @returns the std::type_info struct belonging to the type
-          * this pin is initialized with. Is implemented by
-          * the TypedPin sub class.
-          */
-        virtual const std::type_info& getTypeInfo() const = 0;
+        PipelineElement* m_owner;
     };
 
-    class IInputPin : public Pin
-    {
-    public:
-        typedef enum InputPinType {
-            INPUT_OPTIONAL,
-            INPUT_REQUIRED
-        } InputPinType;
-
-        IInputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :
-                Pin( name, owner ), m_type( type )
-        {
-        }
-
-        virtual void scope() = 0;
-        virtual void unscope() = 0;
-        virtual bool isConnected() const = 0;
-        virtual bool hasData() const = 0;
-        virtual void flush() = 0;
-
-        /** @returns the std::type_info struct belonging to the type
-          * this pin is initialized with. Is implemented by
-          * the TypedPin sub class.
-          */
-        virtual const std::type_info& getTypeInfo() const = 0;
-
-        virtual void setConnection(PinConnection* connection) = 0;
-        virtual void removeConnection() = 0;
-        virtual PinConnection* getConnection() const = 0;
-
-        InputPinType getType() const { return m_type; }
-        bool isRequired() const { return m_type == INPUT_REQUIRED; }
-        bool isOptional() const { return m_type == INPUT_OPTIONAL; }
-
-    protected:
-        InputPinType m_type;
-        std::stack< RefPtr<Data> > m_scope;
-    };
-
-    class IOutputPin : public Pin
+    class PLVCORE_EXPORT IInputPin : public Pin
     {
         Q_OBJECT
 
     public:
-        IOutputPin( const QString& name, PipelineElement* owner )
-            : Pin( name, owner )
+        typedef enum Required {
+            CONNECTION_OPTIONAL,
+            CONNECTION_REQUIRED
+        } Required;
+
+        typedef enum Synchronized {
+            CONNECTION_SYNCHRONOUS,
+            CONNECTION_ASYNCHRONOUS
+        } Synchronized;
+
+        IInputPin( const QString& name, PipelineElement* owner, Required required, Synchronized sync ) :
+                Pin( name, owner ),
+                m_required( required ),
+                m_synchronous( sync )
         {
         }
+        virtual ~IInputPin();
 
-        virtual bool isConnected() const = 0;
-        virtual int connectionCount() const = 0;
+        inline Required getRequiredType() const { return m_required; }
+        inline Synchronized getSynchronizedType() const { return m_synchronous; }
 
-        /** @returns the std::type_info struct belonging to the type
-          * this pin is initialized with. Is implemented by
-          * the TypedPin sub class.
-          */
-        virtual const std::type_info& getTypeInfo() const = 0;
+        inline bool isRequired() const { return m_required == CONNECTION_REQUIRED; }
+        inline bool isOptional() const { return m_required == CONNECTION_OPTIONAL; }
+
+        inline bool isSynchronous() const { return m_synchronous == CONNECTION_SYNCHRONOUS; }
+        inline bool isAsynchronous() const { return m_synchronous == CONNECTION_ASYNCHRONOUS; }
+
+        void setConnection(PinConnection* connection);
+        void removeConnection();
+        PinConnection* getConnection() const;
+
+        void peekNext(unsigned int& serial, bool& isNull) const;
+
+        bool hasData() const;
+        void flushConnection();
+        bool fastforward( unsigned int target );
+
+        /** @returns true when pin is connected */
+        bool isConnected() const;
+
+        /** this method is called before each call to process() in the owner */
+        void pre();
+
+        /** this method is called after each call to process() in the owner */
+        void post();
+
+        /** removes first data item on the connection. There needs to be a connection. */
+        void removeFirst();
+
+        void getVariant( QVariant& data );
+
+        /** set called to value of val */
+        inline void setCalled( bool val ) { m_called = val; }
+
+        /** returns true when get() has been called */
+        inline bool isCalled() const { return m_called; }
+
+        /** checks if this pin is compatible with output pin */
+        virtual bool acceptsConnectionWith( const IOutputPin* pin, QString& errStr ) const = 0;
+
+        /** methods not implemented from abstract Pin class */
+        virtual int getTypeId() const = 0;
+        virtual QString getTypeName() const = 0;
+        virtual bool isDynamicallyTyped() const { return false; }
+
+    protected:
+        /** The input pin required type either CONNECTION_OPTIONAL or CONNECTION_REQUIRED */
+        Required m_required;
+
+        /** The input pin synchronicity either CONNECTION_SYNCHRONOUS or CONNECTION_ASYNCHRONOUS*/
+        Synchronized m_synchronous;
+
+        /** isNull() if there is no connection */
+        RefPtr<PinConnection> m_connection;
+
+        /** true when get() has been called */
+        bool m_called;
+    };
+
+    class PLVCORE_EXPORT IOutputPin : public Pin
+    {
+        Q_OBJECT
+
+    public:
+        IOutputPin( const QString& name, PipelineElement* owner ) : Pin( name, owner ) {}
+        virtual ~IOutputPin();
 
         /** Adds a connection to the set of connections this pin outputs to
           * @ensure this->isConnected();
           */
-        virtual void addConnection(PinConnection* connection) = 0;
+        void addConnection( PinConnection* connection );
 
         /** Removes the connection from this pin.
           * Assumes it has been disconnect()'ed
           */
-        virtual void removeConnection( PinConnection* connection ) = 0;
+        void removeConnection( PinConnection* connection );
+        void removeConnections();
 
-        // TODO ugly hack to make things work ...
-        // TODO should all PinConnection stuff be moved to IOutputPin
-        // and should IOutputPin be called an interface then?
-        // returns a copy of the connections
-        virtual std::list< RefPtr<PinConnection> > getConnections() = 0;
+        std::list< RefPtr<PinConnection > > getConnections();
+        int connectionCount() const;
 
-    signals:
-        void newData( RefPtr<Data> data );
+        int maxDataOnConnection() const;
+
+        /** @returns true when pin is connected */
+        inline bool isConnected() const { return !m_connections.empty(); }
+
+        /** this method is called before each call to process() in the owner */
+        void pre();
+
+        /** this method is called after each call to process() in the owner */
+        void post();
+
+        void putVariant( unsigned int serial, const QVariant& data );
+
+        /** returns wheter put() has been called since last pre() */
+        inline bool isCalled() const { return m_called; }
+
+        /** checks if this pin is compatible with input pin */
+        virtual bool acceptsConnectionWith( const IInputPin* pin, QString& errStr ) const = 0;
+
+        /** methods not implemented from abstract Pin class */
+        virtual int getTypeId() const = 0;
+        virtual QString getTypeName() const = 0;
+
+    protected:
+        std::list< RefPtr<PinConnection > > m_connections;
+
+        /** true when put() has been called */
+        bool m_called;
     };
 
     template< class T >
     class OutputPin : public IOutputPin
     {
     public:
-        OutputPin( const QString& name, PipelineElement* owner ) :
-                IOutputPin( name, owner ) {}
+        OutputPin( const QString& name, PipelineElement* owner ) : IOutputPin( name, owner ) {}
+        virtual ~OutputPin() {}
 
-        inline void put( RefPtr<T> data )
-        {
-            RefPtr<Data> untypedData = data.getPtr();
-
-            // this might be published to multiple processors which might be run in
-            // multiple threads. Make immutable to prevent writes corrupting reads
-            // in other threads.
-            untypedData->makeImmutable();
-
-            emit( newData( untypedData ) );
-
-            for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
-                    itr != m_connections.end(); ++itr)
-            {
-                RefPtr<PinConnection> connection = *itr;
-                assert(connection.isNotNull());
-                connection->put( untypedData );
-            }
-        }
-
-        /** Adds a connection to the set of connections this pin outputs to
-          * @ensure this->isConnected();
+        /** Puts data in connection. Drops data if no connection present.
+          * Throws an exception if the data violates format contract,
+          * which is checked in the callback functor of IOutputPin
           */
-        virtual void addConnection( PinConnection* connection )
+        inline void put( const T& data )
         {
-            assert(connection != 0);
-
-            this->m_connections.push_back(connection);
+            QVariant v;
+            v.setValue<T>(data);
+            unsigned int serial = m_owner->getProcessingSerial();
+            putVariant(serial, v);
         }
 
-        virtual void removeConnection( PinConnection* connection )
-        {
-            assert( connection != 0 );
+        /** @returns the QMetaType typeId of the data type this pin is initialized with */
+        virtual int getTypeId() const { return qMetaTypeId<T>(); }
 
-            for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
-                    itr != m_connections.end(); ++itr)
-            {
-                RefPtr<PinConnection> current = *itr;
-                if( current.getPtr() == connection )
-                {
-                    m_connections.erase( itr );
-                    return;
-                }
-            }
-            // we should never be here
-            assert( false );
-        }
+        /** @returns the name of the type this pin is initialized with */
+        virtual QString getTypeName() const { return QMetaType::typeName( qMetaTypeId<T>() ); }
 
-        virtual void removeConnections()
-        {
-            for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
-                    itr != m_connections.end(); ++itr)
-            {
-                RefPtr<PinConnection> current = *itr;
-//                current->disconnect();
-                m_connections.erase( itr );
-            }
-        }
-
-        virtual bool isConnected() const
-        {
-            return !m_connections.empty();
-        }
-
-        virtual std::list< RefPtr<PinConnection > > getConnections()
-        {
-            // makes a copy
-            return m_connections;
-        }
-
-        virtual int connectionCount() const
-        {
-            return m_connections.size();
-        }
-
-        virtual const std::type_info& getTypeInfo() const
-        {
-            return typeid( T );
-        }
-
-        ~OutputPin() {}
-
-    protected:
-        // empty list by default
-        std::list< RefPtr<PinConnection > > m_connections;
-
+        virtual bool acceptsConnectionWith( const IInputPin*, QString&) const { return true; }
     };
 
     template< class T >
     class InputPin : public IInputPin
     {
     public:
-        InputPin( const QString& name, PipelineElement* owner, InputPinType type = INPUT_REQUIRED ) :
-                IInputPin( name, owner, type ) {}
-
-        virtual void scope()
+        InputPin( const QString& name, PipelineElement* owner, Required required, Synchronized sync ) :
+                  IInputPin( name, owner, required, sync )
         {
-            assert( m_scope.empty() );
-            // prepares stack to receive objects
-            // for current scope
         }
 
-        virtual void unscope()
+        /** Gets a value from the connection and tries to convert it to the
+            type id of this pin. Returns an empty newly constructed T if
+            conversion fails */
+        inline T get()
         {
-            // release all objects
-            while( !m_scope.empty() )
+            QVariant v;
+            getVariant(v);
+            if( !v.canConvert<T>() )
             {
-                m_scope.pop();
+               emit( error( "Type conversion error") );
             }
+            return v.value<T>();
         }
 
-        inline void push( RefPtr<Data> d )
-        {
-            assert( d.isNotNull() );
+        /** @returns the QMetaType typeId of the data type this pin is initialized with */
+        virtual int getTypeId() const { return qMetaTypeId<T>(); }
 
-            // increase ref count and store on stack
-            //d->inc();
-            m_scope.push( d );
-        }
+        /** @returns the name of the type this pin is initialized with */
+        virtual QString getTypeName() const { return QMetaType::typeName( qMetaTypeId<T>() ); }
 
-        /** @returns true if there is a connection and that connection has data
-          * available
-          */
-        virtual bool hasData() const
-        {
-            if( m_connection.isNotNull() )
-            {
-                return this->m_connection->hasData();
-            }
-            return false;
-        }
+        virtual bool acceptsConnectionWith( const IOutputPin* pin, QString& errStr ) const { return true; }
 
-        virtual void flush()
-        {
-            m_connection->flush();
-        }
-
-        RefPtr<T> get() throw ( PipelineException )
-        {
-            if( !(this->m_connection.isNotNull() && this->m_connection->hasData() ))
-            {
-                throw PipelineException( "Illegal: method get() called on pin which has no data available" );
-            }
-
-            RefPtr<Data> data = this->m_connection->get();
-            push( data );
-#ifdef DEBUG
-            // we use a dynamic cast in debug mode
-            // so we can check for correct casting
-            // at the cost of speed.
-            RefPtr<T> typedData = ref_ptr_dynamic_cast<T>( data );
-            if( typedData.isNull() )
-            {
-               throw PipelineException( "Data delivered to pin of incomaptible type " );
-            }
-#else
-            // We can safely do this because this Pin is
-            // guaranteed to be connected to a Pin of the
-            // same type T.
-            RefPtr<T> typedData = ref_ptr_static_cast<T>( data );
-#endif
-            return typedData;
-        }
-
-        /** Connects this pin through the given connection.
-          * @require !this->isConnected()
-          * @ensure this->isConnected();
-          */
-        virtual void setConnection(PinConnection* connection)
-        {
-            assert(!this->isConnected());
-            assert(connection != 0);
-
-            this->m_connection = connection;
-        }
-
-        virtual void removeConnection()
-        {
-            assert( m_connection.isNotNull() );
-            m_connection.set( 0 );
-        }
-
-        virtual PinConnection* getConnection() const
-        {
-            assert( m_connection.isNotNull() );
-            return m_connection.getPtr();
-        }
-
-        virtual bool isConnected() const
-        {
-            return this->m_connection.isNotNull();
-        }
-
-        virtual const std::type_info& getTypeInfo() const
-        {
-            return typeid( T );
-        }
-
-        ~InputPin() {}
-    protected:
-
-        /** isNull() if there is no connection */
-        RefPtr<PinConnection> m_connection;
+        virtual bool isDynamicallyTyped() const { return false; }
     };
 
+    class DynamicInputPin : public IInputPin
+    {
+    private:
+        /** The dynamically set type id */
+        int m_typeId;
+    public:
+        DynamicInputPin( const QString& name, PipelineElement* owner, Required required, Synchronized sync, int typeId ) :
+                  IInputPin( name, owner, required, sync ),
+                  m_typeId( typeId )
+        {
+        }
+
+        /** Gets a value from the connection and tries to convert it to the
+            type id of this pin. Returns an empty newly constructed T if
+            conversion fails */
+        template <typename T>
+        inline T get()
+        {
+            QVariant v;
+            getVariant(v);
+            if( !v.canConvert<T>() )
+            {
+               emit( error( "Type conversion error") );
+            }
+            return v.value<T>();
+        }
+
+        /** @returns the QMetaType typeId of the data type this pin is initialized with */
+        virtual int getTypeId() const { return m_typeId; }
+
+        template <typename T> bool setTypeId() { return setTyeId( qMetaTypeId<T>() ); }
+
+        /** sets the type id of this pin. This type id should be a
+            valid id with Qt's metatype system, e.g. the value returned
+            by qMetaTypeId<T>. Also see setTypeId() template method. */
+        bool setTypeId( int type )
+        {
+            if( isConnected() || !QMetaType::isRegistered(type) ) return false;
+            m_typeId = type;
+            return true;
+        }
+
+        /** @returns the name of the type this pin is initialized with */
+        virtual QString getTypeName() const { return QMetaType::typeName( m_typeId ); }
+
+        virtual bool acceptsConnectionWith( const IOutputPin*, QString&) const
+        {
+            return true;
+        }
+
+        virtual bool isDynamicallyTyped() const { return true; }
+    };
+
+    plv::DynamicInputPin* PLVCORE_EXPORT createDynamicInputPin( const QString& name, plv::PipelineElement* owner,
+                                  plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
+                                  plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS,
+                                  int typeId = 0 )
+    throw (plv::IllegalArgumentException);
+
     template <class T>
-    OutputPin<T> * createOutputPin( const QString& name, PipelineElement* owner )
-    throw (IllegalArgumentException)
+    plv::OutputPin<T> * createOutputPin( const QString& name, plv::PipelineElement* owner )
+    throw (plv::IllegalArgumentException)
     {
         // if add fails pin is automatically deleted and exception is thrown
-        OutputPin<T> * pin = new OutputPin<T>( name, owner );
+        plv::OutputPin<T> * pin = new plv::OutputPin<T>( name, owner );
         owner->addOutputPin( pin );
         return pin;
     }
 
     template<typename T>
-    InputPin<T> * createInputPin( const QString& name, PipelineElement* owner, IInputPin::InputPinType type = IInputPin::INPUT_REQUIRED )
-    throw (IllegalArgumentException)
+    plv::InputPin<T> * createInputPin( const QString& name, plv::PipelineElement* owner,
+                                  plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
+                                  plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS )
+    throw (plv::IllegalArgumentException)
     {
         // if add fails pin is automatically deleted and exception is thrown
-        InputPin<T> * pin = new InputPin<T>( name, owner, type );
+        plv::InputPin<T> * pin = new plv::InputPin<T>( name, owner, required, synchronized );
         owner->addInputPin( pin );
         return pin;
     }

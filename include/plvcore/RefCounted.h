@@ -26,9 +26,12 @@
 #include <QMutexLocker>
 #include <QDebug>
 
-namespace plv {
+#include "plvglobal.h"
 
-class RefCounted
+namespace plv
+{
+
+class PLVCORE_EXPORT RefCounted
 {
 protected:
     mutable int m_referenceCount;
@@ -46,7 +49,10 @@ public:
     {
     }
 
-    /** RefCounted objects should generally not explicitely be destructed */
+    /** RefCounted objects should generally not explicitely be destructed.
+      * However, the Qt meta object system requires the destructor to be
+      * public.
+      */
     virtual ~RefCounted();
 
     /** increases reference count by one */
@@ -77,6 +83,15 @@ public:
     {
         QMutexLocker lock( &m_refMutex );
         return m_referenceCount;
+    }
+
+    /** resets reference count to 0. Necessary for manual reference counting only.
+      * Do not use lightly!
+      */
+    inline void resetRefCount()
+    {
+        QMutexLocker lock( &m_refMutex );
+        m_referenceCount = 0;
     }
 };
 

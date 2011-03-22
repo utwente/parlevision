@@ -22,30 +22,32 @@
 #ifndef DATARENDERER_H
 #define DATARENDERER_H
 
-#include <QWidget>
-#include <QObject>
+#include <QtGui/QWidget>
+#include <QtCore/QObject>
 
-#include "RefPtr.h"
-#include "Types.h"
+#include <plvcore/RefPtr.h>
+#include <plvcore/Types.h>
+
+#include "plvgui_global.h"
 
 namespace plv
 {
     class Pin;
 }
 
-using namespace plv;
-
-namespace plvgui {
+namespace plvgui
+{
 
     /** Interface for DataRenderers that observe or monitor pins of a certain dataType.
       * Each implementation must register itself with the DataRendererFactory
       * and implement the methods needed to render the datatype.
       */
-    class DataRenderer : public QWidget
+    class PLVGUI_EXPORT DataRenderer : public QWidget
     {
         Q_OBJECT
 
     public:
+        DataRenderer();
         DataRenderer( QWidget* parent );
         virtual ~DataRenderer();
 
@@ -55,8 +57,7 @@ namespace plvgui {
         virtual void setPin(const plv::Pin* pin);
 
     public slots:
-        virtual void newData( RefPtr<Data> data );
-
+        virtual void newData( unsigned int, QVariant v ) = 0;
     };
 }
 

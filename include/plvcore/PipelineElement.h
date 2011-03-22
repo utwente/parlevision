@@ -24,98 +24,87 @@
 
 #include <map>
 #include <stdexcept>
+#include <assert.h>
+
 #include <QString>
 #include <QObject>
 #include <QMetaType>
-#include <assert.h>
+#include <QTime>
 
+#include "plvglobal.h"
 #include "RefPtr.h"
 #include "PlvExceptions.h"
+#include "PipelineElementFactory.h"
 
 namespace plv
 {
     class IInputPin;
     class IOutputPin;
     class Pipeline;
-    class ScheduleInfo;
+    class PinConnection;
 
-    class PipelineElement : public QObject, public RefCounted
+    class PLVCORE_EXPORT PipelineElement : public QObject, public RefCounted
     {
         Q_OBJECT
 
+    private:
+        /** copy constructor and assignment operator are disabled
+            since we are a QObject */
+        Q_DISABLE_COPY(PipelineElement)
+
     public:
         /** typedefs to make code more readable */
-        typedef std::map< QString, RefPtr< IInputPin > > InputPinMap;
-        typedef std::map< QString, RefPtr< IOutputPin > > OutputPinMap;
+        typedef std::map< int, RefPtr< IInputPin > > InputPinMap;
+        typedef std::map< int, RefPtr< IOutputPin > > OutputPinMap;
+
+        enum State {
+            UNDEFINED,  /* undefined or non initialized */
+            INITIALIZED,/* initialized(init method executed succesfully) */
+            STARTED,    /* started (start method executed succesfully) */
+            DISPATCHED, /* dispatched to be processed */
+            RUNNING,    /* pipeline element is processing */
+            ERROR       /* an error occured during processing */
+        };
 
     protected:
         /** processor id */
         int m_id;
 
-        /** true if this element has been successfuly initialized */
-        bool m_initialized;
+        /** The element state. See PipelineElementState enumeration for details */
+        State m_state;
 
         /** map which contains the input pins identified and indexed by their name */
-        InputPinMap  m_inputPins;
+        InputPinMap m_inputPins;
 
         /** map which contains the output pins identified and indexed by their name */
         OutputPinMap m_outputPins;
 
+        float m_avgProcessingTime;
+        int m_lastProcesingTime;
+
+        QTime m_timer;
+
         mutable QMutex m_pleMutex;
+        mutable QMutex m_stateMutex;
+
+        /** mutex used for properties. Properties need a recursive mutex
+          * sice the emit() they do to update their own value can return the
+          * call to the set function resulting in a deadlock if we use a normal
+          * mutex */
+        mutable QMutex* m_propertyMutex;
+
+        /** if an error has occured, this holds the type of error. */
+        PlvErrorType m_errorType;
+
+        /** if an error has occured, this string holds an error message. */
+        QString m_errorString;
 
     public:
-        friend class Pipeline;
-        friend class ScheduleInfo;
-
-        /*************** BEGIN PUBLIC API ******************/
-
-        /** QMetaType requires a public default constructor,
-         *  a public copy constructor and a public destructor.
-         */
         PipelineElement();
-        PipelineElement( const PipelineElement& other );
         virtual ~PipelineElement();
 
-        /** Initialise the element so it is ready to receive
-          * process() calls.
-          * This will only be called once by the pipeline
-          * and allows for late initialization.
-          */
-        virtual void init() throw (PipelineException) = 0;
-
-        /** Start() and stop() are called when the pipeline
-          * is started and stopped by the user.
-          * This is useful for opening required input devices,
-          * starting threads etc.
-          * You must expect that a start() call
-          * may occur again after every stop().
-          */
-        //virtual void start() throw (PipelineException) {}
-        //virtual void stop() throw (PipelineException) {}
-        virtual void start() throw (PipelineException) = 0;
-        virtual void stop() throw (PipelineException) = 0;
-
-        /** @returns true when this PipelineElement is ready for procesing,
-          * which is when the process method is allowed to be called by the scheduler.
-          * This method is used by the scheduler to schedule processors
-          * and necessary to support processors which do not require input to be
-          * available on all defined pins and hence makes it relatively easy to support
-          * asynchronous events using normal pipeline connections. Also, processors could
-          * be implemented as state machines, using pipeline connections as change of
-          * state signals. For instance, one could design a processor which does A when
-          * the light is on, and B when the light is not on, where the light state is
-          * connected by a normal processor connection.
-          */
-        virtual bool isReadyForProcessing() const = 0;
-
-        /** @returns true when bootstrapping of this processor is complete.
-          * Some pipelines need to be bootstrapped before they generate valid output.
-          * For example, a processor which calculates the history over 5 consecutive
-          * frames needs to have seen at least 5 frames for its output to be valid.
-          * This method should return true when the requirements which are needed
-          * for valid output have been met.
-          */
-        //virtual bool isBootstrapped() const = 0;
+        /** returns true if this element has no outgoing connections */
+        bool isEndNode() const ;
 
         /** @returns true when input pins which are required by this processor to
           * be connected are connected. */
@@ -131,44 +120,38 @@ namespace plv
           */
         QSet<PipelineElement*> getConnectedElementsToInputs() const;
 
-        /** @returns true if input pins which are required have data available */
-        bool dataAvailableOnRequiredPins() const;
+        /** @returns true if input pins which are connected and synchronous
+          *  have data available */
+        bool dataAvailableOnInputPins( unsigned int& nextSerial );
 
-        /** This function does the actual work of this PipelineElement and
-          * is called by the PipelineScheduler when inputs of this processor
-          * are ready i.e. when isReadyForProcessing returns a positive integer.
-          */
-        virtual void process() = 0;
-
-        /** Get the name that describes this element, in human readable form */
-        virtual QString getName() const;
-
-
-        /*************** END OF API ******************/
+        /** Get the name that describes this element, in human readable form. This name
+            should be defined as a class property in the processors implementation, e.g
+            Q_CLASSINFO("name", "Example"). If no name is defined, the unmangled C++
+            class name is returned, e.g. plv::ExampleProcessor. */
+        QString getName() const;
 
         /** Adds the input pin to this processing element.
-          * @throws IllegalArgumentException if an input pin with
-          * the same name already exists
-          */
-        void addInputPin( IInputPin* pin ) throw (IllegalArgumentException);
+            Returns id on success or -1 on failure. */
+        int addInputPin( IInputPin* pin );
 
         /** Adds the output pin to this processing element.
-          * @throws IllegalArgumentException if an input pin with
-          * the same name already exists
-          */
-        void addOutputPin( IOutputPin* pin ) throw (IllegalArgumentException);
+            Returns id on success or -1 on failure. */
+        int addOutputPin( IOutputPin* pin );
 
-        /** @returns the input pin with that name, or null if none exists */
-        IInputPin* getInputPin( const QString& name ) const;
+        void removeInputPin( int id );
+        void removeOutputPin( int id );
 
-        /** @returns the ouput pin with that name, or null if none exists */
-        IOutputPin* getOutputPin( const QString& name ) const;
+        /** @returns the input pin with that id, or null if none exists */
+        IInputPin* getInputPin( int id ) const;
+
+        /** @returns the ouput pin with that id, or null if none exists */
+        IOutputPin* getOutputPin( int id ) const;
 
         inline void setId( int id ) { assert(m_id == -1); m_id = id; }
         inline int getId() const { return m_id; }
 
         /** Get a list of properties defined on this element */
-        virtual void getConfigurablePropertyNames(std::list<QString>&);
+        QStringList getConfigurablePropertyNames();
 
         /** @returns the summed total of all connections in all input pins */
         int inputPinsConnectionCount() const;
@@ -180,7 +163,7 @@ namespace plv
         int pinsConnectionCount() const;
 
         /** @returns a list of names of input pins added to this PipelineElement */
-        std::list<QString> getInputPinNames() const;
+        QStringList getInputPinNames() const;
 
         /** returns a copy of the contents of the input pin map
           * This function is thread safe.
@@ -193,84 +176,142 @@ namespace plv
         OutputPinMap getOutputPins() const;
 
         /** @returns a list of names of output pins added to this PipelineElement */
-        std::list<QString> getOutputPinNames() const;
+        QStringList getOutputPinNames() const;
 
         /** returns true if there is at least one Pin with a connection */
         bool hasPinConnections() const;
 
-        /** Get a list of all known PipelineElement Type names
-        */
-        static std::list<QString> types();
-
-        /** Register the given type as a PipelineElement Type.
-          * The type needs to be known to Qt's MetaType system,
-          * so you will likely rarely call this yourself.
-          * Use one of the plvRegisterPipelineElement macros instead.
-          * @require typeName was not registered to PipelineElement before.
-          * @require typeName is a type registered to the Qt MetaType system
-          *     e.g. QMetaType::type(typeName) returns a valid ID
-          */
-        static int registerType(QString typeName, QString humanName);
-
-        /** Get a human readable name for the given type
-          * @require typeName is a registered type
-          * @return a human readable name for the type
-          */
-        static QString nameForType(QString typeName);
-
         /** Returns the largest queue size of the connections connected
           * to the input pins. Returns 0 when there are no input pins with
-          * a connection.
-          */
+          * a connection. */
         int maxInputQueueSize() const;
+
+        /** Returns the largest queue size of the connections connected
+          * to the output pins. Returns 0 when there are no output pins with
+          * a connection. */
+        int maxOutputQueueSize() const;
 
         QString getClassProperty(const char* name) const;
 
+        /** sets the internal state to ERROR, error type to type and error string to msg */
+        void setError( PlvErrorType type, const QString& msg );
+
+        /** returns the error string set by the error which occurred last. The
+            String is empty when no error has occurred */
+        QString getErrorString() const;
+
+        /** returns the error type which is set when an error occurs. Returns
+            PlvNoError when no error has occured yet */
+        PlvErrorType getErrorType() const;
+
+        /** @returns the state of this element. This method is thread safe. */
+        State getState();
+
+        /** sets the state of this element. This method is thread safe. */
+        void setState( State state );
+
+        /** sets the serial number of the current process call. Not thread safe. */
+        inline void setProcessingSerial( unsigned int serial ) { m_serial = serial; }
+
+        /** returs the serial number of the current process call. Not thread safe. */
+        inline unsigned int getProcessingSerial() const { return m_serial; }
+
+        bool __init();
+        bool __deinit() throw();
+        bool __start();
+        bool __stop();
+        virtual bool __ready( unsigned int& serial )    = 0;
+        virtual bool __process( unsigned int serial )   = 0;
+
+        /** method which is called by the dispatcher to execute the __process() method
+            returns false on error, true on succes */
+        bool run( unsigned int serial );
+
+        /** helper function for creating a partial ordering for cycle detection */
+        bool visit( QList<PipelineElement*>& ordering, QSet<PipelineElement*>& visited );
+
+        virtual void inputConnectionSet(IInputPin* pin, PinConnection* connection) {}
+        virtual void inputConnectionRemoved(IInputPin* pin, PinConnection* connection) {}
+
+        virtual void outputConnectionAdded(IOutputPin* pin, PinConnection* connection) {}
+        virtual void outputConnectionRemoved(IOutputPin* pin, PinConnection* connection) {}
+
+    public slots:
         /** Overridden from QObject::setProperty()
-          * @emits propertyChanged(QString name)
-          */
-        void setProperty(const char *name, const QVariant &value);
+          * @emits propertyChanged(QString name) */
+        void setProperty(const char* name, const QVariant &value);
+
+   protected:
+        /** serial number of current processing run. */
+        unsigned int m_serial;
+
+        /** True if this element has at least one connected asynchronous pin.
+            Initialized in __init method.  */
+        bool m_hasAsynchronousPin;
+
+        /** true if this element has at least one connected synchronous pin.
+            Initialized in __init method. */
+        bool m_hasSynchronousPin;
+
+        /** Initialises the element so it is ready to receive process() calls.
+            This allows for late initialization and an empty constructor.
+            It can be called again after a call to deinit(). Use start for
+            initialisation of resources which might be changed by the user
+            before the pipeline is started, such as file locations.
+            Note: when this method throws an exception or returns false,
+            deinit() is called right after.
+            Default implementation just returns true. Override in own class. */
+        virtual bool init() { return true; }
+
+        /** Deinitalises an element and frees resources. This method is not
+            allowed to throw an exception. It is called on PipelineElement
+            deinitalization and if init() throws an exception or returns false.
+            Should deallocate all resources.
+            Default implementation just returns true. Override in own class. */
+        virtual bool deinit() throw() { return true; }
+
+        /** Start() and stop() are called by the pipeline when the pipeline is
+            started or stopped. This is useful for opening required input devices,
+            starting threads etc. A start() call may occur again after every stop().
+            Default implementation just returns true. Override in own class. */
+        virtual bool start() { return true; }
+        virtual bool stop() { return true; }
+
+        void startTimer();
+        void stopTimer();
+
+        int getNextOutputPinId() const;
+        int getNextInputPinId() const;
 
     signals:
         void propertyChanged(QString);
 
-    protected:
-        //RefPtr<Pipeline> m_parent;
+        /** this signal should be emitted when an error occurs outside of the
+            usual API functions which can signal the presense of an error by
+            returning false. For instance, when a connection fails */
+        void onError(PlvErrorType type, plv::PipelineElement* element);
 
-        // list to keep track of registered types
-        static std::list<QString> s_types;
-        static std::map<QString,QString> s_names;
+        /** average and last processing time of process call in milliseconds */
+        void onProcessingTimeUpdate(int avg, int last);
 
-        /**
-         * This gets called by Pipeline when we are added to it.
-         * Handles removing ourself from any previous pipeline we were part of
-         * and sets m_parent to the new pipeline
-         */
-        virtual void setPipeline(Pipeline* parent);
+        void onStateChange(PipelineElement::State state);
 
-        bool __init() throw (PipelineException);
+        void inputPinAdded( plv::IInputPin* pin );
+        void inputPinRemoved( int id );
 
-        /** check if required pins are connected and if data is available
-          * on required pins. Calls isReadyForProcessing function of super
-          * class if this is indeed the case.
-          * @returns true when all conditions have been met and isReadyForProcessing()
-          * of super also returns true.
-          */
-        bool __isReadyForProcessing() const;
-
-        /**
-          * private process function which handles scoping of input and output pins
-          * and class the process() function of the super class.
-          */
-        void __process();
+        void outputPinAdded( plv::IOutputPin* pin );
+        void outputPinRemoved( int id );
     };
 }
+Q_DECLARE_METATYPE(plv::PipelineElement::State)
 
+/** template helper function to register PipelineElements */
 template<typename PET>
-int plvRegisterPipelineElement(const char* typeName, const char* humanName)
+int plvRegisterPipelineElement()
 {
-    plv::PipelineElement::registerType(typeName, humanName);
-    return qRegisterMetaType<PET>(typeName);
+    plv::PipelineElementConstructorHelper<PET>* plec = new plv::PipelineElementConstructorHelper<PET>();
+    int id = plv::PipelineElementFactory::registerElement( plec );
+    return id;
 }
 
 #endif // PIPELINEELEMENT_H

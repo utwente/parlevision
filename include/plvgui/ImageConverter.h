@@ -22,57 +22,59 @@
 #ifndef IMAGECONVERTER_H
 #define IMAGECONVERTER_H
 
-#include "RefPtr.h"
-
+#include "plvgui_global.h"
 #include <QObject>
-#include <opencv/cv.h>
 #include <stdexcept>
-
 #include <QImage>
-
-namespace plv {
-    class OpenCVImage;
-}
-
-using namespace plv;
+#include <plvcore/CvMatData.h>
 
 namespace plvgui
 {
-    class ImageConversionException : public std::runtime_error
+    class PLVGUI_EXPORT ImageConversionException : public std::runtime_error
     {
     public:
         ImageConversionException( const std::string& why ) :
                 std::runtime_error( why ) {}
     };
 
-    class ImageConverter : public QObject, public RefCounted
+    class PLVGUI_EXPORT ImageConverter : public QObject
     {
         Q_OBJECT
 
     public:
+        ImageConverter( QObject* parent = 0 );
+        ~ImageConverter();
 
         /** Starts converting this image to a QImage.
-          * This call will return immediately
-          * as converting is done asynchronously.
-          * @emits converted(QImage*) when converting has finished;
+          * This call will return immediately as converting is done asynchronously.
+          * The id can be used to track multiple images in flight by the
+          * calling code, but nothing is done with the id here and images
+          * can be converted out of order.
+          * @emits converted(QImage*, id) when converting has finished
           */
-        void convert_OpenCVImage( plv::RefPtr<plv::OpenCVImage> img );
-
-    private:
-        static ImageConverter* m_instance;
-        void convert(plv::RefPtr<plv::OpenCVImage> img);
+        void convertCvMatData( const plv::CvMatData& data, int id=0 );
+        void convertCvMatDataList( const QList<plv::CvMatData>& data, int id=0 );
 
         /** Converts an OpenCV iplImage to a QImage.
           * @throw ImageConversionException when conversion fails.
           */
-        static QImage iplImageToQImage( const IplImage* img )
+        static QImage cvMatToQImage( const cv::Mat& mat )
                 throw( ImageConversionException );
+
+        /** The same as cvMatToQImage except it does not throw an exception
+            but returns an image with the error text rendered into it */
+        static QImage cvMatToQImageNoThrow( const cv::Mat& mat ) throw();
+
+    private:
+        void convert( const plv::CvMatData& mat, int id );
+        void convertList( const QList<plv::CvMatData>& data, int id );
 
     signals:
         /** Emitted when converting is done.
           * The contained image might not be valid if an error occurred
           */
-        void converted( QImage img );
+        void converted( QImage img, int id );
+        void convertedList( QList<QImage> img, int id );
     };
 }
 

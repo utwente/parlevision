@@ -22,14 +22,16 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
-#include <QObject>
 #include <QtPlugin>
+#include "plvglobal.h"
 
 namespace plv
 {
-    class Plugin
+    class PLVCORE_EXPORT Plugin
     {
     public:
+        Plugin();
+        virtual ~Plugin();
         virtual void onLoad()=0;
     };
 }

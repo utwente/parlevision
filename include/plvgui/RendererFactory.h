@@ -23,26 +23,69 @@
 #define RENDERERFACTORY_H
 
 #include <stdexcept>
+#include <typeinfo>
 #include <QString>
+#include <QHash>
+#include <plvcore/RefCounted.h>
+#include <plvcore/RefPtr.h>
+
+#include "DataRenderer.h"
+#include "plvgui_global.h"
 
 class QWidget;
 
 namespace plvgui
 {
-    class DataRenderer;
-
-    class RendererCreationException : public std::runtime_error
+    // abstract base class for constructors
+    class PLVGUI_EXPORT DataRendererConstructor : public plv::RefCounted
     {
     public:
-        RendererCreationException(std::string msg)
-            : std::runtime_error(msg) {}
+        virtual const char* getDataTypeName() const = 0;
+        virtual DataRenderer* create(QWidget* parent) const = 0;
     };
 
-    class RendererFactory
+    template< class DT, class RT >
+    class DataRendererConstructorHelper : public DataRendererConstructor
     {
     public:
-        static DataRenderer* create(QString dataType, QWidget* parent)
-                throw(RendererCreationException);
+        inline const char* getDataTypeName() const
+        {
+            return QMetaType::typeName( qMetaTypeId<DT>() );
+        }
+
+        inline DataRenderer* create(QWidget* parent) const
+        {
+            DataRenderer* r = static_cast<DataRenderer*>(new RT(parent));
+            r->setParent( parent );
+            return r;
+        }
+    };
+
+    class PLVGUI_EXPORT RendererFactory
+    {
+    private:
+        static RendererFactory* m_instance;
+        QHash<QString, plv::RefPtr<DataRendererConstructor> > m_rendererConstructors;
+
+        void add( DataRendererConstructor* constructor );
+
+    public:
+        inline static RendererFactory* instance()
+        {
+            if(m_instance==0)
+                m_instance = new RendererFactory();
+            return m_instance;
+        }
+
+        // usage plvgui::RendererFactory::add<MyDataRenderer>();
+        template< class DT, class RT >
+        static void add()
+        {
+            DataRendererConstructor* c = new DataRendererConstructorHelper<DT, RT>();
+            instance()->add( c );
+        }
+
+        DataRenderer* create( QString dataType, QWidget* parent );
     };
 }
 

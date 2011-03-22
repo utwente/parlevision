@@ -26,6 +26,8 @@
 #include <QMetaType>
 #include <QHash>
 
+#include "plvgui_global.h"
+
 class QString;
 class QWidget;
 
@@ -33,8 +35,6 @@ namespace plv
 {
     class PipelineElement;
 }
-
-using namespace plv;
 
 namespace plvgui
 {
@@ -44,7 +44,7 @@ namespace plvgui
       * and call plvRegisterConfigFormBuilder<YourElement,YourFormBuilder>("YourFormBuilder");
       * Don't forget to include the Q_OBJECT macro in your subclass!
       */
-    class ElementConfigFormBuilder : public QObject
+    class PLVGUI_EXPORT ElementConfigFormBuilder : public QObject
     {
         Q_OBJECT
 
@@ -52,7 +52,7 @@ namespace plvgui
         /** Implement this method to return a custom QWidget
           * that knows how to configure element
           */
-        virtual QWidget* buildForm(PipelineElement* element, QWidget* parent=0)=0;
+        virtual QWidget* buildForm(plv::PipelineElement* element, QWidget* parent=0)=0;
 
         /** Register the given type as a PipelineElement Type.
           * The type needs to be known to Qt's MetaType system,
@@ -73,25 +73,25 @@ namespace plvgui
           */
         static ElementConfigFormBuilder* getBuilderFor(QString elementTypeName);
 
-
-
         ElementConfigFormBuilder() {}
         virtual ~ElementConfigFormBuilder() {}
-        ElementConfigFormBuilder(const ElementConfigFormBuilder&) : QObject() {}
-
+        Q_DISABLE_COPY( ElementConfigFormBuilder );
     private:
         static QHash<QString,QString> s_typeMap;
     };
 }
 
 // usage:
-// plvRegisterConfigFormBuider<CameraConfigFormBuilder>("plv::CameraProducer,
-//                                                      "plv::CameraConfigFormBuilder");
-template<typename CFBT>
-int plvRegisterConfigFormBuilder(const char* elementTypeName, const char* builderTypeName)
+// plvgui::registerConfigFormBuider<CameraConfigFormBuilder>("plv::CameraProducer", "plv::CameraConfigFormBuilder");
+// both types need to be registered using qRegisterMetaType
+namespace plvgui
 {
-    plvgui::ElementConfigFormBuilder::registerType(elementTypeName, builderTypeName);
-    return qRegisterMetaType<CFBT>(builderTypeName);
+    template<typename CFBT>
+    int registerConfigFormBuilder(const char* elementTypeName, const char* builderTypeName)
+    {
+        plvgui::ElementConfigFormBuilder::registerType(elementTypeName, builderTypeName);
+        return qRegisterMetaType<CFBT>(builderTypeName);
+    }
 }
 
 

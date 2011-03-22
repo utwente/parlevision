@@ -22,18 +22,39 @@
 #ifndef PIPELINEPRODUCER_H
 #define PIPELINEPRODUCER_H
 
-#include <map>
-#include "RefPtr.h"
 #include "PipelineElement.h"
 
-namespace plv {
+/** Utility macro for implemented pure abstract methods in sub classes */
+#define PLV_PIPELINE_PRODUCER \
+public: \
+    virtual bool readyToProduce() const; \
+    virtual bool produce();
 
-    class PipelineProducer : public PipelineElement
+namespace plv
+{
+    class PLVCORE_EXPORT PipelineProducer : public PipelineElement
     {
+        Q_OBJECT
+
     public:
+        friend class Pipeline;
+
         PipelineProducer();
         virtual ~PipelineProducer();
-        PipelineProducer(const PipelineProducer&);
+
+        /** returns true when producer can produce. Will be polled by the pipeline */
+        virtual bool readyToProduce() const = 0;
+
+        /** does the actual producing */
+        virtual bool produce() = 0;
+
+    protected:
+        /** calls pre and post of output pins and calls produce of implementation */
+        virtual bool __ready( unsigned int& serial );
+
+        /** calls the produce method of the implementation and sets the serial number
+            correctly */
+        virtual bool __process( unsigned int serial );
     };
 
 }
