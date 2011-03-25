@@ -57,7 +57,11 @@ SOURCES += plvopencvplugin.cpp \
     Split.cpp \
     Multiply.cpp \
     ImageDirectoryProducer.cpp \
-    ImageProducer.cpp
+    ImageProducer.cpp \
+    BackgroundSubtractor.cpp \
+    VideoProducer.cpp \
+    DilateErode.cpp \
+    Average.cpp
 	
 HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
             ../../include/plvopencv/plvopencv_global.h \
@@ -86,5 +90,9 @@ HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
             ../../include/plvopencv/Split.h \
             ../../include/plvopencv/Multiply.h \
             ../../include/plvopencv/ImageDirectoryProducer.h \
-            ../../include/plvopencv/ImageProducer.h
+            ../../include/plvopencv/ImageProducer.h \
+            ../../include/plvopencv/BackgroundSubtractor.h \
+            ../../include/plvopencv/VideoProducer.h \
+            ../../include/plvopencv/DilateErode.h \
+            ../../include/plvopencv/Average.h
     

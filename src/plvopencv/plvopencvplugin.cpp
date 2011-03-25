@@ -29,6 +29,10 @@
 #include "Split.h"
 #include "ImageProducer.h"
 #include "ImageDirectoryProducer.h"
+#include "BackgroundSubtractor.h"
+#include "VideoProducer.h"
+#include "DilateErode.h"
+#include "Average.h"
 
 PlvOpenCVPlugin::PlvOpenCVPlugin()
 {
@@ -72,11 +76,15 @@ void PlvOpenCVPlugin::onLoad()
     //Producers
     plvRegisterPipelineElement<plvopencv::ImageProducer>();
     plvRegisterPipelineElement<plvopencv::ImageDirectoryProducer>();
+    plvRegisterPipelineElement<plvopencv::VideoProducer>();
 
     //Processors
     plvRegisterPipelineElement<plvopencv::Xor>();
     plvRegisterPipelineElement<plvopencv::Multiply>();
     plvRegisterPipelineElement<plvopencv::Split>();
+    plvRegisterPipelineElement<plvopencv::BackgroundSubtractor>();
+    plvRegisterPipelineElement<plvopencv::DilateErode>();
+    plvRegisterPipelineElement<plvopencv::Average>();
 
     //consumers
 }
