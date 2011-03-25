@@ -37,6 +37,19 @@ Split::Split()
     m_outputPin1 = createCvMatDataOutputPin( "single_ch_image_1", this );
     m_outputPin2 = createCvMatDataOutputPin( "single_ch_image_2", this );
     m_outputPin3 = createCvMatDataOutputPin( "single_ch_image_3", this );
+
+    m_inputPin->addAllChannels();
+    m_inputPin->addAllDepths();
+
+    m_outputPin0->addAllDepths();
+    m_outputPin1->addAllDepths();
+    m_outputPin2->addAllDepths();
+    m_outputPin3->addAllDepths();
+
+    m_outputPin0->addSupportedChannels(1);
+    m_outputPin1->addSupportedChannels(1);
+    m_outputPin2->addSupportedChannels(1);
+    m_outputPin3->addSupportedChannels(1);
 }
 
 Split::~Split()
