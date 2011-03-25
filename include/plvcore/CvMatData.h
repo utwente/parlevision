@@ -133,8 +133,14 @@ namespace plv
             return *this;
         }
 
+        inline void copyTo(CvMatData& dst)
+        {
+            d->mat.copyTo(dst);
+        }
+
         /** Returns if the contained matrix has allocated data */
-        inline bool isValid() const { return d->mat.cols > 0 && d->mat.rows > 0 && d->mat.data!=0; }
+        inline bool isValid() const { return !d->mat.empty(); }
+        inline bool isEmpty() const { return d->mat.empty(); }
 
         /** Returns a copy of the cv::Mat header. The actual image data is not copied
             Warning: do not remove const qualifier since this data might be shared
