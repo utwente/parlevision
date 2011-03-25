@@ -57,11 +57,6 @@ bool DelayImage::stop()
     return true;
 }
 
-bool DelayImage::isReadyForProcessing()
-{
-    return m_images.size() >= m_steps;
-}
-
 bool DelayImage::process()
 {
     // get the input image and append it to the list

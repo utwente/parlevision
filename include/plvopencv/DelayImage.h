@@ -57,8 +57,6 @@ namespace plvopencv
         virtual bool start();
         virtual bool stop();
 
-        virtual bool isReadyForProcessing();
-
         /** propery methods */
         int getSteps() const;
 
@@ -70,7 +68,6 @@ namespace plvopencv
 
     private:
         plv::CvMatDataInputPin*  m_inputPin;
-        plv::CvMatDataOutputPin* m_outputPin;
         plv::CvMatDataOutputPin* m_delayedOutputPin;
 
         /** List of delayed images. */
