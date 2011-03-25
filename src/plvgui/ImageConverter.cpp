@@ -300,7 +300,7 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat& mat )
         qimg = QImage( mat.cols, mat.rows, QImage::Format_RGB32 );
         const float* cvImgData = reinterpret_cast<const float*>( mat.data );
 
-        int step = mat.step / sizeof(uint16_t);
+        int step = mat.step / sizeof(float);
         for (int y = 0; y < mat.rows; ++y )
         {
             cvIndex = cvLineStart;
