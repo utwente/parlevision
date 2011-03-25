@@ -390,6 +390,7 @@ void Pipeline::start()
         return;
     }
     m_serial = 0;
+    m_pipelineStages.clear();
     for( int i=0; i < QThreadPool::globalInstance()->maxThreadCount(); ++i )
         m_pipelineStages.insert(++m_serial, 0);
 
