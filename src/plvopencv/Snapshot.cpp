@@ -26,9 +26,11 @@ using namespace plv;
 using namespace plvopencv;
 
 Snapshot::Snapshot() :
-        m_makeSnapshot(true)
+    m_makeSnapshot(true),
+    m_keepSending(false)
 {
     m_inputPin = createCvMatDataInputPin( "input", this, IInputPin::CONNECTION_REQUIRED );
+    m_inputTrigger = createInputPin<bool>("trigger", this, IInputPin::CONNECTION_OPTIONAL, IInputPin::CONNECTION_ASYNCHRONOUS );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin->addAllChannels();
@@ -46,15 +48,25 @@ bool Snapshot::process()
 {
     CvMatData in = m_inputPin->get();
 
+    if( m_inputTrigger->isConnected() && m_inputTrigger->hasData() )
+    {
+        bool trigger = m_inputTrigger->get();
+        m_makeSnapshot = trigger || m_makeSnapshot;
+    }
+
     // make snapshot if requested
     // since we init m_makeSnapshot to true, we do this on the first frame
     if( m_makeSnapshot )
     {
         m_snapshot = in;
         m_makeSnapshot = false;
+        emit makeSnapshotChanged(false);
+        m_outputPin->put( m_snapshot );
     }
-    m_outputPin->put( in );
-
+    else if( !m_snapshot.isEmpty() && m_keepSending)
+    {
+        m_outputPin->put(m_snapshot);
+    }
     return true;
 }
 
@@ -69,6 +81,19 @@ void Snapshot::setMakeSnapshot(bool b)
 {
     QMutexLocker lock( m_propertyMutex );
     m_makeSnapshot = b;
-    emit( makeSnapshotChanged(b) );
+    emit makeSnapshotChanged(b);
+}
+
+bool Snapshot::getKeepSending() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_keepSending;
+}
+
+void Snapshot::setKeepSending(bool b)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_keepSending = b;
+    emit keepSendingChanged(b);
 }
 

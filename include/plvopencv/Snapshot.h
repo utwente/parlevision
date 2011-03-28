@@ -24,6 +24,7 @@
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/CvMatData.h>
+#include <plvcore/Pin.h>
 
 namespace plv
 {
@@ -42,6 +43,7 @@ namespace plvopencv
         Q_CLASSINFO("description", "On request, make a new snapshot of the input pin. On the output pin, always present the latest snapshot. Always enforces a snapshot on the first frame.");
 
         Q_PROPERTY( bool makeSnapshot READ getMakeSnapshot WRITE setMakeSnapshot NOTIFY makeSnapshotChanged  )
+        Q_PROPERTY( bool keepSending READ getKeepSending WRITE setKeepSending NOTIFY keepSendingChanged  )
 
         /** required standard method declaration for plv::PipelineProcessor */
         PLV_PIPELINE_PROCESSOR
@@ -52,19 +54,23 @@ namespace plvopencv
 
         /** propery methods */
         bool getMakeSnapshot() const;
+        bool getKeepSending() const;
+
     signals:
         void makeSnapshotChanged(bool b);
+        void keepSendingChanged(bool b);
 
     public slots:
         void setMakeSnapshot(bool b);
+        void setKeepSending(bool b);
 
     private:
         plv::CvMatDataInputPin* m_inputPin;
+        plv::InputPin<bool>* m_inputTrigger;
         plv::CvMatDataOutputPin* m_outputPin;
         plv::CvMatData m_snapshot;
-
         bool m_makeSnapshot;
-
+        bool m_keepSending;
     };
 
 }
