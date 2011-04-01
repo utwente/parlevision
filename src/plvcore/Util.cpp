@@ -16,3 +16,65 @@ void Util::addDefaultBorderInterpolationTypes( plv::Enum& e )
     //e.add( "transparent", cv::BORDER_TRANSPARENT );
 }
 
+bool overlap( const cv::Rect& a, const cv::Rect& b)
+{
+    cv::Point pa[2];
+    pa[0].x = a.x;
+    pa[0].y = a.y;
+    pa[1].x = a.x + a.width;
+    pa[1].y = a.y + a.height;
+
+    cv::Point pb[2];
+    pb[0].x = b.x;
+    pb[0].y = b.y;
+    pb[1].x = b.x + b.width;
+    pb[1].y = b.y + b.height;
+
+    return(pa[0].x < pb[1].x && pa[1].x > pb[0].x && pa[0].y < pb[1].y && pa[1].y > pb[0].y);
+}
+
+int overlappingArea( const cv::Rect& a, const cv::Rect& b, cv::Rect& area )
+{
+    //A.X1 < B.X2: 	true
+    //A.X2 > B.X1: 	true
+    //A.Y1 < B.Y2: 	true
+    //A.Y2 > B.Y1: 	true
+
+    cv::Point2i pa[2];
+    pa[0].x = a.x;
+    pa[0].y = a.y;
+    pa[1].x = a.x + a.width;
+    pa[1].y = a.y + a.height;
+
+    cv::Point2i pb[2];
+    pb[0].x = b.x;
+    pb[0].y = b.y;
+    pb[1].x = b.x + b.width;
+    pb[1].y = b.y + b.height;
+
+    if(!(pa[0].x < pb[1].x && pa[1].x > pb[0].x && pa[0].y < pb[1].y && pa[1].y > pb[0].y))
+    {
+        // no matching area
+        return 0;
+    }
+
+    // matching area, calculate the two points of
+    // the matching rectangle
+
+    // take max of minimum coordinates
+    cv::Point x1y1;
+    x1y1.x = pa[0].x > pb[0].x ? pa[0].x : pb[0].x;
+    x1y1.y = pa[0].y > pb[0].y ? pa[0].y : pb[0].y;
+
+    // take min of maximum coordinates
+    cv::Point x2y2;
+    x2y2.x = pa[1].x < pb[1].x ? pa[1].x : pb[1].x;
+    x2y2.y = pa[1].y < pb[1].y ? pa[1].y : pb[1].y;
+
+    area.x = x1y1.x;
+    area.y = x1y1.y;
+    area.width = x2y2.x - x1y1.x;
+    area.height = x2y2.y - x1y1.y;
+    return true;
+}
+

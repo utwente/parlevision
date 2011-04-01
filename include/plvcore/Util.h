@@ -25,4 +25,7 @@ namespace plv
     };
 }
 
+bool PLVCORE_EXPORT overlap(const cv::Rect& a, const cv::Rect& b);
+int  PLVCORE_EXPORT overlappingArea(const cv::Rect& a, const cv::Rect& b, cv::Rect& area);
+
 #endif
