@@ -61,7 +61,13 @@ SOURCES += plvopencvplugin.cpp \
     BackgroundSubtractor.cpp \
     VideoProducer.cpp \
     DilateErode.cpp \
-    Average.cpp
+    Average.cpp \
+    RunningAverage.cpp \
+    ForegroundDetector.cpp \
+    BlobTracker.cpp \
+    BlobDetector.cpp \
+    Mask.cpp \
+    Blob.cpp
 	
 HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
             ../../include/plvopencv/plvopencv_global.h \
@@ -94,5 +100,12 @@ HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
             ../../include/plvopencv/BackgroundSubtractor.h \
             ../../include/plvopencv/VideoProducer.h \
             ../../include/plvopencv/DilateErode.h \
-            ../../include/plvopencv/Average.h
+            ../../include/plvopencv/Average.h \
+            ../../include/plvopencv/RunningAverage.h \
+            ../../include/plvopencv/ForegroundDetector.h \
+            ../../include/plvopencv/BlobTracker.h \
+            ../../include/plvopencv/BlobDetector.h \
+            ../../include/plvopencv/Mask.h \
+            ../../include/plvopencv/Blob.h
+
     

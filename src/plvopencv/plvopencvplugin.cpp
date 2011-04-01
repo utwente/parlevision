@@ -6,6 +6,7 @@
 #include "Add.h"
 #include "Sub.h"
 #include "Diff.h"
+#include "Mask.h"
 #include "DelayImage.h"
 #include "ExampleProcessor.h"
 #include "EdgeDetectorLaplace.h"
@@ -33,6 +34,10 @@
 #include "VideoProducer.h"
 #include "DilateErode.h"
 #include "Average.h"
+#include "RunningAverage.h"
+#include "ForegroundDetector.h"
+#include "BlobTracker.h"
+#include "BlobDetector.h"
 
 PlvOpenCVPlugin::PlvOpenCVPlugin()
 {
@@ -58,6 +63,7 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::Add>();
     plvRegisterPipelineElement<plvopencv::Sub>();
     plvRegisterPipelineElement<plvopencv::Diff>();
+    plvRegisterPipelineElement<plvopencv::Mask>();
 
     plvRegisterPipelineElement<plvopencv::DelayImage>();
     plvRegisterPipelineElement<plvopencv::EdgeDetectorCanny>();
@@ -85,7 +91,10 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::BackgroundSubtractor>();
     plvRegisterPipelineElement<plvopencv::DilateErode>();
     plvRegisterPipelineElement<plvopencv::Average>();
-
+    plvRegisterPipelineElement<plvopencv::RunningAverage>();
+    plvRegisterPipelineElement<plvopencv::ForegroundDetector>();
+    plvRegisterPipelineElement<plvopencv::BlobDetector>();
+    plvRegisterPipelineElement<plvopencv::BlobTracker>();
     //consumers
 }
 Q_EXPORT_PLUGIN2(plv_opencv_plugin, PlvOpenCVPlugin)
