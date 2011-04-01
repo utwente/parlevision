@@ -33,12 +33,18 @@ using namespace plv;
 using namespace plvopencv;
 
 VideoProducer::VideoProducer() :
+    m_filename(""), m_directory(""), m_frameCount(0), m_posMillis(0), m_ratio(0), m_fps(0),
     m_capture( new cv::VideoCapture() )
 {
     //create the output pin
     m_outputPin = createCvMatDataOutputPin("image_output", this );
     m_outputPin->addAllChannels();
     m_outputPin->addAllDepths();
+
+    m_outFrameCount = createOutputPin<int>("frame count", this);
+    m_outPositionMillis = createOutputPin<long>("milli seconds", this);
+    m_outRatio = createOutputPin<double>("ratio", this);
+    m_outFps = createOutputPin<int>("fps", this);
 }
 
 VideoProducer::~VideoProducer()
@@ -105,6 +111,11 @@ bool VideoProducer::init()
         setError(PlvPipelineInitError, tr("Failed to open video %1.").arg(path));
         return false;
     }
+
+    m_frameCount = (int)m_capture->get(CV_CAP_PROP_FRAME_COUNT);
+    m_posMillis = (long)m_capture->get(CV_CAP_PROP_POS_MSEC);
+    m_ratio = m_capture->get(CV_CAP_PROP_POS_AVI_RATIO);
+    m_fps = (int)m_capture->get(CV_CAP_PROP_FPS);
     return true;
 }
 
@@ -129,5 +140,16 @@ bool VideoProducer::produce()
     CvMatData d = CvMatData::create(m_frame.properties());
     m_frame.copyTo(d);
     m_outputPin->put(d);
+
+    m_frameCount = (long)m_capture->get(CV_CAP_PROP_FRAME_COUNT);
+    m_posMillis = (long)m_capture->get(CV_CAP_PROP_POS_MSEC);
+    m_ratio = m_capture->get(CV_CAP_PROP_POS_AVI_RATIO);
+    m_fps = (int)m_capture->get(CV_CAP_PROP_FPS);
+
+    m_outFrameCount->put(m_frameCount);
+    m_outPositionMillis->put(m_posMillis);
+    m_outRatio->put(m_ratio);
+    m_outFps->put(m_fps);
+
     return true;
 }

@@ -76,9 +76,17 @@ namespace plvopencv
     private:
         QString m_filename;  /** the filename of the image to load */
         QString m_directory; /** the directory which contains the image. */
+        int m_frameCount; /** total frame count of the video */
+        long m_posMillis; /** Film current position in milliseconds or video capture timestamp */
+        double m_ratio; /** Relative position of the video file (0 - start of the film, 1 - end of the film) */
+        int m_fps; /** frame rate of the video */
 
         plv::CvMatData m_frame;
         plv::CvMatDataOutputPin* m_outputPin;
+        plv::OutputPin<int>* m_outFrameCount;
+        plv::OutputPin<long>* m_outPositionMillis;
+        plv::OutputPin<double>* m_outRatio;
+        plv::OutputPin<int>* m_outFps;
         cv::VideoCapture* m_capture;
 
         /** This method checks whether the extension of the filename is one of the
