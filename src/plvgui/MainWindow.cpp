@@ -127,6 +127,7 @@ void MainWindow::initGUI()
     plvgui::RendererFactory::add<double,     plvgui::VariantDataRenderer>();
     plvgui::RendererFactory::add<float,      plvgui::VariantDataRenderer>();
     plvgui::RendererFactory::add<int,        plvgui::VariantDataRenderer>();
+    plvgui::RendererFactory::add<long,       plvgui::VariantDataRenderer>();
     plvgui::RendererFactory::add<long long,  plvgui::VariantDataRenderer>();
     plvgui::RendererFactory::add<QStringList,plvgui::VariantDataRenderer>();
     plvgui::RendererFactory::add<QTime,      plvgui::VariantDataRenderer>();
