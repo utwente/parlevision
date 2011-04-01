@@ -27,33 +27,19 @@
 
 namespace plvopencv
 {
-    /**
-     * For every image this proccessor recieves it sends out a boolean signal.
-     * This signal is of the same value as the processors activation property.
-     * It can be used by proccessors that use an activation signal in their
-     * processing. And very useful if a number of processors have to be acti-
-     * vated on the same image. However this does require that no imagedata
-     * gets lost in the pipeline. If image data gets lost synchronization pro-
-     * blems will occur, because more triggers than images will enter the pro-
-     * cessor.
-     *
-     * If the continuous property holds true the activation won't be set false
-     * after each processed image. This allows some true activations to be sent
-     * for a series of images. And requires the user to deactivate the trigger
-     * manually.
-     */
     class Trigger : public plv::PipelineProcessor
     {
         Q_OBJECT
         Q_DISABLE_COPY( Trigger )
-        Q_CLASSINFO("author", "Niek Hoeijmakers")
+        Q_CLASSINFO("author", "Richard Loos, Niek Hoeijmakers")
         Q_CLASSINFO("name", "Trigger")
-        Q_CLASSINFO("description", "A processor that passes on a boolean value for every received image. "
+        Q_CLASSINFO("description", "A processor that sends a boolean value when the input count has reached a number. "
                         "The boolean value can be used by other processors that accept it as an activation trigger. "
                         "The trigger is either continuous or one time only.");
 
         Q_PROPERTY( bool activate READ getActivate WRITE setActivate NOTIFY activateChanged  )
         Q_PROPERTY( bool continuous READ getContinuous WRITE setContinuous NOTIFY continuousChanged  )
+        Q_PROPERTY( int count READ getCount WRITE setCount NOTIFY countChanged  )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_PROCESSOR
@@ -66,24 +52,30 @@ namespace plvopencv
         /** propery methods */
         bool getActivate() const;
         bool getContinuous() const;
+        int getCount() const;
 
     signals:
         void activateChanged (bool newValue);
         void continuousChanged (bool newValue);
+        void countChanged(int c);
 
     public slots:
         void setActivate(bool b);
         void setContinuous(bool b);
+        void setCount(int i);
 
     private:
         void updateActivate(bool b){ setActivate(b); activateChanged(b); }
         void updateContinuous(bool b){ setContinuous(b); continuousChanged(b); }
 
         plv::DynamicInputPin* m_inputPin;
+        plv::InputPin<int>* m_inputCount;
         plv::OutputPin<bool>*    m_outputPin;
 
         bool m_activate;   /** Determines if an activation (true) trigger has to be send. Mostly false. */
         bool m_continuous; /** Determines if the activation trigger automatically has to be switched off (false). */
+        int m_count; /** the number of inputs received before it triggers */
+        int m_received; /** the number of received inputs so far */
     };
 
 }

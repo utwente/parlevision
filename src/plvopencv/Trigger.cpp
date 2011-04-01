@@ -30,10 +30,12 @@ using namespace plvopencv;
  */
 Trigger::Trigger() :
         m_activate(false),
-        m_continuous(false)
+        m_continuous(false),
+        m_count(1)
 {
-    m_inputPin  = createDynamicInputPin( "input", this );
-    m_outputPin = createOutputPin<bool>( "trigger", this );
+    m_inputPin   = createDynamicInputPin( "input", this );
+    m_inputCount = createInputPin<int>("count", this, IInputPin::CONNECTION_OPTIONAL, IInputPin::CONNECTION_ASYNCHRONOUS );
+    m_outputPin  = createOutputPin<bool>( "trigger", this );
 }
 
 /**
@@ -43,11 +45,6 @@ Trigger::~Trigger()
 {
 }
 
-/**
- * Check if the image isn't NULL. Get a new activation trigger data, with
- * the same value as the activation property. If continuous isn't true then
- * the activation property is automatically set to false.
- */
 bool Trigger::process()
 {
     assert(m_inputPin != 0);
@@ -56,15 +53,35 @@ bool Trigger::process()
     QVariant v;
     m_inputPin->getVariant(v);
 
+    if( ++m_received >= m_count )
+    {
+        m_activate = true;
+        m_received = 0;
+    }
+
+    // check if we received a new count value
+    if( m_inputCount->isConnected() && m_inputCount->hasData() )
+    {
+        int num = m_inputCount->get();
+        if( num != m_count)
+        {
+            m_count = num;
+            emit countChanged(num);
+        }
+    }
+
     //send a trigger to the output with the value of activate
     if( m_activate )
     {
-        m_outputPin->put( true );
+        m_outputPin->put(true);
 
         //check if it is continuous or not
         if(!m_continuous) updateActivate(false);
     }
-
+    else
+    {
+        m_outputPin->put(false);
+    }
     return true;
 }
 
@@ -80,6 +97,12 @@ bool Trigger::getContinuous() const
     return m_continuous;
 }
 
+int Trigger::getCount() const
+{
+    QMutexLocker lock(m_propertyMutex);
+    return m_count;
+}
+
 void Trigger::setActivate(bool b)
 {
     QMutexLocker lock(m_propertyMutex);
@@ -90,5 +113,13 @@ void Trigger::setContinuous(bool b)
 {
     QMutexLocker lock(m_propertyMutex);
     m_continuous = b;
+}
+
+void Trigger::setCount(int i)
+{
+    QMutexLocker lock(m_propertyMutex);
+    if( i > 0 )
+        m_count = i;
+    emit countChanged(m_count);
 }
 
