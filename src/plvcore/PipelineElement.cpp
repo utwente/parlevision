@@ -29,6 +29,7 @@
 #include <QMetaProperty>
 #include <QtConcurrentRun>
 #include <algorithm>
+#include <opencv/cv.h>
 
 #include "Pipeline.h"
 #include "RefCounted.h"
@@ -698,10 +699,18 @@ bool PipelineElement::run( unsigned int serial )
         setError(PlvPipelineRuntimeError, re.what());
         return false;
     }
-    catch( Exception& e )
+    catch( plv::Exception& e )
     {
         qWarning() << "Uncaught exception in PipelineElement::process()"
                    << "of type PlvException with message: " << e.what();
+        stopTimer();
+        setError(PlvPipelineRuntimeError, e.what());
+        return false;
+    }
+    catch( cv::Exception& e )
+    {
+        qWarning() << "Uncaught exception in PipelineElement::process()"
+                 << "of type cv::Exception with message: " << e.what();
         stopTimer();
         setError(PlvPipelineRuntimeError, e.what());
         return false;
