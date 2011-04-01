@@ -224,20 +224,18 @@ void IOutputPin::post()
 {
     // publish NULL data to all listeners
     // this is to keep everything synchronized
-    if( this->isConnected() )
+    if( this->isConnected() && !m_called )
     {
-        if( !m_called )
-        {
-            unsigned int serial = m_owner->getProcessingSerial();
-            Data nullData( serial );
+        unsigned int serial = m_owner->getProcessingSerial();
+        Data nullData( serial );
 
-            // publish to all pin connections
-            for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
-                    itr != m_connections.end(); ++itr)
-            {
-                PinConnection* connection = (*itr).getPtr();
+        // publish to all pin connections
+        for(std::list< RefPtr<PinConnection> >::iterator itr = m_connections.begin();
+                itr != m_connections.end(); ++itr)
+        {
+            PinConnection* connection = (*itr).getPtr();
+            if( connection->isSynchronous() )
                 connection->put( nullData );
-            }
         }
     }
 }

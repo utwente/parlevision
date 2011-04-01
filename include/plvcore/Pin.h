@@ -236,10 +236,7 @@ namespace plv
         OutputPin( const QString& name, PipelineElement* owner ) : IOutputPin( name, owner ) {}
         virtual ~OutputPin() {}
 
-        /** Puts data in connection. Drops data if no connection present.
-          * Throws an exception if the data violates format contract,
-          * which is checked in the callback functor of IOutputPin
-          */
+        /** Puts data in connection. Drops data if no connection present. */
         inline void put( const T& data )
         {
             QVariant v;

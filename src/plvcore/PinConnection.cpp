@@ -196,6 +196,16 @@ bool PinConnection::fastforward( unsigned int target )
     return success;
 }
 
+bool PinConnection::isSynchronous() const
+{
+    return m_consumer->isSynchronous();
+}
+
+bool PinConnection::isAsynchronous() const
+{
+    return m_consumer->isAsynchronous();
+}
+
 void PinConnection::flush()
 {
     QMutexLocker lock(&m_connectionMutex);

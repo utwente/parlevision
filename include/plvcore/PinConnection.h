@@ -111,6 +111,9 @@ namespace plv
         void put( const Data& data );
         bool fastforward( unsigned int target );
 
+        bool isSynchronous() const;
+        bool isAsynchronous() const;
+
         /** Throw away all data in this connection. */
         void flush();
 
