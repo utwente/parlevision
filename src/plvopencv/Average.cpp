@@ -27,10 +27,14 @@
 using namespace plv;
 using namespace plvopencv;
 
-Average::Average() : m_weight(0.1)
+Average::Average() :
+    m_numFrames(10),
+    m_total(0)
 {
     m_inputPin = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
+
+    m_inputFrames = createInputPin<int>( "num frames", this, IInputPin::CONNECTION_OPTIONAL, IInputPin::CONNECTION_ASYNCHRONOUS );
 
     m_inputPin->addAllChannels();
     m_inputPin->addSupportedDepth(CV_8U);
@@ -45,41 +49,60 @@ Average::~Average()
 {
 }
 
-bool Average::process()
+bool Average::start()
 {
-    CvMatData in = m_inputPin->get();
-    const cv::Mat& src = in;
-
-    if( m_avg.width() != in.width() || m_avg.height() != in.height() )
-    {
-        m_avg = CvMatData::create( in.width(), in.height(), CV_32F, in.channels() );
-        m_tmp = CvMatData::create( in.width(), in.height(), CV_32F, in.channels() );
-        m_out = CvMatData::create( in.width(), in.height(), CV_8U, in.channels() );
-
-        if( src.depth() == CV_8U )
-            src.convertTo(m_avg, m_avg.type(), 1/255.0);
-        else // CV_32F
-            src.copyTo(m_avg);
-    }
-    cv::Mat& tmp = m_tmp;
-    src.convertTo(m_tmp, m_tmp.type(), 1/255.0);
-    cv::accumulateWeighted(tmp, m_avg, m_weight);
-    const cv::Mat& avg = m_avg;
-    avg.convertTo(m_out, m_out.type(), 255.0);
-    m_outputPin->put(m_out);
+    m_total = 0;
     return true;
 }
 
-double Average::getWeight() const
+bool Average::process()
 {
-    QMutexLocker lock( m_propertyMutex );
-    return m_weight;
+    if( m_inputFrames->isConnected() && m_inputFrames->hasData() )
+    {
+        int frames = m_inputFrames->get();
+        if( m_numFrames != frames )
+        {
+            setNumFrames(frames);
+        }
+    }
+
+    CvMatData in = m_inputPin->get();
+    const cv::Mat& src = in;
+
+    if( m_avg.width() != in.width() || m_avg.height() != in.height() || m_avg.channels() != in.channels() )
+    {
+        m_avg = CvMatData::create( in.width(), in.height(), CV_32F, in.channels() );
+        m_out = CvMatData::create( in.width(), in.height(), CV_8U, in.channels() );
+        src.convertTo(m_avg, m_avg.type());
+    }
+    cv::Mat& avg = m_avg;
+
+    cv::accumulate(src, avg);
+
+    if( m_total >= m_numFrames )
+    {
+        avg.convertTo(m_out, m_out.type(), 1.0 / m_total );
+        m_outputPin->put(m_out);
+
+        src.convertTo(m_avg, m_avg.type());
+        m_total = 0;
+    }
+    ++m_total;
+    return true;
 }
 
-void Average::setWeight(double w)
+int Average::getNumFrames() const
 {
     QMutexLocker lock( m_propertyMutex );
-    if( w >= 0.0 && w <= 1.0 )
-        m_weight = w;
-    emit weightChanged(m_weight);
+    return m_numFrames;
+}
+
+void Average::setNumFrames(int f)
+{
+    QMutexLocker lock( m_propertyMutex );
+    if( f > 0 )
+    {
+        m_numFrames = f;
+    }
+    emit numFramesChanged(m_numFrames);
 }

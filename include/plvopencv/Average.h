@@ -24,6 +24,7 @@
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/CvMatData.h>
+#include <plvcore/Pin.h>
 
 namespace plv
 {
@@ -42,8 +43,10 @@ namespace plvopencv
         Q_DISABLE_COPY( Average )
         Q_CLASSINFO("author", "Richard Loos")
         Q_CLASSINFO("name", "Average")
-        Q_CLASSINFO("description", "Calculates a running average using weight.");
-        Q_PROPERTY( double weight READ getWeight WRITE setWeight NOTIFY weightChanged )
+        Q_CLASSINFO("description", "Calculates a a true average over N frames."
+                    " Only passes an output value when numframes has been reached. Resets average after N frames.");
+
+        Q_PROPERTY( int numFrames READ getNumFrames WRITE setNumFrames NOTIFY numFramesChanged )
 
         /** required standard method declaration for plv::PipelineProcessor */
         PLV_PIPELINE_PROCESSOR
@@ -52,21 +55,27 @@ namespace plvopencv
         Average();
         virtual ~Average();
 
-        double getWeight() const;
+        virtual bool start();
+
+        int getNumFrames() const;
 
     public slots:
-        void setWeight(double w);
+        void setNumFrames(int n);
 
     signals:
-        void weightChanged(double w);
+        void numFramesChanged(int n);
 
     private:
         plv::CvMatDataInputPin* m_inputPin;
+        plv::InputPin<int>* m_inputFrames;
         plv::CvMatDataOutputPin* m_outputPin;
+
         plv::CvMatData m_avg;
         plv::CvMatData m_tmp;
         plv::CvMatData m_out;
-        double m_weight;
+
+        int m_numFrames;
+        int m_total;
     };
 }
 #endif // AVERAGE_H
