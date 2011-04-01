@@ -32,7 +32,7 @@
 using namespace plv;
 using namespace plvopencv;
 
-ImageProducer::ImageProducer()
+ImageProducer::ImageProducer() : m_putImage(true)
 {
     //create the output pin
     m_outputPin = createCvMatDataOutputPin("image_output", this );
@@ -160,6 +160,10 @@ bool ImageProducer::readyToProduce() const
 
 bool ImageProducer::produce()
 {
-    m_outputPin->put( m_loadedImage );
+    if( m_putImage )
+    {
+        m_outputPin->put( m_loadedImage );
+        m_putImage = false;
+    }
     return true;
 }

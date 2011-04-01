@@ -76,6 +76,7 @@ namespace plvopencv
     private:
         QString m_filename;  /** the filename of the image to load */
         QString m_directory; /** the directory which contains the image. */
+        bool m_putImage;
 
         /** This method checks whether the extension of the filename is one of the
           * accepted extensions for images by OpenCV. See:
