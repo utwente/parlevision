@@ -99,6 +99,7 @@ namespace plvopencv
     private:
         plv::InputPin< plv::CvMatData>*         m_inputImage;
         plv::InputPin< QList<plv::CvMatData> >* m_inputImages;
+        plv::InputPin<bool>* m_inputTrigger;
         plv::InputPin<QString>* m_inputFilename;
         plv::InputPin<QString>* m_inputPath;
 

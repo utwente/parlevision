@@ -63,6 +63,7 @@ SaveImageToFile::SaveImageToFile() :
     m_inputImages   = createInputPin< QList<CvMatData> >("image list", this, IInputPin::CONNECTION_OPTIONAL );
     m_inputFilename = createInputPin<QString>("name", this, IInputPin::CONNECTION_OPTIONAL );
     m_inputPath     = createInputPin<QString>("path", this, IInputPin::CONNECTION_OPTIONAL );
+    m_inputTrigger  = createInputPin<bool>("trigger", this, IInputPin::CONNECTION_OPTIONAL, IInputPin::CONNECTION_ASYNCHRONOUS );
 
     m_fileFormat.add("Windows Bitmap - *.bmp", BMP);
     m_fileFormat.add("JPEG Files - *.jpg", JPG);
@@ -204,6 +205,18 @@ bool SaveImageToFile::process()
     else
     {
         filenameBegin = QString::number(this->getProcessingSerial());
+    }
+
+    // if the trigger is connected, only
+    // save images when true is received
+    if( m_inputTrigger->isConnected() )
+    {
+        if( !m_inputTrigger->hasData() )
+            return true;
+
+        bool trigger = m_inputTrigger->get();
+        if( !trigger )
+            return true;
     }
 
     bool success = false;
