@@ -100,7 +100,7 @@ plv::Enum DilateErode::getOrder() const
 void DilateErode::setErosionIterations(int e)
 {
     QMutexLocker lock( m_propertyMutex );
-    if( e > 0 )
+    if( e >= 0 )
         m_erosionIterations = e;
     emit erosionIterationsChanged(m_erosionIterations);
 }
@@ -108,7 +108,7 @@ void DilateErode::setErosionIterations(int e)
 void DilateErode::setDilationIterations(int d)
 {
     QMutexLocker lock( m_propertyMutex );
-    if( d > 0 )
+    if( d >= 0 )
         m_dilationIterations = d;
     emit dilationIterationsChanged(m_dilationIterations);
 }
