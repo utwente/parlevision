@@ -61,7 +61,6 @@ bool PipelineProcessor::__process( unsigned int serial )
     {
         IInputPin* in = itr->second.getPtr();
 
-        // only check synchronous connections
         if( in->isConnected() && in->isSynchronous() )
         {
             unsigned int serial;
