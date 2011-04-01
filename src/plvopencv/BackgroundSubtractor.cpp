@@ -40,7 +40,9 @@ BackgroundSubtractor::BackgroundSubtractor() : m_threshold(128), m_replacement(2
     m_inInput = createCvMatDataInputPin( "input", this, IInputPin::CONNECTION_REQUIRED, IInputPin::CONNECTION_SYNCHRONOUS );
     m_inBackground = createCvMatDataInputPin( "background", this, IInputPin::CONNECTION_OPTIONAL, IInputPin::CONNECTION_ASYNCHRONOUS );
     m_inReset = createInputPin<bool>( "reset" , this, IInputPin::CONNECTION_OPTIONAL, IInputPin::CONNECTION_ASYNCHRONOUS );
-    m_outputPin = createCvMatDataOutputPin( "output", this );
+
+    m_outForeground = createCvMatDataOutputPin( "foreground", this );
+    m_outBackground = createCvMatDataOutputPin( "background", this );
 
     m_inInput->addSupportedChannels(1);
     m_inInput->addSupportedChannels(3);
@@ -50,8 +52,11 @@ BackgroundSubtractor::BackgroundSubtractor() : m_threshold(128), m_replacement(2
     m_inBackground->addSupportedChannels(3);
     m_inBackground->addSupportedDepth(CV_8U);
 
-    m_outputPin->addAllChannels();
-    m_outputPin->addAllDepths();
+    m_outForeground->addAllChannels();
+    m_outForeground->addAllDepths();
+
+    m_outBackground->addSupportedChannels(1);
+    m_outBackground->addSupportedDepth(CV_8U);
 
     m_method.add("gray", BGSM_GRAYSCALE);
     m_method.add("color to gray", BGSM_COLOR_TO_GRAY);
@@ -115,7 +120,7 @@ bool BackgroundSubtractor::process()
             }
             cv::absdiff( srcGray, m_backgroundGray, outGray );
             cv::threshold( outGray, outGray, m_threshold, m_replacement, CV_THRESH_BINARY );
-            m_outputPin->put(outGray);
+            m_outForeground->put(outGray);
         }
         else if( m_method.getSelectedValue() == BGSM_COLOR_TO_GRAY )
         {
@@ -127,19 +132,20 @@ bool BackgroundSubtractor::process()
             cv::cvtColor( tmp, outGray, CV_RGB2GRAY );
             cv::threshold( outGray, outGray, m_threshold, m_replacement, CV_THRESH_BINARY );
 
-            m_outputPin->put(outGray);
+            m_outForeground->put(outGray);
         }
         else
         {
             CvMatData out = CvMatData::create(in.properties());
             cv::absdiff( in, m_background, out );
             cv::threshold( out, out, m_threshold, m_replacement, CV_THRESH_BINARY );
-            m_outputPin->put(out);
+            m_outForeground->put(out);
         }
+        m_outBackground->put(m_background);
     }
     else
     {
-        m_outputPin->put(in);
+        m_outForeground->put(in);
     }
     return true;
 }

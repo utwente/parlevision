@@ -76,7 +76,8 @@ namespace plvopencv
         plv::CvMatDataInputPin* m_inInput;
         plv::InputPin<bool>* m_inReset;
         plv::CvMatDataInputPin* m_inBackground;
-        plv::CvMatDataOutputPin* m_outputPin;
+        plv::CvMatDataOutputPin* m_outForeground;
+        plv::CvMatDataOutputPin* m_outBackground;
         plv::CvMatData m_background;
         plv::CvMatData m_backgroundGray;
         int m_threshold;
