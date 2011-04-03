@@ -44,6 +44,7 @@ ConnectionLine::ConnectionLine(PinWidget* fromPin,
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemIsMovable, false);
     setPen(QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    updatePosition();
 }
 
 ConnectionLine::~ConnectionLine()
