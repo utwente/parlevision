@@ -1,5 +1,6 @@
 #include "Blob.h"
 #include <plvcore/Util.h>
+#include <QDebug>
 
 using namespace plvopencv;
 
@@ -50,9 +51,19 @@ void Blob::drawInformation( cv::Mat& target, cv::Scalar color ) const
 
 void Blob::drawContour( cv::Mat& target, cv::Scalar color, bool fill ) const
 {
-    std::vector< std::vector<cv::Point> > contours;
-    contours.push_back(m_contour);
-    cv::drawContours(target, contours, 0, color, fill ? CV_FILLED : 0, 8);
+    if( m_contour.size() > 0 )
+    {
+        std::vector< std::vector<cv::Point> > contours;
+        contours.push_back(m_contour);
+// in OpenCV < 2.2 cv::drawContours causes a crash when using default parameters
+// in release mode
+#if (CV_MAJOR_VERSION == 2 && CV_MINOR_VERSION >= 2)
+        cv::drawContours(target, contours, 0, color, fill ? CV_FILLED : 0, 8);
+#else
+        cv::drawContours(target, contours, 0, color, fill ? CV_FILLED : 0, 8,
+                         std::vector<cv::Vec4i>(), INT_MAX - 1, cv::Point() );
+#endif
+    }
 }
 
 void Blob::drawBoundingRect( cv::Mat& target, cv::Scalar color ) const
