@@ -252,7 +252,7 @@ void ServerConnection::start()
     // Try to optimize the socket for low latency.
     // For a QTcpSocket this would set the TCP_NODELAY option
     // and disable Nagle's algorithm.
-    m_tcpSocket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+    //m_tcpSocket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
 
     // connect signals of tcp socket
     connect( m_tcpSocket, SIGNAL(connected()), this, SLOT(connected()) );
@@ -264,7 +264,7 @@ void ServerConnection::start()
 
     if( !m_tcpSocket->setSocketDescriptor(m_socketDescriptor) )
     {
-        emit onError( m_tcpSocket->errorString() );
+        emit onError( PlvPipelineRuntimeError, m_tcpSocket->errorString() );
         emit finished(this);
         return;
     }
@@ -313,10 +313,10 @@ void ServerConnection::error(QAbstractSocket::SocketError socketError)
     switch (socketError)
     {
     case QAbstractSocket::RemoteHostClosedError:
-        emit onError(tr("The remote host closed the connection."));
+        emit onError(PlvNonFatalError, tr("The remote host closed the connection."));
         break;
     default:
-        emit onError(tr("The following error occurred: %1.")
+        emit onError(PlvNonFatalError, tr("The following error occurred: %1.")
                      .arg(m_tcpSocket->errorString()));
     }
 }

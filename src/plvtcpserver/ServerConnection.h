@@ -75,7 +75,7 @@ public slots:
     void setLossless(bool lossless);
 
 signals:
-    void onError(const QString& msg);
+    void onError(PlvErrorType type, const QString& msg);
     void finished(ServerConnection* connection);
 
     /** emitted when the TCP connection is waiting for the client */

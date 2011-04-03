@@ -36,10 +36,24 @@ TCPClientProducer::TCPClientProducer() :
     m_doubleOut   = plv::createOutputPin<double>("double", this);
     m_cvScalarOut = plv::createOutputPin< cv::Scalar >("cv::Scalar", this);
     m_imageOut    = plv::createCvMatDataOutputPin("CvMatData", this);
+
+    // Try to optimize the socket for low latency.
+    // For a QTcpSocket this would set the TCP_NODELAY option
+    // and disable Nagle's algorithm.
+    //m_tcpSocket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+
+    connect(m_tcpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
+    connect(m_tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(displayError(QAbstractSocket::SocketError)));
+
+    connect(m_tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(m_tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
 }
 
 TCPClientProducer::~TCPClientProducer()
 {
+    m_tcpSocket->disconnect();
+    delete m_tcpSocket;
 }
 
 bool TCPClientProducer::init()
@@ -97,19 +111,7 @@ bool TCPClientProducer::start()
         m_ipAddress = QHostAddress::LocalHost;
     }
 
-    connect(m_tcpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
-    connect(m_tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(displayError(QAbstractSocket::SocketError)));
-
-    connect(m_tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    connect(m_tcpSocket, SIGNAL(connected()), this, SLOT(connected()));
-
     QHostAddress address( m_ipAddress );
-
-    // Try to optimize the socket for low latency.
-    // For a QTcpSocket this would set the TCP_NODELAY option
-    // and disable Nagle's algorithm.
-    m_tcpSocket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
 
     qDebug() << "Connecting to " << address.toString() << ":" << m_port;
 

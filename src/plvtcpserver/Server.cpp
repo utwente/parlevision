@@ -43,9 +43,8 @@ void Server::incomingConnection(int socketDescriptor)
     lock.unlock();
 
     // let errors go through the error reporting signal of this class
-    this->connect( connection,
-                   SIGNAL(errorOccurred(PipelineErrorType,QString)),
-                   SIGNAL(error(PipelineErrorType,QString)));
+    connect( this, SIGNAL( onError(PlvErrorType,QString)),
+             connection, SIGNAL(onError(PlvErrorType,QString)));
 
     // move the connection to its own thread
     QThreadEx* connectionThread = new QThreadEx();
