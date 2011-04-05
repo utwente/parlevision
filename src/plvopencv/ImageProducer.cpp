@@ -144,6 +144,7 @@ bool ImageProducer::init()
         return false;
     }
     m_loadedImage = image;
+    m_putImage = true;
     return true;
 }
 
