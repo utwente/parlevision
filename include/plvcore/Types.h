@@ -89,6 +89,6 @@ PLVCORE_EXPORT QDataStream &operator>>(QDataStream &in, cv::Scalar &s);
 /** Declare as Qt Metatype so we can pass data type along with
     PinConnections and Qt's signals and slots */
 Q_DECLARE_METATYPE( plv::RectangleData )
-Q_DECLARE_METATYPE( cv::Scalar );
+Q_DECLARE_METATYPE( cv::Scalar )
 
 #endif // TYPES_H
