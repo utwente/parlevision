@@ -13,8 +13,10 @@ include(../../common.pri)
 DEFINES += PLV_TEST_PLUGIN_LIBRARY
 
 SOURCES += plvtest_plugin.cpp \
-            TestProducer.cpp
+            TestProducer.cpp \
+    BlobProducer.cpp
 
 HEADERS +=  plvtest_plugin.h \
             plvtest_global.h \
-            TestProducer.h
+            TestProducer.h \
+    BlobProducer.h

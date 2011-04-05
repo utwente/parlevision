@@ -25,6 +25,7 @@
 #include <QtDebug>
 
 #include "TestProducer.h"
+#include "BlobProducer.h"
 
 using namespace plv;
 
@@ -42,6 +43,7 @@ void PlvTestPlugin::onLoad()
 {
     qDebug() << "PlvTestPlugin onLoad";
     plvRegisterPipelineElement<TestProducer>();
+    plvRegisterPipelineElement<BlobProducer>();
 }
 
 Q_EXPORT_PLUGIN2(plv_test_plugin, PlvTestPlugin)

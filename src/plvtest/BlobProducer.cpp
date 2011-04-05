@@ -26,7 +26,9 @@
 
 using namespace plv;
 
-BlobProducer::BlobProducer()
+BlobProducer::BlobProducer() :
+    m_maxStep(10),
+    m_numBlobs(10)
 {
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
@@ -41,9 +43,6 @@ BlobProducer::~BlobProducer()
 bool BlobProducer::init()
 {
     m_image = cv::Mat(800, 600, CV_8UC3);
-    m_maxStep = 10;
-    m_numBlobs = 10;
-
     m_positions = QVector<cv::Point>(m_numBlobs, cv::Point(0,0));
     m_targets   = QVector<cv::Point>(m_numBlobs, cv::Point(m_image.width()/2, m_image.height()/2));
     m_factor = (m_maxStep / (double)RAND_MAX);
