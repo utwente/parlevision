@@ -283,6 +283,12 @@ namespace plv
         int getNextOutputPinId() const;
         int getNextInputPinId() const;
 
+        /** send a message to the pipeline to display to the user */
+        inline void message(PlvMessageType type, const QString& msg)
+        {
+            emit sendMessageToPipeline(type, msg);
+        }
+
     signals:
         void propertyChanged(QString);
 
@@ -290,6 +296,9 @@ namespace plv
             usual API functions which can signal the presense of an error by
             returning false. For instance, when a connection fails */
         void onError(PlvErrorType type, plv::PipelineElement* element);
+
+        /** send a message to the pipeline to display to the user */
+        void sendMessageToPipeline(PlvMessageType type, const QString& msg);
 
         /** average and last processing time of process call in milliseconds */
         void onProcessingTimeUpdate(int avg, int last);

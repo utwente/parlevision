@@ -221,7 +221,8 @@ namespace plv
         void connectionRemoved(const plv::RefPtr<plv::PinConnection>&);
         void connectionChanged(const plv::RefPtr<plv::PinConnection>&);
 
-        void pipelineMessage(QtMsgType type, QString msg);
+        void pipelineMessage(QtMsgType type, const QString& msg);
+        //void pipelineMessage(PlvMessageType type, const QString& msg);
 
         void pipelineStarted();
         void pipelineStopped();
@@ -241,7 +242,9 @@ namespace plv
         void finish();
         void schedule();
         void pipelineElementError( PlvErrorType type, plv::PipelineElement* ple );
-        void handleMessage(QtMsgType type, QString msg);
+
+        void handleMessage(QtMsgType type, const QString& msg);
+        void handleMessage(PlvMessageType type, const QString& msg);
 
         bool load(const QString& filename);
         bool save();

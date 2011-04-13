@@ -90,9 +90,17 @@ int Pipeline::addElement( PipelineElement* child )
     element->setObjectName(element->getName());
 
     // for error reporting to GUI by pipeline elements
-    // we used queued connections here so we do not accidentally deadlock
+    // we use queued connections here so we do not accidentally deadlock
     connect(element.getPtr(), SIGNAL(onError(PlvErrorType, plv::PipelineElement*)),
             this, SLOT(pipelineElementError(PlvErrorType, plv::PipelineElement*)),
+            Qt::QueuedConnection );
+
+    // for sending messages to GUI by pipeline elements
+    // we use queued connections here so we do not accidentally deadlock
+    connect(element.getPtr(),
+            SIGNAL( sendMessageToPipeline(PlvMessageType, QString)),
+            this,
+            SLOT( handleMessage(PlvMessageType,QString)),
             Qt::QueuedConnection );
 
     QMutexLocker lock( &m_pipelineMutex );
@@ -730,7 +738,27 @@ void Pipeline::pipelineElementError( PlvErrorType type, PipelineElement* ple )
     handleMessage(qtType, msg);
 }
 
-void Pipeline::handleMessage(QtMsgType type, QString msg)
+void Pipeline::handleMessage(PlvMessageType type, const QString& msg)
+{
+    QString dbg = QString("Pipeline received and relaying message of type %1: %2").arg(type).arg(msg);
+    qDebug() << dbg;
+
+    QtMsgType qtype;
+    switch( type )
+    {
+        case PlvDebugMessage:
+            qtype = QtDebugMsg;
+            break;
+        case PlvNotifyMessage:
+        case PlvWarningMessage:
+        case PlvErrorMessage:
+            qtype = QtWarningMsg;
+            break;
+    }
+    emit pipelineMessage(qtype, msg);
+}
+
+void Pipeline::handleMessage(QtMsgType type, const QString& msg)
 {
     QString dbg = QString("Pipeline received and relaying message of type %1: %2").arg(type).arg(msg);
     qDebug() << dbg;
