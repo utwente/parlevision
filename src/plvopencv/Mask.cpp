@@ -37,9 +37,11 @@ Mask::Mask()
     m_inputPin1->addSupportedChannels(1);
     m_inputPin1->addSupportedChannels(3);
     m_inputPin1->addSupportedDepth(CV_8U);
+    m_inputPin1->addSupportedDepth(CV_32F);
 
     m_inputPin2->addSupportedChannels(1);
     m_inputPin2->addSupportedDepth(CV_8U);
+    m_inputPin2->addSupportedDepth(CV_32F);
 
     m_outputPin->addSupportedChannels(1);
     m_outputPin->addSupportedChannels(3);
@@ -58,8 +60,18 @@ bool Mask::process()
     CvMatData out = CvMatData::create(in1.properties());
 
     const cv::Mat& src  = in1;
-    const cv::Mat& mask = in2;
+    const cv::Mat& maskIn = in2;
     cv::Mat& dst = out;
+
+    cv::Mat mask;
+    if( maskIn.type() == CV_32F )
+    {
+        maskIn.convertTo(mask, CV_8U);
+    }
+    else
+    {
+        mask = maskIn;
+    }
 
     dst = cvScalar(0);
     if(m_negative)
