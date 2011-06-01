@@ -66,7 +66,7 @@ win32 {
 
 #Unix specific libraries
 unix {
-    LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_objdetect -lopencv_ml
+    LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_objdetect -lopencv_ml -lopencv_features2d -lopencv_objdetect -lopencv_calib3d -lopencv_video
     #LIBS += -lcv \
     #            -lcxcore \
     #            -lcvaux \
@@ -80,5 +80,4 @@ macx {
     QMAKE_LIBDIR += /usr/local/Cellar/opencv/2.2/lib/
     #INCLUDEPATH += /opt/local/include/opencv
     INCLUDEPATH += /usr/local/Cellar/opencv/2.2/include/opencv
-
 }
