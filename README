@@ -40,6 +40,11 @@ OpenCV camera's support fails on MaxOSX. See http://stackoverflow.com/questions/
 
 LIBQXT
 - Follow the build instruction in the documentation. (configure, make, make install)
+- At the time of writing, the stable build of libxt fails to build on Mac OS X with Qt 4.7.4 and XCode 4. This is because the Qt instalation directory has changed from /Developer to ~/QtSDK. Use a nightly snapshot or run the following command to work around:
+
+  mkdir /Developer/Tools/Qt
+  for i in moc rcc; do ln -s /usr/bin/$i /Developer/Tools/Qt/$i; done
+
 - Libqxt will add itself to the Qt features directory. In order for correct makefile generation by QMake you need to run Qmake on Parlevision-all.pro after installation of libqxt.
 
 FIXING BUILD ENVIRONMENT
