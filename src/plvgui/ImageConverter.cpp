@@ -101,12 +101,6 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat& mat )
     QImage qimg;
     QString errStr;
 
-//    int depth = mat.depth();
-//    int channels = mat.channels();
-//    ;
-
-//    int type = CV_MAKETYPE(depth,channels);
-
     switch( mat.type() )
     {
     case CV_8UC1:
@@ -174,7 +168,8 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat& mat )
 
             for (int x = 0; x < mat.cols; ++x )
             {
-                scanline[x] = (cvImgData[cvIndex] >> 8); //divide by 256
+                uint16_t val = cvImgData[cvIndex] >> 8; //divide by 256
+                scanline[x] = (uchar)val;
                 ++cvIndex;
             }
             cvLineStart += step;
@@ -283,7 +278,7 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat& mat )
             for (int x = 0; x < mat.cols; ++x )
             {
                 // float values between 0 and 1.0 so upscale
-                scanline[x] = (uchar)((int)(cvImgData[cvIndex] * 255.0)); //mult by 255
+                scanline[x] = (uchar)((int)(cvImgData[cvIndex] * 255.0f)); //mult by 255
                 ++cvIndex;
             }
             cvLineStart += step;
@@ -309,9 +304,9 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat& mat )
             for( int x = 0; x < mat.cols; ++x )
             {
                 // here we convert OpenCV's BGR to Qt's RGB
-                const unsigned int blue  = (int)(cvImgData[cvIndex+0]*255.0);
-                const unsigned int green = (int)(cvImgData[cvIndex+1]*255.0);
-                const unsigned int red   = (int)(cvImgData[cvIndex+2]*255.0);
+                const int blue  = (int)(cvImgData[cvIndex+0]*255.0f);
+                const int green = (int)(cvImgData[cvIndex+1]*255.0f);
+                const int red   = (int)(cvImgData[cvIndex+2]*255.0f);
 
                 scanline[x] = qRgb( red, green, blue );
                 cvIndex += 3;
@@ -329,10 +324,10 @@ QImage ImageConverter::cvMatToQImage( const cv::Mat& mat )
     }
     if( mat.channels() == 1 )
     {
-        QVector<QRgb> colorTable;
-        for (int i = 0; i < 256; i++)
+        QVector<QRgb> colorTable(256);
+        for (int i = 0; i < 256; ++i)
         {
-            colorTable.push_back(qRgb(i, i, i));
+            colorTable[i] = qRgb(i, i, i);
         }
         qimg.setColorTable(colorTable);
     }
