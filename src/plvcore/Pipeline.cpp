@@ -360,7 +360,9 @@ void Pipeline::clear()
 
 void Pipeline::start()
 {
-    qDebug() << "Starting pipeline using " << QThreadPool::globalInstance()->maxThreadCount() << " threads.";
+    int numThreads = QThreadPool::globalInstance()->maxThreadCount();
+
+    qDebug() << "Starting pipeline using " << numThreads << " threads.";
 
     QMutexLocker lock( &m_pipelineMutex );
 
@@ -399,7 +401,7 @@ void Pipeline::start()
     }
     m_serial = 0;
     m_pipelineStages.clear();
-    for( int i=0; i < QThreadPool::globalInstance()->maxThreadCount(); ++i )
+    for( int i=0; i < numThreads; ++i )
         m_pipelineStages.insert(++m_serial, 0);
 
     bool error = false;
@@ -743,7 +745,7 @@ void Pipeline::handleMessage(PlvMessageType type, const QString& msg)
     QString dbg = QString("Pipeline received and relaying message of type %1: %2").arg(type).arg(msg);
     qDebug() << dbg;
 
-    QtMsgType qtype;
+    QtMsgType qtype = QtWarningMsg;
     switch( type )
     {
         case PlvDebugMessage:
@@ -752,7 +754,7 @@ void Pipeline::handleMessage(PlvMessageType type, const QString& msg)
         case PlvNotifyMessage:
         case PlvWarningMessage:
         case PlvErrorMessage:
-            qtype = QtWarningMsg;
+        //   qtype = QtWarningMsg;
             break;
     }
     emit pipelineMessage(qtype, msg);
