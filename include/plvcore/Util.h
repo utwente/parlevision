@@ -23,6 +23,12 @@ namespace plv
             See http://opencv.willowgarage.com/documentation/cpp/imgproc_image_filtering.html#borderInterpolate */
         static void addDefaultBorderInterpolationTypes( Enum& e );
     };
+
+    class PLVCORE_EXPORT Math
+    {
+    public:
+        static int factorial(int n);
+    };
 }
 
 bool PLVCORE_EXPORT overlap(const cv::Rect& a, const cv::Rect& b);
