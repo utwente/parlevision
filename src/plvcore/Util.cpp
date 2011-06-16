@@ -78,3 +78,11 @@ int overlappingArea( const cv::Rect& a, const cv::Rect& b, cv::Rect& area )
     return true;
 }
 
+int Math::factorial(int n)
+{
+    int result=n;
+    for(int i=2;i<n;++i)
+        result*=i;
+    return result;
+}
+
