@@ -341,7 +341,7 @@ namespace plv
         virtual bool isDynamicallyTyped() const { return true; }
     };
 
-    plv::DynamicInputPin* PLVCORE_EXPORT createDynamicInputPin( const QString& name, plv::PipelineElement* owner,
+    PLVCORE_EXPORT plv::DynamicInputPin* createDynamicInputPin( const QString& name, plv::PipelineElement* owner,
                                   plv::IInputPin::Required required = plv::IInputPin::CONNECTION_REQUIRED,
                                   plv::IInputPin::Synchronized synchronized = plv::IInputPin::CONNECTION_SYNCHRONOUS,
                                   int typeId = 0 )
