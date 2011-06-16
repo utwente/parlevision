@@ -67,7 +67,8 @@ SOURCES += plvopencvplugin.cpp \
     BlobTracker.cpp \
     BlobDetector.cpp \
     Mask.cpp \
-    Blob.cpp
+    Blob.cpp \
+    BlobTrack.cpp
 	
 HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
             ../../include/plvopencv/plvopencv_global.h \
@@ -106,6 +107,7 @@ HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
             ../../include/plvopencv/BlobTracker.h \
             ../../include/plvopencv/BlobDetector.h \
             ../../include/plvopencv/Mask.h \
-            ../../include/plvopencv/Blob.h
+            ../../include/plvopencv/Blob.h \
+            ../../include/plvopencv/BlobTrack.h
 
     

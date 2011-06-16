@@ -18,12 +18,10 @@
 #include "GaussianSmooth.h"
 #include "ImageThreshold.h"
 #include "CropSubImage.h"
-
 #include "Snapshot.h"
 #include "ViolaJonesFaceDetector.h"
 #include "Trigger.h"
 #include "SaveImageToFile.h"
-//#include "ImageLoader.h"
 #include "PixelSum.h"
 #include "Xor.h"
 #include "Multiply.h"
@@ -51,8 +49,14 @@ void PlvOpenCVPlugin::onLoad()
 {
     qDebug() << "Loading PlvOpenCVPlugin plugin processors";
 
+    // register custom types
+    qRegisterMetaType< QList<plvopencv::Blob*> >("QList<plvopencv::Blob*>");
+
     //producers
     plvRegisterPipelineElement<plvopencv::CameraProducer>();
+    plvRegisterPipelineElement<plvopencv::ImageProducer>();
+    plvRegisterPipelineElement<plvopencv::ImageDirectoryProducer>();
+    plvRegisterPipelineElement<plvopencv::VideoProducer>();
 
     //processors
     plvRegisterPipelineElement<plvopencv::ExampleProcessor>();
@@ -64,27 +68,17 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::Sub>();
     plvRegisterPipelineElement<plvopencv::Diff>();
     plvRegisterPipelineElement<plvopencv::Mask>();
-
     plvRegisterPipelineElement<plvopencv::DelayImage>();
     plvRegisterPipelineElement<plvopencv::EdgeDetectorCanny>();
     plvRegisterPipelineElement<plvopencv::ImageColorConvert>();
     plvRegisterPipelineElement<plvopencv::ImageCornerHarris>();
-
     plvRegisterPipelineElement<plvopencv::PixelSum>();
-
     plvRegisterPipelineElement<plvopencv::Snapshot>();
     plvRegisterPipelineElement<plvopencv::ViolaJonesFaceDetector>();
     plvRegisterPipelineElement<plvopencv::CropSubImage>();
     plvRegisterPipelineElement<plvopencv::Trigger>();
     plvRegisterPipelineElement<plvopencv::SaveImageToFile>();
     plvRegisterPipelineElement<plvopencv::ImageThreshold>();
-
-    //Producers
-    plvRegisterPipelineElement<plvopencv::ImageProducer>();
-    plvRegisterPipelineElement<plvopencv::ImageDirectoryProducer>();
-    plvRegisterPipelineElement<plvopencv::VideoProducer>();
-
-    //Processors
     plvRegisterPipelineElement<plvopencv::Xor>();
     plvRegisterPipelineElement<plvopencv::Multiply>();
     plvRegisterPipelineElement<plvopencv::Split>();
@@ -95,7 +89,6 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::ForegroundDetector>();
     plvRegisterPipelineElement<plvopencv::BlobDetector>();
     plvRegisterPipelineElement<plvopencv::BlobTracker>();
-    //consumers
 }
 Q_EXPORT_PLUGIN2(plv_opencv_plugin, PlvOpenCVPlugin)
 

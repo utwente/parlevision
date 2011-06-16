@@ -2,67 +2,66 @@
 #define PLVOPENCV_BLOB_H
 
 #include <opencv/cv.h>
+#include <QVector>
+#include <QMetaType>
+#include <QSharedData>
 
 namespace plvopencv
 {
+    /** Blob is implemented as shared data class. See QSharedDataPointer documentation */
+    class BlobData : public QSharedData
+    {
+    public:
+        unsigned int frameNr;     /** the frame number in which this blob was detected */
+        std::vector<cv::Point> contour; /** the blob contour, a collection of pixels which make out the blob */
+        cv::Point topRight;       /** top right coordinate */
+        cv::Point bottomLeft;     /** bottom left coordinate */
+        cv::Point cog;            /** center of gravity */
+        double size;              /** size of blob in pixels */
+        cv::Mat blobImg;          /** image of the blob */
+        cv::Rect boundingRect;    /** the axis aligned bounding rectangle */
+        bool valid;               /** false when Blob is called with default constructor */
+    };
+
     class Blob
     {
-    private:
-        unsigned int m_id;
-        unsigned int m_frameNum;
-        std::vector< cv::Point > m_contour;
-        cv::Point m_topRight;
-        cv::Point m_bottomLeft;
-        cv::Point m_cog;
-        double m_size;
-        cv::Mat m_blobImg;
-        float m_cfx; // this is the conversion factor from pixels to millimeters.
-        float m_cfy; // use this to calculate the real world x and y in millimters on the displaysurface.
-        int m_minX;
-        int m_maxX;
-        int m_minY;
-        int m_maxY;
-        cv::Mat m_scratchpad;
-        cv::Rect m_boundingRect;
-
     public:
-        Blob(const std::vector< cv::Point >& contour,
-             unsigned int frameNum,
-             float conversionFactorX=0.0f,
-             float conversionFactorY=0.0f );
-
+        Blob();
+        Blob(unsigned int frameNr, const std::vector< cv::Point >& contour);
         virtual ~Blob();
 
+        inline bool isValid() const { return d->valid; }
+        inline Blob& operator=(const Blob& other) { d=other.d; return *this; }
+
+        /** returns the size in pixels */
+        inline double getSize() { return d->size; }
+
+        inline unsigned int getFrameNr() const { return d->frameNr; }
+
+        /** returns the center of gravity */
+        inline const cv::Point& getCenterOfGravity() const { return d->cog; }
+
+        bool overlappingAreaRect( const Blob& other, cv::Rect& area ) const;
+
+        /** returns the number of matching pixels with other */
+        int matchingArea( const Blob& other ) const;
+
+        //int inArea( const Blob& blob, int margin ) const;
+
+        inline const cv::Rect& getBoundingRect() const { return d->boundingRect; }
+        inline const std::vector< cv::Point > getContour() const { return d->contour; }
+        inline double getSize() const { return d->size; }
+
+        /** drawing functions */
         void drawContour( cv::Mat& target, cv::Scalar color = CV_RGB(128, 128, 128), bool fill = true ) const;
         void drawBoundingRect( cv::Mat& target, cv::Scalar color = CV_RGB(255, 255, 255) ) const;
         void drawCenterOfGravity( cv::Mat& target, cv::Scalar color = CV_RGB(255, 255, 255) ) const;
-        void drawInformation( cv::Mat& target, cv::Scalar color = CV_RGB(255, 255, 255) ) const;
+        void drawString(cv::Mat& target, const QString& str, cv::Scalar color = CV_RGB(255, 255, 255) ) const;
 
-        inline double getSize() { return m_size; }
-        inline const cv::Point& getCenterOfGravity() const { return m_cog; }
-
-        inline void setId( unsigned int nid ) { m_id = nid; };
-        inline unsigned int getId() { return m_id; }
-        inline unsigned int getFrameNum() { return m_frameNum; }
-        inline void setFrameNr(unsigned int nr ) { m_frameNum = nr; }
-
-        cv::Mat& createSubImage(cv::Mat *image, cv::Rect roi);
-
-        bool overlappingAreaRect( const Blob* other, cv::Rect& area ) const;
-        int matches( const Blob* blob ) const;
-        int inArea( const Blob* blob, int margin ) const;
-
-        inline const cv::Rect& getBoundingRect() const { return m_boundingRect; }
-        //inline const cv::Mat& getScratchpad() const { return m_scratchpad; }
-        inline std::vector< cv::Point > getContour() { return m_contour; }
-
-        inline double getSize() const { return m_size; }
-
-        //inline bool vertexXIn( int x ) const { return x >= m_minX && x <= m_maxX; }
-        //inline bool vertexYIn( int y ) const { return y >= m_minY && y <= m_maxY; }
-        //inline bool vertexInside( const cv::Point& p ) const { return vertexXIn( p.x ) && vertexYIn( p.y ); }
-
+    private:
+         QSharedDataPointer<BlobData> d;
     };
 }
+Q_DECLARE_METATYPE( QList<plvopencv::Blob> )
 
 #endif

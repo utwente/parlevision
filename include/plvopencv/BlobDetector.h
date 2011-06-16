@@ -24,7 +24,7 @@
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Enum.h>
-#include <vector>
+#include <plvcore/Pin.h>
 
 namespace plv
 {
@@ -46,8 +46,7 @@ namespace plvopencv
 
         //Q_PROPERTY( plv::Enum mode READ getMode WRITE setMode NOTIFY modeChanged )
         //Q_PROPERTY( plv::Enum method READ getMethod WRITE setMethod NOTIFY methodChanged )
-        //Q_PROPERTY( double beta READ getBeta WRITE setBeta NOTIFY betaChanged )
-        //Q_PROPERTY( double gamma READ getGamma WRITE setGamma NOTIFY gammaChanged )
+        Q_PROPERTY( int minBlobSize READ getMinBlobSize WRITE setMinBlobSize NOTIFY minBlobSizeChanged )
 
         /** required standard method declaration for plv::PipelineProcessor */
         PLV_PIPELINE_PROCESSOR
@@ -58,29 +57,29 @@ namespace plvopencv
 
         plv::Enum getMethod() const;
         plv::Enum getMode() const;
+        int getMinBlobSize() const;
 
     public slots:
         void setMode( plv::Enum mode );
         void setMethod( plv::Enum method );
+        void setMinBlobSize( int size );
 
     signals:
         void modeChanged( plv::Enum mode );
         void methodChanged( plv::Enum method );
+        void minBlobSizeChanged( int size );
 
     private:
-        plv::CvMatDataInputPin* m_inputImage;
+        plv::CvMatDataInputPin*  m_inputImage;
         plv::CvMatDataOutputPin* m_outputImage;
+        plv::OutputPin< QList<plvopencv::Blob> >* m_outputBlobs;
 
-        plv::Enum m_mode; /* Contour retrieval modes */
+        plv::Enum m_mode;   /* Contour retrieval modes */
         plv::Enum m_method; /* Contour approximation methods */
 
-        QList<Blob*> m_blobs;
-        unsigned int m_idCounter;
-        unsigned int m_nrFramesToKeep;
-
-        inline unsigned int getNewId() { return ++m_idCounter; }
-
-        QList<Blob*> matchBlobs( QList<Blob*>& newBlobs, const QList<Blob*>& oldBlobs);
+        QList<Blob> m_blobs;
+        unsigned int m_iterations;
+        int m_minBlobSize;
     };
 }
 #endif // BLOBDETECTOR_H

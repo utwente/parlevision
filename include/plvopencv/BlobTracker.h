@@ -23,6 +23,11 @@
 #define BLOBTRACKER_H
 
 #include <plvcore/PipelineProcessor.h>
+#include <plvcore/Pin.h>
+#include <QStringList>
+
+#include "Blob.h"
+#include "BlobTrack.h"
 
 namespace plv
 {
@@ -32,13 +37,15 @@ namespace plv
 
 namespace plvopencv
 {
+    class PermTreeNode;
+
     class BlobTracker : public plv::PipelineProcessor
     {
         Q_OBJECT
         Q_DISABLE_COPY( BlobTracker )
         Q_CLASSINFO("author", "Richard")
         Q_CLASSINFO("name", "Blob Tracker")
-        Q_CLASSINFO("description", "Tracks blobs" );
+        Q_CLASSINFO("description", "Tracks blobs" )
 
         //Q_PROPERTY( double alpha READ getAlpha WRITE setAlpha NOTIFY alphaChanged )
         //Q_PROPERTY( double beta READ getBeta WRITE setBeta NOTIFY betaChanged )
@@ -51,8 +58,23 @@ namespace plvopencv
         BlobTracker();
         virtual ~BlobTracker();
 
+        // overloaded function from PipelineElement
+        bool init();
+        bool deinit() throw();
+        bool start();
+        bool stop();
+
     private:
         plv::CvMatDataInputPin* m_inputImage;
+        plv::InputPin< QList<plvopencv::Blob> >* m_inputBlobs;
+        plv::CvMatDataOutputPin* m_outputImage;
+        QList<BlobTrack> m_blobTracks;
+
+        void matchBlobs(QList<Blob>& newBlobs, QList<BlobTrack>& blobTracks);
+        unsigned int m_idCounter;
+        inline unsigned int getNewId() { return ++m_idCounter; }
+
+
     };
 }
 #endif // BLOBTRACKER_H
