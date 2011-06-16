@@ -230,11 +230,11 @@ namespace plv
         /** helper function for creating a partial ordering for cycle detection */
         bool visit( QList<PipelineElement*>& ordering, QSet<PipelineElement*>& visited );
 
-        virtual void inputConnectionSet(IInputPin* pin, PinConnection* connection) {}
-        virtual void inputConnectionRemoved(IInputPin* pin, PinConnection* connection) {}
+        virtual void inputConnectionSet(IInputPin* /*pin*/, PinConnection* /*connection*/) {}
+        virtual void inputConnectionRemoved(IInputPin* /*pin*/, PinConnection* /*connection*/) {}
 
-        virtual void outputConnectionAdded(IOutputPin* pin, PinConnection* connection) {}
-        virtual void outputConnectionRemoved(IOutputPin* pin, PinConnection* connection) {}
+        virtual void outputConnectionAdded(IOutputPin* /*pin*/, PinConnection* /*connection*/) {}
+        virtual void outputConnectionRemoved(IOutputPin* /*pin*/, PinConnection* /*connection*/) {}
 
     public slots:
         /** Overridden from QObject::setProperty()
