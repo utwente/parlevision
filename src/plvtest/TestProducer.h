@@ -25,6 +25,11 @@
 #include <plvcore/PipelineProducer.h>
 #include <plvcore/Pin.h>
 
+namespace plv
+{
+    class CvMatDataOutputPin;
+}
+
 class TestProducer : public plv::PipelineProducer
 {
     Q_OBJECT
@@ -55,6 +60,9 @@ private:
     plv::OutputPin<QString>* m_stringOut;
     plv::OutputPin<float>* m_floatOut;
     plv::OutputPin<double>* m_doubleOut;
+
+    plv::CvMatDataOutputPin* m_16bitSingleChannelImageOut;
+    plv::CvMatDataOutputPin* m_32bitSingleChannelImageOut;
 };
 
 #endif // PLVTESTPRODUCER_H
