@@ -114,10 +114,11 @@ bool ExampleProcessor::process()
     assert(m_inputPin != 0);
     assert(m_outputPin != 0);
 
+    // get input from input pin
     CvMatData src = m_inputPin->get();
 
     // allocate a target buffer
-    CvMatData target = CvMatData::create( src.width(), src.height(), src.type() );
+    CvMatData target = CvMatData::create( src.properties() );
 
     // do a flip of the image
     const cv::Mat in = src;
