@@ -89,10 +89,10 @@ namespace plv
         QSet<int> m_channels;
     };
 
-    CvMatDataOutputPin* PLVCORE_EXPORT createCvMatDataOutputPin( const QString& name, PipelineElement* owner )
+    PLVCORE_EXPORT CvMatDataOutputPin* createCvMatDataOutputPin( const QString& name, PipelineElement* owner )
     throw (IllegalArgumentException);
 
-    CvMatDataInputPin* PLVCORE_EXPORT createCvMatDataInputPin( const QString& name, PipelineElement* owner,
+    PLVCORE_EXPORT CvMatDataInputPin* createCvMatDataInputPin( const QString& name, PipelineElement* owner,
                                   IInputPin::Required required = IInputPin::CONNECTION_REQUIRED,
                                   IInputPin::Synchronized synchronous = IInputPin::CONNECTION_SYNCHRONOUS  )
     throw (IllegalArgumentException);
