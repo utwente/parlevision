@@ -33,6 +33,7 @@
 #include "Pipeline.h"
 #include "PipelineLoader.h"
 
+#include <QxtCore>
 #include <QxtLogger>
 #include <QxtXmlFileLoggerEngine>
 #include <QxtBasicFileLoggerEngine>
