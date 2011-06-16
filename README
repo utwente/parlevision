@@ -31,12 +31,12 @@ QTSDK
 - Parlevision has been built and tested using the QtSDK v1.0 and v1.1beta using QtCreator and Mingw in 32-bit.
 
 OPENCV
-Unfortunately, OpenCV2.x is a broken mess.
+Unfortunately, OpenCV2.x has some issues in release management.
 OpenCV2.0 and 2.1 for MingW do not export all C++ support in precompiled libraries. You will need to recompile OpenCV yourself if you want to build ParleVision with it. You will need to install CMake and follow the build instructions of OpenCV. Unfortunately there are several errors in the build system for OpenCV2.0 and 2.1, one of the libraries bundled with OpenCV will has been compiled in an incompatible fashion and there and there are missing libraries in build files. See https://code.ros.org/trac/opencv/ticket/587 for solutions.
 
 ParleVision does not build with OpenCV2.2 using MingW. The MingW package for Windows misses header files and does not build at all with the current version of ParleVision when those header files are added from the Visual Studio package.
 
-OpenCV camera's support fails on MaxOSX. See http://stackoverflow.com/questions/3363637/opencv-2-1-mac-os-x-webcam-issues-32-and-64-bit. Also, there are numurous problems with the MacPorts versions of OpenCV 2.0 and 2.1. However, ParleVision does built with OpenCV2.2.0 on MaxOSX 10.6 using Brew. [to be continued]
+OpenCV camera's support fails on MacOSX. See http://stackoverflow.com/questions/3363637/opencv-2-1-mac-os-x-webcam-issues-32-and-64-bit. Also, there are numurous problems with the MacPorts versions of OpenCV 2.0 and 2.1. However, ParleVision does built with OpenCV2.2.0 on MaxOSX 10.6 using Brew. [to be continued]
 
 LIBQXT
 - Follow the build instruction in the documentation. (configure, make, make install)
