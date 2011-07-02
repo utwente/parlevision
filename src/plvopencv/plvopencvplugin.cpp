@@ -34,8 +34,6 @@
 #include "Average.h"
 #include "RunningAverage.h"
 #include "ForegroundDetector.h"
-#include "BlobTracker.h"
-#include "BlobDetector.h"
 
 PlvOpenCVPlugin::PlvOpenCVPlugin()
 {
@@ -48,9 +46,6 @@ PlvOpenCVPlugin::~PlvOpenCVPlugin()
 void PlvOpenCVPlugin::onLoad()
 {
     qDebug() << "Loading PlvOpenCVPlugin plugin processors";
-
-    // register custom types
-    qRegisterMetaType< QList<plvopencv::Blob*> >("QList<plvopencv::Blob*>");
 
     //producers
     plvRegisterPipelineElement<plvopencv::CameraProducer>();
@@ -87,8 +82,6 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::Average>();
     plvRegisterPipelineElement<plvopencv::RunningAverage>();
     plvRegisterPipelineElement<plvopencv::ForegroundDetector>();
-    plvRegisterPipelineElement<plvopencv::BlobDetector>();
-    plvRegisterPipelineElement<plvopencv::BlobTracker>();
 }
 Q_EXPORT_PLUGIN2(plv_opencv_plugin, PlvOpenCVPlugin)
 
