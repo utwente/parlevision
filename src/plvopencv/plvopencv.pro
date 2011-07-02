@@ -66,39 +66,39 @@ SOURCES += plvopencvplugin.cpp \
     ForegroundDetector.cpp \
     Mask.cpp
 	
-HEADERS +=  ../../include/plvopencv/plvopencvplugin.h \
-            ../../include/plvopencv/plvopencv_global.h \
-            ../../include/plvopencv/CameraProducer.h \
-            ../../include/plvopencv/OpenCVCamera.h \
-            ../../include/plvopencv/ExampleProcessor.h \
-            ../../include/plvopencv/EdgeDetectorLaplace.h \
-            ../../include/plvopencv/GaussianSmooth.h \
-            ../../include/plvopencv/EdgeDetectorSobel.h \
-            ../../include/plvopencv/ImageFlip.h \
-            ../../include/plvopencv/ImageCornerHarris.h \
-            ../../include/plvopencv/ImageColorConvert.h \
-            ../../include/plvopencv/EdgeDetectorCanny.h \
-            ../../include/plvopencv/Add.h \
-            ../../include/plvopencv/Sub.h \
-            ../../include/plvopencv/Snapshot.h \
-            ../../include/plvopencv/Diff.h \
-            ../../include/plvopencv/DelayImage.h \
-            ../../include/plvopencv/ViolaJonesFaceDetector.h  \
-            ../../include/plvopencv/SaveImageToFile.h  \
-            ../../include/plvopencv/ImageThreshold.h \
-            ../../include/plvopencv/Trigger.h \
-            ../../include/plvopencv/PixelSum.h \
-            ../../include/plvopencv/CropSubImage.h \
-            ../../include/plvopencv/Xor.h \
-            ../../include/plvopencv/Split.h \
-            ../../include/plvopencv/Multiply.h \
-            ../../include/plvopencv/ImageDirectoryProducer.h \
-            ../../include/plvopencv/ImageProducer.h \
-            ../../include/plvopencv/BackgroundSubtractor.h \
-            ../../include/plvopencv/VideoProducer.h \
-            ../../include/plvopencv/DilateErode.h \
-            ../../include/plvopencv/Average.h \
-            ../../include/plvopencv/RunningAverage.h \
-            ../../include/plvopencv/ForegroundDetector.h \
-            ../../include/plvopencv/Mask.h
+HEADERS +=  plvopencvplugin.h \
+            plvopencv_global.h \
+            CameraProducer.h \
+            OpenCVCamera.h \
+            ExampleProcessor.h \
+            EdgeDetectorLaplace.h \
+            GaussianSmooth.h \
+            EdgeDetectorSobel.h \
+            ImageFlip.h \
+            ImageCornerHarris.h \
+            ImageColorConvert.h \
+            EdgeDetectorCanny.h \
+            Add.h \
+            Sub.h \
+            Snapshot.h \
+            Diff.h \
+            DelayImage.h \
+            ViolaJonesFaceDetector.h  \
+            SaveImageToFile.h  \
+            ImageThreshold.h \
+            Trigger.h \
+            PixelSum.h \
+            CropSubImage.h \
+            Xor.h \
+            Split.h \
+            Multiply.h \
+            ImageDirectoryProducer.h \
+            ImageProducer.h \
+            BackgroundSubtractor.h \
+            VideoProducer.h \
+            DilateErode.h \
+            Average.h \
+            RunningAverage.h \
+            ForegroundDetector.h \
+            Mask.h
     
