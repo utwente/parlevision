@@ -40,6 +40,12 @@ enum PlvMessageType {
 };
 Q_DECLARE_METATYPE( PlvMessageType );
 
+// disbale warnings specific to Microsoft compilers
+#if defined _WIN32
+// C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
+#pragma warning( disable : 4290 )
+#endif
+
 // Generic helper definitions for shared library support
 // Adapted from http://gcc.gnu.org/wiki/Visibility
 #if defined _WIN32 || defined __CYGWIN__
