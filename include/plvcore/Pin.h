@@ -283,7 +283,7 @@ namespace plv
         /** @returns the name of the type this pin is initialized with */
         virtual QString getTypeName() const { return QMetaType::typeName( qMetaTypeId<T>() ); }
 
-        virtual bool acceptsConnectionWith( const IOutputPin* pin, QString& errStr ) const { return true; }
+        virtual bool acceptsConnectionWith( const IOutputPin* /*pin*/, QString& /*errStr*/ ) const { return true; }
 
         virtual bool isDynamicallyTyped() const { return false; }
     };
