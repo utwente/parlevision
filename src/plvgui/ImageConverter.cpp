@@ -25,6 +25,7 @@
 #include <QPainter>
 #include <QString>
 #include <QtConcurrentRun>
+#include <stdint.h>
 
 using namespace plvgui;
 using namespace plv;
