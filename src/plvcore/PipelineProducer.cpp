@@ -32,7 +32,7 @@ PipelineProducer::~PipelineProducer()
 {
 }
 
-bool PipelineProducer::__ready( unsigned int& serial )
+bool PipelineProducer::__ready( unsigned int& /*serial*/ )
 {
     if( getState() >= DISPATCHED )
         return false;
