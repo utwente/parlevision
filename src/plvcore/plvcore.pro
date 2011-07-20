@@ -37,7 +37,7 @@ QXT     += core
 # -Wunused-parameter \
 # -Wunused-variable
 
-INCLUDEPATH += ../../include/plvcore
+INCLUDEPATH += ../../include ../../include/plvcore
 
 DEFINES += PLV_SHARED_LIBRARY PLV_DLL_EXPORTS
 

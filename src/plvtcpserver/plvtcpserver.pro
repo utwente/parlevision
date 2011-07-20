@@ -8,7 +8,7 @@ LIBS += -lplvcore -lplvgui
 QMAKE_LIBDIR += ../../libs/plugins
 
 macx {
-    QMAKE_POST_LINK = install_name_tool -change libplvcore.1.dylib @executable_path/../Frameworks/libplvcore.1.dylib ../../libs/plugins/libtcp_server_plugin.dylib
+    QMAKE_POST_LINK = install_name_tool -change libplvcore.1.dylib @executable_path/../Frameworks/libplvcore.1.dylib $${DESTDIR}/$${TARGET}.dylib
 }
 
 include(../../common.pri)

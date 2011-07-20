@@ -3,13 +3,14 @@
 TARGET = parlevision-all
 TEMPLATE = subdirs
 SUBDIRS =   src/plvcore \
-            src/plvopencv \
             src/plvgui \
             src/parlevision \
+            src/plvopencv \
+            src/plvblobtracker \
             src/plvtcpserver \
             src/plvtest \
-            src/plvpluginexample
-
+            src/plvpluginexample \
+            src/plvmskinect
 
 CONFIG += ordered
 DESTDIR = dist

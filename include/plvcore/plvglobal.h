@@ -41,7 +41,7 @@ enum PlvMessageType {
 Q_DECLARE_METATYPE( PlvMessageType );
 
 // disbale warnings specific to Microsoft compilers
-#if defined _WIN32
+#if defined _MSC_VER
 // C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
 #pragma warning( disable : 4290 )
 #endif

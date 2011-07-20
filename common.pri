@@ -1,3 +1,9 @@
+# using parlevision as a shared library
+DEFINES += PLV_SHARED_LIBRARY
+
+OPENCV_PATH_VS2010 = c:/develop/OpenCV2.1vs2008
+OPENCV_PATH_GCC = c:/develop/OpenCV2.1.0
+
 #Include path relative to where source is located
 INCLUDEPATH += ../../include
 
@@ -6,16 +12,21 @@ INCLUDEPATH += ../../include
 QMAKE_LIBDIR += ../../libs
 
 #Windows specific libraries, library paths and include paths
+win32-g++ {
+    ## Windows common build for mingw here
+    INCLUDEPATH += $${OPENCV_PATH_GCC}/include
+
+    LIBS += -L$${OPENCV_PATH_GCC}/lib
+    LIBS += -L$${OPENCV_PATH_GCC}/bin
+}
+
+win32-msvc2010 {
+    INCLUDEPATH += $${OPENCV_PATH_VS2010}/include
+    LIBS += -L$${OPENCV_PATH_VS2010}/lib
+    LIBS += -L$${OPENCV_PATH_VS2010}/bin
+}
+
 win32 {
-    ## Windows common build here
-    INCLUDEPATH += c:/OpenCV-2.1.0/include
-
-    LIBS += -Lc:/OpenCV-2.1.0/lib
-    LIBS += -Lc:/Qxt/lib
-
-    LIBS += -Lc:/OpenCV-2.1.0/bin
-    LIBS += -Lc:/Qxt/bin
-
     CONFIG(debug, debug|release) {
         LIBS += -lcv210d \
                 -lcxcore210d \

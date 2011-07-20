@@ -23,13 +23,14 @@
 #define IMAGEWIDGET_H
 
 #include <QWidget>
+#include "plvgui_global.h"
 
 class QSize;
 class QImage;
 
 namespace plvgui
 {
-    class ImageWidget : public QWidget
+    class PLVGUI_EXPORT ImageWidget : public QWidget
     {
         Q_OBJECT
     public:

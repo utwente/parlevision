@@ -403,7 +403,7 @@ void InspectorWidget::addRow(QFormLayout* form, RefPtr<PipelineElement> element,
 QString InspectorWidget::propertySlotSignature(QObject* obj, QString propertyName, QString signature )
 {
     assert(propertyName.length() > 0);
-    if(! propertyName.length() > 0)
+    if( propertyName.length() < 1 )
         return "UNKNOWN()";
 
     QVariant value = obj->property(propertyName.toAscii());

@@ -24,7 +24,7 @@
 #include <QDebug>
 #include <plvcore/Pin.h>
 #include <plvcore/CvMatDataPin.h>
-#include <cstdint>
+#include <stdint.h>
 
 using namespace plv;
 
