@@ -64,7 +64,8 @@ SOURCES += plvopencvplugin.cpp \
     Average.cpp \
     RunningAverage.cpp \
     ForegroundDetector.cpp \
-    Mask.cpp
+    Mask.cpp \
+    Stitch.cpp
 	
 HEADERS +=  plvopencvplugin.h \
             plvopencv_global.h \
@@ -100,5 +101,6 @@ HEADERS +=  plvopencvplugin.h \
             Average.h \
             RunningAverage.h \
             ForegroundDetector.h \
-            Mask.h
+            Mask.h \
+            Stitch.h
     
