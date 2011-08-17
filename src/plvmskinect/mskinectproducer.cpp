@@ -4,32 +4,56 @@
 
 using namespace plvmskinect;
 
-MSKinectProducer::MSKinectProducer()
+MSKinectProducer::MSKinectProducer() : m_deviceCount( 0 )
 {
-    // we have one output pin
-    m_outputPinDepth = plv::createCvMatDataOutputPin( "depth", this );
-    m_outputPinVideo = plv::createCvMatDataOutputPin( "camera", this );
-    m_outputPinSkeleton = plv::createOutputPin<SkeletonFrame>( "skeletons", this );
+    //NUIAPI HRESULT MSR_NUIGetDeviceCount( int * pCount ); // note capitalization
+    //NUIAPI HRESULT MSR_NuiCreateInstanceByIndex( int Index, INuiInstance ** ppInstance );
+    //NUIAPI void    MSR_NuiDestroyInstance( INuiInstance * pInstance );
 
-    // supports all types of images
-    m_outputPinVideo->addAllChannels();
-    m_outputPinVideo->addAllDepths();
+    MSR_NUIGetDeviceCount( &m_deviceCount );
+    if( m_deviceCount == 0 )
+    {
 
-    m_outputPinDepth->addAllChannels();
-    m_outputPinDepth->addAllDepths();
+    }
+    else
+    {
+        m_depthFrames.resize( m_deviceCount );
+        m_videoFrames.resize( m_deviceCount );
+        m_skeletonFrames.resize( m_deviceCount );
 
-    m_kinect = new KinectDevice(this);
+        m_outputPinsDepth.resize( m_deviceCount );
+        m_outputPinsVideo.resize( m_deviceCount );
+        m_outputPinsSkeleton.resize( m_deviceCount );
 
-    connect( m_kinect, SIGNAL( newDepthFrame( plv::CvMatData ) ),
-             this,     SLOT( newDepthFrame( plv::CvMatData ) ) );
+        for( int i = 0; i < m_deviceCount; ++i )
+        {
+            KinectDevice* device = new KinectDevice(i, this);
+            m_kinects.push_back(device);
 
-    connect( m_kinect, SIGNAL( newVideoFrame( plv::CvMatData ) ),
-            this,     SLOT( newVideoFrame( plv::CvMatData ) ) );
+            connect( device, SIGNAL( newDepthFrame( int, plv::CvMatData ) ),
+                     this,     SLOT( newDepthFrame( int, plv::CvMatData ) ) );
 
-    connect( m_kinect, SIGNAL( newSkeletonFrame( plvmskinect::SkeletonFrame ) ),
-             this,     SLOT( newSkeletonFrame( plvmskinect::SkeletonFrame ) ) );
+            connect( device, SIGNAL( newVideoFrame( int, plv::CvMatData ) ),
+                    this,     SLOT( newVideoFrame( int, plv::CvMatData ) ) );
 
-    connect( m_kinect, SIGNAL( finished()), this, SLOT(kinectFinished()));
+            connect( device, SIGNAL( newSkeletonFrame( int, plvmskinect::SkeletonFrame ) ),
+                     this,     SLOT( newSkeletonFrame( int, plvmskinect::SkeletonFrame ) ) );
+
+            connect( device, SIGNAL( deviceFinished(int)), this, SLOT(kinectFinished(int)));
+
+            // we have one output pin
+            m_outputPinsDepth[i] = plv::createCvMatDataOutputPin( "depth", this );
+            m_outputPinsVideo[i] = plv::createCvMatDataOutputPin( "camera", this );
+            m_outputPinsSkeleton[i] = plv::createOutputPin<SkeletonFrame>( "skeletons", this );
+
+            // supports all types of images
+            m_outputPinsVideo[i]->addAllChannels();
+            m_outputPinsVideo[i]->addAllDepths();
+
+            m_outputPinsDepth[i]->addAllChannels();
+            m_outputPinsDepth[i]->addAllDepths();
+        }
+    }
 }
 
 MSKinectProducer::~MSKinectProducer()
@@ -38,77 +62,106 @@ MSKinectProducer::~MSKinectProducer()
 
 bool MSKinectProducer::init()
 {
-    if( !m_kinect->init() )
+    for( int i = 0; i < m_deviceCount; ++i )
     {
-        setError( PlvPipelineInitError, tr("Kinect with id %1 failed to initialise").arg(m_kinect->getId()) );
-        return false;
+        if( !m_kinects.at(i)->init() )
+        {
+            setError( PlvPipelineInitError, tr("Kinect with id %1 failed to initialise").arg(m_kinects.at(i)->getId()) );
+
+            // deinit already initalized devices
+            for( int j=0; j < i; ++j )
+                m_kinects.at(j)->deinit();
+
+            return false;
+        }
     }
     return true;
 }
 
 bool MSKinectProducer::deinit() throw()
 {
-    m_kinect->deinit();
+    for( int i = 0; i < m_deviceCount; ++i )
+    {
+        m_kinects.at(i)->deinit();
+    }
     return true;
 }
 
 bool MSKinectProducer::start()
 {
-    m_kinect->start();
+    for( int i = 0; i < m_deviceCount; ++i )
+    {
+        m_kinects.at(i)->start();
+    }
     return true;
 }
 
 bool MSKinectProducer::stop()
 {
-    m_kinect->stop();
+    for( int i = 0; i < m_deviceCount; ++i )
+    {
+        m_kinects.at(i)->stop();
+    }
     return true;
 }
 
 bool MSKinectProducer::produce()
 {
     QMutexLocker lock( &m_kinectProducerMutex );
-    m_outputPinDepth->put( m_depthFrame );
-    m_outputPinVideo->put( m_videoFrame );
 
-    m_depthFrame = cv::Mat();
-    m_videoFrame = cv::Mat();
-
-    if( m_skeletonFrame.isValid() )
+    for( int i = 0; i < m_deviceCount; ++i )
     {
-        m_outputPinSkeleton->put( m_skeletonFrame );
-        m_skeletonFrame = SkeletonFrame();
+        m_outputPinsDepth.at(i)->put( m_depthFrames.at(i) );
+        m_outputPinsVideo.at(i)->put( m_videoFrames.at(i) );
+
+        m_depthFrames[i] = cv::Mat();
+        m_videoFrames[i] = cv::Mat();
+
+        if( m_skeletonFrames.at(i).isValid() )
+        {
+            m_outputPinsSkeleton.at(i)->put( m_skeletonFrames.at(i) );
+            m_skeletonFrames[i] = SkeletonFrame();
+        }
     }
     return true;
 }
 
 bool MSKinectProducer::readyToProduce() const
 {
-    return m_depthFrame.isValid() && m_videoFrame.isValid();
+    bool ready = true;
+    for( int i=0; i < m_deviceCount && ready; ++i )
+    {
+        ready = m_depthFrames.at(i).isValid() && m_videoFrames.at(i).isValid();
+    }
+    return ready;
 }
 
-void MSKinectProducer::newDepthFrame( plv::CvMatData depth )
+void MSKinectProducer::newDepthFrame( int deviceIndex, plv::CvMatData depth )
 {
     QMutexLocker lock( &m_kinectProducerMutex );
-    m_depthFrame = depth;
+    assert( deviceIndex > -1 && deviceIndex < m_deviceCount );
+    m_depthFrames[deviceIndex] = depth;
 }
 
-void MSKinectProducer::newVideoFrame( plv::CvMatData video )
+void MSKinectProducer::newVideoFrame( int deviceIndex, plv::CvMatData video )
 {
     QMutexLocker lock( &m_kinectProducerMutex );
-    m_videoFrame = video;
+    assert( deviceIndex > -1 && deviceIndex < m_deviceCount );
+    m_videoFrames[deviceIndex] = video;
 }
 
-void MSKinectProducer::newSkeletonFrame( plvmskinect::SkeletonFrame frame )
+void MSKinectProducer::newSkeletonFrame( int deviceIndex, plvmskinect::SkeletonFrame frame )
 {
     QMutexLocker lock( &m_kinectProducerMutex );
-    m_skeletonFrame = frame;
+    assert( deviceIndex > -1 && deviceIndex < m_deviceCount );
+    m_skeletonFrames[deviceIndex] = frame;
 }
 
-void MSKinectProducer::kinectFinished()
+void MSKinectProducer::kinectFinished( int deviceIndex )
 {
     if( getState() > INITIALIZED )
     {
-        setError( PlvNonFatalError, tr("Kinect quit unexpectedly.") );
+        setError( PlvNonFatalError, tr("Kinect with ID %1 quit unexpectedly.").arg(deviceIndex) );
         emit onError( PlvNonFatalError, this );
     }
 }

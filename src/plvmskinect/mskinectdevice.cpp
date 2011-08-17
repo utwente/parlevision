@@ -26,10 +26,12 @@
 using namespace plv;
 using namespace plvmskinect;
 
-KinectDevice::KinectDevice(QObject* parent) :
+KinectDevice::KinectDevice(int id, QObject* parent) :
     QThread(parent)
 {
     zero();
+    m_id = id;
+    connect( this, SIGNAL( finished()), this, SLOT( threadFinished()) );
 }
 
 KinectDevice::~KinectDevice()
@@ -38,7 +40,6 @@ KinectDevice::~KinectDevice()
 
 void KinectDevice::zero()
 {
-    m_id = -1;
     m_state = KINECT_UNINITIALIZED;
 
     m_hNextDepthFrameEvent = NULL;
@@ -70,71 +71,48 @@ bool KinectDevice::init()
     
     QMutexLocker lock( &m_deviceMutex );
     
-    // initialize all variables to default values
+    // initialize all variables except ID to default values
     zero();
 
-	HRESULT hr;
-    //RECT rc;
+    HRESULT hr;
+
+    hr = MSR_NuiCreateInstanceByIndex( m_id, &m_nuiInstance );
+    if( FAILED( hr ) )
+    {
+        qDebug() << tr("Kinect device with id %1 failed MSR_NuiCreateInstanceByIndex.").arg(m_id);
+        return false;
+    }
 
     m_hNextDepthFrameEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
     m_hNextVideoFrameEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
     m_hNextSkeletonEvent   = CreateEvent( NULL, TRUE, FALSE, NULL );
     m_hEvNuiProcessStop    = CreateEvent( NULL, FALSE,FALSE, NULL);
 
-    //GetWindowRect(GetDlgItem( m_hWnd, IDC_SKELETALVIEW ), &rc );
-    //int width = rc.right - rc.left;
-    //int height = rc.bottom - rc.top;
-    //HDC hdc = GetDC(GetDlgItem( m_hWnd, IDC_SKELETALVIEW));
-    //m_SkeletonBMP = CreateCompatibleBitmap( hdc, width, height );
-    //m_SkeletonDC = CreateCompatibleDC( hdc );
-    //ReleaseDC(GetDlgItem(m_hWnd,IDC_SKELETALVIEW), hdc );
-    //m_SkeletonOldObj = SelectObject( m_SkeletonDC, m_SkeletonBMP );
+//    hr = NuiInitialize( NUI_INITIALIZE_FLAG_USES_DEPTH_AND_PLAYER_INDEX |
+//                        NUI_INITIALIZE_FLAG_USES_SKELETON |
+//                        NUI_INITIALIZE_FLAG_USES_COLOR );
 
-//    hr = m_DrawDepth.CreateDevice( GetDlgItem( m_hWnd, IDC_DEPTHVIEWER ) );
-//    if( FAILED( hr ) )
-//    {
-//        MessageBoxResource( m_hWnd,IDS_ERROR_D3DCREATE,MB_OK | MB_ICONHAND);
-//        return hr;
-//    }
+    hr = m_nuiInstance->NuiInitialize( NUI_INITIALIZE_FLAG_USES_DEPTH
+                        // | NUI_INITIALIZE_FLAG_USES_SKELETON
+                         | NUI_INITIALIZE_FLAG_USES_COLOR
+                        );
 
-//    hr = m_DrawDepth.SetVideoType( 320, 240, 320 * 4 );
-//    if( FAILED( hr ) )
-//    {
-//        MessageBoxResource( m_hWnd,IDS_ERROR_D3DVIDEOTYPE,MB_OK | MB_ICONHAND);
-//        return hr;
-//    }
-
-//    hr = m_DrawVideo.CreateDevice( GetDlgItem( m_hWnd, IDC_VIDEOVIEW ) );
-//    if( FAILED( hr ) )
-//    {
-//        MessageBoxResource( m_hWnd,IDS_ERROR_D3DCREATE,MB_OK | MB_ICONHAND);
-//        return hr;
-//    }
-
-//    hr = m_DrawVideo.SetVideoType( 640, 480, 640 * 4 );
-//    if( FAILED( hr ) )
-//    {
-//        MessageBoxResource( m_hWnd,IDS_ERROR_D3DVIDEOTYPE,MB_OK | MB_ICONHAND);
-//        return hr;
-//    }
-
-    hr = NuiInitialize( NUI_INITIALIZE_FLAG_USES_DEPTH_AND_PLAYER_INDEX |
-                        NUI_INITIALIZE_FLAG_USES_SKELETON |
-                        NUI_INITIALIZE_FLAG_USES_COLOR );
     if( FAILED( hr ) )
     {
         //MessageBoxResource(m_hWnd,IDS_ERROR_NUIINIT,MB_OK | MB_ICONHAND);
+        qDebug() << tr("Kinect device with id %1 failed NuiInitialize with return handle %2.").arg(m_id).arg(hr);
         return false;
     }
 
-    hr = NuiSkeletonTrackingEnable( m_hNextSkeletonEvent, 0 );
+    hr = m_nuiInstance->NuiSkeletonTrackingEnable( m_hNextSkeletonEvent, 0 );
     if( FAILED( hr ) )
     {
         //MessageBoxResource(m_hWnd,IDS_ERROR_SKELETONTRACKING,MB_OK | MB_ICONHAND);
+        qDebug() << tr("Failed to open skeleton stream on Kinect with id %1 and with return handle %2.").arg(m_id).arg(hr);
         return false;
     }
 
-    hr = NuiImageStreamOpen(
+    hr = m_nuiInstance->NuiImageStreamOpen(
         NUI_IMAGE_TYPE_COLOR,
         NUI_IMAGE_RESOLUTION_640x480,
         0,
@@ -144,12 +122,20 @@ bool KinectDevice::init()
     if( FAILED( hr ) )
     {
         //MessageBoxResource(m_hWnd,IDS_ERROR_VIDEOSTREAM,MB_OK | MB_ICONHAND);
+        qDebug() << tr("Failed to open video stream on Kinect with id %1.").arg(m_id);
         return false;
     }
 
-    hr = NuiImageStreamOpen(
-        NUI_IMAGE_TYPE_DEPTH_AND_PLAYER_INDEX,
-        NUI_IMAGE_RESOLUTION_320x240,
+//    hr = NuiImageStreamOpen(
+//        NUI_IMAGE_TYPE_DEPTH_AND_PLAYER_INDEX,
+//        NUI_IMAGE_RESOLUTION_320x240,
+//        0,
+//        2,
+//        m_hNextDepthFrameEvent,
+//        &m_pDepthStreamHandle );
+    hr = m_nuiInstance->NuiImageStreamOpen(
+        NUI_IMAGE_TYPE_DEPTH,
+        NUI_IMAGE_RESOLUTION_640x480,
         0,
         2,
         m_hNextDepthFrameEvent,
@@ -157,6 +143,7 @@ bool KinectDevice::init()
     if( FAILED( hr ) )
     {
         //MessageBoxResource(m_hWnd,IDS_ERROR_DEPTHSTREAM,MB_OK | MB_ICONHAND);
+        qDebug() << tr("Failed to open depth stream on Kinect with id %1.").arg(m_id);
         return false;
     }
 
@@ -167,7 +154,8 @@ bool KinectDevice::init()
 
 bool KinectDevice::deinit()
 {
-    NuiShutdown( );
+    m_nuiInstance->NuiShutdown( );
+    MSR_NuiDestroyInstance( m_nuiInstance );
     if( m_hNextSkeletonEvent && ( m_hNextSkeletonEvent != INVALID_HANDLE_VALUE ) )
     {
         CloseHandle( m_hNextSkeletonEvent );
@@ -320,8 +308,6 @@ void KinectDevice::run()
 
 void KinectDevice::Nui_GotDepthAlert()
 {
-    CvMatData img = CvMatData::create(320, 240, CV_8U, 3);
-    
     const NUI_IMAGE_FRAME * pImageFrame = NULL;
 
     HRESULT hr = NuiImageStreamGetNextFrame(m_pDepthStreamHandle, 0, &pImageFrame);
@@ -330,36 +316,80 @@ void KinectDevice::Nui_GotDepthAlert()
         return;
     }
 
+    int width;
+    int height;
+    if( pImageFrame->eResolution == NUI_IMAGE_RESOLUTION_320x240 )
+    {
+        width = 320;
+        height = 240;
+    }
+    else
+    {
+        width = 640;
+        height = 480;
+    }
+
     NuiImageBuffer * pTexture = pImageFrame->pFrameTexture;
     KINECT_LOCKED_RECT LockedRect;
     pTexture->LockRect( 0, &LockedRect, NULL, 0 );
+    BYTE* pBuffer = 0;
     if( LockedRect.Pitch != 0 )
     {
-        BYTE* pBuffer = (BYTE*) LockedRect.pBits;
+        pBuffer = (BYTE*) LockedRect.pBits;
+    }
+    else
+    {
+        OutputDebugString( L"Buffer length of received texture is bogus\r\n" );
+    }
+
+
+    CvMatData img;
+    if( pImageFrame->eImageType == NUI_IMAGE_TYPE_DEPTH )
+    {
+        img = CvMatData::create(width, height, CV_8U, 1);
 
         // draw the bits to the bitmap
         USHORT* pBufferRun = (USHORT*) pBuffer;
         cv::Mat& mat = img;
 
-        for( int y = 0 ; y < 240 ; y++ )
+        // todo should be faster with memcpy
+        for( int y = 0 ; y < height ; y++ )
         {
-            for( int x = 0 ; x < 320 ; x++ )
+            for( int x = 0 ; x < width ; x++ )
             {
-                RGBQUAD quad = Nui_ShortToQuad_Depth( *pBufferRun );
+                // from 12-bit to 16-bit
+                USHORT RealDepth = *pBufferRun;
+
+                // transform 13-bit depth information into an 8-bit intensity appropriate
+                // for display (we disregard information in most significant bit)
+                BYTE l = 255 - (BYTE)(256*RealDepth/0x0fff);
+                mat.at<BYTE>(y,x) = l;
+                pBufferRun++;
+            }
+        }
+    }
+    else if( pImageFrame->eImageType == NUI_IMAGE_TYPE_DEPTH_AND_PLAYER_INDEX )
+    {
+        img = CvMatData::create(width, height, CV_8U, 3);
+
+        // draw the bits to the bitmap
+        USHORT* pBufferRun = (USHORT*) pBuffer;
+        cv::Mat& mat = img;
+
+        for( int y = 0 ; y < height ; y++ )
+        {
+            for( int x = 0 ; x < width ; x++ )
+            {
+                RGBQUAD quad = Nui_ShortToQuad_DepthAndPlayerIndex( *pBufferRun );
+
                 pBufferRun++;
                 mat.at<cv::Vec3b>(y,x)[0] = quad.rgbBlue;
                 mat.at<cv::Vec3b>(y,x)[1] = quad.rgbGreen;
                 mat.at<cv::Vec3b>(y,x)[2] = quad.rgbRed;
             }
         }
-        
-        //m_DrawDepth.DrawFrame( (BYTE*) m_rgbWk );
-        emit newDepthFrame( img );
     }
-    else
-    {
-        OutputDebugString( L"Buffer length of received texture is bogus\r\n" );
-    }
+    emit newDepthFrame( m_id, img );
     NuiImageStreamReleaseFrame( m_pDepthStreamHandle, pImageFrame );
 }
 
@@ -397,7 +427,7 @@ void KinectDevice::Nui_GotVideoAlert()
             }
         }
 
-        emit newVideoFrame( img );
+        emit newVideoFrame( m_id, img );
     }
     else
     {
@@ -438,7 +468,7 @@ void KinectDevice::Nui_GotSkeletonAlert()
     // smooth out the skeleton data
     NuiTransformSmooth( sf.getNuiSkeletonFramePointer(), NULL );
 
-    emit newSkeletonFrame( sf );
+    emit newSkeletonFrame( m_id, sf );
 }
 
 KinectDevice::KinectState KinectDevice::getState() const
@@ -453,7 +483,7 @@ void KinectDevice::setState( KinectDevice::KinectState state )
     m_state = state;
 }
 
-RGBQUAD KinectDevice::Nui_ShortToQuad_Depth( USHORT s )
+RGBQUAD KinectDevice::Nui_ShortToQuad_DepthAndPlayerIndex( USHORT s )
 {
     USHORT RealDepth = (s & 0xfff8) >> 3;
     USHORT Player = s & 7;
@@ -505,6 +535,11 @@ RGBQUAD KinectDevice::Nui_ShortToQuad_Depth( USHORT s )
     }
 
     return q;
+}
+
+void KinectDevice::threadFinished()
+{
+    emit deviceFinished( m_id );
 }
 
 

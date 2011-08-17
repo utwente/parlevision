@@ -40,22 +40,24 @@ namespace plvmskinect
         virtual bool stop();
 
     public slots:
-        void newDepthFrame( plv::CvMatData depth );
-        void newVideoFrame( plv::CvMatData video );
-        void newSkeletonFrame( plvmskinect::SkeletonFrame frame );
-        void kinectFinished();
+        void newDepthFrame( int deviceIndex, plv::CvMatData depth );
+        void newVideoFrame( int deviceIndex, plv::CvMatData video );
+        void newSkeletonFrame( int deviceIndex, plvmskinect::SkeletonFrame frame );
+        void kinectFinished( int deviceIndex );
 
     private:
-        plv::CvMatDataOutputPin* m_outputPinVideo;
-        plv::CvMatDataOutputPin* m_outputPinDepth;
-        plv::OutputPin<SkeletonFrame>* m_outputPinSkeleton;
+        int m_deviceCount;
 
-        KinectDevice* m_kinect;
+        QVector<plv::CvMatDataOutputPin*> m_outputPinsVideo;
+        QVector<plv::CvMatDataOutputPin*> m_outputPinsDepth;
+        QVector<plv::OutputPin<SkeletonFrame>*> m_outputPinsSkeleton;
+
         mutable QMutex m_kinectProducerMutex;
+        QVector< KinectDevice* > m_kinects;
 
-        plv::CvMatData m_videoFrame;
-        plv::CvMatData m_depthFrame;
-        SkeletonFrame m_skeletonFrame;
+        QVector<plv::CvMatData> m_videoFrames;
+        QVector<plv::CvMatData> m_depthFrames;
+        QVector<SkeletonFrame> m_skeletonFrames;
     };
 }
 

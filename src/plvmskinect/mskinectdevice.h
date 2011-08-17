@@ -46,7 +46,7 @@ namespace plvmskinect
             KINECT_STOP_REQUESTED
         };
 
-        KinectDevice( QObject* parent = 0);
+        KinectDevice( int id, QObject* parent = 0);
         virtual ~KinectDevice();
 
         bool init();
@@ -63,6 +63,7 @@ namespace plvmskinect
     private:
         int         m_id;
         KinectState m_state;
+        INuiInstance* m_nuiInstance;
         mutable QMutex m_stateMutex;
         mutable QMutex m_deviceMutex;
 
@@ -91,16 +92,18 @@ namespace plvmskinect
         void Nui_GotDepthAlert();
         void Nui_GotVideoAlert();
         void Nui_GotSkeletonAlert();
-        RGBQUAD Nui_ShortToQuad_Depth( USHORT s );
+        RGBQUAD Nui_ShortToQuad_DepthAndPlayerIndex( USHORT s );
 
     signals:
-        void newDepthFrame( plv::CvMatData frame );
-        void newVideoFrame( plv::CvMatData frame );
-        void newSkeletonFrame( plvmskinect::SkeletonFrame frame );
+        void newDepthFrame( int deviceIndex, plv::CvMatData frame );
+        void newVideoFrame( int deviceIndex, plv::CvMatData frame );
+        void newSkeletonFrame( int deviceIndex, plvmskinect::SkeletonFrame frame );
+        void deviceFinished( int deviceIndex );
 
     public slots:
-         virtual void start();
-         virtual void stop();
+        virtual void start();
+        virtual void stop();
+        void threadFinished();
     };
 }
 
