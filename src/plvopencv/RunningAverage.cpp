@@ -27,13 +27,14 @@
 using namespace plv;
 using namespace plvopencv;
 
-RunningAverage::RunningAverage() : m_weight(0.1)
+RunningAverage::RunningAverage() : m_weight(0.1), m_conversionFactor(1.0)
 {
     m_inputPin = createCvMatDataInputPin( "input", this );
     m_outputPin = createCvMatDataOutputPin( "output", this );
 
     m_inputPin->addAllChannels();
     m_inputPin->addSupportedDepth(CV_8U);
+    m_inputPin->addSupportedDepth(CV_16U);
     m_inputPin->addSupportedDepth(CV_32F);
 
     m_outputPin->addAllChannels();
@@ -50,22 +51,38 @@ bool RunningAverage::process()
     CvMatData in = m_inputPin->get();
     const cv::Mat& src = in;
 
-    if( m_avg.width() != in.width() || m_avg.height() != in.height() )
+    if( m_avg.width() != in.width() || m_avg.height() != in.height() || in.type() != m_out.type() )
     {
         m_avg = CvMatData::create( in.width(), in.height(), CV_32F, in.channels() );
         m_tmp = CvMatData::create( in.width(), in.height(), CV_32F, in.channels() );
-        m_out = CvMatData::create( in.width(), in.height(), CV_8U, in.channels() );
+        m_out = CvMatData::create( in.width(), in.height(), in.type(), in.channels() );
 
         if( src.depth() == CV_8U )
-            src.convertTo(m_avg, m_avg.type(), 1/255.0);
+        {
+            m_conversionFactor = std::numeric_limits<unsigned char>::max();
+            src.convertTo(m_avg, m_avg.type(), 1.0 / m_conversionFactor );
+        }
+        else if ( src.depth() == CV_16U )
+        {
+            m_conversionFactor = std::numeric_limits<unsigned short>::max();
+            src.convertTo(m_avg, m_avg.type(), 1.0 / m_conversionFactor );
+        }
         else // CV_32F
+        {
             src.copyTo(m_avg);
+            m_conversionFactor = 1.0;
+        }
     }
     cv::Mat& tmp = m_tmp;
-    src.convertTo(m_tmp, m_tmp.type(), 1/255.0);
+
+    // convert src to 32F
+    src.convertTo(m_tmp, m_tmp.type(), 1.0 / m_conversionFactor);
     cv::accumulateWeighted(tmp, m_avg, m_weight);
+
+    // convert avg back to src type
     const cv::Mat& avg = m_avg;
-    avg.convertTo(m_out, m_out.type(), 255.0);
+    avg.convertTo(m_out, m_out.type(), m_conversionFactor );
+
     m_outputPin->put(m_out);
     return true;
 }
