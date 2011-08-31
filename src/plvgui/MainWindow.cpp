@@ -80,7 +80,8 @@ void MainWindow::initGUI()
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    setWindowTitle("ParleVision - no pipeline");
+    QString standardWindowTitle = tr("ParleVision %1").arg(Util::getBuildInformation());
+    setWindowTitle( tr("%1 - no pipeline").arg(standardWindowTitle));
 
     m_ui->view->setAcceptDrops(true);
     m_ui->view->setEnabled(false);
