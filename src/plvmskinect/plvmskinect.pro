@@ -31,11 +31,13 @@ SOURCES += mskinectplugin.cpp \
            mskinectproducer.cpp \
            mskinectdevice.cpp \
            skeletondataviewer.cpp \
-           mskinectdatatypes.cpp
+           mskinectdatatypes.cpp \
+    kinectthreshold.cpp
 
 HEADERS +=  mskinectplugin_global.h \
             mskinectplugin.h \
             mskinectproducer.h \
             mskinectdevice.h \
             skeletondataviewer.h \
-            mskinectdatatypes.h
+            mskinectdatatypes.h \
+    kinectthreshold.h

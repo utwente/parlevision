@@ -5,6 +5,7 @@
 #include "mskinectproducer.h"
 #include "mskinectdatatypes.h"
 #include "skeletondataviewer.h"
+#include "kinectthreshold.h"
 #include <plvgui/RendererFactory.h>
 
 using namespace plv;
@@ -39,6 +40,7 @@ void MSKinectPlugin::onLoad()
     qRegisterMetaType< plvmskinect::SkeletonFrame >( "plvmskinect::SkeletonFrame" );
 
     plvRegisterPipelineElement<plvmskinect::MSKinectProducer>();
+    plvRegisterPipelineElement<plvmskinect::KinectThreshold>();
 
     // register renderers
     plvgui::RendererFactory::add<plvmskinect::SkeletonFrame, plvmskinect::SkeletonDataViewer>();
