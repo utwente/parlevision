@@ -26,6 +26,7 @@
 
 #include "BlobDetector.h"
 #include "BlobTracker.h"
+#include "VPBlobToStringConverter.h"
 
 using namespace plv;
 
@@ -44,6 +45,7 @@ void PlvBlobTrackPlugin::onLoad()
 
     plvRegisterPipelineElement<plvblobtracker::BlobTracker>();
     plvRegisterPipelineElement<plvblobtracker::BlobDetector>();
+    plvRegisterPipelineElement<plvblobtracker::VPBlobToStringConverter>();
 }
 
 Q_EXPORT_PLUGIN2(plv_blobtracker_plugin, PlvBlobTrackPlugin)

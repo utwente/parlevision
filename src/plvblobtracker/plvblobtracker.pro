@@ -20,7 +20,8 @@ SOURCES += plvblobtracker_plugin.cpp \
            BlobTrack.cpp \
            BlobTracker.cpp \
            munkres.cpp \
-           matrix.cpp
+           matrix.cpp \
+    VPBlobToStringConverter.cpp
 
 HEADERS +=  plvblobtracker_plugin.h \
             plvblobtracker_global.h \
@@ -29,5 +30,6 @@ HEADERS +=  plvblobtracker_plugin.h \
             BlobTrack.h \
             BlobTracker.h \
             munkres.h \
-            matrix.h
+            matrix.h \
+    VPBlobToStringConverter.h
 			
