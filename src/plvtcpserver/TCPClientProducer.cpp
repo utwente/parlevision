@@ -35,7 +35,8 @@ TCPClientProducer::TCPClientProducer() :
     m_stringOut   = plv::createOutputPin<QString>("QString", this);
     m_doubleOut   = plv::createOutputPin<double>("double", this);
     m_cvScalarOut = plv::createOutputPin< cv::Scalar >("cv::Scalar", this);
-    m_imageOut    = plv::createCvMatDataOutputPin("CvMatData", this);
+    m_imageOut1    = plv::createCvMatDataOutputPin("CvMatData1", this);
+	m_imageOut2    = plv::createCvMatDataOutputPin("CvMatData2", this);
 
     // Try to optimize the socket for low latency.
     // For a QTcpSocket this would set the TCP_NODELAY option
@@ -108,7 +109,6 @@ bool TCPClientProducer::start()
     {
         m_ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
         qWarning() << "No valid IP address given, using localhost";
-        m_ipAddress = QHostAddress::LocalHost;
     }
 
     QHostAddress address( m_ipAddress );
@@ -145,7 +145,26 @@ bool TCPClientProducer::stop()
 
 bool TCPClientProducer::readyToProduce() const
 {
-    // check if there is data available
+    // check if we have a connection
+	if( m_tcpSocket->state() == QAbstractSocket::UnconnectedState )
+	{
+		QHostAddress address( m_ipAddress );
+
+		qWarning() << "Reconnecting to " << address.toString() << ":" << m_port;
+
+		// if this fails, error is automatically called
+		// by signal slots connection
+		m_tcpSocket->connectToHost( address, m_port );
+
+		int timeout = 5*1000;
+		if(!m_tcpSocket->waitForConnected(timeout))
+		{
+			qWarning() << "TCPClientProducer failed to reconnect";
+			return false;
+		}
+	}
+	
+	// check if there is data available
     return !m_frameList.isEmpty();
 }
 
@@ -160,8 +179,9 @@ bool TCPClientProducer::produce()
     QSet<QString> taken;
     foreach( const QVariant& v, frame )
     {
-        for( OutputPinMap::const_iterator itr = m_outputPins.begin();
-            itr != m_outputPins.end(); ++itr )
+        bool matched = false;
+		for( OutputPinMap::const_iterator itr = m_outputPins.begin();
+            itr != m_outputPins.end() && !matched; ++itr )
         {
             plv::RefPtr<plv::IOutputPin> out = itr->second;
             if( !taken.contains(out->getName()) )
@@ -171,6 +191,7 @@ bool TCPClientProducer::produce()
                     taken.insert( out->getName() );
                     unsigned int serial = this->getProcessingSerial();
                     out->putVariant(serial, v);
+					matched = true;
                 }
             }
         }
@@ -194,7 +215,6 @@ void TCPClientProducer::readData()
     if( bytesAvailable < m_blockSize )
         return;
 
-    qDebug() << "TCPClientProducer::readData() ready";
     if( !m_configured )
     {
         // send configuration request

@@ -92,7 +92,8 @@ private:
     plv::OutputPin<float>* m_floatOut;
     plv::OutputPin<double>* m_doubleOut;
     plv::OutputPin<cv::Scalar>* m_cvScalarOut;
-    plv::CvMatDataOutputPin* m_imageOut;
+    plv::CvMatDataOutputPin* m_imageOut1;
+	plv::CvMatDataOutputPin* m_imageOut2;
 
 };
 
