@@ -35,9 +35,6 @@ namespace plv
 
 namespace plvopencv
 {
-    /**
-      * Absolute diff of two images.
-      */
     class CropSubImage : public plv::PipelineProcessor
     {
         Q_OBJECT
@@ -45,7 +42,7 @@ namespace plvopencv
         Q_CLASSINFO("author", "Richard Loos")
         Q_CLASSINFO("name", "Copy and crop ROIs")
         Q_CLASSINFO("description", "Copies and crops one or several ROIs. s"
-                    "Can be used together with Viola Jones Face detector for instance.");
+                    "Can be used together with Viola Jones Face detector for instance.")
 
         /** required standard method declaration for plv::PipelineProcessor */
         PLV_PIPELINE_PROCESSOR
