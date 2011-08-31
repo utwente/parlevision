@@ -37,6 +37,7 @@ BlobDetector::BlobDetector() :
 
     m_inputImage->addSupportedChannels(1);
     m_inputImage->addSupportedDepth(CV_8U);
+    m_inputImage->addSupportedDepth(CV_16U);
 
     m_outputImage = createCvMatDataOutputPin( "out", this);
     m_outputImage->addAllChannels();
@@ -65,6 +66,11 @@ bool BlobDetector::process()
 {
     CvMatData in = m_inputImage->get();
     cv::Mat& src = in;
+
+    if( src.depth() == CV_16U )
+    {
+        src.convertTo(src, CV_8U, 1.0 / std::numeric_limits<unsigned short>::max() );
+    }
 
     QList<Blob> newBlobs;
 
