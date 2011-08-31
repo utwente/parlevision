@@ -23,12 +23,19 @@
 #define STITCH_H
 
 #include <plvcore/PipelineProcessor.h>
+#include <plvcore/CvMatData.h>
 
 namespace plv
 {
     class CvMatDataInputPin;
     class CvMatDataOutputPin;
 }
+
+#define STITCH_DESTINATION_WIDTH_DEFAULT (640*2)
+#define STITCH_DESTINATION_HEIGHT_DEFAULT (480*2)
+
+#define STITCH_DESTINATION_WIDTH_MAX (1920*2)
+#define STITCH_DESTINATION_HEIGHT_MAX (1080*2)
 
 namespace plvopencv
 {
@@ -43,6 +50,9 @@ namespace plvopencv
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_PROCESSOR
 
+        Q_PROPERTY( int destinationWidth READ getDestinationWidth WRITE setDestinationWidth NOTIFY destinationWidthChanged )
+        Q_PROPERTY( int destinationHeight READ getDestinationHeight WRITE setDestinationHeight NOTIFY destinationHeightChanged )
+
         Q_PROPERTY( int in0X READ getIn0X WRITE setIn0X NOTIFY in0XChanged )
         Q_PROPERTY( int in0Y READ getIn0Y WRITE setIn0Y NOTIFY in0YChanged )
 
@@ -55,10 +65,15 @@ namespace plvopencv
         Q_PROPERTY( int in3X READ getIn3X WRITE setIn3X NOTIFY in3XChanged )
         Q_PROPERTY( int in3Y READ getIn3Y WRITE setIn3Y NOTIFY in3YChanged )
 
+        Q_PROPERTY( bool blend READ getBlend WRITE setBlend NOTIFY blendChanged )
+
 
     public:
         Stitch();
         virtual ~Stitch();
+
+        int getDestinationWidth();
+        int getDestinationHeight();
 
         int getIn0X();
         int getIn0Y();
@@ -68,6 +83,7 @@ namespace plvopencv
         int getIn2Y();
         int getIn3X();
         int getIn3Y();
+        bool getBlend();
 
     public slots:
         void setIn0X( int value );
@@ -78,6 +94,11 @@ namespace plvopencv
         void setIn2Y( int value );
         void setIn3X( int value );
         void setIn3Y( int value );
+
+        void setDestinationHeight( int height );
+        void setDestinationWidth( int width );
+
+        void setBlend( bool blend );
 
     signals:
         void in0XChanged( int value );
@@ -90,13 +111,23 @@ namespace plvopencv
         void in2YChanged( int value );
         void in3YChanged( int value );
 
+        void destinationHeightChanged( int height );
+        void destinationWidthChanged( int width );
+
+        void blendChanged( bool blend );
+
     private:
+        void copyImgInto( const cv::Mat& in, cv::Mat& out, int posX, int posY );
+
         plv::CvMatDataInputPin*  m_inputPin0;
         plv::CvMatDataInputPin*  m_inputPin1;
         plv::CvMatDataInputPin*  m_inputPin2;
         plv::CvMatDataInputPin*  m_inputPin3;
 
         plv::CvMatDataOutputPin* m_outputPin;
+
+        int destinationHeight;
+        int destinationWidth;
 
         int in0x;
         int in0y;
@@ -106,6 +137,8 @@ namespace plvopencv
         int in2y;
         int in3x;
         int in3y;
+
+        bool m_blend;
     };
 }
 

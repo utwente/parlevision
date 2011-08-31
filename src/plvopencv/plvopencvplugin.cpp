@@ -35,6 +35,7 @@
 #include "Average.h"
 #include "RunningAverage.h"
 #include "ForegroundDetector.h"
+#include "Crop.h"
 
 PlvOpenCVPlugin::PlvOpenCVPlugin()
 {
@@ -84,6 +85,7 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::Average>();
     plvRegisterPipelineElement<plvopencv::RunningAverage>();
     plvRegisterPipelineElement<plvopencv::ForegroundDetector>();
+    plvRegisterPipelineElement<plvopencv::CropImage>();
 }
 Q_EXPORT_PLUGIN2(plv_opencv_plugin, PlvOpenCVPlugin)
 

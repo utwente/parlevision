@@ -30,35 +30,38 @@ using namespace plv;
 using namespace plvopencv;
 
 #include <vector>
+#include <limits>
 
 Stitch::Stitch() :
+    destinationWidth(STITCH_DESTINATION_WIDTH_DEFAULT),
+    destinationHeight(STITCH_DESTINATION_HEIGHT_DEFAULT),
     in0x(0), in0y(0),
     in1x(0), in1y(0),
     in2x(0), in2y(0),
-    in3x(0), in3y(0)
+    in3x(0), in3y(0),
+    m_blend(false)
 {
     m_inputPin0 = createCvMatDataInputPin( "in1", this, IInputPin::CONNECTION_REQUIRED );
     m_inputPin1 = createCvMatDataInputPin( "in2", this, IInputPin::CONNECTION_REQUIRED );
-    m_inputPin2 = createCvMatDataInputPin( "in3", this, IInputPin::CONNECTION_REQUIRED );
-    m_inputPin3 = createCvMatDataInputPin( "in4", this, IInputPin::CONNECTION_REQUIRED );
+    m_inputPin2 = createCvMatDataInputPin( "in3", this, IInputPin::CONNECTION_OPTIONAL );
+    m_inputPin3 = createCvMatDataInputPin( "in4", this, IInputPin::CONNECTION_OPTIONAL );
 
     m_outputPin = createCvMatDataOutputPin( "out", this );
 
     m_inputPin0->addAllChannels();
-    m_inputPin0->addAllDepths();
+    m_inputPin0->addSupportedDepth(CV_16U);
 
     m_inputPin1->addAllChannels();
-    m_inputPin1->addAllDepths();
+    m_inputPin1->addSupportedDepth(CV_16U);
 
     m_inputPin2->addAllChannels();
-    m_inputPin2->addAllDepths();
+    m_inputPin2->addSupportedDepth(CV_16U);
 
     m_inputPin3->addAllChannels();
-    m_inputPin3->addAllDepths();
+    m_inputPin3->addSupportedDepth(CV_16U);
 
-    m_outputPin->addAllDepths();
+    m_outputPin->addSupportedDepth(CV_16U);
     m_outputPin->addSupportedChannels(1);
-
 }
 
 Stitch::~Stitch()
@@ -69,14 +72,41 @@ bool Stitch::process()
 {
     plv::CvMatData in0Img = m_inputPin0->get();
     plv::CvMatData in1Img = m_inputPin1->get();
-    plv::CvMatData in2Img = m_inputPin2->get();
-    plv::CvMatData in3Img = m_inputPin3->get();
 
-    if( in0Img.properties() != in1Img.properties() ||
-        in0Img.properties() != in2Img.properties() ||
-        in0Img.properties() != in3Img.properties() )
+    plv::CvMatData in2Img;
+    plv::CvMatData in3Img;
+
+    if( m_inputPin2->isConnected() )
     {
-        setError( PlvPipelineRuntimeError, "Not all images have equal properties" );
+        in2Img = m_inputPin2->get();
+    }
+    else
+    {
+        in2Img = CvMatData::create(in1Img.properties());
+    }
+
+    if( m_inputPin3->isConnected() )
+    {
+        in3Img = m_inputPin3->get();
+    }
+    else
+    {
+        in3Img = CvMatData::create(in1Img.properties());
+    }
+
+    if( in0Img.depth() != in1Img.depth() ||
+        in0Img.depth() != in2Img.depth() ||
+        in0Img.depth() != in3Img.depth() )
+    {
+        setError( PlvPipelineRuntimeError, "Not all images have equal depth" );
+        return false;
+    }
+
+    if( in0Img.channels() != in1Img.channels() ||
+        in0Img.channels() != in2Img.channels() ||
+        in0Img.channels() != in3Img.channels() )
+    {
+        setError( PlvPipelineRuntimeError, "Not all images have an equal number of channels" );
         return false;
     }
 
@@ -86,60 +116,94 @@ bool Stitch::process()
     const cv::Mat& in2 = in2Img;
     const cv::Mat& in3 = in3Img;
 
-    // create output image
-    plv::CvMatData outImg = CvMatData::create( in0Img.width() * 2, in0Img.height() * 2, in0Img.depth(), in0Img.channels() );
+    // create output image, output image size may vary depending on parameters
+//    int outWidthRow1 = -(in0x) + in0Img.width() + in1Img.width() + in1x;
+//    int outWidthRow2 = -(in2x) + in2Img.width() + in3Img.width() + in3x;
+//    int outWidth = outWidthRow1 > outWidthRow2 ? outWidthRow1 : outWidthRow2;
 
+//    int outHeightCol1 = in0y + in0Img.height() + in2Img.height() - in2y;
+//    int outHeightCol2 = in1y + in1Img.height() + in3Img.height() - in3y;
+//    int outHeight = outHeightCol1 > outHeightCol2 ? outHeightCol1 : outHeightCol2;
+
+    int outWidth  = destinationWidth;
+    int outHeight = destinationHeight;
+
+//    qDebug() << QString("Creating output image with size (%1, %2, %3, %4)")
+//                .arg(outWidth)
+//                .arg(outHeight)
+//                .arg(in0Img.depth())
+//                .arg(in0Img.channels());
+
+    plv::CvMatData outImg = CvMatData::create( outWidth, outHeight, in0Img.depth(), in0Img.channels() );
     cv::Mat& out = outImg;
+    
+    // set output image to black
+    out = 0;
 
-    int width  = in0Img.width();
-    int height = in0Img.height();
-
-    int yFrom = in0y;
-    int yTo   = height + in0y;
-    int xFrom = in0x;
-    int xTo   = width + in0x;
-
-    if( yFrom < 0 ) yFrom = 0;
-    if( xFrom < 0 ) xFrom = 0;
-
-    if( yTo > in0Img.height() ) yTo = in0Img.height();
-    if( xTo > in0Img.width() )  xTo = in0Img.width();
-
-    for( int y = yFrom; y < yTo ; y++ )
-    {
-        for( int x = xFrom ; x < xTo ; x++ )
-        {
-            out.at<unsigned short>(y,x) = in0.at<unsigned short>(y,x);
-        }
-    }
-
-    for( int y = 0 ; y < height ; y++ )
-    {
-        for( int x = 0 ; x < width ; x++ )
-        {
-            out.at<unsigned short>(y+height,x) = in1.at<unsigned short>(y,x);
-        }
-    }
-
-    for( int y = 0 ; y < height ; y++ )
-    {
-        for( int x = 0 ; x < width ; x++ )
-        {
-            out.at<unsigned short>(y,x+width) = in2.at<unsigned short>(y,x);
-        }
-    }
-
-    for( int y = 0 ; y < height ; y++ )
-    {
-        for( int x = 0 ; x < width ; x++ )
-        {
-            out.at<unsigned short>(y+height,x+width) = in3.at<unsigned short>(y,x);
-        }
-    }
+    copyImgInto( in0, out, in0x, in0y );
+    copyImgInto( in1, out, in1x + in0.cols, in1y );
+    copyImgInto( in2, out, in2x, in2y + in0.rows );
+    copyImgInto( in3, out, in3x + in0.cols, in3y + in0.rows );
 
     m_outputPin->put(outImg);
-
     return true;
+}
+
+void Stitch::copyImgInto( const cv::Mat& in, cv::Mat& out , int posX, int posY )
+{
+    int displacementX = posX; // > 0 ? (posX < out.height() ? posX : out.height()) : 0;
+    int displacementY = posY; // > 0 ? (posY < out.width()  ? posY : out.width() ) : 0;
+
+    int xStart = displacementX < 0 ? -displacementX : 0;
+    int yStart = displacementY < 0 ? -displacementY : 0;
+    
+    int xStop = in.cols;
+    int yStop = in.rows; 
+    
+    if( (xStop + displacementX) > out.cols ) xStop -= (xStop + displacementX) - out.cols;
+    if( (yStop + displacementY) > out.rows ) yStop -= (yStop + displacementY) - out.rows;
+
+    int x,y;
+
+    try
+    {
+        if( m_blend )
+        {
+            for( y = yStart; y < yStop; ++y )
+            {
+                for( x = xStart; x < xStop; ++x )
+                {
+                    float outval = (float) out.at<unsigned short>(y+displacementY,x+displacementX);
+                    float inval =  (float) in.at<unsigned short>(y,x);
+                    out.at<unsigned short>(y+displacementY,x+displacementX) = outval > 0 ? (unsigned short) (inval + outval) * 0.5f : inval;
+                }
+            }
+        }
+        else
+        {
+            for( y = yStart; y < yStop; ++y )
+            {
+                for( x = xStart; x < xStop; ++x )
+                {
+                   out.at<unsigned short>(y+displacementY,x+displacementX) = in.at<unsigned short>(y,x);
+                }
+            }
+        }
+    }
+    catch( cv::Exception& e )
+    {
+        qDebug() << "Exception!";
+    }
+}
+
+int Stitch::getDestinationHeight()
+{
+    return destinationHeight;
+}
+
+int Stitch::getDestinationWidth()
+{
+    return destinationWidth;
 }
 
 int Stitch::getIn0X()
@@ -236,4 +300,37 @@ void Stitch::setIn3Y( int value )
 {
     QMutexLocker lock( m_propertyMutex );
     in3y = value;
+}
+
+void Stitch::setDestinationHeight( int height )
+{
+    QMutexLocker lock( m_propertyMutex );
+    if( height < 0 ) height = 0;
+    if( height > STITCH_DESTINATION_HEIGHT_MAX ) height = STITCH_DESTINATION_HEIGHT_MAX;
+    destinationHeight = height;
+    emit destinationHeightChanged(height);
+
+}
+
+void Stitch::setDestinationWidth( int width )
+{
+    QMutexLocker lock( m_propertyMutex );
+
+    if( width < 0 ) width = 0;
+    if( width > STITCH_DESTINATION_WIDTH_MAX ) width = STITCH_DESTINATION_WIDTH_MAX;
+    destinationWidth = width;
+    emit destinationWidthChanged(width);
+}
+
+void Stitch::setBlend( bool blend )
+{
+    QMutexLocker lock( m_propertyMutex );
+    if( blend != m_blend ) emit blendChanged(blend);
+    m_blend = blend;
+}
+
+bool Stitch::getBlend()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_blend;
 }
