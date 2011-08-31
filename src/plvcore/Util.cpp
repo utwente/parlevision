@@ -2,6 +2,29 @@
 
 using namespace plv;
 
+QString Util::m_buildDate = __DATE__;
+QString Util::m_buildTime = __TIME__;
+QString Util::m_buildType =
+#ifdef DEBUG
+        QString( "debug" );
+#else
+        QString( "release" );
+#endif
+
+QString Util::m_compilerName = 
+#if defined _MSC_VER
+    QString("MSC version %1").arg(_MSC_VER);
+#elif defined __GNUC__
+    QString("GCC version %1").arg(__GNUC__);
+#else
+    QString("Unknown");
+#endif
+
+QString Util::m_buildInformation = QString("[%1 %2][%3 %4]").arg( m_buildDate )
+                                                            .arg( m_buildTime )
+                                                            .arg( m_compilerName )
+                                                            .arg( m_buildType );
+
 void Util::addDefaultBorderInterpolationTypes( plv::Enum& e )
 {
     e.add( "default", cv::BORDER_DEFAULT );
