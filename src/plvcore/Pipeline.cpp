@@ -536,7 +536,7 @@ void Pipeline::schedule()
     // schedule processors
     int maxIdx = m_ordering.size();
     QMutableMapIterator<unsigned int, int> itr(m_pipelineStages);
-    while( itr.hasNext() )
+    while( itr.hasNext() && maxIdx >= 0 )
     {
         itr.next();
         unsigned int serial = itr.key();
@@ -548,46 +548,50 @@ void Pipeline::schedule()
             if( !element->__ready(serial) )
             {
                 stop = true;
-                maxIdx = idx;
+                maxIdx = idx - 1;
             }
             else
             {
-                RunItem item( element, serial );
-                item.dispatch();
-                m_runQueue.append( item );
-                ++idx;
-                itr.setValue(idx);
-                if( idx == m_ordering.size() )
-                {
-                    itr.remove();
-
-                    // unsigned int will wrap around
-                    ++m_serial;
-
-                    // add a new stage
-                    m_pipelineStages.insert(m_serial, 0);
-
-                    ++m_numFramesSinceLastFPSCalculation;
-                    int elapsed = m_timeSinceLastFPSCalculation.elapsed();
-                    if( elapsed > 10000 )
-                    {
-                        // add one so elapsed is never 0 and
-                        // we do not get div by 0
-                        m_fps = (m_numFramesSinceLastFPSCalculation * 1000) / elapsed;
-                        //m_fps = m_fps == -1.0f ? fps : m_fps * 0.9f + 0.1f * fps;
-                        m_timeSinceLastFPSCalculation.restart();
-                        m_numFramesSinceLastFPSCalculation = 0;
-                        qDebug() << "FPS: " << (int)m_fps;
-                        emit framesPerSecond(m_fps);
-                    }
-                    emit stepTaken(serial);
-                    stop = true;
-                }
-                else if(idx >= maxIdx)
+                assert( idx <= maxIdx );
+				if(idx == maxIdx)
                 {
                     stop = true;
                     maxIdx -= 1;
                 }
+				else
+				{
+					RunItem item( element, serial );
+					item.dispatch();
+					m_runQueue.append( item );
+					++idx;
+					itr.setValue(idx);
+					if( idx == m_ordering.size() )
+					{
+						itr.remove();
+
+						// unsigned int will wrap around
+						++m_serial;
+
+						// add a new stage
+						m_pipelineStages.insert(m_serial, 0);
+
+						++m_numFramesSinceLastFPSCalculation;
+						int elapsed = m_timeSinceLastFPSCalculation.elapsed();
+						if( elapsed > 10000 )
+						{
+							// add one so elapsed is never 0 and
+							// we do not get div by 0
+							m_fps = (m_numFramesSinceLastFPSCalculation * 1000) / elapsed;
+							//m_fps = m_fps == -1.0f ? fps : m_fps * 0.9f + 0.1f * fps;
+							m_timeSinceLastFPSCalculation.restart();
+							m_numFramesSinceLastFPSCalculation = 0;
+							qDebug() << "FPS: " << (int)m_fps;
+							emit framesPerSecond(m_fps);
+						}
+						emit stepTaken(serial);
+						stop = true;
+					}
+				}
             }
         }
     }
