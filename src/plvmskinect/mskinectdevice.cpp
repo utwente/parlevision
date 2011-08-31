@@ -42,6 +42,7 @@ void KinectDevice::zero()
 {
     m_state = KINECT_UNINITIALIZED;
 
+    m_nuiInstance          = NULL;
     m_hNextDepthFrameEvent = NULL;
     m_hNextVideoFrameEvent = NULL;
     m_hNextSkeletonEvent   = NULL;
@@ -154,8 +155,11 @@ bool KinectDevice::init()
 
 bool KinectDevice::deinit()
 {
-    m_nuiInstance->NuiShutdown( );
-    MSR_NuiDestroyInstance( m_nuiInstance );
+    if( m_nuiInstance != NULL )
+    {
+        m_nuiInstance->NuiShutdown( );
+        MSR_NuiDestroyInstance( m_nuiInstance );
+    }
     if( m_hNextSkeletonEvent && ( m_hNextSkeletonEvent != INVALID_HANDLE_VALUE ) )
     {
         CloseHandle( m_hNextSkeletonEvent );
@@ -346,7 +350,29 @@ void KinectDevice::Nui_GotDepthAlert()
     CvMatData img;
     if( pImageFrame->eImageType == NUI_IMAGE_TYPE_DEPTH )
     {
-        img = CvMatData::create(width, height, CV_8U, 1);
+        //img = CvMatData::create(width, height, CV_8U, 1);
+
+        //// draw the bits to the bitmap
+        //USHORT* pBufferRun = (USHORT*) pBuffer;
+        //cv::Mat& mat = img;
+
+        //// todo should be faster with memcpy
+        //for( int y = 0 ; y < height ; y++ )
+        //{
+        //    for( int x = 0 ; x < width ; x++ )
+        //    {
+        //        // from 12-bit to 16-bit
+        //        USHORT RealDepth = *pBufferRun;
+
+        //        // transform 13-bit depth information into an 8-bit intensity appropriate
+        //        // for display (we disregard information in most significant bit)
+        //        BYTE l = 255 - (BYTE)(256*RealDepth/0x0fff);
+        //        mat.at<BYTE>(y,x) = l;
+        //        pBufferRun++;
+        //    }
+        //}
+
+        img = CvMatData::create(width, height, CV_16U, 1);
 
         // draw the bits to the bitmap
         USHORT* pBufferRun = (USHORT*) pBuffer;
@@ -357,16 +383,28 @@ void KinectDevice::Nui_GotDepthAlert()
         {
             for( int x = 0 ; x < width ; x++ )
             {
-                // from 12-bit to 16-bit
-                USHORT RealDepth = *pBufferRun;
-
-                // transform 13-bit depth information into an 8-bit intensity appropriate
-                // for display (we disregard information in most significant bit)
-                BYTE l = 255 - (BYTE)(256*RealDepth/0x0fff);
-                mat.at<BYTE>(y,x) = l;
+                // multiply by 2^4 so we see something in the viewer
+                // this is a temporary hack until we can adjust viewer to see
+                // 12 bit values
+                mat.at<USHORT>(y,x) = (*pBufferRun) << 4;
                 pBufferRun++;
             }
         }
+
+        // for some reason (bug?) the image is flipped in 640x480 depth mode
+        // flip the image back around y-axis
+        // cv::flip( mat, mat, 1 );
+
+        // also the last 8 pixels are black.
+        // From http://groups.google.com/group/openkinect/browse_thread/thread/6539281cf451ae9e
+        // Turns out the scaled down raw IR image that we can stream from the
+        // Kinect is 640x488, so it loses 8 pixels in both the X and Y dimensions.
+        // We just don't see the lost Y because the image is truncated there, while
+        // the missing X pixels are padded.
+
+        // The actual raw IR acquisition image is likely 1280x976 (from a 1280x1024
+        // sensor, windowing off the extra Y pixels), and from that it derives a
+        // 632x480 depth map at 1:2 ratio and using 16 extra source pixels in X and Y. 
     }
     else if( pImageFrame->eImageType == NUI_IMAGE_TYPE_DEPTH_AND_PLAYER_INDEX )
     {
