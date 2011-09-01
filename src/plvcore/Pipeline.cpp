@@ -413,8 +413,17 @@ void Pipeline::start()
         RefPtr<PipelineElement> element = itr.value();
         try
         {
-            element->__start();
-            started.insert( element.getPtr() );
+            if( element->__start() )
+			{
+				started.insert( element.getPtr() );
+			}
+			else
+			{
+				QString msg = tr("PipelineElement %1 failed to start.").arg(element->getName());
+				handleMessage(QtWarningMsg, msg);
+				element->__deinit();
+				error = true;
+			}
         }
         catch( Exception& e )
         {
@@ -519,7 +528,7 @@ void Pipeline::schedule()
         if( future.isFinished() )
         {
             bool result = future.result();
-            if( !result )
+			if( !result )
             {
                 // stop on error
                 QString msg = tr("Pipeline stopped because of an error in %1. The error is %2")
@@ -742,6 +751,9 @@ void Pipeline::pipelineElementError( PlvErrorType type, PipelineElement* ple )
 
     QString msg = ple->getErrorString();
     handleMessage(qtType, msg);
+	
+	// stop the pipeline
+	stop();
 }
 
 void Pipeline::handleMessage(PlvMessageType type, const QString& msg)
