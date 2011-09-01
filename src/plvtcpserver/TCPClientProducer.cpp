@@ -29,7 +29,8 @@ TCPClientProducer::TCPClientProducer() :
     m_port(1337),
     m_blockSize(0),
     m_networkSession(0),
-    m_configured( true )
+    m_configured( true ),
+	m_autoReconnect( false )
 {
     m_intOut      = plv::createOutputPin<int>("int", this);
     m_stringOut   = plv::createOutputPin<QString>("QString", this);
@@ -120,12 +121,17 @@ bool TCPClientProducer::start()
     m_tcpSocket->connectToHost( address, m_port );
 
     int timeout = 5*1000;
-    if(!m_tcpSocket->waitForConnected(timeout))
-    {
-        displayError(m_tcpSocket->error(), false);
-        return false;
-    }
-    return true;
+    if(m_tcpSocket->waitForConnected(timeout))
+		return true;
+
+    if( m_autoReconnect )
+	{
+		qWarning() << "TCPClientProducer failed to connect at startup, will keep trying to reconnect because autoreconnect is enabled.";
+		return true;
+	}
+	
+	displayError(m_tcpSocket->error(), false);
+	return false;
 }
 
 bool TCPClientProducer::stop()
@@ -134,19 +140,21 @@ bool TCPClientProducer::stop()
     qDebug() << "Disconnecting ... ";
     m_tcpSocket->disconnectFromHost();
 
+	// if not immediately disconnected wait 5 seconds
     int timeout = 5*1000;
-    if(!m_tcpSocket->waitForDisconnected(timeout))
+    if( m_tcpSocket->state() == QAbstractSocket::UnconnectedState || m_tcpSocket->waitForDisconnected(timeout) )
     {
-        displayError(m_tcpSocket->error(), false);
-        return false;
+        return true;
     }
-    return true;
+	displayError(m_tcpSocket->error(), false);
+	return false;
 }
 
 bool TCPClientProducer::readyToProduce() const
 {
     // check if we have a connection
-	if( m_tcpSocket->state() == QAbstractSocket::UnconnectedState )
+	QAbstractSocket::SocketState state = m_tcpSocket->state();
+	if( state == QAbstractSocket::UnconnectedState )
 	{
 		QHostAddress address( m_ipAddress );
 
@@ -155,7 +163,7 @@ bool TCPClientProducer::readyToProduce() const
 		// if this fails, error is automatically called
 		// by signal slots connection
 		m_tcpSocket->connectToHost( address, m_port );
-
+		
 		int timeout = 5*1000;
 		if(!m_tcpSocket->waitForConnected(timeout))
 		{
@@ -287,7 +295,9 @@ void TCPClientProducer::ackFrame(quint32 frameNumber)
 
     if( m_tcpSocket->write(bytes) == -1 )
     {
-        setError( PlvNonFatalError, m_tcpSocket->errorString() );
+        //setError( PlvNonFatalError, m_tcpSocket->errorString() );
+		QString msg = tr("Failed to write ACK to socket.");
+		qWarning() << msg;
     }
 }
 
@@ -398,7 +408,7 @@ void TCPClientProducer::connected()
 void TCPClientProducer::disconnected()
 {
     qDebug() << "TCPClientProducer disconnected";
-    setError( PlvPipelineRuntimeError, tr("The remote host closed the connection."));
+    //setError( PlvPipelineRuntimeError, tr("The remote host closed the connection."));
 }
 
 void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError, bool signal)
@@ -411,7 +421,7 @@ void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError, b
     case QAbstractSocket::RemoteHostClosedError:
         type = PlvPipelineRuntimeError;
         msg = tr("The remote host closed the connection.");
-        break;
+		break;
     case QAbstractSocket::HostNotFoundError:
         type = PlvPipelineRuntimeError;
         msg = tr("The host was not found. Please check the "
@@ -428,8 +438,17 @@ void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError, b
        type = PlvPipelineRuntimeError;
        msg = tr("The following error occurred: %1.").arg(m_tcpSocket->errorString());
     }
-    setError(type,msg);
-    if(signal) emit onError(type,this);
+
+	if( !m_autoReconnect )
+	{
+		setError(type,msg);
+		if(signal) emit onError(type,this);
+	}
+	else
+	{
+		//emit sendMessageToPipeline( PlvNotifyMessage, msg );
+		qWarning() << msg;
+	}
 }
 
 /** propery methods */
@@ -460,4 +479,15 @@ void TCPClientProducer::setServerIP(const QString& ip, bool doEmit )
     if( doEmit ) emit( serverIPChanged(ip) );
 }
 
+bool TCPClientProducer::getAutoReconnect() const
+{
+    QMutexLocker lock(m_propertyMutex);
+    return m_autoReconnect;
+}
 
+void TCPClientProducer::setAutoReconnect(bool ar, bool doEmit )
+{
+    QMutexLocker lock(m_propertyMutex);
+    m_autoReconnect = ar;
+    if( doEmit ) emit( autoReconnectChanged(ar) );
+}
