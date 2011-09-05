@@ -10,7 +10,7 @@ DEPENDENCIES
 ParleVision depends on:
 * Qt      >= 4.6    # parlevision-core depends on QtCore and QtXML
                     # parlevision-gui depends on the QtGUI
-					(we recommend 4.7.1)
+					(we recommend 4.7.3)
 * OpenCV  >= 2.0	(we recommend 2.1)
 * Qxt	  >= 0.6    # parlevision-core depends on the Qxt library for advanced logging features
 
@@ -56,6 +56,41 @@ B. Using Make (unix)
 
 C. Using XCode
 ...
+
+D. Using Visual Studio 2010 (required for MS Kinect SDK plugin to work)
+
+This will describe how to compile ParleVision5 with Visual Studio 2010.
+
+Normally we would download already compiled binaries for MSVC2010 from the Qt Nokia website. However binaries for MSVC2010 are not available, so we first need to compile Qt 4.7.x with VS2010. 
+
+Here we will describe a step-by-step guide on how to compile Qt 4.7.x (I used 4.7.3) for MSVC2010 manually. This guide was adapted from http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
+
+Install MSVC2010. Express will not work since it does not support add-ins which you need for Qt integration, so you need the Professional or Ultimate edition.
+
+Install appropriate software from Qt for Windows Requirements list. These are Perl and the DirectX SDK. You also need the Windows SDK, but this already comes with VS2010.
+
+Download and install the Qt Visual Studio Add-in from the Qt website.
+
+Download and extract Qt 4.7.3 Source Code and move or copy the contents of the folder qt-everywhere-opensource-src-4.7.3 to the directory where you intend to install Qt. In my case this is "C:\Qt\4.7.3" .
+    
+Set up the environmental variables. You can add these to the environment variables using the Windows GUI or use the "set" command in the command prompt. You would need to call "set" everytime you open a command prompt window, so adding them to the permanent system variables is preferrable.
+    QTDIR=C:\Qt\4.7.1
+    QMAKESPEC=win32-msvc2010
+	.. and update the PATH variable to include %QTDIR%\bin
+    
+To compile Qt using multiple cores download the latest version of jom from ftp://ftp.qt.nokia.com/jom/. Extract the jom files to C:\Qt\jom folder
+
+Start Visual Studio 2010 Command Prompt: Start > Programs > Microsoft Visual Studio 2010 > Visual Studio Tools > Visual Studio Command Prompt.
+
+Run the following commands in it:
+	cd c:\Qt\4.7.1
+    configure -debug-and-release -opensource -platform win32-msvc2010
+    ..\jom\jom.exe -j 4 (where 4 is the number of threads, use more if you have more hardware cores/threads available)
+
+Install OpenCV. Download the OpenCV source. Do NOT use the OpenCV binaries from their website! They are buggy and incomplete. Compile your own using CMAKE and VS2010.
+
+If you want to use QtCreator: to enable debugging in QtCreator when compiling with VC++ compiler see
+http://doc.qt.nokia.com/qtcreator-snapshot/creator-debugger-engines.html
 
 ICONSET
 Icons: Symbolize Icon Set, version 1.0
