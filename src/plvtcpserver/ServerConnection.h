@@ -25,6 +25,7 @@
 #include <QTcpSocket>
 #include <QByteArray>
 #include <QMutex>
+#include <QTime>
 
 #include <plvcore/plvglobal.h>
 
@@ -38,8 +39,12 @@ public:
     quint32 serial;
     QByteArray bytes;
     qint64 sent;
+	QTime time;
 
-    Frame(quint32 s, QByteArray& b) : serial(s), bytes(b), sent(0) {}
+    Frame(quint32 s, QByteArray& b) : serial(s), bytes(b), sent(0)
+	{
+		time.start();
+	}
 };
 
 class ServerConnection : public QObject
@@ -76,7 +81,7 @@ public slots:
 
 signals:
     void onError(PlvErrorType type, const QString& msg);
-    void finished(ServerConnection* connection);
+    void finished();
 
     /** emitted when the TCP connection is waiting for the client */
     void waitingOnClient( ServerConnection* connection, bool waiting );

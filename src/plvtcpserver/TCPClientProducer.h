@@ -45,6 +45,7 @@ class TCPClientProducer : public plv::PipelineProducer
 
     Q_PROPERTY( int port READ getPort WRITE setPort NOTIFY portChanged  )
     Q_PROPERTY( QString serverIP READ getServerIP WRITE setServerIP NOTIFY serverIPChanged )
+	Q_PROPERTY( bool autoReconnect READ getAutoReconnect WRITE setAutoReconnect NOTIFY autoReconnectChanged  )
 
 public:
     TCPClientProducer();
@@ -60,10 +61,12 @@ public:
 
     int getPort() const;
     QString getServerIP() const;
+	bool getAutoReconnect() const;
 
 signals:
     void portChanged(int port);
     void serverIPChanged(QString ip);
+	void autoReconnectChanged(bool ar);
 
 public slots:
     void setPort(int port, bool doEmit=false );
@@ -73,6 +76,7 @@ public slots:
     void displayError(QAbstractSocket::SocketError socketError, bool signal=true);
     void connected();
     void disconnected();
+	void setAutoReconnect(bool ar, bool doEmit=false );
 
 private:
     void ackFrame(quint32 frameNumber);
@@ -86,13 +90,15 @@ private:
     QVector<QVariant::Type> m_types;
     QList<QVariantList> m_frameList;
     QMutex m_frameListMutex;
+	bool m_autoReconnect;
 
     plv::OutputPin<int>* m_intOut;
     plv::OutputPin<QString>* m_stringOut;
     plv::OutputPin<float>* m_floatOut;
     plv::OutputPin<double>* m_doubleOut;
     plv::OutputPin<cv::Scalar>* m_cvScalarOut;
-    plv::CvMatDataOutputPin* m_imageOut;
+    plv::CvMatDataOutputPin* m_imageOut1;
+	plv::CvMatDataOutputPin* m_imageOut2;
 
 };
 
