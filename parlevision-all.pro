@@ -9,8 +9,11 @@ SUBDIRS =   src/plvcore \
             src/plvblobtracker \
             src/plvtcpserver \
             src/plvtest \
-            src/plvpluginexample \
-            src/plvmskinect
+            src/plvpluginexample
+
+win32-msvc2010 {
+    SUBDIRS += src/plvmskinect
+}
 
 CONFIG += ordered
 DESTDIR = dist
