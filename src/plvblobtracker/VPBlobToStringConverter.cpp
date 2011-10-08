@@ -7,7 +7,7 @@ using namespace plvblobtracker;
 
 VPBlobToStringConverter::VPBlobToStringConverter()
 {
-    m_inputBlobs = createInputPin<QList<Blob>>( "input", this );
+    m_inputBlobs = createInputPin<QList<Blob> >( "input", this );
     m_inputImage = createCvMatDataInputPin( "image", this );
 
     m_inputImage->addAllChannels();
