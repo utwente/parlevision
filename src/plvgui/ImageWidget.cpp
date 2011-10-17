@@ -57,6 +57,8 @@ void ImageWidget::setImage(const QImage &img)
 
 void ImageWidget::resizeEvent(QResizeEvent * event)
 {
+    Q_UNUSED(event);
+    
     if( m_zoomToFit )
         computeZoomFactorToFitImage();
     else

@@ -80,6 +80,7 @@ void OpenCVImageListRenderer::hideEvent(QHideEvent* event)
 
 void OpenCVImageListRenderer::newData( unsigned int serial, QVariant v )
 {
+    Q_UNUSED(serial);
     QMutexLocker lock( &m_busy_mutex );
 
     if(m_busy || !this->isVisible() )

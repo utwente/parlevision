@@ -78,6 +78,7 @@ void OpenCVImageRenderer::hideEvent(QHideEvent* event)
 
 void OpenCVImageRenderer::newData( unsigned int serial, QVariant v )
 {
+    Q_UNUSED(serial);
     QMutexLocker lock( &m_busy_mutex );
 
     if(m_busy || !this->isVisible() )
