@@ -2,3 +2,5 @@
 moc_*
 Makefile
 *.pro.user
+*.vcxproj*
+*.pdb
