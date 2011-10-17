@@ -126,8 +126,8 @@ namespace plvopencv
 
         plv::CvMatDataOutputPin* m_outputPin;
 
-        int destinationHeight;
         int destinationWidth;
+        int destinationHeight;
 
         int in0x;
         int in0y;
