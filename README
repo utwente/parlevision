@@ -74,7 +74,7 @@ Download and install the Qt Visual Studio Add-in from the Qt website.
 Download and extract Qt 4.7.3 Source Code and move or copy the contents of the folder qt-everywhere-opensource-src-4.7.3 to the directory where you intend to install Qt. In my case this is "C:\Qt\4.7.3" .
     
 Set up the environmental variables. You can add these to the environment variables using the Windows GUI or use the "set" command in the command prompt. You would need to call "set" everytime you open a command prompt window, so adding them to the permanent system variables is preferrable.
-    QTDIR=C:\Qt\4.7.1
+    QTDIR=C:\Qt\4.7.3
     QMAKESPEC=win32-msvc2010
 	.. and update the PATH variable to include %QTDIR%\bin
     
@@ -83,7 +83,7 @@ To compile Qt using multiple cores download the latest version of jom from ftp:/
 Start Visual Studio 2010 Command Prompt: Start > Programs > Microsoft Visual Studio 2010 > Visual Studio Tools > Visual Studio Command Prompt.
 
 Run the following commands in it:
-	cd c:\Qt\4.7.1
+	cd c:\Qt\4.7.3
     configure -debug-and-release -opensource -platform win32-msvc2010
     ..\jom\jom.exe -j 4 (where 4 is the number of threads, use more if you have more hardware cores/threads available)
 
