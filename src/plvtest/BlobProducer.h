@@ -36,7 +36,8 @@ signals:
     void numBlobsChanged(int n);
 
 private:
-    plv::CvMatData m_image;
+    int m_width;
+    int m_height;
     int m_maxStep;
     int m_numBlobs;
     double m_factor;

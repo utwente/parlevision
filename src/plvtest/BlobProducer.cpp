@@ -27,6 +27,8 @@
 using namespace plv;
 
 BlobProducer::BlobProducer() :
+    m_width(640),
+    m_height(480),
     m_maxStep(10),
     m_numBlobs(10)
 {
@@ -42,9 +44,8 @@ BlobProducer::~BlobProducer()
 
 bool BlobProducer::init()
 {
-    m_image = cv::Mat(800, 600, CV_8UC3);
     m_positions = QVector<cv::Point>(m_numBlobs, cv::Point(0,0));
-    m_targets   = QVector<cv::Point>(m_numBlobs, cv::Point(m_image.width()/2, m_image.height()/2));
+    m_targets   = QVector<cv::Point>(m_numBlobs, cv::Point(m_width/2, m_height/2));
     m_factor = (m_maxStep / (double)RAND_MAX);
 
     return true;
@@ -57,7 +58,7 @@ bool BlobProducer::readyToProduce() const
 
 bool BlobProducer::produce()
 {
-    CvMatData out = CvMatData::create(800,600,CV_8UC1);
+    CvMatData out = CvMatData::create(640,480,CV_8UC1);
     cv::Mat& img = out;
     img = cv::Scalar::all(0);
 
@@ -130,7 +131,7 @@ void BlobProducer::setNumBlobs(int num)
             for( int i=m_numBlobs; i < num; ++i )
             {
                 m_positions[i] = cv::Point(0,0);
-                m_targets[i]   = cv::Point(m_image.width()/2, m_image.height()/2);
+                m_targets[i]   = cv::Point(m_width/2, m_height/2);
             }
         }
         m_numBlobs = num;
