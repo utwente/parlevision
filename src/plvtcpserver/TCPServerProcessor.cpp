@@ -327,8 +327,9 @@ void TCPServerProcessor::setLossless(bool lossless)
 
 void TCPServerProcessor::stalled(ServerConnection* connection)
 {
+    Q_UNUSED(connection)
     QMutexLocker lock( m_propertyMutex );
-    qDebug() << "TCPServerProcessor: a connection stalled";
+    //qDebug() << "TCPServerProcessor: a connection stalled";
     m_waiting = true;
 }
 
@@ -336,8 +337,9 @@ void TCPServerProcessor::stalled(ServerConnection* connection)
 // more than one connection now
 void TCPServerProcessor::unstalled(ServerConnection* connection)
 {
+    Q_UNUSED(connection)
     QMutexLocker lock( m_propertyMutex );
-    qDebug() << "TCPServerProcessor: a connection unstalled";
+    //qDebug() << "TCPServerProcessor: a connection unstalled";
     m_waiting = false;
 }
 
