@@ -22,6 +22,7 @@
 #include "TCPClientProducer.h"
 #include <QtNetwork>
 #include "Proto.h"
+#include <limits>
 
 TCPClientProducer::TCPClientProducer() :
     m_tcpSocket(new QTcpSocket(this)),
@@ -30,14 +31,14 @@ TCPClientProducer::TCPClientProducer() :
     m_blockSize(0),
     m_networkSession(0),
     m_configured( true ),
-	m_autoReconnect( false )
+    m_autoReconnect( false )
 {
     m_intOut      = plv::createOutputPin<int>("int", this);
     m_stringOut   = plv::createOutputPin<QString>("QString", this);
     m_doubleOut   = plv::createOutputPin<double>("double", this);
     m_cvScalarOut = plv::createOutputPin< cv::Scalar >("cv::Scalar", this);
     m_imageOut1    = plv::createCvMatDataOutputPin("CvMatData1", this);
-	m_imageOut2    = plv::createCvMatDataOutputPin("CvMatData2", this);
+    m_imageOut2    = plv::createCvMatDataOutputPin("CvMatData2", this);
 
     // Try to optimize the socket for low latency.
     // For a QTcpSocket this would set the TCP_NODELAY option
@@ -116,22 +117,41 @@ bool TCPClientProducer::start()
 
     qDebug() << "Connecting to " << address.toString() << ":" << m_port;
 
+    // skip all data left in socket
+    qint64 bytes = m_tcpSocket->bytesAvailable();
+    if( bytes > 0 )
+    {
+        QDataStream in(m_tcpSocket);
+        in.setVersion(QDataStream::Qt_4_0);
+
+        // can skip 2^32 bytes at a time, skip until no bytes left
+        while( bytes > (qint64) std::numeric_limits<int>::max() )
+        {
+            in.skipRawData( std::numeric_limits<int>::max() );
+            bytes -= (qint64) std::numeric_limits<int>::max();
+        }
+        in.skipRawData( bytes );
+        
+        assert( m_tcpSocket->bytesAvailable() == 0 );
+        m_blockSize = 0;
+    }
+
     // if this fails, error is automatically called
     // by signal slots connection
     m_tcpSocket->connectToHost( address, m_port );
 
     int timeout = 5*1000;
     if(m_tcpSocket->waitForConnected(timeout))
-		return true;
+        return true;
 
     if( m_autoReconnect )
-	{
-		qWarning() << "TCPClientProducer failed to connect at startup, will keep trying to reconnect because autoreconnect is enabled.";
-		return true;
-	}
-	
-	displayError(m_tcpSocket->error(), false);
-	return false;
+    {
+        qWarning() << "TCPClientProducer failed to connect at startup, will keep trying to reconnect because autoreconnect is enabled.";
+        return true;
+    }
+
+    displayError(m_tcpSocket->error(), false);
+    return false;
 }
 
 bool TCPClientProducer::stop()
@@ -140,39 +160,41 @@ bool TCPClientProducer::stop()
     qDebug() << "Disconnecting ... ";
     m_tcpSocket->disconnectFromHost();
 
-	// if not immediately disconnected wait 5 seconds
+    // if not immediately disconnected wait 5 seconds
     int timeout = 5*1000;
     if( m_tcpSocket->state() == QAbstractSocket::UnconnectedState || m_tcpSocket->waitForDisconnected(timeout) )
     {
+        m_tcpSocket->abort();
         return true;
     }
-	displayError(m_tcpSocket->error(), false);
-	return false;
+    displayError(m_tcpSocket->error(), false);
+    m_tcpSocket->abort();
+    m_blockSize = 0;
+    return false;
 }
 
 bool TCPClientProducer::readyToProduce() const
 {
     // check if we have a connection
-	QAbstractSocket::SocketState state = m_tcpSocket->state();
-	if( state == QAbstractSocket::UnconnectedState )
-	{
-		QHostAddress address( m_ipAddress );
+    QAbstractSocket::SocketState state = m_tcpSocket->state();
+    if( state == QAbstractSocket::UnconnectedState )
+    {
+        QHostAddress address( m_ipAddress );
 
-		qWarning() << "Reconnecting to " << address.toString() << ":" << m_port;
+        qWarning() << "Reconnecting to " << address.toString() << ":" << m_port;
 
-		// if this fails, error is automatically called
-		// by signal slots connection
-		m_tcpSocket->connectToHost( address, m_port );
-		
-		int timeout = 5*1000;
-		if(!m_tcpSocket->waitForConnected(timeout))
-		{
-			qWarning() << "TCPClientProducer failed to reconnect";
-			return false;
-		}
-	}
-	
-	// check if there is data available
+        // if this fails, error is automatically called
+        // by signal slots connection
+        m_tcpSocket->connectToHost( address, m_port );
+
+        int timeout = 5*1000;
+        if(!m_tcpSocket->waitForConnected(timeout))
+        {
+            qWarning() << "TCPClientProducer failed to reconnect";
+            return false;
+        }
+    }
+    // check if there is data available
     return !m_frameList.isEmpty();
 }
 
@@ -188,7 +210,7 @@ bool TCPClientProducer::produce()
     foreach( const QVariant& v, frame )
     {
         bool matched = false;
-		for( OutputPinMap::const_iterator itr = m_outputPins.begin();
+        for( OutputPinMap::const_iterator itr = m_outputPins.begin();
             itr != m_outputPins.end() && !matched; ++itr )
         {
             plv::RefPtr<plv::IOutputPin> out = itr->second;
@@ -199,7 +221,7 @@ bool TCPClientProducer::produce()
                     taken.insert( out->getName() );
                     unsigned int serial = this->getProcessingSerial();
                     out->putVariant(serial, v);
-					matched = true;
+                    matched = true;
                 }
             }
         }
@@ -296,8 +318,8 @@ void TCPClientProducer::ackFrame(quint32 frameNumber)
     if( m_tcpSocket->write(bytes) == -1 )
     {
         //setError( PlvNonFatalError, m_tcpSocket->errorString() );
-		QString msg = tr("Failed to write ACK to socket.");
-		qWarning() << msg;
+        QString msg = tr("Failed to write ACK to socket.");
+            qWarning() << msg;
     }
 }
 
@@ -408,6 +430,27 @@ void TCPClientProducer::connected()
 void TCPClientProducer::disconnected()
 {
     qDebug() << "TCPClientProducer disconnected";
+    
+    qint64 bytes = m_tcpSocket->bytesAvailable();
+    if( bytes > 0 )
+    {
+        QDataStream in(m_tcpSocket);
+        in.setVersion(QDataStream::Qt_4_0);
+
+        while( bytes > (qint64) std::numeric_limits<int>::max() )
+        {
+            in.skipRawData( std::numeric_limits<int>::max() );
+            bytes -= (qint64) std::numeric_limits<int>::max();
+        }
+        in.skipRawData( bytes );
+        
+        qint64 bytes = m_tcpSocket->bytesAvailable();
+        if( bytes > 0 )
+        {
+            qDebug() << QString("%1 bytes left in socket after reconnect").arg(bytes);
+        }
+        m_blockSize = 0;
+    }
     //setError( PlvPipelineRuntimeError, tr("The remote host closed the connection."));
 }
 
@@ -421,7 +464,7 @@ void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError, b
     case QAbstractSocket::RemoteHostClosedError:
         type = PlvPipelineRuntimeError;
         msg = tr("The remote host closed the connection.");
-		break;
+        break;
     case QAbstractSocket::HostNotFoundError:
         type = PlvPipelineRuntimeError;
         msg = tr("The host was not found. Please check the "
@@ -439,16 +482,16 @@ void TCPClientProducer::displayError(QAbstractSocket::SocketError socketError, b
        msg = tr("The following error occurred: %1.").arg(m_tcpSocket->errorString());
     }
 
-	if( !m_autoReconnect )
-	{
-		setError(type,msg);
-		if(signal) emit onError(type,this);
-	}
-	else
-	{
-		//emit sendMessageToPipeline( PlvNotifyMessage, msg );
-		qWarning() << msg;
-	}
+    if( !m_autoReconnect )
+    {
+        setError(type,msg);
+        if(signal) emit onError(type,this);
+    }
+    else
+    {
+        //emit sendMessageToPipeline( PlvNotifyMessage, msg );
+        qWarning() << msg;
+    }
 }
 
 /** propery methods */
