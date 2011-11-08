@@ -39,12 +39,12 @@ public:
     quint32 serial;
     QByteArray bytes;
     qint64 sent;
-	QTime time;
+    QTime time;
 
     Frame(quint32 s, QByteArray& b) : serial(s), bytes(b), sent(0)
-	{
-		time.start();
-	}
+    {
+        time.start();
+    }
 };
 
 class ServerConnection : public QObject
