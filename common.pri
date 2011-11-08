@@ -2,8 +2,7 @@
 DEFINES += PLV_SHARED_LIBRARY
 
 OPENCV_PATH_VS2010 = c:/develop/OpenCV2.1vs2008
-OPENCV_PATH_GCC = c:/OpenCVRichard-210
-LIBQXT_PATH_GCC = c:/PARLEVISION/libqxt
+OPENCV_PATH_GCC = c:/develop/OpenCV-2.1.0
 
 #Include path relative to where source is located
 INCLUDEPATH += ../../include
@@ -18,11 +17,6 @@ win32-g++ {
     INCLUDEPATH += $${OPENCV_PATH_GCC}/include
     LIBS += -L$${OPENCV_PATH_GCC}/lib
     LIBS += -L$${OPENCV_PATH_GCC}/bin
-
-    INCLUDEPATH += $${LIBQXT_PATH_GCC}/include
-    INCLUDEPATH += $${LIBQXT_PATH_GCC}/include/QxtCore
-    INCLUDEPATH += $${LIBQXT_PATH_GCC}/src/core
-    LIBS += -L$${LIBQXT_PATH_GCC}/bin
 }
 
 win32-msvc2010 {
@@ -38,19 +32,15 @@ win32 {
                 -lcvaux210d \
                 -lhighgui210d \
                 -lcxts210d \
-                -lml210d \
-                -lQxtCored
-
+                -lml210d
     }
     CONFIG(release, debug|release) {
-
         LIBS += -lcv210 \
                 -lcxcore210 \
                 -lcvaux210 \
                 -lhighgui210 \
                 -lcxts210 \
-                -lml210 \
-                -lQxtCore
+                -lml210
     }
 
     !contains(QMAKE_HOST.arch, x86_64) {
