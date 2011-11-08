@@ -25,6 +25,7 @@
 #include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 #include <set>
+#include <limits>
 
 using namespace plv;
 using namespace plvblobtracker;

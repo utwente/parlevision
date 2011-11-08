@@ -138,7 +138,7 @@ bool Stitch::process()
     cv::Mat& out = outImg;
     
     // set output image to black
-    out = 0;
+    out.setTo(0);
 
     copyImgInto( in0, out, in0x, in0y );
     copyImgInto( in1, out, in1x + in0.cols, in1y );

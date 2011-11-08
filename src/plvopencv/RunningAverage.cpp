@@ -23,6 +23,7 @@
 #include <plvcore/CvMatData.h>
 #include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
+#include <limits>
 
 using namespace plv;
 using namespace plvopencv;
