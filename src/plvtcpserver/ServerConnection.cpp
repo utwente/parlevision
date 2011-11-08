@@ -44,7 +44,7 @@ ServerConnection::~ServerConnection()
     if( m_tcpSocket != 0 )
     {
         delete m_tcpSocket;
-		m_tcpSocket = 0;
+        m_tcpSocket = 0;
     }
 }
 
@@ -66,24 +66,24 @@ void ServerConnection::queueFrame(quint32 frameNumber, QByteArray frameData)
     // we start dropping frames when the queue is at m_maxFramesInQueue
     // unless we are set to lossless, then we
     // give the server a signal to throttle
-    
-	// check if they are too old
-	/*if(m_frameQueue.size() > m_maxFramesInQueue)
+
+        // check if they are too old
+        /*if(m_frameQueue.size() > m_maxFramesInQueue)
+        {
+            while( m_frameQueue.size() > 0 )
+            {
+                const Frame& f = m_frameQueue.first();
+
+                if( f.time.elapsed() < 5000 )
+                        break;
+
+                qWarning() << tr("Frame %1 timed out after %2 msecs.").arg(f.serial).arg(f.time.elapsed());
+                m_frameQueue.removeFirst();
+            }
+        }*/
+
+    if(m_frameQueue.size() > m_maxFramesInQueue)
     {
-		while( m_frameQueue.size() > 0 )
-		{
-			const Frame& f = m_frameQueue.first();
-			
-			if( f.time.elapsed() < 5000 )
-				break;
-
-			qWarning() << tr("Frame %1 timed out after %2 msecs.").arg(f.serial).arg(f.time.elapsed());
-			m_frameQueue.removeFirst();
-		}
-	}*/
-
-	if(m_frameQueue.size() > m_maxFramesInQueue)
-	{
         if( m_lossless )
         {
             if( !m_waiting )
@@ -253,7 +253,7 @@ void ServerConnection::readyRead()
 
 void ServerConnection::bytesWritten(qint64 bytes)
 {
-	Q_UNUSED(bytes)
+    Q_UNUSED(bytes)
 //    if( m_waiting && m_tcpSocket->bytesToWrite() < MAX_BYTES_TO_WRITE )
 //    {
 //        m_waiting = false;
