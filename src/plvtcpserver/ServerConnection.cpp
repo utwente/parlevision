@@ -305,7 +305,7 @@ void ServerConnection::disconnected()
     // schedule for deletion according to documentation of disconnected:
     // Warning: If you need to delete the sender() of
     // this signal in a slot connected to it, use the deleteLater() function.
-    m_tcpSocket->disconnect();
+    m_tcpSocket->reset();
     m_tcpSocket->deleteLater();
     m_tcpSocket = 0;
     emit finished();
