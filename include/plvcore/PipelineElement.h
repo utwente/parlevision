@@ -58,12 +58,12 @@ namespace plv
         typedef std::map< int, RefPtr< IOutputPin > > OutputPinMap;
 
         enum State {
-            UNDEFINED,  /* undefined or non initialized */
-            INITIALIZED,/* initialized(init method executed succesfully) */
-            STARTED,    /* started (start method executed succesfully) */
-            DISPATCHED, /* dispatched to be processed */
-            RUNNING,    /* pipeline element is processing */
-            ERROR       /* an error occured during processing */
+            PLE_UNDEFINED,  /* undefined or non initialized */
+            PLE_INITIALIZED,/* initialized(init method executed succesfully) */
+            PLE_STARTED,    /* started (start method executed succesfully) */
+            PLE_DISPATCHED, /* dispatched to be processed */
+            PLE_RUNNING,    /* pipeline element is processing */
+            PLE_ERROR       /* an error occured during processing */
         };
 
     protected:

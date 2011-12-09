@@ -34,7 +34,7 @@ PipelineProducer::~PipelineProducer()
 
 bool PipelineProducer::__ready( unsigned int& /*serial*/ )
 {
-    if( getState() >= DISPATCHED )
+    if( getState() >= PLE_DISPATCHED )
         return false;
     else if( this->readyToProduce() )
     {
@@ -71,7 +71,7 @@ bool PipelineProducer::__process( unsigned int serial )
     }
 
     lock.unlock();
-    if(!retval) setState(ERROR);
+    if(!retval) setState(PLE_ERROR);
 
     return retval;
 }

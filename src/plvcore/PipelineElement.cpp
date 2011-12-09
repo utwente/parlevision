@@ -40,7 +40,7 @@ using namespace plv;
 
 PipelineElement::PipelineElement() :
         m_id( -1 ),
-        m_state( UNDEFINED ),
+        m_state( PLE_UNDEFINED ),
         m_avgProcessingTime(0),
         m_lastProcesingTime(0),
         m_propertyMutex( new QMutex( QMutex::Recursive ) ),
@@ -516,7 +516,7 @@ void PipelineElement::setProperty(const char *name, const QVariant &value)
 
 void PipelineElement::setError( PlvErrorType type, const QString& msg )
 {
-    setState(ERROR);
+    setState(PLE_ERROR);
 
     QMutexLocker lock( &m_pleMutex );
     m_errorString = msg;
@@ -598,7 +598,7 @@ void PipelineElement::setState( State state )
 
 bool PipelineElement::__init()
 {
-    assert( getState() == UNDEFINED );
+    assert( getState() == PLE_UNDEFINED );
 
     QMutexLocker lock( &m_pleMutex );
     m_hasAsynchronousPin = false;
@@ -626,22 +626,22 @@ bool PipelineElement::__init()
 
     if( !this->init() )
     {
-        setState(ERROR);
+        setState(PLE_ERROR);
         return false;
     }
-    setState(INITIALIZED);
+    setState(PLE_INITIALIZED);
     return true;
 }
 
 bool PipelineElement::__deinit() throw()
 {
-    assert( getState() == ERROR || getState() == INITIALIZED );
+    assert( getState() == PLE_ERROR || getState() == PLE_INITIALIZED );
     if( !this->deinit() )
     {
-        setState(ERROR);
+        setState(PLE_ERROR);
         return false;
     }
-    setState(UNDEFINED);
+    setState(PLE_UNDEFINED);
 
     QMutexLocker lock(&m_pleMutex);
     m_avgProcessingTime = 0;
@@ -653,36 +653,36 @@ bool PipelineElement::__deinit() throw()
 
 bool PipelineElement::__start()
 {
-    assert(getState() == INITIALIZED);
+    assert(getState() == PLE_INITIALIZED);
     if(!this->start())
     {
-        setState(ERROR);
+        setState(PLE_ERROR);
         return false;
     }
-    setState(STARTED);
+    setState(PLE_STARTED);
     return true;
 }
 
 bool PipelineElement::__stop()
 {
-    assert(getState() >= STARTED);
+    assert(getState() >= PLE_STARTED);
     if( !this->stop() )
     {
-        setState(ERROR);
+        setState(PLE_ERROR);
         return false;
     }
-    setState(INITIALIZED);
+    setState(PLE_INITIALIZED);
     return true;
 }
 
 bool PipelineElement::run( unsigned int serial )
 {
-    assert(getState() == DISPATCHED);
+    assert(getState() == PLE_DISPATCHED);
 
     //qDebug() << "PipelineElement::run for object " << this->getName()
     //         << " running in thread " << QThread::currentThread();
 
-    setState(RUNNING);
+    setState(PLE_RUNNING);
     startTimer();
     try
     {
@@ -732,6 +732,6 @@ bool PipelineElement::run( unsigned int serial )
         return false;
     }
     stopTimer();
-    setState(STARTED);
+    setState(PLE_STARTED);
     return true;
 }

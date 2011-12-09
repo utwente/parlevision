@@ -69,8 +69,8 @@ namespace plv
 
         void dispatch()
         {
-            assert( m_element->getState() == PipelineElement::STARTED );
-            m_element->setState( PipelineElement::DISPATCHED );
+            assert( m_element->getState() == PipelineElement::PLE_STARTED );
+            m_element->setState( PipelineElement::PLE_DISPATCHED );
             m_result = QtConcurrent::run( m_element, &PipelineElement::run, m_serial );
         }
     };

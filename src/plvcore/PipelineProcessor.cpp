@@ -34,7 +34,7 @@ PipelineProcessor::~PipelineProcessor()
 
 bool PipelineProcessor::__ready( unsigned int& serial )
 {
-    if( getState() >= DISPATCHED )
+    if( getState() >= PLE_DISPATCHED )
         return false;
 
     // see if data is available and the processor is ready for processing
@@ -46,7 +46,7 @@ bool PipelineProcessor::__ready( unsigned int& serial )
 bool PipelineProcessor::__process( unsigned int serial )
 {
     assert( requiredPinsConnected() );
-    assert( getState() == RUNNING );
+    assert( getState() == PLE_RUNNING );
 
     QMutexLocker lock( &m_pleMutex );
 
@@ -133,7 +133,7 @@ bool PipelineProcessor::__process( unsigned int serial )
     }
     lock.unlock();
 
-    if(!retval && getState() != ERROR)
+    if(!retval && getState() != PLE_ERROR)
     {
         QString msg = tr("Method process() on PipelineProcessor %1 returned false "
                          "but error state was not set.").arg(this->getName());
