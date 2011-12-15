@@ -1,8 +1,8 @@
 # using parlevision as a shared library
 DEFINES += PLV_SHARED_LIBRARY
 
-OPENCV_PATH_VS2010 = c:/develop/OpenCV2.1vs2008
-OPENCV_PATH_GCC = c:/develop/OpenCV-2.1.0
+OPENCV_PATH_VS2010 = c:/develop/OpenCV-2.1.0/vs2010
+OPENCV_PATH_GCC = c:/develop/OpenCV-2.1.0/MingW
 
 #Include path relative to where source is located
 INCLUDEPATH += ../../include
@@ -55,23 +55,6 @@ win32 {
 
     }
 }
-
-#win32 {
-#    ## Windows common build here
-#    CONFIG(debug, debug|release) {
-#        LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_objdetect -lopencv_ml
-#        QMAKE_LIBDIR += c:/develop/OpenCV-2.2.0/lib
-#        QMAKE_LIBDIR += c:/develop/OpenCV-2.2.0/bin
-#        LIBS += -Lc:/develop/OpenCV-2.2.0/bin
-#    }
-#    CONFIG(release, debug|release) {
-#        LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_objdetect -lopencv_ml
-#        QMAKE_LIBDIR += c:/develop/OpenCV-2.2.0/lib
-#        QMAKE_LIBDIR += c:/develop/OpenCV-2.2.0/bin
-#        LIBS += -Lc:/develop/OpenCV-2.2.0/bin
-#    }
-#    INCLUDEPATH += c:/develop/OpenCV-2.2.0/include
-#}
 
 #Unix specific libraries
 unix {
