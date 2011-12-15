@@ -50,7 +50,8 @@ void ImageConverter::convertCvMatDataList( const QList<plv::CvMatData>& dataList
 
 void ImageConverter::convert( const plv::CvMatData& data, int id )
 {
-    QImage qimage = cvMatToQImageNoThrow( data );
+    const cv::Mat& mat = data.get();
+    QImage qimage = cvMatToQImageNoThrow( mat );
     emit converted( qimage, id );
 }
 
@@ -61,7 +62,8 @@ void ImageConverter::convertList( const QList<plv::CvMatData>& dataList, int id 
 
     foreach( const plv::CvMatData& data, dataList )
     {
-        QImage qimage = ImageConverter::cvMatToQImageNoThrow(data);
+        const cv::Mat& mat = data.get();
+        QImage qimage = ImageConverter::cvMatToQImageNoThrow( mat );
         qimageList.append(qimage);
     }
     emit convertedList( qimageList, id );
