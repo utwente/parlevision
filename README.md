@@ -9,7 +9,7 @@ Right now ParleVision is in alpha stage of development. Because of this we do no
 # Screenshots #
 
 ![ParleVision5 in Windows7 screenshot](https://github.com/utwente/parlevision/raw/master/images/screenshots/parlevision5_win7.png)
-![ParleVision5 in Ubuntu 9.10 screenshot](https://github.com/utwente/parlevision/raw/master/images/screenshots/parlevision5_linux.png)
+
 ![ParleVision5 in MacOSX 10.6 screenshot](https://github.com/utwente/parlevision/raw/master/images/screenshots/parlevision5_macosx.png)
 
 # Building ParleVision #
