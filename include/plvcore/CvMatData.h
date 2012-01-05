@@ -82,61 +82,45 @@ namespace plv
     class MatData : public QSharedData
     {
     public:
-        inline MatData() : mat(cv::Mat()) {}
-        inline MatData( const cv::Mat& mat ) : mat(mat) {}
+        inline MatData() : mat(cv::Mat()) { inputArray = mat; outputArray = mat; }
+        inline MatData( const cv::Mat& nmat ) : mat(nmat), inputArray(mat), outputArray(mat){}
 
         // explicit copy of matrix header and data
-        inline MatData( const MatData& other ) : QSharedData() { mat = other.mat.clone(); }
+        inline MatData( const MatData& other ) : QSharedData()
+        {
+            mat = other.mat.clone();
+            inputArray = mat;
+            outputArray = mat;
+        }
         inline ~MatData() {}
 
         /** actual opencv matrix */
         cv::Mat mat;
+
+        /** needed for conversions */
+        cv::_InputArray inputArray;
+        cv::_OutputArray outputArray;
     };
 
     class PLVCORE_EXPORT CvMatData
     {
 
     public:
-        CvMatData();
+        inline CvMatData() : d( new MatData() ) {}
         CvMatData( const cv::Mat& mat, bool copyData = false );
         CvMatData( const IplImage* img );
-        CvMatData( const CvMatData& other );
-        ~CvMatData();
 
-        inline CvMatData& operator=(const CvMatData& other)
-        {
-            if( this != &other )
-            {
-                d = other.d;
-            }
-            return *this;
-        }
+        /** copy constructor */
+        inline CvMatData( const CvMatData& other ) : d( other.d ) {}
 
-        inline CvMatData& operator=(const cv::Mat& other)
-        {
-            if( &d->mat != &other )
-            {
-                d->mat = other;
-            }
-            return *this;
-        }
+        /** destructor */
+        inline ~CvMatData() {}
 
-        inline CvMatData& operator=(const IplImage* iplimg)
-        {
-            assert( iplimg != 0 );
-            // copy image data
-            // workaround for bug in OpenCV 2.0 / 2.1 which causes
-            // this cv::Mat mat( img, true ); to not work.
-            cv::Mat tmp(iplimg, false);
-            cv::Mat mat = tmp.clone();
-            d->mat = mat;
-            return *this;
-        }
+        CvMatData& operator=(const CvMatData& other);
+        CvMatData& operator=(const cv::Mat& other);
+        CvMatData& operator=(const IplImage* iplimg);
 
-        inline void copyTo(CvMatData& dst)
-        {
-            d->mat.copyTo(dst);
-        }
+        inline void copyTo(CvMatData& dst) { d->mat.copyTo(dst); }
 
         /** Returns if the contained matrix has allocated data */
         inline bool isValid() const { return !d->mat.empty(); }
@@ -181,10 +165,47 @@ namespace plv
         inline operator cv::Mat&() { return d->mat; }
         inline operator const cv::Mat&() const { return d->mat; }
 
+        inline operator cv::InputArray() const { return d->inputArray; }
+        inline operator const cv::_OutputArray&() { return d->outputArray; }
+
     private:
         /** the internal open cv matrix */
         QSharedDataPointer<MatData> d;
     };
+
+    inline CvMatData& CvMatData::operator=(const CvMatData& other)
+    {
+        if( this != &other )
+        {
+            d = other.d;
+        }
+        return *this;
+    }
+
+    inline CvMatData& CvMatData::operator=(const cv::Mat& other)
+    {
+        if( &d->mat != &other )
+        {
+            d->mat = other;
+            d->inputArray = d->mat;
+            d->outputArray = d->mat;
+        }
+        return *this;
+    }
+
+    inline CvMatData& CvMatData::operator=(const IplImage* iplimg)
+    {
+        assert( iplimg != 0 );
+        // copy image data
+        // workaround for bug in OpenCV 2.0 / 2.1 which causes
+        // this cv::Mat mat( img, true ); to not work.
+        cv::Mat tmp(iplimg, false);
+        cv::Mat mat = tmp.clone();
+        d->mat = mat;
+        d->inputArray = d->mat;
+        d->outputArray = d->mat;
+        return *this;
+    }
 }
 PLVCORE_EXPORT QDataStream& operator<<(QDataStream &out, const plv::CvMatData& d);
 PLVCORE_EXPORT QDataStream& operator>>(QDataStream &in, plv::CvMatData& d);

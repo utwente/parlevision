@@ -23,14 +23,18 @@
 
 using namespace plv;
 
-CvMatData::CvMatData() : d( new MatData() )
-{
-}
+//CvMatData::CvMatData() : d( new MatData() )
+//{
+//}
 
-CvMatData::CvMatData( const CvMatData& other ) :
-        d( other.d )
-{
-}
+//CvMatData::CvMatData( const CvMatData& other ) :
+//        d( other.d )
+//{
+//}
+
+//CvMatData::~CvMatData()
+//{
+//}
 
 CvMatData::CvMatData( const IplImage* img )
 {
@@ -65,10 +69,6 @@ CvMatData CvMatData::create( int width, int height, int type )
     mat.create( cv::Size(width, height), type );
     CvMatData data(mat);
     return data;
-}
-
-CvMatData::~CvMatData()
-{
 }
 
 const char* CvMatData::depthToString( int depth )
