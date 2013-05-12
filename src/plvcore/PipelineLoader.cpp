@@ -20,9 +20,12 @@
   */
 
 #include "PipelineLoader.h"
+#include "PipelineElementFactory.h"
 #include "Pipeline.h"
 #include "PipelineProcessor.h"
 #include "Pin.h"
+#include "IInputPin.h"
+#include "IOutputPin.h"
 #include "Enum.h"
 
 #include <QStringList>
@@ -380,8 +383,21 @@ void PipelineLoader::parseConnections( QDomNodeList* list, Pipeline* pipeline )
             throw std::runtime_error( "Connection specified with invalid sink id");
         }
 
-        IOutputPin* iop = sourceElement->getOutputPin( sourcePinId );
-        IInputPin*  iip = sinkElement->getInputPin( sinkPinId );
+        DataProducer* producer = dynamic_cast<DataProducer*>(sourceElement);
+        DataConsumer* consumer = dynamic_cast<DataConsumer*>(sinkElement);
+
+        if( producer == 0 )
+        {
+            throw std::runtime_error( "Source element is not a DataProducer");
+        }
+
+        if( consumer == 0 )
+        {
+            throw std::runtime_error( "Sink element is not a DataConsumer");
+        }
+
+        IOutputPin* iop = producer->getOutputPin( sourcePinId );
+        IInputPin*  iip = consumer->getInputPin( sinkPinId );
 
         if( iop == 0 )
         {

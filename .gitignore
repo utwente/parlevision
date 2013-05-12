@@ -23,4 +23,7 @@ plvgui-build
 plvheadless-build*
 plvgraphical-build*
 libs
+test
+ipch
+common.pri
 

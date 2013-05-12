@@ -26,7 +26,11 @@
 #include <QtGui>
 
 #include <plvcore/PipelineElement.h>
+#include <plvcore/DataConsumer.h>
+#include <plvcore/DataProducer.h>
 #include <plvcore/Pin.h>
+#include <plvcore/IOutputPin.h>
+#include <plvcore/IInputPin.h>
 #include <plvcore/RefPtr.h>
 
 #include "ConnectionLine.h"
@@ -76,20 +80,35 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* e,
     this->addToGroup(lastProcessingTimeLabel);
 
     // add all inputpins
-    const PipelineElement::InputPinMap& inPins = element->getInputPins();
-    for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
-        ; itr!=inPins.end(); ++itr)
+    if( element->isDataConsumer() )
     {
-        this->addInputPin(itr->second);
+        DataConsumer* dc = dynamic_cast<DataConsumer*>(element.getPtr());
+        assert(dc != 0);
+        if( dc != 0 )
+        {
+            const InputPinMap& inPins = dc->getInputPins();
+            for( InputPinMap::const_iterator itr = inPins.begin()
+                ; itr!=inPins.end(); ++itr)
+            {
+                this->addInputPin(itr.value());
+            }
+        }
     }
 
-    const PipelineElement::OutputPinMap& outPins = element->getOutputPins();
-    for( PipelineElement::OutputPinMap::const_iterator itr = outPins.begin()
-        ; itr!=outPins.end(); ++itr)
+    if( element->isDataProducer() )
     {
-        this->addOutputPin(itr->second);
+        DataProducer* dp = dynamic_cast<DataProducer*>(element.getPtr());
+        assert(dp != 0);
+        if( dp != 0 )
+        {
+            const OutputPinMap& outPins = dp->getOutputPins();
+            for( OutputPinMap::const_iterator itr = outPins.begin()
+                ; itr!=outPins.end(); ++itr)
+            {
+                this->addOutputPin(itr.value());
+            }
+        }
     }
-
     setFiltersChildEvents(false);
     drawPinsAndInfo();
 }
@@ -117,7 +136,7 @@ PinWidget* PipelineElementWidget::getWidgetFor(const plv::IOutputPin* p) const
 void PipelineElementWidget::addInputPin(IInputPin* in)
 {
     assert(in!=0);
-    PinWidget* pw = new PinWidget(this, in);
+    PinWidget* pw = new InputPinWidget(this, in);
     this->inputPinWidgets[in->getId()] = pw;
     this->addToGroup(pw);
     this->leftColumnWidth = max(pw->boundingRect().width(), this->leftColumnWidth);
@@ -135,7 +154,7 @@ void PipelineElementWidget::removeInputPin(int id)
 void PipelineElementWidget::addOutputPin(IOutputPin* out)
 {
     assert(out!=0);
-    PinWidget* pw = new PinWidget(this, out);
+    PinWidget* pw = new OutputPinWidget(this, out);
     this->outputPinWidgets[out->getId()] = pw;
     this->addToGroup(pw);
     this->maxWidth = max(pw->boundingRect().width(), this->maxWidth);

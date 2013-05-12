@@ -23,7 +23,7 @@
 #define VIDEOPRODUCER_H
 
 #include <plvcore/PipelineProducer.h>
-#include <plvcore/Pin.h>
+#include <plvcore/OutputPin.h>
 #include <plvcore/CvMatData.h>
 
 namespace plv

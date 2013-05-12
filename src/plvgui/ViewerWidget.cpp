@@ -25,7 +25,8 @@
 //#include <QtGui>
 
 #include <assert.h>
-#include <plvcore/Pin.h>
+#include <plvcore/IOutputPin.h>
+#include <plvcore/PipelineElement.h>
 
 #include "DataRenderer.h"
 #include "RendererFactory.h"

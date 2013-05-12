@@ -24,7 +24,7 @@
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/CvMatData.h>
-#include <plvcore/Pin.h>
+#include <plvcore/InputPin.h>
 
 namespace plv
 {
@@ -43,8 +43,9 @@ namespace plvopencv
         Q_DISABLE_COPY( Average )
         Q_CLASSINFO("author", "Richard Loos")
         Q_CLASSINFO("name", "Average")
-        Q_CLASSINFO("description", "Calculates a a true average over N frames."
-                    " Only passes an output value when numframes has been reached. Resets average after N frames.");
+        Q_CLASSINFO("description", "Calculates a a true average over N frames. "
+                    "Only passes an output value when numframes has been reached. "
+                    "Resets average after N frames.")
 
         Q_PROPERTY( int numFrames READ getNumFrames WRITE setNumFrames NOTIFY numFramesChanged )
 

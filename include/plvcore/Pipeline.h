@@ -27,6 +27,7 @@
 
 #include <QMap>
 #include <QList>
+#include <QQueue>
 #include <QSet>
 #include <QThread>
 #include <QMutex>
@@ -49,6 +50,8 @@ namespace plv
     class Scheduler;
     class PipelineProducer;
     class PipelineProcessor;
+    class DataConsumer;
+    class DataProducer;
 
     class RunItem
     {
@@ -56,22 +59,39 @@ namespace plv
         PipelineElement* m_element;
         unsigned int m_serial;
         QFuture<bool> m_result;
+        bool m_dispatched;
 
         RunItem( PipelineElement* element, unsigned int serial ) :
-                m_element(element), m_serial(serial) {}
+            m_element(element), m_serial(serial), m_dispatched(false) {}
+
+        RunItem( const RunItem& other ) : m_element(other.m_element),
+                                          m_serial(other.m_serial),
+                                          m_result(other.m_result),
+                                          m_dispatched(other.m_dispatched){}
 
         inline unsigned int getSerial() const { return m_serial; }
         inline PipelineElement* getElement() const { return m_element; }
-        QFuture<bool> getFuture() const { return m_result; }
+
+        QFuture<bool> getFuture() const { assert( m_dispatched == true ); return m_result; }
 
         bool operator ==(const RunItem& other) const { return other.m_serial == m_serial && other.m_element == m_element; }
         bool operator < (const RunItem& other) const { return m_serial < other.m_serial; }
 
+        void operator = (const RunItem& other)
+        {
+            m_element = other.m_element;
+            m_serial  = other.m_serial;
+            m_result  = other.m_result;
+            m_dispatched = other.m_dispatched;
+        }
+
         void dispatch()
         {
             assert( m_element->getState() == PipelineElement::PLE_STARTED );
+            assert( m_dispatched == false );
             m_element->setState( PipelineElement::PLE_DISPATCHED );
             m_result = QtConcurrent::run( m_element, &PipelineElement::run, m_serial );
+            m_dispatched = true;
         }
     };
 
@@ -154,6 +174,8 @@ namespace plv
 
         inline bool isRunning() const { QMutexLocker lock( &m_pipelineMutex ); return m_running; }
 
+        void pipelineDataConsumerReady(unsigned int serial, DataConsumer* consumer);
+
     private:
         PipelineElementMap m_children;
         PipelineConnectionMap m_connections;
@@ -162,6 +184,8 @@ namespace plv
         //QThreadEx m_pipelineThread;
         unsigned int m_serial;
         bool m_running; /** true when pipeline is running */
+        mutable QMutex m_readyQueueMutex;
+        QList<RunItem> m_readyQueue;
         QList<RunItem> m_runQueue;
         int m_runQueueThreshold;
 
@@ -175,12 +199,13 @@ namespace plv
 
         QList<PipelineElement*> m_ordering;
         QMap<unsigned int, int> m_pipelineStages;
-        //int m_i;
         QMap<int, PipelineProducer* > m_producers;
         QMap<int, PipelineProcessor* > m_processors;
 
         bool m_changed;
         QString m_filename;
+
+        int m_testCount;
 
         inline bool isChanged() const { return m_changed; }
         inline void setChanged(bool changed) {  m_changed = changed; }

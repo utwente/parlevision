@@ -23,7 +23,9 @@
 #define TRIGGER_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+#include <plvcore/InputPin.h>
+#include <plvcore/OutputPin.h>
+#include <plvcore/DynamicInputPin.h>
 
 namespace plvopencv
 {
@@ -35,7 +37,7 @@ namespace plvopencv
         Q_CLASSINFO("name", "Trigger")
         Q_CLASSINFO("description", "A processor that sends a boolean value when the input count has reached a number. "
                         "The boolean value can be used by other processors that accept it as an activation trigger. "
-                        "The trigger is either continuous or one time only.");
+                        "The trigger is either continuous or one time only.")
 
         Q_PROPERTY( bool activate READ getActivate WRITE setActivate NOTIFY activateChanged  )
         Q_PROPERTY( bool continuous READ getContinuous WRITE setContinuous NOTIFY continuousChanged  )

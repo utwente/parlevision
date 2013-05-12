@@ -21,6 +21,7 @@
 
 #include "PipelineProcessor.h"
 #include "Pin.h"
+#include "Pipeline.h"
 
 using namespace plv;
 
@@ -30,6 +31,25 @@ PipelineProcessor::PipelineProcessor()
 
 PipelineProcessor::~PipelineProcessor()
 {
+}
+
+bool PipelineProcessor::requiredPinsConnected() const
+{
+    return this->requiredInputPinsConnected();
+}
+
+//void PipelineProcessor::acceptData(QVariant &data)
+//{
+//    if( m_pipeline != 0 )
+//    {
+//        m_pipeline->pipelineProcessorReady(this);
+//    }
+//}
+
+bool PipelineProcessor::__init()
+{
+    this->initInputPins();
+    return PipelineElement::__init();
 }
 
 bool PipelineProcessor::__ready( unsigned int& serial )
@@ -49,63 +69,40 @@ bool PipelineProcessor::__process( unsigned int serial )
     assert( getState() == PLE_RUNNING );
 
     QMutexLocker lock( &m_pleMutex );
+    //assert( serial > getProcessingSerial() || serial == 0 );
+
+    // TODO remove debug
+    unsigned int processingSerial = getProcessingSerial();
+    QString msg = QString("PipelineProcessor:serial: %1 processing serial: %2").arg(serial).arg(processingSerial);
+    qDebug() << msg;
+
+    //assert( serial > getProcessingSerial() || serial == 0 );
+    if(!(serial > processingSerial || serial == 0)) {
+        qDebug() << "HERE!!!!!! ======== <<<<<<<<<<";
+    }
 
     // set the serial number
-    m_serial = serial;
+    setProcessingSerial( serial );
 
     bool nullDetected = false;
 
     // call pre on input pins and look for null data items
-    for( InputPinMap::iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        IInputPin* in = itr->second.getPtr();
-
-        if( in->isConnected() && in->isSynchronous() )
-        {
-            unsigned int serial;
-            bool isNull;
-            in->peekNext(serial, isNull);
-            if( isNull ) nullDetected = true;
-        }
-        in->pre();
-    }
+    this->preInput( nullDetected );
 
     // if one data item is a null
     // we throw away all data from all synchronous pins
     if( nullDetected )
     {
-        for( InputPinMap::iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end(); ++itr )
-        {
-            IInputPin* in = itr->second.getPtr();
-
-            if( in->isConnected() && in->isSynchronous() )
-            {
-                // just remove first data item in the
-                in->removeFirst();
-            }
-        }
+        this->flushFirstOnSynchronousPins();
 
         // call post on output pins to propagate NULL down pipeline
-        for( OutputPinMap::iterator itr = m_outputPins.begin();
-             itr != m_outputPins.end(); ++itr )
-        {
-            IOutputPin* out = itr->second.getPtr();
-            out->pre();
-            out->post();
-        }
-
+        this->preOutput();
+        this->postOutput();
         return true;
     }
 
     // call pre on output pins
-    for( OutputPinMap::iterator itr = m_outputPins.begin();
-         itr != m_outputPins.end(); ++itr )
-    {
-        IOutputPin* out = itr->second.getPtr();
-        out->pre();
-    }
+    this->preOutput();
 
     // do the actual processing
     lock.unlock();
@@ -117,20 +114,10 @@ bool PipelineProcessor::__process( unsigned int serial )
     lock.relock();
 
     // call post on input pins
-    for( InputPinMap::iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        IInputPin* in = itr->second.getPtr();
-        in->post();
-    }
+    this->postInput();
 
     // call post on output pins
-    for( OutputPinMap::iterator itr = m_outputPins.begin();
-         itr != m_outputPins.end(); ++itr )
-    {
-        IOutputPin* out = itr->second.getPtr();
-        out->post();
-    }
+    this->postOutput();
     lock.unlock();
 
     if(!retval && getState() != PLE_ERROR)

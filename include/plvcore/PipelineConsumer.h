@@ -1,8 +1,8 @@
 /**
-  * Copyright (C)2011 by Richard Loos
+  * Copyright (C)2012 by Richard Loos
   * All rights reserved.
   *
-  * This file is part of the plvtcpserver plugin of ParleVision.
+  * This file is part of the plvcore module of ParleVision.
   *
   * ParleVision is free software: you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -19,32 +19,28 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#include "tcpserverplugin.h"
-#include <QtPlugin>
-#include <QtDebug>
+#ifndef PIPELINECONSUMER_H
+#define PIPELINECONSUMER_H
 
-#include "TCPServerProcessor.h"
-#include "TCPClientProducer.h"
+#include "IPipelineConsumer.h"
 
-#include <plvcore/PipelineElementFactory.h>
-
-using namespace plv;
-
-TCPServerPlugin::TCPServerPlugin()
+namespace plv
 {
-    qDebug() << "TCPServerPlugin constructor";
+    class PipelineConsumer : public IPipelineConsumer
+    {
+    protected:
+        PipelineConsumerDelegate m_consumerDelegate;
+
+        /** adds the methods and implementation necessary for the IPipelineConsumer interface */
+        PLV_CONSUMER_INTERFACE_IMP_BY_DELEGATE(m_consumerDelegate)
+
+    public:
+        PipelineConsumer();
+        virtual ~PipelineConsumer();
+
+        /** implementation for definition in PipelineElement */
+        virtual bool requiredInputPinsConnected() const;
+    };
 }
 
-TCPServerPlugin::~TCPServerPlugin()
-{
-    qDebug() << "TCPServerPlugin destructor";
-}
-
-void TCPServerPlugin::onLoad()
-{
-    qDebug() << "TCPServerPlugin onLoad";
-    plvRegisterPipelineElement<TCPServerProcessor>();
-    plvRegisterPipelineElement<TCPClientProducer>();
-}
-
-Q_EXPORT_PLUGIN2(tcp_server_plugin, TCPServerPlugin)
+#endif

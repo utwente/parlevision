@@ -57,10 +57,20 @@ namespace plv
             return static_cast<PipelineElement*>(new T);
         }
 
-        const char* getClassName() const
+        virtual const char* getClassName() const
         {
             return (reinterpret_cast<T*>(0))->staticMetaObject.className();
         }
     };
 }
+
+/** template helper function to register PipelineElements */
+template<typename PET>
+int plvRegisterPipelineElement()
+{
+    plv::PipelineElementConstructorHelper<PET>* plec = new plv::PipelineElementConstructorHelper<PET>();
+    int id = plv::PipelineElementFactory::registerElement( plec );
+    return id;
+}
+
 #endif

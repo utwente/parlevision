@@ -57,7 +57,14 @@ SOURCES += \
     CvMatData.cpp \
     CvMatDataPin.cpp \
     Enum.cpp \
-    Util.cpp
+    Util.cpp \
+    DataConsumer.cpp \
+    DataProducer.cpp \
+    InputPin.cpp \
+    OutputPin.cpp \
+    IInputPin.cpp \
+    IOutputPin.cpp \
+    DynamicInputPin.cpp
 
 HEADERS += ../../include/plvcore/plvglobal.h \
     ../../include/plvcore/Application.h \
@@ -77,4 +84,13 @@ HEADERS += ../../include/plvcore/plvglobal.h \
     ../../include/plvcore/CvMatData.h \
     ../../include/plvcore/CvMatDataPin.h \
     ../../include/plvcore/Enum.h \
-    ../../include/plvcore/Util.h
+    ../../include/plvcore/Util.h \
+    ../../include/plvcore/DataConsumer.h \
+    ../../include/plvcore/DataProducer.h \
+    ../../include/plvcore/InputPin.h \
+    ../../include/plvcore/OutputPin.h \
+    ../../include/plvcore/IOutputPin.h \
+    ../../include/plvcore/IInputPin.h \
+    ../../include/plvcore/DynamicInputPin.h \
+
+

@@ -29,12 +29,15 @@
 #include <QMutableMapIterator>
 
 #include "PipelineElement.h"
+#include "DataConsumer.h"
+#include "DataProducer.h"
 #include "PipelineProcessor.h"
 #include "PipelineProducer.h"
-#include "Pin.h"
 #include "PinConnection.h"
 #include "PlvExceptions.h"
 #include "PipelineLoader.h"
+#include "IInputPin.h"
+#include "IOutputPin.h"
 
 using namespace plv;
 
@@ -45,7 +48,8 @@ Pipeline::Pipeline() :
         m_stepwise(false),
         m_producersReady(false),
         m_numFramesSinceLastFPSCalculation(0),
-        m_fps(-1.0f)
+        m_fps(-1.0f),
+        m_testCount(0)
 {
     //m_pipelineThread.start();
 }
@@ -81,6 +85,8 @@ int Pipeline::addElement( PipelineElement* child )
         id = getNewPipelineElementId();
         element->setId( id );
     }
+
+    element->setPipeline(this);
 
     // move the element to this thread
     // and this pipeline's event loop
@@ -259,6 +265,13 @@ void Pipeline::pinConnectionDisconnect( int id )
     threadUnsafeDisconnect( id );
 }
 
+void Pipeline::pipelineDataConsumerReady(unsigned int serial, DataConsumer *consumer)
+{
+    QMutexLocker lock(&m_readyQueueMutex);
+    RunItem item(consumer, serial);
+    m_readyQueue.append(item);
+}
+
 bool Pipeline::init()
 {
     QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
@@ -414,16 +427,16 @@ void Pipeline::start()
         try
         {
             if( element->__start() )
-			{
-				started.insert( element.getPtr() );
-			}
-			else
-			{
-				QString msg = tr("PipelineElement %1 failed to start.").arg(element->getName());
-				handleMessage(QtWarningMsg, msg);
-				element->__deinit();
-				error = true;
-			}
+            {
+                started.insert( element.getPtr() );
+            }
+            else
+            {
+                QString msg = tr("PipelineElement %1 failed to start.").arg(element->getName());
+                handleMessage(QtWarningMsg, msg);
+                element->__deinit();
+                error = true;
+            }
         }
         catch( Exception& e )
         {
@@ -450,7 +463,7 @@ void Pipeline::start()
     m_heartbeat.start(10);
 
     m_running = true;
-    m_runQueueThreshold = m_processors.size();
+    m_runQueueThreshold = m_processors.size() + m_producers.size() + 1;
     m_timeSinceLastFPSCalculation.start();
     lock.unlock();
     emit pipelineStarted();
@@ -475,7 +488,7 @@ void Pipeline::stop()
         {
             PipelineElement* element = m_runQueue.at(i).getElement();
             PipelineElement::State state = element->getState();
-            if( state == PipelineElement::PLE_STARTED ||
+            if( state == PipelineElement::PLE_DONE ||
                 state == PipelineElement::PLE_ERROR )
             {
                 m_runQueue.removeAt(i);
@@ -521,29 +534,88 @@ void Pipeline::finish()
 
 void Pipeline::schedule()
 {
+    QMutexLocker pleLock(&m_pipelineMutex);
+    ++m_testCount;
+    assert( m_testCount == 1);
+    pleLock.unlock();
+
     // remove stale entries
     for( int i=0; i<m_runQueue.size(); ++i )
     {
-        RunItem item = m_runQueue.at(i);
-        QFuture<bool> future = item.getFuture();
+        RunItem runItem = m_runQueue.at(i);
+        QFuture<bool> future = runItem.getFuture();
         if( future.isFinished() )
         {
+            m_runQueue.removeAt(i);
             bool result = future.result();
-			if( !result )
+            if( !result )
             {
                 // stop on error
                 QString msg = tr("Pipeline stopped because of an error in %1. The error is %2")
-                              .arg(item.getElement()->getName())
-                              .arg(item.getElement()->getErrorString());
+                              .arg(runItem.getElement()->getName())
+                              .arg(runItem.getElement()->getErrorString());
                 stop();
                 emit pipelineMessage(QtWarningMsg, msg);
                 return;
             }
-            m_runQueue.removeAt(i);
+            runItem.getElement()->setState(PipelineElement::PLE_STARTED);
         }
     }
 
-    // schedule processors
+    // dispatch processors
+    QMutexLocker rqLock(&m_readyQueueMutex);
+    foreach( RunItem readyItem, m_readyQueue )
+    {
+        PipelineElement* readyElem = readyItem.getElement();
+        if( readyElem->getState() < PipelineElement::PLE_DISPATCHED )
+        {
+            readyItem.dispatch();
+            m_runQueue.append( readyItem );
+            m_readyQueue.removeFirst();
+        }
+    }
+    rqLock.unlock();
+
+    // run producers
+    if(true)
+    {
+        bool allReady = true;
+
+        // check if all producers are ready
+        foreach( PipelineProducer* producer, m_producers)
+        {
+            unsigned int serial;
+            if( !producer->__ready(serial))
+                allReady = false;
+        }
+
+        if( allReady )
+        {
+            foreach( PipelineProducer* producer, m_producers)
+            {
+                RunItem item( producer, m_serial );
+                item.dispatch();
+                m_runQueue.append( item );
+            }
+
+            // unsigned int will wrap around
+            ++m_serial;
+
+            ++m_numFramesSinceLastFPSCalculation;
+            int elapsed = m_timeSinceLastFPSCalculation.elapsed();
+            if( elapsed > 10000 )
+            {
+                m_fps = (m_numFramesSinceLastFPSCalculation * 1000) / elapsed;
+                m_timeSinceLastFPSCalculation.restart();
+                m_numFramesSinceLastFPSCalculation = 0;
+                qDebug() << "FPS: " << (int)m_fps;
+                emit framesPerSecond(m_fps);
+            }
+            emit stepTaken(m_serial);
+        }
+    }
+
+#if 0
     int maxIdx = m_ordering.size();
     QMutableMapIterator<unsigned int, int> itr(m_pipelineStages);
     while( itr.hasNext() && maxIdx >= 0 )
@@ -563,48 +635,55 @@ void Pipeline::schedule()
             else
             {
                 assert( idx <= maxIdx );
-				if(idx == maxIdx)
+                if(idx == maxIdx)
                 {
                     stop = true;
                     maxIdx -= 1;
                 }
-				else
-				{
-					RunItem item( element, serial );
-					item.dispatch();
-					m_runQueue.append( item );
-					++idx;
-					itr.setValue(idx);
-					if( idx == m_ordering.size() )
-					{
-						itr.remove();
+                else
+                {
+                    RunItem item( element, serial );
+                    item.dispatch();
+                    m_runQueue.append( item );
+                    ++idx;
+                    itr.setValue(idx);
+                    if( idx == m_ordering.size() )
+                    {
+                        itr.remove();
 
-						// unsigned int will wrap around
-						++m_serial;
+                        // unsigned int will wrap around
+                        ++m_serial;
 
-						// add a new stage
-						m_pipelineStages.insert(m_serial, 0);
+                        // add a new stage
+                        m_pipelineStages.insert(m_serial, 0);
 
-						++m_numFramesSinceLastFPSCalculation;
-						int elapsed = m_timeSinceLastFPSCalculation.elapsed();
-						if( elapsed > 10000 )
-						{
-							// add one so elapsed is never 0 and
-							// we do not get div by 0
-							m_fps = (m_numFramesSinceLastFPSCalculation * 1000) / elapsed;
-							//m_fps = m_fps == -1.0f ? fps : m_fps * 0.9f + 0.1f * fps;
-							m_timeSinceLastFPSCalculation.restart();
-							m_numFramesSinceLastFPSCalculation = 0;
-							qDebug() << "FPS: " << (int)m_fps;
-							emit framesPerSecond(m_fps);
-						}
-						emit stepTaken(serial);
-						stop = true;
-					}
-				}
+                        ++m_numFramesSinceLastFPSCalculation;
+                        int elapsed = m_timeSinceLastFPSCalculation.elapsed();
+                        if( elapsed > 10000 )
+                        {
+                            // add one so elapsed is never 0 and
+                            // we do not get div by 0
+                            m_fps = (m_numFramesSinceLastFPSCalculation * 1000) / elapsed;
+                            //m_fps = m_fps == -1.0f ? fps : m_fps * 0.9f + 0.1f * fps;
+                            m_timeSinceLastFPSCalculation.restart();
+                            m_numFramesSinceLastFPSCalculation = 0;
+                            qDebug() << "FPS: " << (int)m_fps;
+                            emit framesPerSecond(m_fps);
+                        }
+                        emit stepTaken(serial);
+                        stop = true;
+                    }
+                }
             }
         }
     }
+#endif
+
+    pleLock.relock();
+    --m_testCount;
+    assert( m_testCount == 0);
+    pleLock.unlock();
+
 }
 
 /****************************************************************************/
@@ -634,7 +713,7 @@ void Pipeline::removeAllConnections()
     foreach( RefPtr<PinConnection> connection, m_connections )
     {
         connection->disconnect();
-        emit connectionRemoved( connection->getId() );
+        emit connectionRemoved(connection->getId());
         emit connectionRemoved(connection);
     }
     m_connections.clear();
@@ -651,7 +730,8 @@ void Pipeline::threadUnsafeDisconnect( int id )
     RefPtr<PinConnection> connection = m_connections.value(id);
     connection->disconnect();
     m_connections.remove(id);
-    emit connectionRemoved(id);
+
+    emit connectionRemoved(connection->getId());
     emit connectionRemoved(connection);
 }
 
@@ -661,32 +741,40 @@ void Pipeline::removeConnectionsForElement( PipelineElement* element )
 {
     RefPtr<PipelineElement> ple( element );
 
-    // get a copy of the input pin map
-    PipelineElement::InputPinMap inputPins = ple->getInputPins();
-    for( PipelineElement::InputPinMap::const_iterator itr = inputPins.begin()
-        ; itr!=inputPins.end(); ++itr)
+    RefPtr<DataConsumer> dc = ref_ptr_dynamic_cast<DataConsumer>(ple);
+    if( dc.isNotNull() )
     {
-        RefPtr<IInputPin> ipp = itr->second;
-        if( ipp->isConnected() )
+        // get a copy of the input pin map
+        InputPinMap inputPins = dc->getInputPins();
+        for( InputPinMap::const_iterator itr = inputPins.begin()
+            ; itr!=inputPins.end(); ++itr)
         {
-            RefPtr<PinConnection> connection = ipp->getConnection();
-            threadUnsafeDisconnect( connection->getId() );
+            RefPtr<IInputPin> ipp = itr.value();
+            if( ipp->isConnected() )
+            {
+                RefPtr<PinConnection> connection = ipp->getConnection();
+                threadUnsafeDisconnect( connection->getId() );
+            }
         }
     }
 
-    // get a copy of the output pin map
-    PipelineElement::OutputPinMap outputPins = ple->getOutputPins();
-    for( PipelineElement::OutputPinMap::const_iterator outputPinItr = outputPins.begin()
-        ; outputPinItr!=outputPins.end(); ++outputPinItr)
+    RefPtr<DataProducer> dp = ref_ptr_dynamic_cast<DataProducer>(ple);
+    if( dp.isNotNull() )
     {
-        RefPtr<IOutputPin> opp = outputPinItr->second;
-
-        std::list< RefPtr<PinConnection> > connections = opp->getConnections();
-        for( std::list< RefPtr<PinConnection> >::const_iterator connItr = connections.begin();
-             connItr!= connections.end(); ++connItr )
+        // get a copy of the output pin map
+        OutputPinMap outputPins = dp->getOutputPins();
+        for( OutputPinMap::const_iterator outputPinItr = outputPins.begin()
+            ; outputPinItr!=outputPins.end(); ++outputPinItr)
         {
-            RefPtr<PinConnection> connection = *connItr;
-            threadUnsafeDisconnect( connection->getId() );
+            RefPtr<IOutputPin> opp = outputPinItr.value();
+
+            std::list< RefPtr<PinConnection> > connections = opp->getConnections();
+            for( std::list< RefPtr<PinConnection> >::const_iterator connItr = connections.begin();
+                 connItr!= connections.end(); ++connItr )
+            {
+                RefPtr<PinConnection> connection = *connItr;
+                threadUnsafeDisconnect( connection->getId() );
+            }
         }
     }
 }
@@ -699,9 +787,13 @@ bool Pipeline::generateGraphOrdering( QList<PipelineElement*>& ordering )
     // find nodes with no outgoing connections
     foreach( RefPtr<PipelineElement> si, m_children )
     {
-        if( si->isEndNode() )
+        RefPtr<DataProducer> dp = ref_ptr_dynamic_cast<DataProducer>(si);
+        if( dp.isNotNull() )
         {
-            endNodes.insert( si );
+            if( si->isEndNode() )
+            {
+                endNodes.insert( si );
+            }
         }
     }
 

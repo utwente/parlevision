@@ -31,23 +31,11 @@
 using namespace plvgui;
 using namespace plv;
 
-PinWidget::PinWidget(PipelineElementWidget *parent, RefPtr<IInputPin> pin)
+PinWidget::PinWidget(PipelineElementWidget *parent)
     : QObject(parent),
     QGraphicsItemGroup(parent),
-    m_parent(parent),
-    m_pin(pin)
+    m_parent(parent)
 {
-    assert(m_pin.isNotNull());
-    init(true);
-}
-
-PinWidget::PinWidget(PipelineElementWidget *parent, RefPtr<IOutputPin> pin)
-    : QObject(parent),
-    QGraphicsItemGroup(parent),
-    m_parent(parent),
-    m_pin(pin)
-{
-    init(false);
 }
 
 QRectF PinWidget::boundingRect() const
@@ -57,6 +45,8 @@ QRectF PinWidget::boundingRect() const
     return rect;
 }
 
+
+#if 0
 void PinWidget::init(bool isInput=true)
 {
     setAcceptHoverEvents(true);
@@ -96,6 +86,7 @@ void PinWidget::init(bool isInput=true)
     connect(m_pin, SIGNAL(nameChanged(const QString&)),
             this, SLOT(pinNameChanged(const QString&)));
 }
+#endif
 
 void PinWidget::pinNameChanged(const QString& name)
 {
@@ -191,6 +182,56 @@ void PinWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->drawRect(this->boundingRect());
 }
 */
+
+InputPinWidget::InputPinWidget(PipelineElementWidget *parent, IInputPin* pin) :
+    PinWidget(parent),
+    m_inputPin(pin)
+{
+    setAcceptHoverEvents(true);
+
+    assert(m_inputPin.isNotNull());
+    label = new QGraphicsTextItem(m_inputPin->getName(), this);
+
+    if( m_inputPin->isRequired() )
+    {
+        QFont font = label->font();
+        font.setUnderline(true);
+        label->setFont( font );
+    }
+
+    this->circle = new PinCircle(0,0,20,20,this);
+    this->circle->setPos(0, 4.0);
+
+    label->setPos(12,0);
+
+    this->addToGroup(circle);
+    this->addToGroup(label);
+
+    connect(m_inputPin, SIGNAL(nameChanged(const QString&)),
+            this, SLOT(pinNameChanged(const QString&)));
+}
+
+OutputPinWidget::OutputPinWidget(PipelineElementWidget *parent, IOutputPin* pin) :
+    PinWidget(parent),
+    m_outputPin(pin)
+{
+    assert(m_outputPin.isNotNull());
+
+    setAcceptHoverEvents(true);
+    label = new QGraphicsTextItem(m_outputPin->getName(), this);
+
+    this->circle = new PinCircle(0,0,20,20,this);
+    this->circle->setPos(0, 4.0);
+
+    label->setPos(-12,0);
+    this->circle->setPos(label->boundingRect().width(), 0);
+
+    this->addToGroup(circle);
+    this->addToGroup(label);
+
+    connect(m_outputPin, SIGNAL(nameChanged(const QString&)),
+            this, SLOT(pinNameChanged(const QString&)));
+}
 
 PinCircle::PinCircle(qreal x, qreal y, qreal width, qreal height, PinWidget* parent)
     : QGraphicsEllipseItem(x+(width-7)/2.0, y+(height-7)/2.0, 7, 7, parent),

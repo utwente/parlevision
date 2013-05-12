@@ -4,6 +4,8 @@
 
 #include "helloworldprocessor.h"
 
+#include <plvcore/PipelineElementFactory.h>
+
 using namespace plv;
 
 HelloWorldPlugin::HelloWorldPlugin()

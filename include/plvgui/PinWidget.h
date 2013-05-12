@@ -25,17 +25,12 @@
 #include <QtGui/QGraphicsItemGroup>
 #include <plvcore/RefPtr.h>
 #include <plvcore/Pin.h>
+#include <plvcore/IInputPin.h>
+#include <plvcore/IOutputPin.h>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 QT_END_NAMESPACE
-
-namespace plv
-{
-    class Pin;
-    class IInputPin;
-    class IOutputPin;
-}
 
 namespace plvgui
 {
@@ -48,12 +43,13 @@ namespace plvgui
         Q_OBJECT
 
     public:
-        PinWidget(PipelineElementWidget* parent, plv::RefPtr<plv::IInputPin> p);
-        PinWidget(PipelineElementWidget* parent, plv::RefPtr<plv::IOutputPin> p);
+        PinWidget(PipelineElementWidget* parent);
+
         virtual QRectF boundingRect() const;
 
-        inline plv::RefPtr<plv::Pin> getPin() const {return m_pin;}
-        inline const PinCircle* getCircle() const {return circle;}
+        virtual plv::RefPtr<plv::Pin> getPin() const = 0;
+
+        inline const PinCircle* getCircle() const { return circle;}
 
         void handleMouseDoubleClick();
 
@@ -67,14 +63,31 @@ namespace plvgui
         virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
         virtual bool sceneEvent ( QEvent * event );
 
-    private:
+    protected:
         PipelineElementWidget* m_parent;
-        plv::RefPtr<plv::Pin> m_pin;
-        void init(bool isInput);
         PinCircle* circle;
         QGraphicsTextItem* label;
     };
 
+    class InputPinWidget : public PinWidget
+    {
+    public:
+        InputPinWidget(PipelineElementWidget* parent, plv::IInputPin* pin);
+
+        virtual plv::RefPtr<plv::Pin> getPin() const { return m_inputPin.getPtr(); }
+    private:
+        plv::RefPtr<plv::IInputPin> m_inputPin;
+    };
+
+    class OutputPinWidget : public PinWidget
+    {
+    public:
+        OutputPinWidget(PipelineElementWidget* parent, plv::IOutputPin* pin);
+
+        virtual plv::RefPtr<plv::Pin> getPin() const { return m_outputPin.getPtr(); }
+    private:
+        plv::RefPtr<plv::IOutputPin> m_outputPin;
+    };
 
     class PinCircle : public QGraphicsEllipseItem
     {

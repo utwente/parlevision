@@ -1,4 +1,6 @@
 #include "CvMatDataPin.h"
+#include "DataProducer.h"
+#include "DataConsumer.h"
 
 #include <QMetaType>
 
@@ -156,7 +158,7 @@ void CvMatDataOutputPin::put( CvMatData img )
 {
     QVariant v;
     v.setValue(img);
-    unsigned int serial = m_owner->getProcessingSerial();
+    unsigned int serial = m_producer->getProcessingSerial();
     putVariant(serial, v);
 }
 
@@ -263,7 +265,7 @@ bool CvMatDataOutputPin::acceptsConnectionWith( const IInputPin* pin,
     return true;
 }
 
-CvMatDataOutputPin* plv::createCvMatDataOutputPin( const QString& name, PipelineElement* owner )
+CvMatDataOutputPin* plv::createCvMatDataOutputPin( const QString& name, DataProducer* owner )
 throw (IllegalArgumentException)
 {
     // if add fails pin is automatically deleted and exception is thrown
@@ -273,7 +275,7 @@ throw (IllegalArgumentException)
 }
 
 CvMatDataInputPin*
-plv::createCvMatDataInputPin( const QString& name, PipelineElement* owner,
+plv::createCvMatDataInputPin( const QString& name, DataConsumer* owner,
                               IInputPin::Required required,
                               IInputPin::Synchronized synchronous )
 throw (IllegalArgumentException)

@@ -4,7 +4,7 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Types.h>
 #include <opencv/cv.h>
-#include <plvcore/Pin.h>
+#include <plvcore/OutputPin.h>
 
 namespace plv
 {
@@ -21,7 +21,7 @@ namespace plvopencv
         Q_DISABLE_COPY( ViolaJonesFaceDetector )
         Q_CLASSINFO("author", "Dennis")
         Q_CLASSINFO("name", "Face Detect V.-J.")
-        Q_CLASSINFO("description", "Viola-Jones Face Detector.");
+        Q_CLASSINFO("description", "Viola-Jones Face Detector.")
 
         Q_PROPERTY( int minNeighbours READ getMinNeighbours WRITE setMinNeighbours NOTIFY minNeighboursChanged  )
         Q_PROPERTY( double scaleFactor READ getScaleFactor WRITE setScaleFactor NOTIFY scaleFactorChanged  )

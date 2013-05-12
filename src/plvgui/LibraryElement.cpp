@@ -25,6 +25,10 @@
 
 #include <plvcore/PipelineElement.h>
 #include <plvcore/Pin.h>
+#include <plvcore/IInputPin.h>
+#include <plvcore/IOutputPin.h>
+#include <plvcore/DataConsumer.h>
+#include <plvcore/DataProducer.h>
 #include <plvcore/RefPtr.h>
 
 using namespace plv;
@@ -74,28 +78,45 @@ LibraryElement::LibraryElement(RefPtr<PipelineElement> element, QWidget* parent)
     this->outerContainer->addWidget(pinWrapper);
 
     QString pinStyle = "font-size: 10px;";
-    const PipelineElement::InputPinMap& inPins = element->getInputPins();
-    for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
-        ; itr!=inPins.end(); ++itr)
+
+    if( element->isDataConsumer() )
     {
-        RefPtr<IInputPin> pin = itr->second;
-        assert(pin.isNotNull());
-        QWidget* label = new QLabel(pin->getName());
-        label->setStyleSheet(pinStyle);
-        label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-        inPinContainer->addWidget(label, Qt::AlignLeft | Qt::AlignTop);
+        DataConsumer* dc = dynamic_cast<DataConsumer*>(element.getPtr());
+        assert(dc != 0);
+        if( dc != 0 )
+        {
+            const InputPinMap& inPins = dc->getInputPins();
+            for( InputPinMap::const_iterator itr = inPins.begin()
+                ; itr!=inPins.end(); ++itr)
+            {
+                RefPtr<IInputPin> pin = itr.value();
+                assert(pin.isNotNull());
+                QWidget* label = new QLabel(pin->getName());
+                label->setStyleSheet(pinStyle);
+                label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+                inPinContainer->addWidget(label, Qt::AlignLeft | Qt::AlignTop);
+            }
+        }
     }
 
-    const PipelineElement::OutputPinMap& outPins = element->getOutputPins();
-    for( PipelineElement::OutputPinMap::const_iterator itr = outPins.begin()
-        ; itr!=outPins.end(); ++itr)
+    if( element->isDataProducer() )
     {
-        RefPtr<IOutputPin> pin = itr->second;
-        assert(pin.isNotNull());
-        QWidget* label = new QLabel(pin->getName());
-        label->setStyleSheet(pinStyle);
-        label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-        outPinContainer->addWidget(label, Qt::AlignRight | Qt::AlignTop);
+        DataProducer* dp = dynamic_cast<DataProducer*>(element.getPtr());
+        assert(dp != 0);
+        if( dp != 0 )
+        {
+            const OutputPinMap& outPins = dp->getOutputPins();
+            for( OutputPinMap::const_iterator itr = outPins.begin()
+                ; itr!=outPins.end(); ++itr)
+            {
+                RefPtr<IOutputPin> pin = itr.value();
+                assert(pin.isNotNull());
+                QWidget* label = new QLabel(pin->getName());
+                label->setStyleSheet(pinStyle);
+                label->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+                outPinContainer->addWidget(label, Qt::AlignRight | Qt::AlignTop);
+            }
+        }
     }
 }
 

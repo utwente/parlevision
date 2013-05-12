@@ -27,6 +27,8 @@
 #include "TestProducer.h"
 #include "BlobProducer.h"
 
+#include <plvcore/PipelineElementFactory.h>
+
 using namespace plv;
 
 PlvTestPlugin::PlvTestPlugin()

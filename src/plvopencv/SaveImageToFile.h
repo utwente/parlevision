@@ -23,7 +23,7 @@
 #define SAVEIMAGETOFILE_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+#include <plvcore/InputPin.h>
 #include <plvcore/Enum.h>
 #include <plvcore/CvMatData.h>
 #include <QList>
@@ -68,7 +68,7 @@ namespace plvopencv
 
         Q_CLASSINFO("author", "Richard Loos")
         Q_CLASSINFO("name", "Save Image")
-        Q_CLASSINFO("description", "A processor that takes an input and saves it.");
+        Q_CLASSINFO("description", "A processor that takes an input and saves it.")
 
         Q_PROPERTY( QString directory READ getDirectory WRITE setDirectory NOTIFY directoryChanged )
         Q_PROPERTY( plv::Enum fileFormat READ getFileFormat WRITE setFileFormat NOTIFY fileFormatChanged )

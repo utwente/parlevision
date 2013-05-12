@@ -27,8 +27,11 @@
 
 #include <plvcore/Pipeline.h>
 #include <plvcore/Pin.h>
+#include <plvcore/IInputPin.h>
+#include <plvcore/IOutputPin.h>
 #include <plvcore/PinConnection.h>
 #include <plvcore/PlvExceptions.h>
+#include <plvcore/PipelineElementFactory.h>
 
 #include "PipelineElementWidget.h"
 #include "ConnectionLine.h"
@@ -141,7 +144,6 @@ void PipelineScene::add(const plv::RefPtr<plv::PipelineElement>& e)
 
 void PipelineScene::add(const plv::RefPtr<plv::PinConnection>& c)
 {
-    RefPtr<const Pin> from = c->fromPin();
     ConnectionLine* item = new ConnectionLine(getWidgetFor(c->fromPin()),
                                               getWidgetFor(c->toPin()),
                                               c.getPtr(),

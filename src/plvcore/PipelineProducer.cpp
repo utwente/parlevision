@@ -32,43 +32,47 @@ PipelineProducer::~PipelineProducer()
 {
 }
 
-bool PipelineProducer::__ready( unsigned int& /*serial*/ )
+/** implementation for definition in PipelineElement */
+bool PipelineProducer::requiredPinsConnected() const
 {
-    if( getState() >= PLE_DISPATCHED )
-        return false;
-    else if( this->readyToProduce() )
-    {
-        // serial ignored by producers
-        return true;
-    }
-    return false;
+    return true;
+}
+
+bool PipelineProducer::__ready( unsigned int& serial )
+{
+    // serial ignored by producers
+    Q_UNUSED(serial)
+
+    return( getState() < PLE_DISPATCHED && this->readyToProduce() );
 }
 
 bool PipelineProducer::__process( unsigned int serial )
 {
     QMutexLocker lock( &m_pleMutex );
 
+    // TODO remove debug
+    unsigned int processingSerial = getProcessingSerial();
+    QString msg = QString("PipelineProducer: serial: %1 processing serial: %2").arg(serial).arg(processingSerial);
+    qDebug() << msg;
+
+    //assert( serial > getProcessingSerial() || serial == 0 );
+    if(!(serial > processingSerial || serial == 0)) {
+        qDebug() << "HERE!!!!!! ======== <<<<<<<<<<";
+    }
+
     // set the serial number for this processing run
     setProcessingSerial( serial );
 
-    for( OutputPinMap::iterator itr = m_outputPins.begin();
-         itr != m_outputPins.end(); ++itr )
-    {
-        IOutputPin* out = itr->second.getPtr();
-        out->pre();
-    }
+    // call pre processing callback on all output pins
+    this->preOutput();
 
     // do the actual producing
     lock.unlock();
     bool retval = this->produce();
     lock.relock();
 
-    for( OutputPinMap::iterator itr = m_outputPins.begin();
-         itr != m_outputPins.end(); ++itr )
-    {
-        IOutputPin* out = itr->second.getPtr();
-        out->post();
-    }
+    // call post processing callback on all output pins
+    this->postOutput();
 
     lock.unlock();
     if(!retval) setState(PLE_ERROR);

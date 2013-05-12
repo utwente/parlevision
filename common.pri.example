@@ -1,7 +1,7 @@
 # using parlevision as a shared library
 DEFINES += PLV_SHARED_LIBRARY
 
-OPENCV_PATH = c:/develop/OpenCV-2.3.1
+OPENCV_PATH = c:/develop/OpenCV-2.4.5/opencv
 
 #Include path relative to where source is located
 INCLUDEPATH += ../../include

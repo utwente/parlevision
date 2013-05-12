@@ -24,7 +24,7 @@
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/CvMatData.h>
-#include <plvcore/Pin.h>
+#include <plvcore/InputPin.h>
 
 namespace plv
 {
@@ -40,7 +40,9 @@ namespace plvopencv
         Q_DISABLE_COPY( Snapshot )
         Q_CLASSINFO("author", "Dennis")
         Q_CLASSINFO("name", "Snapshot")
-        Q_CLASSINFO("description", "On request, make a new snapshot of the input pin. On the output pin, always present the latest snapshot. Always enforces a snapshot on the first frame.");
+        Q_CLASSINFO("description", "On request, make a new snapshot of the "
+                    "input pin. On the output pin, always present the latest "
+                    "snapshot. Always enforces a snapshot on the first frame.")
 
         Q_PROPERTY( bool makeSnapshot READ getMakeSnapshot WRITE setMakeSnapshot NOTIFY makeSnapshotChanged  )
         Q_PROPERTY( bool keepSending READ getKeepSending WRITE setKeepSending NOTIFY keepSendingChanged  )

@@ -28,6 +28,8 @@
 #include "BlobTracker.h"
 #include "VPBlobToStringConverter.h"
 
+#include <plvcore/PipelineElementFactory.h>
+
 using namespace plv;
 
 PlvBlobTrackPlugin::PlvBlobTrackPlugin()

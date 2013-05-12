@@ -24,7 +24,7 @@
 
 #include <QMutex>
 #include <plvcore/PipelineProducer.h>
-#include <plvcore/Pin.h>
+#include <plvcore/OutputPin.h>
 #include <plvcore/CvMatData.h>
 #include <plvcore/Enum.h>
 #include <QFileInfo>
@@ -41,7 +41,7 @@ namespace plvopencv
         Q_OBJECT
         Q_CLASSINFO("author", "Richard Loos")
         Q_CLASSINFO("name", "Image directory producer")
-        Q_CLASSINFO("description", "A producer that loads all the images in a directory.");
+        Q_CLASSINFO("description", "A producer that loads all the images in a directory.")
 
         Q_PROPERTY( QString directory READ getDirectory WRITE setDirectory NOTIFY directoryChanged )
 

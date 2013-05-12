@@ -23,7 +23,7 @@
 #define PLVBLOBTRACK_BLOBTRACKER_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+#include <plvcore/InputPin.h>
 #include <QStringList>
 
 #include "Blob.h"

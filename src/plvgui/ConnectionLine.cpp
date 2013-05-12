@@ -25,6 +25,7 @@
 #include <QDebug>
 
 #include "PinWidget.h"
+#include <plvcore/PinConnection.h>
 
 const qreal Pi = 3.14;
 

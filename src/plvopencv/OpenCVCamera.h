@@ -80,6 +80,8 @@ namespace plvopencv
 
         int width() const;
         int height() const;
+        int setFPS(int value);
+        int FPS() const;
 
         /** Returns the number of available cameras.
           * Note that this needs to be run while no cameras are in use
@@ -102,6 +104,8 @@ namespace plvopencv
         QMutex          m_opencv_mutex;
         QWaitCondition  m_condition;
         CvCapture*      m_captureDevice;
+
+        unsigned int m_imgCount;
 
         /**
          * Releases any capture devices that might be used.

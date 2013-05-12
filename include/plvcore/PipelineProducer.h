@@ -23,6 +23,7 @@
 #define PIPELINEPRODUCER_H
 
 #include "PipelineElement.h"
+#include "DataProducer.h"
 
 /** Utility macro for implemented pure abstract methods in sub classes */
 #define PLV_PIPELINE_PRODUCER \
@@ -32,7 +33,7 @@ public: \
 
 namespace plv
 {
-    class PLVCORE_EXPORT PipelineProducer : public PipelineElement
+    class PLVCORE_EXPORT PipelineProducer : public DataProducer
     {
         Q_OBJECT
 
@@ -42,6 +43,9 @@ namespace plv
         PipelineProducer();
         virtual ~PipelineProducer();
 
+        /** implementation for definition in PipelineElement */
+        virtual bool requiredPinsConnected() const;
+
         /** returns true when producer can produce. Will be polled by the pipeline */
         virtual bool readyToProduce() const = 0;
 
@@ -49,14 +53,18 @@ namespace plv
         virtual bool produce() = 0;
 
     protected:
-        /** calls pre and post of output pins and calls produce of implementation */
+        /** makes sure this processor is not already dispatched and calls
+            the readyToProduce method and returns the result. If the result
+            is true it will be scheduled for execution by the Pipeline. */
         virtual bool __ready( unsigned int& serial );
 
-        /** calls the produce method of the implementation and sets the serial number
-            correctly */
+        /** calls pre and post of output pins and calls the produce method of
+            the implementation and sets the serial number correctly */
         virtual bool __process( unsigned int serial );
-    };
 
+    private:
+        QMutex m_plpMutex;
+    };
 }
 
 #endif // PIPELINEPRODUCER_H

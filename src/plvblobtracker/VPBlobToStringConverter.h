@@ -3,6 +3,8 @@
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/CvMatDataPin.h>
+#include <plvcore/OutputPin.h>
+#include <plvcore/InputPin.h>
 #include "Blob.h"
 
 namespace plvblobtracker

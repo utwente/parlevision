@@ -24,7 +24,11 @@
 #include <QStringBuilder>
 
 #include <plvcore/PipelineElement.h>
+#include <plvcore/DataConsumer.h>
+#include <plvcore/DataProducer.h>
 #include <plvcore/Pin.h>
+#include <plvcore/IInputPin.h>
+#include <plvcore/IOutputPin.h>
 
 using namespace plvgui;
 using namespace plv;
@@ -35,28 +39,43 @@ QString Utils::elementInfoText(plv::PipelineElement* element)
     if(desc.isEmpty()) { desc = "(no description)"; }
 
     QString inputPinRows;
-    const PipelineElement::InputPinMap& inPins = element->getInputPins();
-    for( PipelineElement::InputPinMap::const_iterator itr = inPins.begin()
-        ; itr!=inPins.end(); ++itr)
+    if( element->isDataConsumer() )
     {
-        RefPtr<IInputPin> pin = itr->second;
-        inputPinRows = inputPinRows % "<tr>"
-                        % "<td>" % QString(pin->getName()) %"</td>"
-                        % "<td>" % QString(pin->getTypeName()) %"</td>"
-                        % "</tr>";
+        DataConsumer* dc = dynamic_cast<DataConsumer*>(element);
+        assert(dc != 0);
+        if( dc != 0 )
+        {
+            const InputPinMap& inPins = dc->getInputPins();
+            for( InputPinMap::const_iterator itr = inPins.begin()
+                ; itr!=inPins.end(); ++itr)
+            {
+                RefPtr<IInputPin> pin = itr.value();
+                inputPinRows = inputPinRows % "<tr>"
+                                % "<td>" % QString(pin->getName()) %"</td>"
+                                % "<td>" % QString(pin->getTypeName()) %"</td>"
+                                % "</tr>";
+            }
+        }
     }
 
-
     QString outputPinRows;
-    const PipelineElement::OutputPinMap& outPins = element->getOutputPins();
-    for( PipelineElement::OutputPinMap::const_iterator itr = outPins.begin()
-        ; itr!=outPins.end(); ++itr)
+    if( element->isDataProducer() )
     {
-        RefPtr<IOutputPin> pin = itr->second;
-        outputPinRows = outputPinRows % "<tr>"
-                        % "<td>" % QString(pin->getName()) %"</td>"
-                        % "<td>" % QString(pin->getTypeName()) %"</td>"
-                        % "</tr>";
+        DataProducer* dp = dynamic_cast<DataProducer*>(element);
+        assert(dp != 0);
+        if( dp != 0 )
+        {
+            const OutputPinMap& outPins = dp->getOutputPins();
+            for( OutputPinMap::const_iterator itr = outPins.begin()
+                ; itr!=outPins.end(); ++itr)
+            {
+                RefPtr<IOutputPin> pin = itr.value();
+                outputPinRows = outputPinRows % "<tr>"
+                                % "<td>" % QString(pin->getName()) %"</td>"
+                                % "<td>" % QString(pin->getTypeName()) %"</td>"
+                                % "</tr>";
+            }
+        }
     }
 
     return "<h1>" % element->getName() % "</h1>"

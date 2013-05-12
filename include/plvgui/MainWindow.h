@@ -27,7 +27,7 @@
 #include <QtCore/QHash>
 
 #include <plvcore/PipelineElement.h>
-#include <plvcore/Pin.h>
+#include <plvcore/IOutputPin.h>
 #include <plvcore/RefPtr.h>
 
 #include "plvgui_global.h"
@@ -69,7 +69,7 @@ namespace plvgui
         virtual bool event(QEvent * event);
 
     public slots:
-        void showViewersForElement(plv::RefPtr<plv::PipelineElement>);
+        //void showViewersForElement(plv::RefPtr<plv::PipelineElement>);
         void showViewerForPin(plv::RefPtr<plv::IOutputPin> targetPin);
         void showWelcomeScreen();
         void criticalError(QString msg);

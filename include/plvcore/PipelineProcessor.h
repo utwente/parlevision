@@ -22,7 +22,7 @@
 #ifndef PIPELINEPROCESSOR_H
 #define PIPELINEPROCESSOR_H
 
-#include "PipelineElement.h"
+#include "DataConsumer.h"
 
 /** Utility macro for implemented pure abstract methods in sub classes */
 #define PLV_PIPELINE_PROCESSOR \
@@ -31,7 +31,7 @@ public: \
 
 namespace plv
 {
-    class PLVCORE_EXPORT PipelineProcessor : public PipelineElement
+    class PLVCORE_EXPORT PipelineProcessor : public DataConsumer
     {
         Q_OBJECT
 
@@ -39,20 +39,26 @@ namespace plv
         PipelineProcessor();
         virtual ~PipelineProcessor();
 
+        /** implementation for definition in PipelineElement */
+        virtual bool requiredPinsConnected() const;
+
         /** This method can be overridden in PipelineProcessor derived classes to
           * change the default behaviour that the processor is ready to process when
           * there is input available on all connected synchronous pins. Warning:
           * use with caution! */
         // virtual bool readyToProcess() const { return true; }
 
+        virtual bool __init();
+
         virtual bool __ready( unsigned int& serial );
         virtual bool __process( unsigned int serial );
+
+        //virtual void acceptData(QVariant& data);
 
     private:
         /** does the actual processing */
         virtual bool process() = 0;
     };
-
 }
 
 #endif // PIPELINEPROCESSOR_H

@@ -24,7 +24,7 @@
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Enum.h>
-#include <plvcore/Pin.h>
+#include <plvcore/InputPin.h>
 #include <plvcore/CvMatData.h>
 
 namespace plv

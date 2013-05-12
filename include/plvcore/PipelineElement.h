@@ -34,12 +34,11 @@
 #include "plvglobal.h"
 #include "RefPtr.h"
 #include "PlvExceptions.h"
-#include "PipelineElementFactory.h"
 
 namespace plv
 {
-    class IInputPin;
-    class IOutputPin;
+    //class IInputPin;
+    //class IOutputPin;
     class Pipeline;
     class PinConnection;
 
@@ -53,76 +52,25 @@ namespace plv
         Q_DISABLE_COPY(PipelineElement)
 
     public:
-        /** typedefs to make code more readable */
-        typedef std::map< int, RefPtr< IInputPin > > InputPinMap;
-        typedef std::map< int, RefPtr< IOutputPin > > OutputPinMap;
-
         enum State {
             PLE_UNDEFINED,  /* undefined or non initialized */
             PLE_INITIALIZED,/* initialized(init method executed succesfully) */
             PLE_STARTED,    /* started (start method executed succesfully) */
             PLE_DISPATCHED, /* dispatched to be processed */
             PLE_RUNNING,    /* pipeline element is processing */
+            PLE_DONE,       /* pipeline element is done processing */
             PLE_ERROR       /* an error occured during processing */
         };
-
-    protected:
-        /** processor id */
-        int m_id;
-
-        /** The element state. See PipelineElementState enumeration for details */
-        State m_state;
-
-        /** map which contains the input pins identified and indexed by their name */
-        InputPinMap m_inputPins;
-
-        /** map which contains the output pins identified and indexed by their name */
-        OutputPinMap m_outputPins;
-
-        float m_avgProcessingTime;
-        int m_lastProcesingTime;
-
-        QTime m_timer;
-
-        mutable QMutex m_pleMutex;
-        mutable QMutex m_stateMutex;
-
-        /** mutex used for properties. Properties need a recursive mutex
-          * sice the emit() they do to update their own value can return the
-          * call to the set function resulting in a deadlock if we use a normal
-          * mutex */
-        mutable QMutex* m_propertyMutex;
-
-        /** if an error has occured, this holds the type of error. */
-        PlvErrorType m_errorType;
-
-        /** if an error has occured, this string holds an error message. */
-        QString m_errorString;
 
     public:
         PipelineElement();
         virtual ~PipelineElement();
 
-        /** returns true if this element has no outgoing connections */
-        bool isEndNode() const ;
+        void setId( int id );
+        int getId() const;
 
-        /** @returns true when input pins which are required by this processor to
-          * be connected are connected. */
-        bool requiredPinsConnected() const;
-
-        /** @returns the set of pipeline elements which are connected to
-          * this element via the output pins.
-          */
-        QSet<PipelineElement*> getConnectedElementsToOutputs() const;
-
-        /** @returns the set of pipeline elements which are connected to
-          * this element via the input pins.
-          */
-        QSet<PipelineElement*> getConnectedElementsToInputs() const;
-
-        /** @returns true if input pins which are connected and synchronous
-          *  have data available */
-        bool dataAvailableOnInputPins( unsigned int& nextSerial );
+        void setPipeline( Pipeline* pipeline);
+        Pipeline* getPipeline() const;
 
         /** Get the name that describes this element, in human readable form. This name
             should be defined as a class property in the processors implementation, e.g
@@ -130,66 +78,8 @@ namespace plv
             class name is returned, e.g. plv::ExampleProcessor. */
         QString getName() const;
 
-        /** Adds the input pin to this processing element.
-            Returns id on success or -1 on failure. */
-        int addInputPin( IInputPin* pin );
-
-        /** Adds the output pin to this processing element.
-            Returns id on success or -1 on failure. */
-        int addOutputPin( IOutputPin* pin );
-
-        void removeInputPin( int id );
-        void removeOutputPin( int id );
-
-        /** @returns the input pin with that id, or null if none exists */
-        IInputPin* getInputPin( int id ) const;
-
-        /** @returns the ouput pin with that id, or null if none exists */
-        IOutputPin* getOutputPin( int id ) const;
-
-        inline void setId( int id ) { assert(m_id == -1); m_id = id; }
-        inline int getId() const { return m_id; }
-
         /** Get a list of properties defined on this element */
         QStringList getConfigurablePropertyNames();
-
-        /** @returns the summed total of all connections in all input pins */
-        int inputPinsConnectionCount() const;
-
-        /** @returns the summed total of all connections in all output pins */
-        int outputPinsConnectionCount() const;
-
-        /** @returns the summed total of all connections in all input and output pins */
-        int pinsConnectionCount() const;
-
-        /** @returns a list of names of input pins added to this PipelineElement */
-        QStringList getInputPinNames() const;
-
-        /** returns a copy of the contents of the input pin map
-          * This function is thread safe.
-          */
-        InputPinMap getInputPins() const;
-
-        /** returns a copy of the contents of the output pin map.
-          * This function is thread safe.
-          */
-        OutputPinMap getOutputPins() const;
-
-        /** @returns a list of names of output pins added to this PipelineElement */
-        QStringList getOutputPinNames() const;
-
-        /** returns true if there is at least one Pin with a connection */
-        bool hasPinConnections() const;
-
-        /** Returns the largest queue size of the connections connected
-          * to the input pins. Returns 0 when there are no input pins with
-          * a connection. */
-        int maxInputQueueSize() const;
-
-        /** Returns the largest queue size of the connections connected
-          * to the output pins. Returns 0 when there are no output pins with
-          * a connection. */
-        int maxOutputQueueSize() const;
 
         QString getClassProperty(const char* name) const;
 
@@ -210,16 +100,11 @@ namespace plv
         /** sets the state of this element. This method is thread safe. */
         void setState( State state );
 
-        /** sets the serial number of the current process call. Not thread safe. */
-        inline void setProcessingSerial( unsigned int serial ) { m_serial = serial; }
+        virtual bool __init();
+        virtual bool __deinit() throw();
+        virtual bool __start();
+        virtual bool __stop();
 
-        /** returs the serial number of the current process call. Not thread safe. */
-        inline unsigned int getProcessingSerial() const { return m_serial; }
-
-        bool __init();
-        bool __deinit() throw();
-        bool __start();
-        bool __stop();
         virtual bool __ready( unsigned int& serial )    = 0;
         virtual bool __process( unsigned int serial )   = 0;
 
@@ -228,13 +113,30 @@ namespace plv
         bool run( unsigned int serial );
 
         /** helper function for creating a partial ordering for cycle detection */
-        bool visit( QList<PipelineElement*>& ordering, QSet<PipelineElement*>& visited );
+        virtual bool visit( QList<PipelineElement*>& ordering, QSet<PipelineElement*>& visited ) = 0;
 
-        virtual void inputConnectionSet(IInputPin* /*pin*/, PinConnection* /*connection*/) {}
-        virtual void inputConnectionRemoved(IInputPin* /*pin*/, PinConnection* /*connection*/) {}
+        /** returns true if there are no output connections to other elements */
+        virtual bool isEndNode() const = 0;
 
-        virtual void outputConnectionAdded(IOutputPin* /*pin*/, PinConnection* /*connection*/) {}
-        virtual void outputConnectionRemoved(IOutputPin* /*pin*/, PinConnection* /*connection*/) {}
+        virtual bool requiredPinsConnected() const = 0;
+
+        virtual bool isDataConsumer() const = 0;
+        virtual bool isDataProducer() const = 0;
+
+        /** sets the serial number of the current process call. Not thread safe. */
+        void setProcessingSerial( unsigned int serial );
+
+        /** returs the serial number of the current process call. Not thread safe. */
+        unsigned int getProcessingSerial() const;
+
+        /** signals this element that it is ready to be dispatched */
+//        virtual void signalReady() = 0;
+
+//        virtual void onInputConnectionSet(IInputPin* pin, PinConnection* connection);
+//        virtual void onInputConnectionRemoved(IInputPin* pin, PinConnection* connection);
+
+//        virtual void onOutputConnectionAdded(IOutputPin* pin, PinConnection* connection);
+//        virtual void onOutputConnectionRemoved(IOutputPin* pin, PinConnection* connection);
 
     public slots:
         /** Overridden from QObject::setProperty()
@@ -242,17 +144,6 @@ namespace plv
         void setProperty(const char* name, const QVariant &value);
 
    protected:
-        /** serial number of current processing run. */
-        unsigned int m_serial;
-
-        /** True if this element has at least one connected asynchronous pin.
-            Initialized in __init method.  */
-        bool m_hasAsynchronousPin;
-
-        /** true if this element has at least one connected synchronous pin.
-            Initialized in __init method. */
-        bool m_hasSynchronousPin;
-
         /** Initialises the element so it is ready to receive process() calls.
             This allows for late initialization and an empty constructor.
             It can be called again after a call to deinit(). Use start for
@@ -280,14 +171,46 @@ namespace plv
         void startTimer();
         void stopTimer();
 
-        int getNextOutputPinId() const;
-        int getNextInputPinId() const;
-
         /** send a message to the pipeline to display to the user */
         inline void message(PlvMessageType type, const QString& msg)
         {
             emit sendMessageToPipeline(type, msg);
         }
+
+
+
+        /** processor id */
+        int m_id;
+
+        /** The element state. See PipelineElementState enumeration for details */
+        State m_state;
+
+        mutable QMutex m_stateMutex;
+
+        float m_avgProcessingTime;
+        int m_lastProcesingTime;
+
+        QTime m_timer;
+
+        /** if an error has occured, this holds the type of error. */
+        PlvErrorType m_errorType;
+
+        /** if an error has occured, this string holds an error message. */
+        QString m_errorString;
+
+        /** serial number of current processing run. */
+        unsigned int m_serial;
+
+        /** if set contains a pointer to the current pipeline, NULL otherwise */
+        Pipeline* m_pipeline;
+
+        mutable QMutex m_pleMutex;
+
+        /** mutex used for properties. Properties need a recursive mutex
+          * sice the emit() they do to update their own value can return the
+          * call to the set function resulting in a deadlock if we use a normal
+          * mutex */
+        mutable QMutex* m_propertyMutex;
 
     signals:
         void propertyChanged(QString);
@@ -304,23 +227,32 @@ namespace plv
         void onProcessingTimeUpdate(int avg, int last);
 
         void onStateChange(PipelineElement::State state);
-
-        void inputPinAdded( plv::IInputPin* pin );
-        void inputPinRemoved( int id );
-
-        void outputPinAdded( plv::IOutputPin* pin );
-        void outputPinRemoved( int id );
     };
+
+//    void PipelineElement::onInputConnectionSet(IInputPin* pin, PinConnection* connection)
+//    {
+//        Q_UNUSED(pin);
+//        Q_UNUSED(connection);
+//    }
+
+//    void PipelineElement::onInputConnectionRemoved(IInputPin* pin, PinConnection* connection)
+//    {
+//        Q_UNUSED(pin);
+//        Q_UNUSED(connection);
+//    }
+
+//    void PipelineElement::onOutputConnectionAdded(IOutputPin* pin, PinConnection* connection)
+//    {
+//        Q_UNUSED(pin);
+//        Q_UNUSED(connection);
+//    }
+
+//    void PipelineElement::onOutputConnectionRemoved(IOutputPin* pin, PinConnection* connection)
+//    {
+//        Q_UNUSED(pin);
+//        Q_UNUSED(connection);
+//    }
 }
 Q_DECLARE_METATYPE(plv::PipelineElement::State)
-
-/** template helper function to register PipelineElements */
-template<typename PET>
-int plvRegisterPipelineElement()
-{
-    plv::PipelineElementConstructorHelper<PET>* plec = new plv::PipelineElementConstructorHelper<PET>();
-    int id = plv::PipelineElementFactory::registerElement( plec );
-    return id;
-}
 
 #endif // PIPELINEELEMENT_H

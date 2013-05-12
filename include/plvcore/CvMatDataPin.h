@@ -1,19 +1,22 @@
 #ifndef CVMATDATAOUTPUTPIN_H
 #define CVMATDATAOUTPUTPIN_H
 
-#include "Pin.h"
+#include "IInputPin.h"
+#include "IOutputPin.h"
 #include "CvMatData.h"
 
 namespace plv
 {
     class CvMatDataOutputPin;
     class PipelineElement;
+    class DataConsumer;
+    class DataProducer;
 
     class PLVCORE_EXPORT CvMatDataInputPin : public IInputPin
     {
     public:
         CvMatDataInputPin( const QString& name,
-                           PipelineElement* owner,
+                           DataConsumer* owner,
                            Required required = CONNECTION_REQUIRED,
                            Synchronized synchronous = CONNECTION_SYNCHRONOUS ) :
                            IInputPin( name, owner, required, synchronous )
@@ -55,7 +58,7 @@ namespace plv
     class PLVCORE_EXPORT CvMatDataOutputPin : public IOutputPin
     {
     public:
-        CvMatDataOutputPin( const QString& name, PipelineElement* owner ) :
+        CvMatDataOutputPin( const QString& name, DataProducer* owner ) :
                 IOutputPin( name, owner ) {}
 
         /** Puts data in connection. Drops data if no connection present. */
@@ -89,10 +92,10 @@ namespace plv
         QSet<int> m_channels;
     };
 
-    PLVCORE_EXPORT CvMatDataOutputPin* createCvMatDataOutputPin( const QString& name, PipelineElement* owner )
+    PLVCORE_EXPORT CvMatDataOutputPin* createCvMatDataOutputPin( const QString& name, DataProducer* owner )
     throw (IllegalArgumentException);
 
-    PLVCORE_EXPORT CvMatDataInputPin* createCvMatDataInputPin( const QString& name, PipelineElement* owner,
+    PLVCORE_EXPORT CvMatDataInputPin* createCvMatDataInputPin( const QString& name, DataConsumer* owner,
                                   IInputPin::Required required = IInputPin::CONNECTION_REQUIRED,
                                   IInputPin::Synchronized synchronous = IInputPin::CONNECTION_SYNCHRONOUS  )
     throw (IllegalArgumentException);

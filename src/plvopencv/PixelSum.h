@@ -23,7 +23,7 @@
 #define PIXELSUM_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+#include <plvcore/OutputPin.h>
 #include <plvcore/Types.h>
 #include <opencv/cv.h>
 

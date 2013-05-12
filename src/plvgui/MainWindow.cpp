@@ -42,6 +42,8 @@
 #include <plvcore/Pipeline.h>
 #include <plvcore/PipelineElement.h>
 #include <plvcore/Pin.h>
+#include <plvcore/IInputPin.h>
+#include <plvcore/IOutputPin.h>
 #include <plvcore/PinConnection.h>
 #include <plvcore/PipelineLoader.h>
 #include <plvcore/Util.h>
@@ -306,7 +308,7 @@ void MainWindow::createLogWidget()
     m_ui->toolBar->addAction(m_logWidget->toggleViewAction());
     m_ui->menuView->addAction(m_logWidget->toggleViewAction());
     #ifdef Q_OS_MAC
-    // Show LibraryWidget as floating window on Mac OS X
+    // Show LogWidget as floating window on Mac OS X
     m_logWidget->setFloating(true);
     #endif
 }
@@ -492,23 +494,22 @@ MainWindow* MainWindow::newWindow()
     return other;
 }
 
-void MainWindow::showViewersForElement(plv::RefPtr<plv::PipelineElement> element)
-{
-    qDebug() << "Adding renderers for " << element->getName();
+//void MainWindow::showViewersForElement(plv::RefPtr<plv::PipelineElement> element)
+//{
+//    qDebug() << "Adding renderers for " << element->getName();
 
-    const PipelineElement::OutputPinMap& outputPins = element->getOutputPins();
-    for( PipelineElement::OutputPinMap::const_iterator itr = outputPins.begin()
-        ; itr!=outputPins.end(); ++itr)
-    {
-        showViewerForPin(itr->second);
-    }
-}
+//    const PipelineElement::OutputPinMap& outputPins = element->getOutputPins();
+//    for( PipelineElement::OutputPinMap::const_iterator itr = outputPins.begin()
+//        ; itr!=outputPins.end(); ++itr)
+//    {
+//        showViewerForPin(itr->second);
+//    }
+//}
 
 void MainWindow::showViewerForPin(plv::RefPtr<plv::IOutputPin> pin)
 {
     assert(pin.isNotNull());
     qDebug() << "Adding renderer for Pin " << pin->getName();
-
 
     // show existing window if exists
     bool existing = false;

@@ -33,7 +33,8 @@ OpenCVCamera::OpenCVCamera(QObject* parent) :
     QThread(parent),
     m_id( 0 ),
     m_state( CAM_UNINITIALIZED ),
-    m_captureDevice( 0 )
+    m_captureDevice( 0 ),
+    m_imgCount( 0 )
 {
 }
 
@@ -56,9 +57,11 @@ bool OpenCVCamera::init( int id )
         return false;
     }
 
+    setFPS(30);
+
     m_state = CAM_INITIALIZED;
     qDebug() << "OpenCV camera initialised with initial resolution of "
-            << width() << "," << height();
+             << width() << "," << height() << " and fps " << FPS();
     return true;
 }
 
@@ -70,6 +73,17 @@ int OpenCVCamera::width() const
 int OpenCVCamera::height() const
 {
     return (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_HEIGHT );
+}
+
+int OpenCVCamera::setFPS(int value)
+{
+    assert(value >= 0);
+    return cvSetCaptureProperty( m_captureDevice, CV_CAP_PROP_FPS, value);
+}
+
+int OpenCVCamera::FPS() const
+{
+    return (int) cvGetCaptureProperty( m_captureDevice, CV_CAP_PROP_FPS);
 }
 
 void OpenCVCamera::run()
@@ -221,23 +235,21 @@ bool OpenCVCamera::setDimensions( int w, int h )
                 "only supports a 4:3 aspect ratio.";
         return false;
     }
-    else
+
+    cvSetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH, dw );
+
+    // check if properties did change
+    int nwidth = width();
+    int nheight = height();
+    if( nwidth != w || nheight != h )
     {
-        cvSetCaptureProperty( m_captureDevice, CV_CAP_PROP_FRAME_WIDTH, dw );
-
-        int nwidth = width();
-        int nheight = height();
-        if( nwidth == w && nheight == h )
-        {
-            qDebug() << "Camera resolution changed to " << nwidth << "x" << nheight;
-            return true;
-        }
-
         qDebug()<< "Camera resolution failed to change to " << w << "x" << h
                 << " and is at " << nwidth << "x" << nheight;
-
         return false;
     }
+
+    qDebug() << "Camera resolution changed to " << nwidth << "x" << nheight;
+    return true;
 }
 
 bool OpenCVCamera::getFrame( CvMatData& mat )
@@ -258,6 +270,11 @@ bool OpenCVCamera::getFrame( CvMatData& mat )
 
     if( image == 0 )
         return false;
+
+    // add one to image count
+    ++m_imgCount;
+
+    qDebug() << tr("image %1").arg(m_imgCount);
 
     // copy the image, since the pointer becomes invalid on another
     // call to cvGrabFrame() and this pointer is passed to the pipeline

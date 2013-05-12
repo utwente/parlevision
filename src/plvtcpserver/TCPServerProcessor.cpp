@@ -24,6 +24,7 @@
 
 #include <plvcore/CvMatData.h>
 #include <plvcore/CvMatDataPin.h>
+#include <plvcore/DynamicInputPin.h>
 #include <plvgui/ImageConverter.h>
 #include <QNetworkInterface>
 #include <QImageWriter>
@@ -157,10 +158,10 @@ bool TCPServerProcessor::process()
 {
     QVariantList frameData;
 
-    PipelineElement::InputPinMap::iterator itr = m_inputPins.begin();
+    plv::InputPinMap::iterator itr = m_inputPins.begin();
     for( ; itr != m_inputPins.end(); ++itr )
     {
-        plv::IInputPin* pin = itr->second.getPtr();
+        plv::IInputPin* pin = itr.value().getPtr();
         if( pin->isConnected() )
         {
 

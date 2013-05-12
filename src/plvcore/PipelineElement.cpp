@@ -33,8 +33,6 @@
 
 #include "Pipeline.h"
 #include "RefCounted.h"
-#include "Pin.h"
-
 
 using namespace plv;
 
@@ -43,9 +41,10 @@ PipelineElement::PipelineElement() :
         m_state( PLE_UNDEFINED ),
         m_avgProcessingTime(0),
         m_lastProcesingTime(0),
-        m_propertyMutex( new QMutex( QMutex::Recursive ) ),
         m_errorType(PlvNoError),
-        m_errorString("")
+        m_errorString(""),
+        m_serial(0),
+        m_propertyMutex( new QMutex( QMutex::Recursive ) )
 {
 }
 
@@ -54,162 +53,38 @@ PipelineElement::~PipelineElement()
     delete m_propertyMutex;
 }
 
-int PipelineElement::addInputPin( IInputPin* pin )
+void PipelineElement::setId( int id )
 {
-    assert( pin != 0 );
-    QMutexLocker lock( &m_pleMutex );
-
-    int id = pin->getId();
-    if( id == -1 )
-    {
-        id = getNextInputPinId();
-        pin->setId(id);
-        assert( m_inputPins.find(id) == m_inputPins.end() );
-    }
-    else
-    {
-        InputPinMap::iterator itr = m_inputPins.find(id);
-        if( itr != m_inputPins.end() )
-        {
-            QString err = QString( tr( "Tried to add input pin %1 with id %2 "
-                                       "which already exists. Ignoring."))
-                    .arg( pin->getName() ).arg( pin->getId() );
-            qWarning() << err;
-            return -1;
-        }
-    }
-    RefPtr<IInputPin> rpin( pin );
-    m_inputPins.insert( std::make_pair( id, rpin ));
-    emit inputPinAdded(pin);
-    return id;
+    assert(m_id == -1);
+    m_id = id;
 }
 
-void PipelineElement::removeInputPin( int id )
+int PipelineElement::getId() const
 {
-    QMutexLocker lock( &m_pleMutex );
-    InputPinMap::iterator itr = m_inputPins.find(id);
-    if( itr != m_inputPins.end() )
-    {
-        QString err = QString(tr( "Tried to remove an input pin with invalid id %1. "
-                                  "Ignoring.").arg(id));
-        qWarning() << err;
-    }
-    emit inputPinRemoved(itr->first);
-    m_inputPins.erase(itr);
+    return m_id;
 }
 
-int PipelineElement::addOutputPin( IOutputPin* pin )
+void PipelineElement::setPipeline(Pipeline* pipeline)
 {
-    assert( pin != 0 );
-    QMutexLocker lock( &m_pleMutex );
-
-    int id = pin->getId();
-    if( id == -1 )
-    {
-        id = getNextOutputPinId();
-        assert( m_outputPins.find(id) == m_outputPins.end() );
-        pin->setId(id);
-    }
-    else
-    {
-        OutputPinMap::iterator itr = m_outputPins.find(id);
-        if( itr != m_outputPins.end() )
-        {
-            QString err = QString( tr( "Tried to add output pin %1 with id %2 "
-                                       "which already exists. Ignoring."))
-                    .arg( pin->getName() ).arg( pin->getId() );
-            qWarning() << err;
-            return -1;
-        }
-    }
-    RefPtr<IOutputPin> rpin( pin );
-    m_outputPins.insert( std::make_pair( id, rpin ));
-    emit outputPinAdded(pin);
-    return id;
+    assert( pipeline != 0 );
+    m_pipeline = pipeline;
 }
 
-void PipelineElement::removeOutputPin( int id )
+Pipeline* PipelineElement::getPipeline() const
 {
-    QMutexLocker lock( &m_pleMutex );
-    OutputPinMap::iterator itr = m_outputPins.find(id);
-    if( itr != m_outputPins.end() )
-    {
-        QString err = QString( tr( "Tried to remove an output pin with invalid id %1. "
-                                   "Ignoring.").arg(id) );
-        qWarning() << err;
-    }
-    emit outputPinRemoved(itr->first);
-    m_outputPins.erase(itr);
+    return m_pipeline;
 }
 
-int PipelineElement::getNextInputPinId() const
+/** sets the serial number of the current process call. */
+void PipelineElement::setProcessingSerial( unsigned int serial )
 {
-    int id=0;
-
-    InputPinMap::const_iterator itr = m_inputPins.begin();
-    for( ;itr != m_inputPins.end(); ++itr, ++id)
-    {
-        int cid = itr->first;
-        if( cid > id )
-            return id;
-    }
-    return id;
+    m_serial = serial;
 }
 
-int PipelineElement::getNextOutputPinId() const
+/** returs the serial number of the current process call */
+unsigned int PipelineElement::getProcessingSerial() const
 {
-    int id=0;
-
-    OutputPinMap::const_iterator itr = m_outputPins.begin();
-    for( ;itr != m_outputPins.end(); ++itr, ++id)
-    {
-        int cid = itr->first;
-        if( cid > id )
-            return id;
-    }
-    return id;
-}
-
-IInputPin* PipelineElement::getInputPin( int id ) const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    InputPinMap::const_iterator itr = m_inputPins.find( id );
-    if( itr != m_inputPins.end() )
-    {
-        return itr->second.getPtr();
-    }
-    qDebug() << tr("Could not find pin with id %1 in PipelineElement::getInputPin").arg(id);
-    return 0;
-}
-
-IOutputPin* PipelineElement::getOutputPin( int id ) const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    OutputPinMap::const_iterator itr = m_outputPins.find( id );
-    if( itr != m_outputPins.end() )
-    {
-        return itr->second.getPtr();
-    }
-    qDebug() << tr("Could not find pin with name %1 in PipelineElement::getOutputPin").arg(id);
-    return 0;
-}
-
-PipelineElement::InputPinMap PipelineElement::getInputPins() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    // return a copy
-    return m_inputPins;
-}
-
-PipelineElement::OutputPinMap PipelineElement::getOutputPins() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    // return a copy
-    return m_outputPins;
+    return m_serial;
 }
 
 QString PipelineElement::getName() const
@@ -235,269 +110,11 @@ QStringList PipelineElement::getConfigurablePropertyNames()
     return list;
 }
 
-QSet<PipelineElement*> PipelineElement::getConnectedElementsToOutputs() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    QSet<PipelineElement*> elements;
-    for( OutputPinMap::const_iterator itr = m_outputPins.begin();
-        itr != m_outputPins.end(); ++itr )
-    {
-        RefPtr<IOutputPin> out = itr->second;
-        if( out->isConnected() )
-        {
-            std::list< RefPtr<PinConnection> > connections = out->getConnections();
-            for( std::list< RefPtr<PinConnection> >::const_iterator connItr = connections.begin();
-                 connItr != connections.end(); ++connItr )
-            {
-                RefPtr<PinConnection> connection = *connItr;
-                RefPtr<const IInputPin> toPin = connection->toPin();
-                PipelineElement* pinOwner = toPin->getOwner();
-                elements.insert( pinOwner );
-            }
-        }
-    }
-    return elements;
-}
-
-QSet<PipelineElement*> PipelineElement::getConnectedElementsToInputs() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    QSet<PipelineElement*> elements;
-    for( InputPinMap::const_iterator itr = m_inputPins.begin();
-        itr != m_inputPins.end(); ++itr )
-    {
-        RefPtr<IInputPin> in = itr->second;
-        if( in->isConnected() )
-        {
-            RefPtr<PinConnection> connection = in->getConnection();
-            RefPtr<const IOutputPin> fromPin = connection->fromPin();
-            PipelineElement* pinOwner = fromPin->getOwner();
-            elements.insert( pinOwner );
-        }
-    }
-    return elements;
-}
-
-bool PipelineElement::isEndNode() const
-{
-    QMutexLocker lock( &m_pleMutex );
-    for( OutputPinMap::const_iterator itr = m_outputPins.begin();
-         itr != m_outputPins.end(); ++itr )
-    {
-        RefPtr<IOutputPin> out = itr->second;
-        if( out->isConnected() )
-            return false;
-    }
-    return true;
-}
-
-
-bool PipelineElement::requiredPinsConnected() const
-{
-    QMutexLocker lock( &m_pleMutex );
-    for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        RefPtr<IInputPin> in = itr->second;
-        if( in->isRequired() )
-            if( !in->isConnected() )
-                return false;
-    }
-    return true;
-}
-
-bool PipelineElement::dataAvailableOnInputPins( unsigned int& nextSerial )
-{
-    // synchronous processor
-    if( m_hasSynchronousPin )
-    {
-        std::vector<unsigned int> serials;
-        for( InputPinMap::const_iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end();
-             ++itr )
-        {
-            IInputPin* in = itr->second.getPtr();
-
-            // only check synchronous connections
-            if( in->isConnected() )
-            {
-                if( in->isSynchronous() )
-                {
-                    if( in->hasData() )
-                    {
-                        unsigned int serial;
-                        bool isNull;
-                        in->peekNext(serial, isNull);
-                        serials.push_back( serial );
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        // check if all serials are the same (which should be the case)
-        bool valid = true;
-        for( unsigned int i=0; i<serials.size() && valid; ++i)
-        {
-            valid = (serials[0] == serials[i]);
-        }
-
-        // the model should guarantee that
-        // this should never happen obviously
-        if( !valid )
-        {
-            setError( PlvPipelineRuntimeError, "Input corrupted" );
-            return false;
-        }
-
-        // save the serial
-        nextSerial = serials[0];
-
-        return true;
-    }
-    // asynchronous processor, only has asynchronous pins
-    else if( m_hasAsynchronousPin )
-    {
-        std::vector<unsigned int> serials;
-        for( InputPinMap::const_iterator itr = m_inputPins.begin();
-             itr != m_inputPins.end();
-             ++itr )
-        {
-            IInputPin* in = itr->second.getPtr();
-
-            // only check asynchronous connections
-            if( in->isConnected() ) //&& in->isAsynchronous() )
-            {
-                if( in->hasData() )
-                {
-                    unsigned int serial;
-                    bool isNull;
-                    in->peekNext(serial, isNull);
-                    serials.push_back(serial);
-                }
-            }
-        }
-
-        if( serials.size() > 0 )
-        {
-            std::sort( serials.begin(), serials.end() );
-            // return smallest serial
-            nextSerial = serials[0];
-            return true;
-        }
-    }
-    return false;
-}
-
-QStringList PipelineElement::getInputPinNames() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    QStringList names;
-    for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        names.push_back(itr->second->getName());
-    }
-    return names;
-}
-
-QStringList PipelineElement::getOutputPinNames() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    QStringList names;
-    for( OutputPinMap::const_iterator itr = m_outputPins.begin();
-         itr != m_outputPins.end(); ++itr )
-    {
-        names.push_back(itr->second->getName());
-    }
-    return names;
-}
-
-int PipelineElement::outputPinsConnectionCount() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    int connectionCount = 0;
-
-    for( OutputPinMap::const_iterator itr = m_outputPins.begin();
-         itr != m_outputPins.end(); ++itr )
-    {
-        RefPtr<IOutputPin> pin = itr->second;
-        assert(pin.isNotNull());
-        connectionCount += pin->connectionCount();
-    }
-
-    return connectionCount;
-}
-
-int PipelineElement::inputPinsConnectionCount() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    int connectionCount = 0;
-
-    for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end(); ++itr )
-    {
-        RefPtr<IInputPin> pin = itr->second;
-        assert(pin.isNotNull());
-        if( pin->isConnected() ) ++connectionCount;
-    }
-
-    return connectionCount;
-}
-
-int PipelineElement::pinsConnectionCount() const
-{
-    return inputPinsConnectionCount() + outputPinsConnectionCount();
-}
-
-int PipelineElement::maxInputQueueSize() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    int maxQueueSize = 0;
-
-    for( PipelineElement::InputPinMap::const_iterator itr = m_inputPins.begin();
-        itr!=m_inputPins.end(); ++itr )
-    {
-        int queueSize = 0;
-
-        IInputPin* inputPin = itr->second;
-        if( inputPin->isConnected() )
-        {
-            queueSize = inputPin->getConnection()->size();
-        }
-
-        if( queueSize > maxQueueSize ) maxQueueSize = queueSize;
-    }
-    return maxQueueSize;
-}
-
-int PipelineElement::maxOutputQueueSize() const
-{
-    QMutexLocker lock( &m_pleMutex );
-
-    int maxQueueSize = 0;
-
-    for( PipelineElement::OutputPinMap::const_iterator itr = m_outputPins.begin();
-        itr!=m_outputPins.end(); ++itr )
-    {
-        IOutputPin* outputPin = itr->second;
-        int queueSize = outputPin->maxDataOnConnection();
-        if( queueSize > maxQueueSize )
-            maxQueueSize = queueSize;
-    }
-    return maxQueueSize;
-}
-
+//int PipelineElement::pinsConnectionCount() const
+//{
+//    return 0;
+//    //return inputPinsConnectionCount() + outputPinsConnectionCount();
+//}
 
 QString PipelineElement::getClassProperty(const char* name) const
 {
@@ -520,7 +137,7 @@ void PipelineElement::setError( PlvErrorType type, const QString& msg )
 
     QMutexLocker lock( &m_pleMutex );
     m_errorString = msg;
-    m_errorType = type;
+    m_errorType   = type;
 }
 
 PlvErrorType PipelineElement::getErrorType() const
@@ -533,41 +150,6 @@ QString PipelineElement::getErrorString() const
 {
     QMutexLocker lock( &m_pleMutex );
     return m_errorString;
-}
-
-bool PipelineElement::visit( QList< PipelineElement* >& ordering,
-                             QSet< PipelineElement* >& visited )
-{
-    // check if this node is already in partial ordering
-    if( ordering.contains( this ))
-        return true;
-
-    // check for cycles
-    if( visited.contains( this ))
-    {
-        // cycle detected
-        ordering.append( this );
-        return false;
-    }
-    visited.insert( this );
-
-    // visit all incoming connections
-    for( PipelineElement::InputPinMap::const_iterator itr = m_inputPins.begin();
-        itr!=m_inputPins.end(); ++itr )
-    {
-        IInputPin* inputPin = itr->second;
-        if( inputPin->isConnected() )
-        {
-            PipelineElement* node = inputPin->getConnection()->fromPin()->getOwner();
-            // directly quit if cycle detected
-            if( !node->visit( ordering, visited ) )
-                return false;
-        }
-    }
-    // go up in call stack
-    visited.remove( this );
-    ordering.append( this );
-    return true;
 }
 
 void PipelineElement::startTimer()
@@ -599,30 +181,6 @@ void PipelineElement::setState( State state )
 bool PipelineElement::__init()
 {
     assert( getState() == PLE_UNDEFINED );
-
-    QMutexLocker lock( &m_pleMutex );
-    m_hasAsynchronousPin = false;
-    m_hasSynchronousPin = false;
-    for( InputPinMap::const_iterator itr = m_inputPins.begin();
-         itr != m_inputPins.end();
-         ++itr )
-    {
-        IInputPin* in = itr->second.getPtr();
-
-        // only automatically check synchronous connections
-        if( in->isConnected() )
-        {
-            if( in->isSynchronous() )
-            {
-                m_hasSynchronousPin = true;
-            }
-            else
-            {
-                m_hasAsynchronousPin = true;
-            }
-        }
-    }
-    lock.unlock();
 
     if( !this->init() )
     {
@@ -732,6 +290,6 @@ bool PipelineElement::run( unsigned int serial )
         return false;
     }
     stopTimer();
-    setState(PLE_STARTED);
+    setState(PLE_DONE);
     return true;
 }

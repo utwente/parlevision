@@ -21,7 +21,10 @@
 
 #include "PinConnection.h"
 #include "Types.h"
-#include "Pin.h"
+#include "IInputPin.h"
+#include "IOutputPin.h"
+#include "PipelineElement.h"
+#include "DynamicInputPin.h"
 
 #include <QStringBuilder>
 #include <QString>
@@ -305,10 +308,12 @@ void PinConnection::peek( unsigned int& serial, bool& isNull ) const
     isNull = d.isNull();
 }
 
-void PinConnection::put( const Data& data )
+void PinConnection::put(const Data& data)
 {
-    QMutexLocker lock( &m_connectionMutex );
-    m_queue.push( data );
+    QMutexLocker lock(&m_connectionMutex);
+    m_queue.push(data);
+    lock.unlock();
+    m_consumer->acceptData(data);
 }
 
 const IOutputPin* PinConnection::fromPin() const

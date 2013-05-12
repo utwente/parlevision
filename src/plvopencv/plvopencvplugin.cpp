@@ -37,6 +37,8 @@
 #include "ForegroundDetector.h"
 #include "Crop.h"
 
+#include <plvcore/PipelineElementFactory.h>
+
 PlvOpenCVPlugin::PlvOpenCVPlugin()
 {
 }

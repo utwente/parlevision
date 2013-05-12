@@ -23,7 +23,7 @@
 #define PLVTESTPRODUCER_H
 
 #include <plvcore/PipelineProducer.h>
-#include <plvcore/Pin.h>
+#include <plvcore/OutputPin.h>
 
 namespace plv
 {

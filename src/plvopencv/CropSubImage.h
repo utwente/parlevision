@@ -23,7 +23,8 @@
 #define CROPSUBIMAGE_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+#include <plvcore/InputPin.h>
+#include <plvcore/OutputPin.h>
 #include <plvcore/Types.h>
 
 namespace plv

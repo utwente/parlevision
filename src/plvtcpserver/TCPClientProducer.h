@@ -23,9 +23,9 @@
 #define TCPCLIENTPRODUCER_H
 
 #include <plvcore/PipelineProducer.h>
-#include <plvcore/Pin.h>
 #include <plvcore/Types.h>
 #include <plvcore/CvMatDataPin.h>
+#include <plvcore/OutputPin.h>
 
 #include <QAbstractSocket>
 

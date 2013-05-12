@@ -1,9 +1,19 @@
-import java.util.Map;
+#include "PipelineConsumer.h"
 
-public abstract class PipelineConsumer extends PipelineElement {
-	
-	public PipelineConsumer() {
-	}
-	
-	public abstract void consume( Map<String, Object> in );
+using namespace plv;
+
+PipelineConsumer::PipelineConsumer()
+{
 }
+
+PipelineConsumer::~PipelineConsumer()
+{
+}
+
+/** implementation for definition in PipelineElement */
+bool PipelineConsumer::requiredInputPinsConnected() const
+{
+    return this->requiredInputPinsConnected();
+}
+
+
