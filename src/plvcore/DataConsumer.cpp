@@ -362,6 +362,12 @@ void DataConsumer::postInput()
 
 void DataConsumer::newData(IInputPin* pin, unsigned int serial)
 {
+    QMutexLocker lock(&m_newDataMutex);
+
+    // TODO remove debug
+    //QString msg = QString("DataConsumer newData (%1):serial: %2").arg(this->getName()).arg(serial);
+    //qDebug() << msg;
+
     assert(getPipeline() != 0);
 
     if( m_hasSynchronousPin )

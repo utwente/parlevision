@@ -1,11 +1,18 @@
 # using parlevision as a shared library
 DEFINES += PLV_SHARED_LIBRARY
 
-OPENCV_PATH = c:/develop/OpenCV-2.4.5/opencv
+win32 {
+    OPENCV_PATH = c:/develop/OpenCV-2.4.5/opencv
+    INCLUDEPATH += $${OPENCV_PATH}/build/include
+}
+
+unix {
+    INCLUDEPATH += /usr/include/opencv
+    INCLUDEPATH += /usr/include/QxtCore
+}
 
 #Include path relative to where source is located
 INCLUDEPATH += ../../include
-INCLUDEPATH += $${OPENCV_PATH}/build/include
 
 #Library path relative to where source is located
 #Do NOT use trailing slashes in the libdir, this will make the linker choke
@@ -82,14 +89,15 @@ win32 {
 
 #Unix specific libraries
 unix {
-    #LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_objdetect  \
-    #        -lopencv_ml -lopencv_features2d -lopencv_objdetect -lopencv_calib3d -lopencv_video
-    #LIBS += -lcv \
-    #            -lcxcore \
-    #            -lcvaux \
-    #            -lhighgui \
-    #            #-lcxts \
-    #            -lml
+    LIBS += -lopencv_core \
+            -lopencv_highgui \
+            -lopencv_imgproc \
+            -lopencv_objdetect  \
+            -lopencv_ml \
+            -lopencv_features2d \
+            -lopencv_objdetect \
+            -lopencv_calib3d \
+            -lopencv_video
 }
 
 macx {

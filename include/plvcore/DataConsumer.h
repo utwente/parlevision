@@ -167,6 +167,9 @@ namespace plv
 
         ScoreBoard m_scoreboard;
 
+        /** mutex to synchronize new data signal */
+        QMutex m_newDataMutex;
+
     signals:
         void inputPinAdded(plv::IInputPin* pin);
         void inputPinRemoved(int id);

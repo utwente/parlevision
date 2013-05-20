@@ -17,6 +17,7 @@ namespace plv
     public:
         virtual PipelineElement* construct() = 0;
         virtual const char* getClassName() const = 0;
+        virtual ~PipelineElementConstructor() {}
     };
 
     class PLVCORE_EXPORT PipelineElementFactory

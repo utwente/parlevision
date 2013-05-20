@@ -318,6 +318,10 @@ bool Pipeline::init()
         }
         initialized.insert(element.getPtr());
     }
+
+    // connect heartbeat to schedule method
+    connect(&m_heartbeat, SIGNAL(timeout()), this, SLOT(schedule()));
+
     return true;
 }
 
@@ -346,6 +350,10 @@ void Pipeline::deinit()
             }
         }
     }
+
+    // disconnect heartbeat
+    m_heartbeat.disconnect();
+    disconnect(this, SLOT(schedule()));
 }
 
 bool Pipeline::isEmpty()
@@ -412,10 +420,10 @@ void Pipeline::start()
         handleMessage(QtWarningMsg, msg);
         return;
     }
-    m_serial = 0;
-    m_pipelineStages.clear();
-    for( int i=0; i < numThreads; ++i )
-        m_pipelineStages.insert(++m_serial, 0);
+    //m_serial = 0;
+    //m_pipelineStages.clear();
+    //for( int i=0; i < numThreads; ++i )
+    //   m_pipelineStages.insert(++m_serial, 0);
 
     bool error = false;
     QMapIterator<int, RefPtr<PipelineElement> > itr( m_children );
@@ -458,9 +466,8 @@ void Pipeline::start()
         return;
     }
 
-    // start the heartbeat at 100Hz
-    connect(&m_heartbeat, SIGNAL(timeout()), this, SLOT(schedule()));
-    m_heartbeat.start(10);
+    // start the heartbeat
+    m_heartbeat.start(0);
 
     m_running = true;
     m_runQueueThreshold = m_processors.size() + m_producers.size() + 1;
@@ -477,8 +484,6 @@ void Pipeline::stop()
 
     // stop the heartbeat
     m_heartbeat.stop();
-    m_heartbeat.disconnect();
-    disconnect(this, SLOT(schedule()));
 
     // stop requested, wait while all processors finish
     // TODO insert a timeout here for elements which will not finish
@@ -512,6 +517,11 @@ void Pipeline::stop()
         assert(!conn->hasData());
     }
 
+    QMutexLocker rqLock(&m_readyQueueMutex);
+    m_readyQueue.clear();
+    rqLock.unlock();
+
+    m_testCount = 0;
     m_running = false;
     lock.unlock();
     emit pipelineStopped();
@@ -535,11 +545,13 @@ void Pipeline::finish()
 void Pipeline::schedule()
 {
     QMutexLocker pleLock(&m_pipelineMutex);
+    //QString msg = QString("upping m_testCount (%1) with one").arg(m_testCount);
+    //qDebug() << msg;
     ++m_testCount;
     assert( m_testCount == 1);
     pleLock.unlock();
 
-    // remove stale entries
+    // remove stale entries from runqueue
     for( int i=0; i<m_runQueue.size(); ++i )
     {
         RunItem runItem = m_runQueue.at(i);
@@ -564,20 +576,30 @@ void Pipeline::schedule()
 
     // dispatch processors
     QMutexLocker rqLock(&m_readyQueueMutex);
-    foreach( RunItem readyItem, m_readyQueue )
+    for( int i=0; i<m_readyQueue.size(); ++i )
     {
+        RunItem readyItem = m_readyQueue.at(i);
         PipelineElement* readyElem = readyItem.getElement();
         if( readyElem->getState() < PipelineElement::PLE_DISPATCHED )
         {
             readyItem.dispatch();
-            m_runQueue.append( readyItem );
-            m_readyQueue.removeFirst();
+            m_runQueue.append(readyItem);
+            m_readyQueue.removeAt(i);
         }
     }
     rqLock.unlock();
 
     // run producers
-    if(true)
+    bool runProducers = false;
+    int max = 0;
+    foreach(RefPtr<PinConnection> conn, m_connections)
+    {
+        max = qMax(conn->size(), max);
+    }
+    if (max < 5) runProducers = true;
+
+
+    if(runProducers)
     {
         bool allReady = true;
 
@@ -680,6 +702,8 @@ void Pipeline::schedule()
 #endif
 
     pleLock.relock();
+    //msg = QString("lowering m_testCount (%1) with one").arg(m_testCount);
+    //qDebug() << msg;
     --m_testCount;
     assert( m_testCount == 0);
     pleLock.unlock();

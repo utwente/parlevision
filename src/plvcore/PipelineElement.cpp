@@ -204,6 +204,7 @@ bool PipelineElement::__deinit() throw()
     QMutexLocker lock(&m_pleMutex);
     m_avgProcessingTime = 0;
     m_lastProcesingTime = 0;
+    m_serial = 0;
     m_errorType = PlvNoError;
     m_errorString = "";
     return true;

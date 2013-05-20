@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "HelloWorldProcessor.h"
+#include "helloworldprocessor.h"
 #include <plvcore/Pin.h>
 #include <plvcore/CvMatData.h>
 #include <plvcore/CvMatDataPin.h>

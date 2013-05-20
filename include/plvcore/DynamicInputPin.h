@@ -35,7 +35,7 @@ namespace plv
         /** @returns the QMetaType typeId of the data type this pin is initialized with */
         virtual int getTypeId() const { return m_typeId; }
 
-        template <typename T> bool setTypeId() { return setTyeId( qMetaTypeId<T>() ); }
+        template <typename T> bool setTypeId() { return setTypeId( qMetaTypeId<T>() ); }
 
         /** sets the type id of this pin. This type id should be a
             valid id with Qt's metatype system, e.g. the value returned
