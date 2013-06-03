@@ -365,8 +365,8 @@ void DataConsumer::newData(IInputPin* pin, unsigned int serial)
     QMutexLocker lock(&m_newDataMutex);
 
     // TODO remove debug
-    //QString msg = QString("DataConsumer newData (%1):serial: %2").arg(this->getName()).arg(serial);
-    //qDebug() << msg;
+    QString msg = QString("DataConsumer newData (%1):serial: %2").arg(this->getName()).arg(serial);
+    qDebug() << msg;
 
     assert(getPipeline() != 0);
 
@@ -386,9 +386,9 @@ void DataConsumer::newData(IInputPin* pin, unsigned int serial)
         // check if row complete for serial
         // fire ready signal for serial
 
-//        qDebug() << QString("Called scoreboard.add on %1 with serial %2")
-//                    .arg(this->getName())
-//                    .arg(serial);
+        qDebug() << QString("Called scoreboard.add on %1 with serial %2")
+                    .arg(this->getName())
+                    .arg(serial);
 
 
         assert( serial > getProcessingSerial() || serial == 0 );

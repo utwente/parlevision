@@ -73,14 +73,14 @@ bool PipelineProcessor::__process( unsigned int serial )
     //assert( serial > getProcessingSerial() || serial == 0 );
 
     // TODO remove debug
-    //unsigned int processingSerial = getProcessingSerial();
-    //QString msg = QString("__process begin => PipelineProcessor(%3):serial: %1 processing serial: %2").arg(serial).arg(processingSerial).arg(this->getName());
-    //qDebug() << msg;
+    unsigned int processingSerial = getProcessingSerial();
+    QString msg = QString("__process begin => PipelineProcessor(%3):serial: %1 processing serial: %2").arg(serial).arg(processingSerial).arg(this->getName());
+    qDebug() << msg;
 
-    assert( serial > getProcessingSerial() || serial == 0 );
-    //if(!(serial > processingSerial || serial == 0)) {
-    //    qDebug() << "HERE!!!!!! ======== <<<<<<<<<<";
-    //}
+    //assert( serial > getProcessingSerial() || serial == 0 );
+    if(!(serial > processingSerial || serial == 0)) {
+        qDebug() << "HERE!!!!!! ======== <<<<<<<<<<";
+    }
 
     // set the serial number
     setProcessingSerial( serial );
@@ -128,9 +128,9 @@ bool PipelineProcessor::__process( unsigned int serial )
         qWarning() << msg;
     }
 
-    //processingSerial = getProcessingSerial();
-    //msg = QString("__process end => PipelineProcessor(%3):serial: %1 processing serial: %2").arg(serial).arg(processingSerial).arg(this->getName());
-    //qDebug() << msg;
+    processingSerial = getProcessingSerial();
+    msg = QString("__process end => PipelineProcessor(%3):serial: %1 processing serial: %2").arg(serial).arg(processingSerial).arg(this->getName());
+    qDebug() << msg;
 
 
     return retval;

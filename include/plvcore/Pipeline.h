@@ -185,7 +185,8 @@ namespace plv
         unsigned int m_serial;
         bool m_running; /** true when pipeline is running */
         mutable QMutex m_readyQueueMutex;
-        QList<RunItem> m_readyQueue;
+        QHash<int, QList<RunItem>* > m_readyQueue;
+        //QList<RunItem> m_readyQueue;
         QList<RunItem> m_runQueue;
         int m_runQueueThreshold;
 

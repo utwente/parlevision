@@ -269,7 +269,9 @@ void Pipeline::pipelineDataConsumerReady(unsigned int serial, DataConsumer *cons
 {
     QMutexLocker lock(&m_readyQueueMutex);
     RunItem item(consumer, serial);
-    m_readyQueue.append(item);
+    int id = consumer->getId();
+    QList<RunItem>* list = m_readyQueue.value(id);
+    list->append(item);
 }
 
 bool Pipeline::init()
@@ -319,6 +321,12 @@ bool Pipeline::init()
         initialized.insert(element.getPtr());
     }
 
+    // init readyQueue
+    foreach(PipelineElement* element, initialized)
+    {
+        m_readyQueue.insert(element->getId(), new QList<RunItem>());
+    }
+
     // connect heartbeat to schedule method
     connect(&m_heartbeat, SIGNAL(timeout()), this, SLOT(schedule()));
 
@@ -349,6 +357,14 @@ void Pipeline::deinit()
                 emit handleMessage( QtWarningMsg, msg );
             }
         }
+    }
+
+    // deinit readyQueue
+    QMutableHashIterator<int, QList<RunItem>*> rqitr(m_readyQueue);
+    while (itr.hasNext()) {
+        rqitr.next();
+        delete rqitr.value();
+        rqitr.remove();
     }
 
     // disconnect heartbeat
@@ -576,17 +592,36 @@ void Pipeline::schedule()
 
     // dispatch processors
     QMutexLocker rqLock(&m_readyQueueMutex);
-    for( int i=0; i<m_readyQueue.size(); ++i )
+
+    foreach( QList<RunItem>* queue, m_readyQueue ) {
+        if (!queue->isEmpty()) {
+            RunItem& item = queue->first();
+            PipelineElement* readyElem = item.getElement();
+            if( readyElem->getState() < PipelineElement::PLE_DISPATCHED )
+            {
+                item.dispatch();
+                m_runQueue.append(item);
+                queue->removeFirst();
+            }
+        }
+    }
+/*
+    for( int i=0; i<m_readyQueue.size() && test; ++i )
     {
         RunItem readyItem = m_readyQueue.at(i);
         PipelineElement* readyElem = readyItem.getElement();
-        if( readyElem->getState() < PipelineElement::PLE_DISPATCHED )
+        if( readyElem->getState() >= PipelineElement::PLE_DISPATCHED )
+        {
+            test = false;
+        }
+        else
         {
             readyItem.dispatch();
             m_runQueue.append(readyItem);
             m_readyQueue.removeAt(i);
         }
     }
+*/
     rqLock.unlock();
 
     // run producers

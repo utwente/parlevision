@@ -46,13 +46,13 @@ namespace plv
         inline int add( int pinId, unsigned int serial )
         {
             Q_UNUSED(pinId);
-            assert( serial > m_base );
+            //assert( serial > m_base );
 
             int count = m_lookup.value(serial, 0);
             if( ++count == m_pincount )
             {
                 m_lookup.remove(serial);
-                m_base = serial;
+                //m_base = serial;
                 return true;
             }
             m_lookup.insert(serial, count);
