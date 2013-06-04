@@ -73,6 +73,16 @@ bool Add::process()
         return false;
     }
 
+    if (in1.cols() != in2.cols() || in1.rows() != in2.rows())
+    {
+        QString msg = tr("Input images are not of the same size. "
+                      "Input 1 has size %1 %2 and input 2 has size %3 %4. " )
+                .arg(in1.cols()).arg(in1.rows())
+                .arg(in2.cols()).arg(in2.rows());
+        setError(PlvPipelineRuntimeError, msg);
+        return false;
+    }
+
     CvMatData out = CvMatData::create(in1.properties());
 
     const cv::Mat& src1 = in1;
