@@ -238,6 +238,8 @@ bool PipelineElement::run( unsigned int serial )
 {
     assert(getState() == PLE_DISPATCHED);
 
+    bool retval = false;
+
     //qDebug() << "PipelineElement::run for object " << this->getName()
     //         << " running in thread " << QThread::currentThread();
 
@@ -246,7 +248,7 @@ bool PipelineElement::run( unsigned int serial )
     try
     {
         // calls implementation (producer or procesor) specific private __process method
-        this->__process( serial );
+        retval = this->__process( serial );
     }
     catch( RuntimeError& re )
     {
@@ -291,6 +293,10 @@ bool PipelineElement::run( unsigned int serial )
         return false;
     }
     stopTimer();
-    setState(PLE_DONE);
-    return true;
+
+    if (getState() != PLE_ERROR)
+    {
+        setState(PLE_DONE);
+    }
+    return retval;
 }
