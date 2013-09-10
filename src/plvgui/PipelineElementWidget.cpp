@@ -62,10 +62,6 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* e,
     //connect(element, SIGNAL(onStateChange(PipelineElement::State)), this, SLOT(onStateChange(PipelineElement::State)));
     connect( element, SIGNAL(onError(PlvErrorType,plv::PipelineElement*)), this, SLOT(onError(PlvErrorType,plv::PipelineElement*)));
     connect( element, SIGNAL(onProcessingTimeUpdate(int,int)), this, SLOT(onProcessingTimeUpdate(int,int)));
-    connect( element, SIGNAL(inputPinAdded(plv::IInputPin*)), this, SLOT(inputPinAdded(plv::IInputPin*)));
-    connect( element, SIGNAL(outputPinAdded(plv::IOutputPin*)), this, SLOT(outputPinAdded(plv::IOutputPin*)));
-    connect( element, SIGNAL(inputPinRemoved(int)), this, SLOT(inputPinRemoved(int)) );
-    connect( element, SIGNAL(outputPinRemoved(int)), this, SLOT(outputPinRemoved(int)) );
 
     titleLabel = new QGraphicsTextItem(element->getName(), this);
     this->addToGroup(titleLabel);
@@ -93,6 +89,9 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* e,
                 this->addInputPin(itr.value());
             }
         }
+
+        connect( element, SIGNAL(inputPinAdded(plv::IInputPin*)), this, SLOT(inputPinAdded(plv::IInputPin*)));
+        connect( element, SIGNAL(inputPinRemoved(int)), this, SLOT(inputPinRemoved(int)) );
     }
 
     if( element->isDataProducer() )
@@ -108,6 +107,9 @@ PipelineElementWidget::PipelineElementWidget(PipelineElement* e,
                 this->addOutputPin(itr.value());
             }
         }
+
+        connect( element, SIGNAL(outputPinAdded(plv::IOutputPin*)), this, SLOT(outputPinAdded(plv::IOutputPin*)));
+        connect( element, SIGNAL(outputPinRemoved(int)), this, SLOT(outputPinRemoved(int)) );
     }
     setFiltersChildEvents(false);
     drawPinsAndInfo();
