@@ -80,6 +80,9 @@ void ConnectionLine::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem* style,
                            QWidget * w)
 {
+    Q_UNUSED(style)
+    Q_UNUSED(w)
+
     const PinCircle* fromCircle = fromPin->getCircle();
     const PinCircle* toCircle = toPin->getCircle();
 

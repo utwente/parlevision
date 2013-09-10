@@ -67,7 +67,7 @@ void ImageWidget::resizeEvent(QResizeEvent * event)
 
 void ImageWidget::paintEvent(QPaintEvent *)
 {
-    QRect rect = this->rect();
+    //QRect rect = this->rect();
     int x,y,w,h;
 
     w = m_image.width() * m_zoomFactor;
