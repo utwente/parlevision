@@ -6,23 +6,32 @@ QString Util::m_buildDate = __DATE__;
 QString Util::m_buildTime = __TIME__;
 QString Util::m_buildType =
 #ifdef DEBUG
-        QString( "debug" );
+        "debug";
 #else
-        QString( "release" );
+        "release";
 #endif
 
-QString Util::m_compilerName = 
 #if defined _MSC_VER
-    QString("MSC version %1").arg(_MSC_VER);
+    // TODO test on actual Windows env
+    QString Util::m_compilerName          =  "MSC";
+    QString fullVersion                   = _MSC_FULL_VER;
+    int Util::m_compilerVersionMajor      = (int) subString(fullVersion, 0, 2);
+    int Util::m_compilerVersionMinor      = (int) subString(fullVersion, 2, 4);
+    int Util::m_compilerVersionPatchLevel = (int) subString(fullVersion, 4);
 #elif defined __GNUC__
-    QString("GCC version %1").arg(__GNUC__);
+    QString Util::m_compilerName = QString("GCC");
+    int Util::m_compilerVersionMajor      = __GNUC__;
+    int Util::m_compilerVersionMinor      = __GNUC_MINOR__;
+    int Util::m_compilerVersionPatchLevel = __GNUC_PATCHLEVEL__;
 #else
-    QString("Unknown");
+    QString Util::m_compilerName = QString("Unknown");
 #endif
 
-QString Util::m_buildInformation = QString("[%1 %2][%3 %4]").arg( m_buildDate )
+QString Util::m_buildInformation = QString("[%1 %2][%3 %4.%5 %6]").arg( m_buildDate )
                                                             .arg( m_buildTime )
                                                             .arg( m_compilerName )
+                                                            .arg( m_compilerVersionMajor )
+                                                            .arg( m_compilerVersionMinor )
                                                             .arg( m_buildType );
 
 void Util::addDefaultBorderInterpolationTypes( plv::Enum& e )
