@@ -96,6 +96,7 @@ QString VideoProducer::getDirectory()
 
 bool VideoProducer::validateExtension(const QString& filename)
 {
+    // TODO
     return true;
 }
 
