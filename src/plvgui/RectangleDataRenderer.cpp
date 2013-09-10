@@ -53,6 +53,8 @@ RectangleDataRenderer::~RectangleDataRenderer()
 
 void RectangleDataRenderer::newData( unsigned int serial, const QVariant data )
 {
+    Q_UNUSED(serial)
+
     if( !data.canConvert<plv::RectangleData>() )
         return;
 
