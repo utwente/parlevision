@@ -27,12 +27,18 @@ QString Util::m_buildType =
     QString Util::m_compilerName = QString("Unknown");
 #endif
 
-QString Util::m_buildInformation = QString("[%1 %2][%3 %4.%5 %6]").arg( m_buildDate )
-                                                            .arg( m_buildTime )
-                                                            .arg( m_compilerName )
-                                                            .arg( m_compilerVersionMajor )
-                                                            .arg( m_compilerVersionMinor )
-                                                            .arg( m_buildType );
+QString Util::m_compilerVersion = QString("%1.%2.%3")
+        .arg(m_compilerVersionMajor)
+        .arg(m_compilerVersionMinor)
+        .arg(m_compilerVersionPatchLevel);
+
+QString Util::m_buildInformation = QString("[%1 %2][%3 %4.%5 %6]")
+        .arg( m_buildDate )
+        .arg( m_buildTime )
+        .arg( m_compilerName )
+        .arg( m_compilerVersionMajor )
+        .arg( m_compilerVersionMinor )
+        .arg( m_buildType );
 
 void Util::addDefaultBorderInterpolationTypes( plv::Enum& e )
 {

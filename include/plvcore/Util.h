@@ -28,6 +28,8 @@ namespace plv
         static const QString& getBuildTime() { return m_buildTime; }
         static const QString& getBuildType() { return m_buildType; }
         static const QString& getCompilerName() { return m_compilerName; }
+        static const QString& getCompilerVersion() { return m_compilerVersion; }
+
         static int getCompilerVersionMajor() { return m_compilerVersionMajor; }
         static int getCompilerVersionMinor() { return m_compilerVersionMinor; }
         static int getCompilerVersionPatchLevel() { return m_compilerVersionPatchLevel; }
@@ -38,6 +40,7 @@ namespace plv
         static QString m_buildTime;
         static QString m_buildType;
         static QString m_compilerName;
+        static QString m_compilerVersion;
         static int m_compilerVersionMajor;
         static int m_compilerVersionMinor;
         static int m_compilerVersionPatchLevel;

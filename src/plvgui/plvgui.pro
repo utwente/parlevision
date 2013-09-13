@@ -63,7 +63,8 @@ SOURCES += \
     ElementConfigFormBuilder.cpp \
     ImageWidget.cpp \
     LogWidget.cpp \
-    utils.cpp
+    utils.cpp \
+    AboutDialog.cpp
 
 HEADERS += \
     ../../include/plvgui/utils.h \
@@ -90,14 +91,16 @@ HEADERS += \
     ../../include/plvgui/ImageWidget.h \
     ../../include/plvgui/LogWidget.h \
     ../../include/plvgui/Exceptions.h \
-    ../../include/plvgui/plvgui_global.h
+    ../../include/plvgui/plvgui_global.h \
+    ../../include/plvgui/AboutDialog.h
 
 FORMS += ../../resources/mainwindow.ui \
     ../../resources/librarywidget.ui \
     ../../resources/inspectorwidget.ui \
     ../../resources/viewerwidget.ui \
     ../../resources/cameraconfigform.ui \
-    ../../resources/welcome.ui
+    ../../resources/welcome.ui \
+    ../../resources/aboutdialog.ui
 
 RESOURCES += ../../resources/icons.qrc \
             ../../resources/images.qrc

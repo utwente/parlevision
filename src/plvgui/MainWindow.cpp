@@ -37,6 +37,7 @@
 #include <plvgui/RectangleDataRenderer.h>
 #include <plvgui/VariantDataRenderer.h>
 #include <plvgui/LogWidget.h>
+#include <plvgui/AboutDialog.h>
 
 #include <plvcore/Application.h>
 #include <plvcore/Pipeline.h>
@@ -626,7 +627,7 @@ void plvgui::MainWindow::on_actionExit_triggered()
     if( m_documentChanged )
     {
         offerToSave();
-    }
+    }void
     closePipeline();
     QApplication::exit();
 }
@@ -780,4 +781,29 @@ void MainWindow::updateWindowTitle()
         title += "*";
     }
     setWindowTitle(title);
+}
+
+void MainWindow::on_actionAbout_ParleVision_triggered()
+{
+    AboutDialog about;
+
+    const QString& buildDate = Util::getBuildDate();
+    const QString& compiler  = Util::getCompilerName();
+    const QString& compilerVersion = Util::getCompilerVersion();
+    const QString& buildType = Util::getBuildType();
+
+    QString text = tr("ParleVision, a graphical pipeline editor for rapid prototyping of computer vision applications \n"
+                      "Version 5 \n"
+                      "Compiled with %1 version %2 on %3 \n"
+                      "Build type is %4.")
+            .arg(compiler)
+            .arg(compilerVersion)
+            .arg(buildDate)
+            .arg(buildType);
+
+    //QString text = "test";
+
+    about.setText(text);
+    about.setModal(true);
+    about.exec();
 }

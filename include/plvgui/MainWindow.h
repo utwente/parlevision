@@ -129,6 +129,7 @@ namespace plvgui
         void on_actionClosePipeline_triggered();
         void on_actionExit_triggered();
         void sceneSelectionChanged();
+        void on_actionAbout_ParleVision_triggered();
 
         void pipelineStarted();
         void pipelineStopped();
