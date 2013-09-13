@@ -75,11 +75,11 @@ public:
 
     virtual bool isReadyForProcessing() const;
 
-    virtual void inputConnectionSet(plv::IInputPin* pin, plv::PinConnection* connection);
-    virtual void inputConnectionRemoved(plv::IInputPin* pin, plv::PinConnection* connection);
+    virtual void onInputConnectionSet(plv::IInputPin* pin, plv::PinConnection* connection);
+    virtual void onInputConnectionRemoved(plv::IInputPin* pin, plv::PinConnection* connection);
 
-    virtual void outputConnectionAdded(plv::IOutputPin* pin, plv::PinConnection* connection);
-    virtual void outputConnectionRemoved(plv::IOutputPin* pin, plv::PinConnection* connection);
+    virtual void onOutputConnectionAdded(plv::IOutputPin* pin, plv::PinConnection* connection);
+    virtual void onOutputConnectionRemoved(plv::IOutputPin* pin, plv::PinConnection* connection);
 
 signals:
     void portChanged(int port);

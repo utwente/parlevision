@@ -209,9 +209,10 @@ bool TCPClientProducer::produce()
     QSet<QString> taken;
     foreach( const QVariant& v, frame )
     {
+        const plv::OutputPinMap& outputPins = this->getOutputPins();
         bool matched = false;
-        for( plv::OutputPinMap::const_iterator itr = m_outputPins.begin();
-            itr != m_outputPins.end() && !matched; ++itr )
+        for( plv::OutputPinMap::const_iterator itr = outputPins.begin();
+            itr != outputPins.end() && !matched; ++itr )
         {
             plv::RefPtr<plv::IOutputPin> out = itr.value();
             if( !taken.contains(out->getName()) )

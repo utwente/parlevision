@@ -105,7 +105,7 @@ bool TCPServerProcessor::isReadyForProcessing() const
     return !m_waiting;
 }
 
-void TCPServerProcessor::inputConnectionSet(plv::IInputPin* pin, plv::PinConnection* connection)
+void TCPServerProcessor::onInputConnectionSet(plv::IInputPin* pin, plv::PinConnection* connection)
 {
     QString name = pin->getName();
     QString otherName = connection->fromPin()->getName();
@@ -120,7 +120,7 @@ void TCPServerProcessor::inputConnectionSet(plv::IInputPin* pin, plv::PinConnect
     plv::createDynamicInputPin( "generic pin", this, plv::IInputPin::CONNECTION_OPTIONAL );
 }
 
-void TCPServerProcessor::inputConnectionRemoved(plv::IInputPin* pin, plv::PinConnection* connection)
+void TCPServerProcessor::onInputConnectionRemoved(plv::IInputPin* pin, plv::PinConnection* connection)
 {
     QString name = pin->getName();
     QString otherName = connection->fromPin()->getName();
@@ -132,7 +132,7 @@ void TCPServerProcessor::inputConnectionRemoved(plv::IInputPin* pin, plv::PinCon
     removeInputPin(pin->getId());
 }
 
-void TCPServerProcessor::outputConnectionAdded(plv::IOutputPin* pin, plv::PinConnection* connection)
+void TCPServerProcessor::onOutputConnectionAdded(plv::IOutputPin* pin, plv::PinConnection* connection)
 {
     QString name = pin->getName();
     QString otherName = connection->toPin()->getName();
@@ -143,7 +143,7 @@ void TCPServerProcessor::outputConnectionAdded(plv::IOutputPin* pin, plv::PinCon
     qDebug() << msg;
 }
 
-void TCPServerProcessor::outputConnectionRemoved(plv::IOutputPin* pin, plv::PinConnection* connection)
+void TCPServerProcessor::onOutputConnectionRemoved(plv::IOutputPin* pin, plv::PinConnection* connection)
 {
     QString name = pin->getName();
     QString otherName = connection->toPin()->getName();

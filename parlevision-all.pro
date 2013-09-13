@@ -6,13 +6,13 @@ SUBDIRS =   src/plvcore \
             src/plvgui \
             src/parlevision \
             src/plvopencv \
-#            src/plvblobtracker \
-#            src/plvtcpserver \
+            src/plvblobtracker \
+            src/plvtcpserver \
             src/plvtest \
-#            src/plvpluginexample
+            src/plvpluginexample
 
 win32-msvc2010 {
-#    SUBDIRS += src/plvmskinect
+    #SUBDIRS += src/plvmskinect
 }
 
 CONFIG += ordered
