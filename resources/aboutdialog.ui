@@ -94,7 +94,6 @@
   <zorder>logoLabel</zorder>
   <zorder>textLabel</zorder>
   <zorder>logoLabel</zorder>
-  <zorder>pushButton_2</zorder>
  </widget>
  <resources>
   <include location="images.qrc"/>
