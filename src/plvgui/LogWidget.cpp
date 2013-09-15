@@ -6,7 +6,7 @@
 
 using namespace plvgui;
 
-LogWidget::LogWidget(const QString& title, QWidget *parent) :
+LogWidget::LogWidget(const QString& title, QWidget *parent, int maxLogLength) :
     QDockWidget(title, parent),
     QxtLoggerEngine(),
     m_textEdit(new QTextEdit(this)),
@@ -17,6 +17,8 @@ LogWidget::LogWidget(const QString& title, QWidget *parent) :
     m_textEdit->setReadOnly(true);
     this->setWidget(m_textEdit);
     qxtLog->addLoggerEngine("plvgui", this);
+
+    m_textEdit->document()->setMaximumBlockCount(maxLogLength);
 }
 
 LogWidget::~LogWidget()
@@ -55,4 +57,3 @@ void LogWidget::writeFormatted(QxtLogger::LogLevel level, const QList<QVariant>&
     }
     m_textEdit->append(message);
 }
-

@@ -4,7 +4,7 @@
 #include <QDockWidget>
 #include <QxtLoggerEngine>
 
-QT_FORWARD_DECLARE_CLASS(QTextEdit);
+QT_FORWARD_DECLARE_CLASS(QTextEdit)
 
 namespace plvgui
 {
@@ -13,7 +13,7 @@ namespace plvgui
     {
         Q_OBJECT
     public:
-        explicit LogWidget(const QString& title, QWidget *parent = 0);
+        explicit LogWidget(const QString& title, QWidget *parent = 0, int maxLogLength = 1000);
         virtual ~LogWidget();
 
         virtual void initLoggerEngine();
