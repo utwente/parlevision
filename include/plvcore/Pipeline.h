@@ -184,12 +184,17 @@ namespace plv
         //QThreadEx m_pipelineThread;
         unsigned int m_serial;
         bool m_running; /** true when pipeline is running */
-        mutable QMutex m_readyQueueMutex;
-        QHash<int, QList<RunItem>* > m_readyQueue;
-        //QList<RunItem> m_readyQueue;
-        QList<RunItem> m_runQueue;
-        int m_runQueueThreshold;
 
+        /** holds the runitems ready to be dispatched sorted by processor id
+            can be accessed by running processors and pipeline scheduling so
+            protected by the readyQueueMutex */
+        QHash<int, QList<RunItem>* > m_readyQueue;
+        mutable QMutex m_readyQueueMutex;
+
+        /** holds the runitems currently dispatched ordered by id*/
+        QHash<int, RunItem> m_runQueue;
+
+        int m_runQueueThreshold;
         QTimer m_heartbeat;
         bool m_stepwise;
         bool m_producersReady;

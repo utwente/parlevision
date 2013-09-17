@@ -503,16 +503,20 @@ void Pipeline::stop()
 
     // stop requested, wait while all processors finish
     // TODO insert a timeout here for elements which will not finish
+    QMutableHashIterator<int, RunItem> i(m_runQueue);
     while( m_runQueue.size() != 0 )
     {
-        for( int i=0; i<m_runQueue.size(); ++i )
+        while(i.hasNext())
         {
-            PipelineElement* element = m_runQueue.at(i).getElement();
+            i.next();
+            RunItem item = i.value();
+            PipelineElement* element = item.getElement();
+
             PipelineElement::State state = element->getState();
             if( state == PipelineElement::PLE_DONE ||
                 state == PipelineElement::PLE_ERROR )
             {
-                m_runQueue.removeAt(i);
+                i.remove();
                 element->setState(PipelineElement::PLE_STARTED);
             }
         }
@@ -568,13 +572,15 @@ void Pipeline::schedule()
     pleLock.unlock();
 
     // remove stale entries from runqueue
-    for( int i=0; i<m_runQueue.size(); ++i )
+    QMutableHashIterator<int, RunItem> i(m_runQueue);
+    while(i.hasNext())
     {
-        RunItem runItem = m_runQueue.at(i);
+        i.next();
+        RunItem& runItem = i.value();
+
         QFuture<bool> future = runItem.getFuture();
         if( future.isFinished() )
         {
-            m_runQueue.removeAt(i);
             bool result = future.result();
             if( !result )
             {
@@ -587,6 +593,7 @@ void Pipeline::schedule()
                 return;
             }
             runItem.getElement()->setState(PipelineElement::PLE_STARTED);
+            i.remove();
         }
     }
 
@@ -597,31 +604,16 @@ void Pipeline::schedule()
         if (!queue->isEmpty()) {
             RunItem& item = queue->first();
             PipelineElement* readyElem = item.getElement();
-            if( readyElem->getState() < PipelineElement::PLE_DISPATCHED )
+            if (!m_runQueue.contains(readyElem->getId()))
             {
+                assert(readyElem->getState() < PipelineElement::PLE_DISPATCHED);
                 item.dispatch();
-                m_runQueue.append(item);
+                m_runQueue.insert(readyElem->getId(), item);
                 queue->removeFirst();
             }
         }
     }
-/*
-    for( int i=0; i<m_readyQueue.size() && test; ++i )
-    {
-        RunItem readyItem = m_readyQueue.at(i);
-        PipelineElement* readyElem = readyItem.getElement();
-        if( readyElem->getState() >= PipelineElement::PLE_DISPATCHED )
-        {
-            test = false;
-        }
-        else
-        {
-            readyItem.dispatch();
-            m_runQueue.append(readyItem);
-            m_readyQueue.removeAt(i);
-        }
-    }
-*/
+
     rqLock.unlock();
 
     // run producers
@@ -652,7 +644,7 @@ void Pipeline::schedule()
             {
                 RunItem item( producer, m_serial );
                 item.dispatch();
-                m_runQueue.append( item );
+                m_runQueue.insert(producer->getId(), item);
             }
 
             // unsigned int will wrap around
