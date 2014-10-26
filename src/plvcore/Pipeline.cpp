@@ -503,13 +503,13 @@ void Pipeline::stop()
 
     // stop requested, wait while all processors finish
     // TODO insert a timeout here for elements which will not finish
-    QMutableHashIterator<int, RunItem> i(m_runQueue);
     while( m_runQueue.size() != 0 )
     {
+        QMutableHashIterator<int, RunItem> i(m_runQueue);
         while(i.hasNext())
         {
             i.next();
-            RunItem item = i.value();
+            RunItem& item = i.value();
             PipelineElement* element = item.getElement();
 
             PipelineElement::State state = element->getState();
