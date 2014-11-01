@@ -23,6 +23,7 @@ LogWidget::LogWidget(const QString& title, QWidget *parent, int maxLogLength) :
 
 LogWidget::~LogWidget()
 {
+    qxtLog->removeLoggerEngine(this);
 }
 
 void LogWidget::initLoggerEngine()
